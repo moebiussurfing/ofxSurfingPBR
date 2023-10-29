@@ -1,13 +1,19 @@
 ## Overview
-**ofxSurfingPBR** is an addon for openFrameworks to easily test and use the new PBR features from the new **OF 0.12+** releases.  
+**ofxSurfingPBR** is a WIP addon for openFrameworks to easily testing, learn, and use the new PBR features from the new **OF 0.12+** releases.  
 (You should use the GitHub master branch.)
 
 ## Screenshot
 ![](example_PBR/Capture.png)
 
 ## Features
+- Two ready-to-use materials:
+  - floor (for the shadows) and other objects.
+- A light.
+- Persistent settings.
+- Easy to pass a local camera and draw your scene.
 
 ## Usage
+Look at the example.
 
 ## Dependencies
 * [ofxSurfingHelpers](https://github.com/moebiussurfing/ofxSurfingHelpers) / Only for the example  
