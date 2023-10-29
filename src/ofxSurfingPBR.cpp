@@ -41,7 +41,7 @@ void ofxSurfingPBR::setup() {
 
 	parameters.setName("PBR_Scene");
 
-	planeParams.setName("Plane");
+	planeParams.setName("Floor Plane");
 	planeTransform.setName("Transform");
 	bDrawPlane.set("Plane Draw", true);
 	planeSz.set("Size", glm::vec2(0.8f, 0.8f), glm::vec2(0, 0), glm::vec2(1, 1));
@@ -71,7 +71,7 @@ void ofxSurfingPBR::setup() {
 
 	parameters.add(planeParams);
 
-	lightParams.setName("Lights");
+	lightParams.setName("Light");
 	float u = SURFING__SZ_UNIT;
 	lightParams.add(x.set("X", 0.0f, -1 * u, 1 * u));
 	lightParams.add(y.set("Y", 0.0f, -1 * u, 1 * u));

@@ -2,8 +2,10 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
+#ifdef OF_APP_DEFINED_ofxSurfingHelpers
 	ofxSurfingHelpers::setWindowTitleAsProjectName();
 	ofxSurfingHelpers::setMonitorsLayout(0, false, true);
+#endif
 
 	pbr.setup();
 	pbr.setCameraPtr(&camera);
@@ -25,12 +27,11 @@ void ofApp::draw() {
 }
 
 //--------------------------------------------------------------
-void ofApp::renderScene()
-{
-	// plane
+void ofApp::renderScene() {
+	// floor plane
 	pbr.drawPlane();
 
-	// object
+	// objects
 	pbr.beginMaterial();
 	{
 		ofDrawBox(120, 80, 0, 100);

@@ -1,5 +1,28 @@
 /*
 
+	All this code is hardly based on the OF forum topic: 
+	https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19
+	authors: @NickHardeman and @Paolo
+
+
+	This class have two materials ready to use.
+	One for the plane/floor were the shadows are drawn.
+	The other material is to be used to apply a material to a single 3d object/mesh.
+	There's a commented code for using a custom shader.
+
+
+	TODO:
+	- make a scene manager allowing to queue many materials and lights on a std::vector.
+	- allow change plane/floor colors. or use a full custom material.
+	- add ImGui.
+	- add presets manager and randomizer to explore and save materials.
+	- add example with an imported 3d object.
+
+*/
+
+
+/*
+
 	EXAMPLE
 
 	void ofApp::setup() {
