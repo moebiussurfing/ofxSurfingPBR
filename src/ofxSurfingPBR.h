@@ -74,13 +74,6 @@ public:
 	void drawPlane();
 	void drawGui();
 	void exit();
-	
-	const ofRectangle getGuiShape() {
-		auto r1= material.gui.getShape();
-		auto r2= gui.getShape();
-		ofRectangle bb = r1.getUnion(r2);
-		return bb;
-	};
 
 private:
 	void setupParams();
@@ -160,6 +153,13 @@ private:
 
 public:
 	ofxPanel gui;
+
+	const ofRectangle getGuiShape() {
+		auto r1 = material.gui.getShape();
+		auto r2 = gui.getShape();
+		ofRectangle bb = r1.getUnion(r2);
+		return bb;
+	};
 
 	//--
 
