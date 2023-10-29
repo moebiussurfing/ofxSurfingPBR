@@ -3,7 +3,7 @@ A WIP addon for openFrameworks to easily test, learn, and use the new PBR featur
 
 All this code is copied from and hardly based on the OF forum topic:  
 https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
-Original authors: @NickHardeman and @Paolo  
+Original authors: @NickHardeman and @Paolo.  
 
 ## Screenshot
 ![](example_PBR/Capture.png)
