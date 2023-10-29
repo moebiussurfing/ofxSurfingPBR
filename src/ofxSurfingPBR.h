@@ -71,6 +71,7 @@ public:
 public:
 	void setup();
 	void draw();
+	void drawPlane();
 	void drawGui();
 	void exit();
 	
@@ -102,7 +103,6 @@ private:
 
 	vector<shared_ptr<ofLight>> lights;
 
-public:
 	ofPlanePrimitive plane;
 
 	ofParameter<glm::vec2> planeSz;
@@ -117,7 +117,6 @@ public:
 
 	ofParameter<void> resetPlane;
 	void doResetPlane();
-	void drawPlane();
 
 private:
 	ofMaterial materialPlane;
@@ -171,7 +170,9 @@ public:
 	void beginMaterialPlane();
 	void endMaterialPlane();
 
+private:
 	callback_t function_RenderScene = nullptr;
+public:
 	void setFunction_renderScene(callback_t f = nullptr) {
 		function_RenderScene = f;
 	};
@@ -191,6 +192,6 @@ public:
 	void setupCubeMap();
 	void loadCubeMap(string path = "");
 	void doResetcubeMap();
-
 #endif
+
 };
