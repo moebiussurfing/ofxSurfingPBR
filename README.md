@@ -1,6 +1,10 @@
 ## Overview
 **ofxSurfingPBR** is a WIP addon for openFrameworks to easily testing, learn, and use the new PBR features from the new **OF 0.12+** releases.  
-(You should use the GitHub master branch.)
+(You should use the GitHub master branch.)  
+
+	All this code is hardly based on the OF forum topic: 
+	https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19
+	authors: @NickHardeman and @Paolo
 
 ## Screenshot
 ![](example_PBR/Capture.png)
