@@ -27,9 +27,11 @@
 
 	void ofApp::setup() {
 		pbr.setup();
+
+		// pass the local camera
 		pbr.setCameraPtr(&camera);
 
-		// render scene
+		// pass the render scene function
 		callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
 		pbr.setFunction_renderScene(myFunctionDraw);
 	}
@@ -146,6 +148,7 @@ private:
 
 	SurfingMaterial material;
 
+public:
 	ofxPanel gui;
 
 	//--

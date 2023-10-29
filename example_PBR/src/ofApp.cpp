@@ -7,6 +7,8 @@ void ofApp::setup() {
 	ofxSurfingHelpers::setMonitorsLayout(0, false, true);
 #endif
 
+	//--
+
 	pbr.setup();
 	pbr.setCameraPtr(&camera);
 

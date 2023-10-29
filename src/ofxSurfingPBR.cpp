@@ -51,7 +51,7 @@ void ofxSurfingPBR::setup() {
 	planeShiness.set("Shiness", 0.85, 0, 1);
 	planeSpecular.set("Specular", 1, 0, 1);
 	planeParams.add(bDrawPlane);
-	planeParams.add(wireframe.set("Wireframe", true));
+	planeParams.add(wireframe.set("Wireframe", false));
 	planeTransform.add(planeSz);
 	planeTransform.add(planeRot);
 	planeTransform.add(planePos);
