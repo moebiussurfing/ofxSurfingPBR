@@ -1,6 +1,6 @@
 /*
 
-	All this code is hardly based on the OF forum topic: 
+	All this code is copied and/or hardly based on the OF forum topic: 
 	https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19
 	authors: @NickHardeman and @Paolo
 
@@ -13,7 +13,6 @@
 
 	TODO:
 	- make a scene manager allowing to queue many materials and lights on a std::vector.
-	- allow change plane/floor colors. or use a full custom material.
 	- add ImGui.
 	- add presets manager and randomizer to explore and save materials.
 	- add example with an imported 3d object.
