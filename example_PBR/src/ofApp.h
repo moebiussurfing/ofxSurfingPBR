@@ -12,6 +12,8 @@ public:
 	void keyPressed(int key);
 	void exit();
 
+	void drawMyScene();
+
 	ofEasyCam camera;
 	ofxSurfingPBR pbr;
 	void renderScene();

@@ -3,7 +3,8 @@
 
 #include "ofxGui.h"
 
-//#define SURFING__USE_DISPLACE // enable to test custom shader and displacement
+//#define SURFING__USE_DISPLACE 
+// TODO/WIP enable to test custom shader and displacement
 
 #define SURFING__SZ_UNIT 1000
 
@@ -21,6 +22,7 @@ public:
 	void end();
 
 	void doResetMaterial();
+	void doRandomMaterial();
 
 private:
 	void setupGui();
@@ -28,12 +30,15 @@ private:
 	void update();
 	void update(ofEventArgs & args);
 
-	string path = "material.xml";
+	string path = "material.json";
 
 	ofMaterial material;
 
 public:
 	ofParameterGroup parameters;
+	ofParameterGroup colorParams;
+	ofParameterGroup settingsParams;
+	ofParameterGroup coatParams;
 
 #ifdef SURFING__USE_DISPLACE
 	ofPlanePrimitive plane;
@@ -57,19 +62,22 @@ public:
 	ofParameter<ofFloatColor> specularColor;
 	ofParameter<ofFloatColor> ambientColor;
 	ofParameter<ofFloatColor> emissiveColor;
+	ofParameter<void> randomColors;
+	void doRandomColors();
 
 	ofParameter<float> shininess;
 	ofParameter<float> metallic;
 	ofParameter<float> reflectance;
 	ofParameter<float> roughness;
+	ofParameter<void> randomSettings;
+	void doRandomSettings();
 
 	ofParameter<float> clearCoatRoughness;
 	ofParameter<float> clearCoatStrength;
 	ofParameter<bool> clearCoat;
 	
-	ofParameter<void> resetMaterial{
-		"Reset material"
-	};
+	ofParameter<void> resetMaterial;
+	ofParameter<void> randomMaterial;
 	
 	ofxPanel gui;
 };

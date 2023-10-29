@@ -4,7 +4,7 @@
 void ofApp::setup() {
 #ifdef OF_APP_DEFINED_ofxSurfingHelpers
 	ofxSurfingHelpers::setWindowTitleAsProjectName();
-	ofxSurfingHelpers::setMonitorsLayout(0, false, true);
+	ofxSurfingHelpers::setMonitorsLayout(-1, false, true);
 #endif
 
 	//--
@@ -36,17 +36,27 @@ void ofApp::renderScene() {
 	// objects
 	pbr.beginMaterial();
 	{
-		ofDrawBox(120, 80, 0, 100);
-
-		ofPushMatrix();
-		static float spd = 240;
-		ofRotateYDeg(359.f * (ofGetFrameNum() % (int)spd) / spd);
-		ofDrawBox(0, 0, 0, 100);
-		ofPopMatrix();
-
-		ofDrawBox(-120, 80, 0, 100);
+		drawMyScene();
 	}
 	pbr.endMaterial();
+}
+
+//--------------------------------------------------------------
+void ofApp::drawMyScene() {
+
+	ofPushMatrix();
+	ofTranslate(-200, 100, 0);
+	ofRotateXDeg(180);
+	ofDrawCone(0,0,0, 65, 100);
+	ofPopMatrix();
+
+	ofPushMatrix();
+	static float spd = 240;
+	ofRotateYDeg(360.f * (ofGetFrameNum() % (int)spd) / spd);
+	ofDrawBox(0, 100, 0, 100);
+	ofPopMatrix();
+
+	ofDrawSphere(200, 100, 0, 50);
 }
 
 //--------------------------------------------------------------

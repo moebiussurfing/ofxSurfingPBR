@@ -20,7 +20,6 @@
 
 */
 
-
 /*
 
 	EXAMPLE
@@ -51,9 +50,13 @@
 
 */
 
+//--
 
 #pragma once
 #include "ofMain.h"
+
+// OPTIONAL
+#define SURFING__USE_CUBE_MAP
 
 #include "SurfingMaterial.h"
 #include "ofxGui.h"
@@ -61,8 +64,7 @@
 #include <functional>
 using callback_t = std::function<void()>;
 
-class ofxSurfingPBR
-{
+class ofxSurfingPBR {
 public:
 	ofxSurfingPBR();
 	~ofxSurfingPBR();
@@ -72,8 +74,16 @@ public:
 	void draw();
 	void drawGui();
 	void exit();
+	
+	const ofRectangle getGuiShape() {
+		auto r1= material.gui.getShape();
+		auto r2= gui.getShape();
+		ofRectangle bb = r1.getUnion(r2);
+		return bb;
+	};
 
 private:
+	void setupParams();
 	void setupGui();
 	void update();
 	void update(ofEventArgs & args);
@@ -81,7 +91,7 @@ private:
 	void Changed(ofAbstractParameter & e);
 
 private:
-	string path = "scene.xml";
+	string path = "scene.json";
 
 public:
 	void setCameraPtr(ofCamera * camera_) {
@@ -95,17 +105,18 @@ private:
 
 public:
 	ofPlanePrimitive plane;
+
 	ofParameter<glm::vec2> planeSz;
 	ofParameter<bool> bDrawPlane;
 	ofParameter<bool> wireframe;
 	ofParameter<float> planeRot;
 	ofParameter<float> planePos;
-	ofParameter<float> planeDiffuse;
 	ofParameter<float> planeShiness;
-	ofParameter<float> planeSpecular;
-	ofParameter<void> resetPlane {
-		"Reset plane"
-	};
+	ofParameter<ofFloatColor> planeDiffuseColor;
+	ofParameter<ofFloatColor> planeSpecularColor;
+	ofParameterGroup planeSettingsParams;
+
+	ofParameter<void> resetPlane;
 	void doResetPlane();
 	void drawPlane();
 
@@ -118,6 +129,7 @@ private:
 private:
 	ofShader shader;
 	ofFloatImage img;
+
 private:
 	ofParameter<float> noiseAmplitude;
 	ofParameter<float> noiseScale;
@@ -126,25 +138,25 @@ private:
 
 private:
 	ofParameterGroup lightParams;
-	ofParameter<float> x;
-	ofParameter<float> y;
-	ofParameter<float> z;
-	ofParameter<void> resetLights{
-		"Reset lights"
-	};
-	void doResetLights();
+	ofParameter<float> lightX;
+	ofParameter<float> lightY;
+	ofParameter<float> lightZ;
+	ofParameter<void> resetLight;
+	void doResetLight();
 
 	ofParameterGroup shadowParams;
 	ofParameter<float> shadowBias;
-	ofParameter<bool> bDebug;
 	ofParameter<float> shadowNormalBias;
 	ofParameter<bool> bEnableShadow;
-	ofParameter<void> resetShadow{
-		"Reset shadow"
-	};
+	ofParameter<void> resetShadow;
 	void doResetShadow();
 
+	ofParameter<bool> bDebug;
+
 	ofParameterGroup parameters;
+	
+	ofParameter<void> resetAll;
+	void doResetAll();
 
 	SurfingMaterial material;
 
@@ -164,4 +176,22 @@ public:
 	void setFunction_renderScene(callback_t f = nullptr) {
 		function_RenderScene = f;
 	};
+
+	//--
+
+#ifdef SURFING__USE_CUBE_MAP
+	string path_Cubemaps = "cubemaps";
+	string path_CubemapFilename = "modern_buildings_2_1k.exr";
+	ofCubeMap cubeMap;
+	ofParameterGroup cubeMapParams;
+	ofParameter<int> cubeMapMode;
+	ofParameter<float> cubeMapprefilterRoughness;
+	ofParameter<bool> bDrawCubeMap;
+	ofParameter<void> openCubeMap;//TODO
+	ofParameter<void> resetCubeMap;
+	void setupCubeMap();
+	void loadCubeMap(string path = "");
+	void doResetcubeMap();
+
+#endif
 };

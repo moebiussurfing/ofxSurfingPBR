@@ -12,15 +12,12 @@ SurfingMaterial::~SurfingMaterial() {
 }
 
 //--------------------------------------------------------------
-void SurfingMaterial::setupGui() {
-	gui.setup(parameters);
-	gui.loadFromFile(path);
-}
-
-//--------------------------------------------------------------
 void SurfingMaterial::setup() {
 
 	parameters.setName("PBR_Material");
+	colorParams.setName("Colors");
+	settingsParams.setName("Settings");
+	coatParams.setName("Coat");
 
 #ifdef SURFING__USE_DISPLACE
 	planeParams.add(useMaterial.set("Use Material", true));
@@ -34,21 +31,27 @@ void SurfingMaterial::setup() {
 	parameters.add(normalGeomToNormalMapMix.set("Normal Geom To Normal Map Mix", 0.0, 0.0, 1.0));
 #endif
 
-	parameters.add(shininess.set("Shininess", 0.0, 0.0, 1.0));
-	parameters.add(roughness.set("Roughness", 0.0, 0.0, 1.0));
-	parameters.add(metallic.set("Metallic", 0.0, 0.0, 1.0));
-	parameters.add(reflectance.set("Reflectance", 0.0, 0.0, 1.0));
+	settingsParams.add(shininess.set("Shininess", 0.0, 0.0, 1.0));
+	settingsParams.add(roughness.set("Roughness", 0.0, 0.0, 1.0));
+	settingsParams.add(metallic.set("Metallic", 0.0, 0.0, 1.0));
+	settingsParams.add(reflectance.set("Reflectance", 0.0, 0.0, 1.0));
+	settingsParams.add(randomSettings.set("Random Settings"));
+	parameters.add(settingsParams);
 
-	parameters.add(ambientColor.set("Ambient Color", ofColor::white));
-	parameters.add(specularColor.set("Specular Color", ofColor::white));
-	parameters.add(diffuseColor.set("Diffuse Color", ofColor::white));
-	parameters.add(emissiveColor.set("Emissive Color", ofColor::white));
+	colorParams.add(ambientColor.set("Ambient Color", ofColor::white));
+	colorParams.add(specularColor.set("Specular Color", ofColor::white));
+	colorParams.add(diffuseColor.set("Diffuse Color", ofColor::white));
+	colorParams.add(emissiveColor.set("Emissive Color", ofColor::white));
+	colorParams.add(randomColors.set("Random Colors"));
+	parameters.add(colorParams);
 
-	parameters.add(clearCoat.set("Clear Coat", false));
-	parameters.add(clearCoatRoughness.set("Clear Coat Roughness", 0.0001, 0.0001, 10.0));
-	parameters.add(clearCoatStrength.set("Clear Coat Strength", 0.0001, 0.0001, 10.0));
+	coatParams.add(clearCoat.set("Clear Coat", false));
+	coatParams.add(clearCoatRoughness.set("Clear Coat Roughness", 0.0001, 0.0001, 10.0));
+	coatParams.add(clearCoatStrength.set("Clear Coat Strength", 0.0001, 0.0001, 10.0));
+	parameters.add(coatParams);
 
-	parameters.add(resetMaterial);
+	parameters.add(randomMaterial.set("Random Material"));
+	parameters.add(resetMaterial.set("Reset Material"));
 
 	//--
 
@@ -76,6 +79,14 @@ void SurfingMaterial::setup() {
 	doResetMaterial();
 
 	setupGui();
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::setupGui() {
+	gui.setup(parameters);
+	gui.loadFromFile(path);
+
+	gui.getGroup(coatParams.getName()).minimize();
 }
 
 //--------------------------------------------------------------
@@ -167,11 +178,23 @@ void SurfingMaterial::drawGui() {
 void SurfingMaterial::Changed(ofAbstractParameter & e) {
 	std::string name = e.getName();
 
-	ofLogNotice(__FUNCTION__) << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR") << name << " : " << e;
 
 	if (name == resetMaterial.getName()) {
 		doResetMaterial();
+	} else if (name == randomMaterial.getName()) {
+		doRandomMaterial();
+	} else if (name == randomColors.getName()) {
+		doRandomColors();
+	} else if (name == randomSettings.getName()) {
+		doRandomSettings();
 	}
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::doRandomMaterial() {
+	doRandomSettings();
+	doRandomColors();
 }
 
 //--------------------------------------------------------------
@@ -189,6 +212,25 @@ void SurfingMaterial::doResetMaterial() {
 	clearCoat.set(false);
 	clearCoatRoughness.set(0.0001);
 	clearCoatStrength.set(0.0001);
+}
+//--------------------------------------------------------------
+void SurfingMaterial::doRandomSettings() {
+	shininess.set(ofRandom(1));
+	roughness.set(ofRandom(1));
+	metallic.set(ofRandom(1));
+	reflectance.set(ofRandom(1));
+}
+//--------------------------------------------------------------
+void SurfingMaterial::doRandomColors() {
+	ofFloatColor c;
+	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), ofRandom(1));
+	ambientColor.set(c);
+	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), ofRandom(1));
+	specularColor.set(c);
+	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), ofRandom(1));
+	diffuseColor.set(c);
+	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), ofRandom(1));
+	emissiveColor.set(c);
 }
 
 //--------------------------------------------------------------
