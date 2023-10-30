@@ -18,6 +18,8 @@ void SurfingMaterial::setup() {
 	colorParams.setName("Colors");
 	settingsParams.setName("Settings");
 	coatParams.setName("Coat");
+	
+	globalColor.setSerializable(false);
 
 #ifdef SURFING__USE_DISPLACE
 	planeParams.add(useMaterial.set("Use Material", true));
@@ -38,11 +40,14 @@ void SurfingMaterial::setup() {
 	settingsParams.add(randomSettings.set("Random Settings"));
 	parameters.add(settingsParams);
 
+	colorParams.add(globalColor.set("Global Color", ofColor::white));
+	colorParams.add(randomColorsGlobal.set("Random Global Color"));
 	colorParams.add(ambientColor.set("Ambient Color", ofColor::white));
 	colorParams.add(specularColor.set("Specular Color", ofColor::white));
 	colorParams.add(diffuseColor.set("Diffuse Color", ofColor::white));
 	colorParams.add(emissiveColor.set("Emissive Color", ofColor::white));
 	colorParams.add(randomColors.set("Random Colors"));
+	colorParams.add(randomColorsAlpha.set("Random ColorsAlpha"));
 	parameters.add(colorParams);
 
 	coatParams.add(clearCoat.set("Clear Coat", false));
@@ -186,8 +191,30 @@ void SurfingMaterial::Changed(ofAbstractParameter & e) {
 		doRandomMaterial();
 	} else if (name == randomColors.getName()) {
 		doRandomColors();
+	} else if (name == randomColorsGlobal.getName()) {
+		doRandomColorGlobal();
+	} else if (name == randomColorsAlpha.getName()) {
+		doRandomColorsAlpha();
 	} else if (name == randomSettings.getName()) {
 		doRandomSettings();
+	}
+
+	else if (name == globalColor.getName()) {
+		ofFloatColor gc = globalColor.get();
+		ofFloatColor c;
+		float a;
+		a = ambientColor.get().a;
+		c = ofFloatColor(gc.r, gc.g, gc.b, a);
+		ambientColor.set(c);
+		a = specularColor.get().a;
+		c = ofFloatColor(gc.r, gc.g, gc.b, a);
+		specularColor.set(c);
+		a = diffuseColor.get().a;
+		c = ofFloatColor(gc.r, gc.g, gc.b, a);
+		diffuseColor.set(c);
+		a = emissiveColor.get().a;
+		c = ofFloatColor(gc.r, gc.g, gc.b, a);
+		emissiveColor.set(c);
 	}
 }
 
@@ -196,7 +223,6 @@ void SurfingMaterial::doRandomMaterial() {
 	doRandomSettings();
 	doRandomColors();
 }
-
 //--------------------------------------------------------------
 void SurfingMaterial::doResetMaterial() {
 	shininess.set(0);
@@ -221,7 +247,7 @@ void SurfingMaterial::doRandomSettings() {
 	reflectance.set(ofRandom(1));
 }
 //--------------------------------------------------------------
-void SurfingMaterial::doRandomColors() {
+void SurfingMaterial::doRandomColorsAlpha() {
 	ofFloatColor c;
 	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), ofRandom(1));
 	ambientColor.set(c);
@@ -230,6 +256,31 @@ void SurfingMaterial::doRandomColors() {
 	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), ofRandom(1));
 	diffuseColor.set(c);
 	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), ofRandom(1));
+	emissiveColor.set(c);
+}
+//--------------------------------------------------------------
+void SurfingMaterial::doRandomColorGlobal() {
+	ofFloatColor c;
+	float a;
+	a = globalColor.get().a;
+	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), a);
+	globalColor.set(c);
+}
+//--------------------------------------------------------------
+void SurfingMaterial::doRandomColors() {
+	ofFloatColor c;
+	float a;
+	a = ambientColor.get().a;
+	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), a);
+	ambientColor.set(c);
+	a = specularColor.get().a;
+	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), a);
+	specularColor.set(c);
+	a = diffuseColor.get().a;
+	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), a);
+	diffuseColor.set(c);
+	a = emissiveColor.get().a;
+	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), a);
 	emissiveColor.set(c);
 }
 

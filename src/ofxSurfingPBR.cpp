@@ -20,12 +20,18 @@ void ofxSurfingPBR::doResetLight() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetPlane() {
-	planeSz.set(glm::vec2(0.5f, 0.5f));
-	planeRot.set(-70.f);
-	planePos.set(-0.1f);
+	doResetPlaneTransform();
 	planeShiness.set(0.85);
+	globalColor.set(ofFloatColor(1.f));
 	planeDiffuseColor.set(ofFloatColor(0.6));
 	planeSpecularColor.set(ofFloatColor(1));
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetPlaneTransform() {
+	planeSz.set(glm::vec2(0.5f, 0.5f));
+	planeRot.set(10.f);
+	planePos.set(-0.1f);
 }
 
 //--------------------------------------------------------------
@@ -47,7 +53,7 @@ void ofxSurfingPBR::doResetcubeMap() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetAll() {
 	bDebug = false;
-	
+
 	doResetPlane();
 	doResetLight();
 	doResetShadow();
@@ -64,10 +70,11 @@ void ofxSurfingPBR::setupParams() {
 	parameters.setName("PBR_Scene");
 
 	resetPlane.set("Reset Plane");
+	resetPlaneTransform.set("Reset Transform");
 	resetLight.set("Reset Light");
 	resetShadow.set("Reset Shadow");
 	resetAll.set("Reset All");
-	
+
 	planeParams.setName("Plane");
 	planeTransform.setName("Transform");
 	bDrawPlane.set("Draw Plane", true);
@@ -75,6 +82,8 @@ void ofxSurfingPBR::setupParams() {
 	planeRot.set("x Rotation", 0, -180, 180);
 	planePos.set("y Position", 0, -1, 1);
 	planeShiness.set("Shiness", 0.85, 0, 1);
+	globalColor.set("Global Color", ofFloatColor(1.f), ofFloatColor(0), ofFloatColor(1));
+	globalColor.setSerializable(false);
 	planeDiffuseColor.set("Diffuse Color", ofFloatColor(0.6), ofFloatColor(0), ofFloatColor(1));
 	planeSpecularColor.set("Specular Color", ofFloatColor(1), ofFloatColor(0), ofFloatColor(1));
 
@@ -83,9 +92,11 @@ void ofxSurfingPBR::setupParams() {
 	planeTransform.add(planeSz);
 	planeTransform.add(planeRot);
 	planeTransform.add(planePos);
+	planeTransform.add(resetPlaneTransform);
 	planeParams.add(planeTransform);
 
 	planeSettingsParams.setName("Settings");
+	planeSettingsParams.add(globalColor);
 	planeSettingsParams.add(planeShiness);
 	planeSettingsParams.add(planeDiffuseColor);
 	planeSettingsParams.add(planeSpecularColor);
@@ -161,15 +172,19 @@ void ofxSurfingPBR::setup() {
 		light->enable();
 		if (i == 0) {
 			light->setPointLight();
+			//light->getShadow().setNearClip(20);
+			//light->getShadow().setFarClip(500);
 			light->getShadow().setNearClip(20);
-			light->getShadow().setFarClip(500);
-		} else {
-			light->setSpotlight(60, 20);
-			light->getShadow().setNearClip(200);
-			light->getShadow().setFarClip(2000);
-			light->setPosition(210, 330.0, 750);
-			light->setAmbientColor(ofFloatColor(0.4));
+			light->getShadow().setFarClip(SURFING__SZ_UNIT);
 		}
+
+		//else {
+		//	light->setSpotlight(60, 20);
+		//	light->getShadow().setNearClip(200);
+		//	light->getShadow().setFarClip(2000);
+		//	light->setPosition(210, 330.0, 750);
+		//	light->setAmbientColor(ofFloatColor(0.4));
+		//}
 
 		light->getShadow().setStrength(0.6);
 
@@ -200,8 +215,9 @@ void ofxSurfingPBR::setupGui() {
 	gui.loadFromFile(path);
 
 	//minimize
-	gui.getGroup(planeParams.getName()).minimize();
-	gui.getGroup(lightParams.getName()).minimize();
+	//gui.getGroup(planeParams.getName()).minimize();
+	gui.getGroup(planeParams.getName()).getGroup(planeTransform.getName()).minimize();
+	//gui.getGroup(lightParams.getName()).minimize();
 	gui.getGroup(shadowParams.getName()).minimize();
 
 #ifdef SURFING__USE_CUBE_MAP
@@ -228,8 +244,8 @@ void ofxSurfingPBR::update() {
 		}
 	}
 
-	ofShadow::setAllShadowBias(shadowBias);
-	ofShadow::setAllShadowNormalBias(shadowNormalBias);
+	ofShadow::setAllShadowBias(shadowBias.get());
+	ofShadow::setAllShadowNormalBias(shadowNormalBias.get());
 }
 
 //--------------------------------------------------------------
@@ -359,20 +375,23 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 
 	else if (name == planeRot.getName()) {
 		glm::vec3 axis(1.0f, 0.0f, 0.0f);
-		float angle = planeRot.get();
+		float angle = planeRot.get() - 90;
 		glm::quat q = glm::angleAxis(glm::radians(angle), axis);
 		plane.setOrientation(q);
 	}
 
 	else if (name == planePos.getName()) {
-		plane.setPosition(0, planePos.get() * SURFING__SZ_UNIT * 2, 0);
+		plane.setPosition(0, planePos.get() * SURFING__SZ_UNIT * 5.f, 0);
 	}
 
 	else if (name == planeShiness.getName()) {
 		materialPlane.setShininess(planeShiness.get() * 100);
 	}
 
-	else if (name == planeDiffuseColor.getName()) {
+	else if (name == globalColor.getName()) {
+		planeDiffuseColor = globalColor.get();
+		planeSpecularColor = globalColor.get();
+	} else if (name == planeDiffuseColor.getName()) {
 		materialPlane.setDiffuseColor(planeDiffuseColor.get());
 	} else if (name == planeSpecularColor.getName()) {
 		materialPlane.setSpecularColor(planeSpecularColor.get());
@@ -380,6 +399,8 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 
 	else if (name == resetPlane.getName()) {
 		doResetPlane();
+	} else if (name == resetPlaneTransform.getName()) {
+		doResetPlaneTransform();
 	} else if (name == resetLight.getName()) {
 		doResetLight();
 	} else if (name == resetShadow.getName()) {
@@ -387,9 +408,33 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 	} else if (name == resetAll.getName()) {
 		doResetAll();
 	}
+
 #ifdef SURFING__USE_CUBE_MAP
+	else if (name == openCubeMap.getName()) {
+		//Open the Open File Dialog
+		ofFileDialogResult openFileResult = ofSystemLoadDialog("Select a exr or EXR file."); 
+	
+		//Check if the user opened a file
+		if (openFileResult.bSuccess) {
+
+			ofLogVerbose("ofxSurfingPBR") << ("User selected a file");
+
+			//We have a file, check it and process it
+			processOpenFileSelection(openFileResult);
+
+		} else {
+			ofLogVerbose("ofxSurfingPBR") << ("User hit cancel");
+		}
+	} 
 	else if (name == resetCubeMap.getName()) {
 		doResetcubeMap();
+	} else if (name == cubeMapMode.getName()) {
+		if (cubeMapMode == 1)
+			cubeMapModeName = "Cube Map";
+		else if (cubeMapMode == 2)
+			cubeMapModeName = "Prefilter Roughness";
+		else if (cubeMapMode == 3)
+			cubeMapModeName = "Irradiance";
 	}
 #endif
 }
@@ -420,7 +465,7 @@ void ofxSurfingPBR::exit() {
 
 #ifdef SURFING__USE_CUBE_MAP
 //--------------------------------------------------------------
-void ofxSurfingPBR::loadCubeMap(string path) {
+bool ofxSurfingPBR::loadCubeMap(string path) {
 
 	// loading a cube map will enable image based lighting on PBR materials.
 	// cube map will create a prefiltered light cube map and an irradiance cube map
@@ -454,20 +499,25 @@ void ofxSurfingPBR::loadCubeMap(string path) {
 		ofLogError("ofxSurfingPBR") << "Error loading cubemap: " << csettings.filePath;
 	else
 		ofLogNotice("ofxSurfingPBR") << "Successfully loaded cubemap: " << csettings.filePath;
+
+	return b;
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::setupCubeMap() {
 	// params
 	cubeMapMode.set("Mode", 2, 1, 3);
-	bDrawCubeMap.set("Draw", true);
+	cubeMapModeName.set("Type", "");
+	cubeMapModeName.setSerializable(false);
+	bDrawCubeMap.set("Draw CubeMap", true);
 	cubeMapprefilterRoughness.set("Roughness", 0.25f, 0, 1.f);
-	openCubeMap.set("Open");
+	openCubeMap.set("Open File");
 	resetCubeMap.set("Reset Cubemap");
 
 	cubeMapParams.setName("CubeMap");
 	cubeMapParams.add(bDrawCubeMap);
 	cubeMapParams.add(cubeMapMode);
+	cubeMapParams.add(cubeMapModeName);
 	cubeMapParams.add(cubeMapprefilterRoughness);
 	cubeMapParams.add(openCubeMap);
 	cubeMapParams.add(resetCubeMap);
@@ -481,5 +531,23 @@ void ofxSurfingPBR::setupCubeMap() {
 	loadCubeMap();
 
 	ofEnableArbTex();
+}
+
+void ofxSurfingPBR::processOpenFileSelection(ofFileDialogResult openFileResult) {
+
+	ofLogVerbose("ofxSurfingPBR") << ("getName(): " + openFileResult.getName());
+	ofLogVerbose("ofxSurfingPBR") << ("getPath(): " + openFileResult.getPath());
+
+	ofFile file(openFileResult.getPath());
+
+	if (file.exists()) {
+		ofLogVerbose("ofxSurfingPBR") << "The file exists - now checking the type via file extension";
+		string fileExtension = ofToUpper(file.getExtension());
+
+		if (fileExtension == "exr" || fileExtension == "EXR") {
+
+			loadCubeMap(openFileResult.getPath());
+		}
+	}
 }
 #endif

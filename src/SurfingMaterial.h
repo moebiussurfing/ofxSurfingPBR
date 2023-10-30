@@ -23,6 +23,10 @@ public:
 
 	void doResetMaterial();
 	void doRandomMaterial();
+	void doRandomColors();
+	void doRandomColorsAlpha();
+	void doRandomColorGlobal();
+	void doRandomSettings();
 
 private:
 	void setupGui();
@@ -58,19 +62,20 @@ public:
 	ofParameterGroup planeParams;
 #endif
 
+	ofParameter<ofFloatColor> globalColor;
 	ofParameter<ofFloatColor> diffuseColor;
 	ofParameter<ofFloatColor> specularColor;
 	ofParameter<ofFloatColor> ambientColor;
 	ofParameter<ofFloatColor> emissiveColor;
 	ofParameter<void> randomColors;
-	void doRandomColors();
+	ofParameter<void> randomColorsAlpha;
+	ofParameter<void> randomColorsGlobal;
 
 	ofParameter<float> shininess;
 	ofParameter<float> metallic;
 	ofParameter<float> reflectance;
 	ofParameter<float> roughness;
 	ofParameter<void> randomSettings;
-	void doRandomSettings();
 
 	ofParameter<float> clearCoatRoughness;
 	ofParameter<float> clearCoatStrength;

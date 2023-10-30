@@ -4,24 +4,23 @@
 	https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19
 	authors: @NickHardeman and @Paolo
 
-
 	This class have two materials ready to use.
-	One for the plane/floor were the shadows are drawn.
-	The other material is to be used to apply a material to a single 3d object/mesh.
-	There's a commented code for using a custom shader.
+	- One for the plane/floor were the shadows are drawn.
+	- Another material to be used to apply to other 3d object/mesh.
+
+	There's some commented code for adding a custom shader.
 
 
 	TODO:
 	- make a scene manager allowing to queue many materials and lights on a std::vector.
 	- add ImGui.
-	- add presets manager and randomizer to explore and save materials.
-	- add example with an imported 3d object.
+	- add presets manager and randomizer/undo/redo to explore and save materials.
 
 */
 
 /*
 
-	EXAMPLE
+	SIMPLE EXAMPLE
 
 	void ofApp::setup() {
 		pbr.setup();
@@ -36,10 +35,10 @@
 
 	void ofApp::renderScene()
 	{
-		// plane
+		// floor plane
 		pbr.drawPlane();
 
-		// object
+		// objects
 		pbr.beginMaterial();
 		{
 			ofDrawBox(0, 0, 0, 100);
@@ -92,12 +91,6 @@ public:
 	}
 
 private:
-	ofCamera * camera;
-
-	vector<shared_ptr<ofLight>> lights;
-
-	ofPlanePrimitive plane;
-
 	ofParameter<glm::vec2> planeSz;
 	ofParameter<bool> bDrawPlane;
 	ofParameter<bool> wireframe;
@@ -106,26 +99,15 @@ private:
 	ofParameter<float> planeShiness;
 	ofParameter<ofFloatColor> planeDiffuseColor;
 	ofParameter<ofFloatColor> planeSpecularColor;
+	ofParameter<ofFloatColor> globalColor;
 	ofParameterGroup planeSettingsParams;
-
 	ofParameter<void> resetPlane;
-	void doResetPlane();
+	ofParameter<void> resetPlaneTransform;
 
 private:
 	ofMaterial materialPlane;
 	ofParameterGroup planeParams;
 	ofParameterGroup planeTransform;
-
-#ifdef SURFING__USE_DISPLACE
-private:
-	ofShader shader;
-	ofFloatImage img;
-
-private:
-	ofParameter<float> noiseAmplitude;
-	ofParameter<float> noiseScale;
-	ofParameter<float> noiseSpeed;
-#endif
 
 private:
 	ofParameterGroup lightParams;
@@ -133,23 +115,17 @@ private:
 	ofParameter<float> lightY;
 	ofParameter<float> lightZ;
 	ofParameter<void> resetLight;
-	void doResetLight();
 
 	ofParameterGroup shadowParams;
 	ofParameter<float> shadowBias;
 	ofParameter<float> shadowNormalBias;
 	ofParameter<bool> bEnableShadow;
 	ofParameter<void> resetShadow;
-	void doResetShadow();
-
-	ofParameter<bool> bDebug;
 
 	ofParameterGroup parameters;
-	
-	ofParameter<void> resetAll;
-	void doResetAll();
 
-	SurfingMaterial material;
+public:
+	ofParameter<bool> bDebug;
 
 public:
 	ofxPanel gui;
@@ -160,6 +136,16 @@ public:
 		ofRectangle bb = r1.getUnion(r2);
 		return bb;
 	};
+	ofParameter<void> resetAll;
+
+private:
+	SurfingMaterial material;
+
+	ofCamera * camera;
+
+	vector<shared_ptr<ofLight>> lights;
+
+	ofPlanePrimitive plane;
 
 	//--
 
@@ -172,6 +158,7 @@ public:
 
 private:
 	callback_t function_RenderScene = nullptr;
+
 public:
 	void setFunction_renderScene(callback_t f = nullptr) {
 		function_RenderScene = f;
@@ -185,13 +172,53 @@ public:
 	ofCubeMap cubeMap;
 	ofParameterGroup cubeMapParams;
 	ofParameter<int> cubeMapMode;
+	ofParameter<string> cubeMapModeName;
 	ofParameter<float> cubeMapprefilterRoughness;
 	ofParameter<bool> bDrawCubeMap;
-	ofParameter<void> openCubeMap;//TODO
+	ofParameter<void> openCubeMap; //TODO
 	ofParameter<void> resetCubeMap;
 	void setupCubeMap();
-	void loadCubeMap(string path = "");
 	void doResetcubeMap();
+	void processOpenFileSelection(ofFileDialogResult openFileResult);
+
+public:
+	bool loadCubeMap(string path = "");
 #endif
 
+	//--
+
+	void doResetPlane();
+	void doResetPlaneTransform();
+	void doResetLight();
+	void doResetShadow();
+	void doResetAll();
+
+	void doResetMaterial() {
+		material.doResetMaterial();
+	};
+	void doRandomMaterial() {
+		material.doRandomMaterial();
+	};
+	void doRandomMaterialColors() {
+		material.doRandomColors();
+	};
+	void doRandomMaterialColorsAlpha() {
+		material.doRandomColorsAlpha();
+	};
+	void doRandomMaterialSettings() {
+		material.doRandomSettings();
+	};
+
+	//--
+
+#ifdef SURFING__USE_DISPLACE
+private:
+	ofShader shader;
+	ofFloatImage img;
+
+private:
+	ofParameter<float> noiseAmplitude;
+	ofParameter<float> noiseScale;
+	ofParameter<float> noiseSpeed;
+#endif
 };
