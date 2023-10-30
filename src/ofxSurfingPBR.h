@@ -116,6 +116,8 @@ public:
 	void save();
 
 private:
+	uint64_t timeLastChange = 0;
+	int timeSaveGap = 1000;//save every x milliseconds.
 	bool bFlagSave = false;
 
 public:
@@ -228,7 +230,7 @@ public:
 	void doResetPlaneTransform();
 	void doResetLight();
 	void doResetShadow();
-	void doResetAll();
+	void doResetAll(bool bNotMaterial=false);
 
 	void doResetMaterial() {
 		material.doResetMaterial();

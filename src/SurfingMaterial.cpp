@@ -82,7 +82,9 @@ void SurfingMaterial::update(ofEventArgs & args) {
 //--------------------------------------------------------------
 void SurfingMaterial::update() {
 
-	if (bAutoSave & bFlagSave) {
+	// autosave workflow
+	auto t = ofGetElapsedTimeMillis() - timeLastChange;
+	if (bAutoSave && bFlagSave && t > timeSaveGap) {
 		bFlagSave = false;
 		save();
 	}
@@ -126,10 +128,13 @@ void SurfingMaterial::drawGui() {
 void SurfingMaterial::Changed(ofAbstractParameter & e) {
 	std::string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR:SurfingMaterial") << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Changed: " << name << ": " << e;
 
-	if (bAutoSave)
-		bFlagSave = true; //for every modified param, flag to save on the next frame
+	//for every modified param, flag to save on the next frame but after a time gap.
+	if (bAutoSave) {
+		bFlagSave = true;
+		timeLastChange = ofGetElapsedTimeMillis();
+	}
 
 	if (name == resetMaterial.getName()) {
 		doResetMaterial();
@@ -283,13 +288,13 @@ void SurfingMaterial::exit() {
 
 //--------------------------------------------------------------
 void SurfingMaterial::save() {
-	ofLogNotice("ofxSurfingPBR:SurfingMaterial") << "Save: " << path;
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Save: " << path;
 
 	gui.saveToFile(path);
 }
 //--------------------------------------------------------------
 void SurfingMaterial::load() {
-	ofLogNotice("ofxSurfingPBR:SurfingMaterial") << "Load: " << path;
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Load: " << path;
 
 	gui.loadFromFile(path);
 }

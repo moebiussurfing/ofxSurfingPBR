@@ -73,6 +73,8 @@ public:
 	void save();
 
 private:
+	uint64_t timeLastChange = 0;
+	int timeSaveGap = 1000; //save every x milliseconds.
 	bool bFlagSave = false;
 	string path = "material.json";
 };

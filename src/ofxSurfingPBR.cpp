@@ -56,7 +56,7 @@ void ofxSurfingPBR::doResetCubeMap() {
 #endif
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::doResetAll() {
+void ofxSurfingPBR::doResetAll(bool bNotMaterial) {
 	bDebug = false;
 
 	doResetPlane();
@@ -67,7 +67,7 @@ void ofxSurfingPBR::doResetAll() {
 	doResetCubeMap();
 #endif
 
-	//material.doResetMaterial();
+	if (!bNotMaterial) material.doResetMaterial();
 }
 
 //--------------------------------------------------------------
@@ -151,7 +151,7 @@ void ofxSurfingPBR::setupParams() {
 	parameters.add(bAutoSave);
 
 	//link
-	//not working?
+	//TODO: not working?
 	material.bAutoSave.makeReferenceTo(bAutoSave);
 	//bAutoSave.makeReferenceTo(material.bAutoSave);
 
@@ -226,7 +226,7 @@ void ofxSurfingPBR::setup() {
 	//--
 
 	// reset
-	doResetAll();
+	doResetAll(true);//not the material
 
 	setupGui();
 
@@ -255,7 +255,10 @@ void ofxSurfingPBR::update(ofEventArgs & args) {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::update() {
-	if (bAutoSave & bFlagSave) {
+
+	// autosave workflow
+	auto t = ofGetElapsedTimeMillis() - timeLastChange;
+	if (bAutoSave && bFlagSave && t > timeSaveGap) {
 		bFlagSave = false;
 		save();
 	}
@@ -399,10 +402,13 @@ void ofxSurfingPBR::draw() {
 void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 	std::string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << "Changed " << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR") << "Changed " << name << ": " << e;
 	
-	if (bAutoSave)
-		bFlagSave = true; //for every modified param, flag to save on the next frame
+	//for every modified param, flag to save on the next frame but after a time gap.
+	if (bAutoSave) {
+		bFlagSave = true; 
+		timeLastChange = ofGetElapsedTimeMillis();	
+	}
 
 	if (name == planeSz.getName()) {
 		int res = (int)SURFING__PLANE_RESOLUTION;

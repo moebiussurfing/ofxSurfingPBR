@@ -9,6 +9,8 @@ void ofApp::setup() {
 
 	//--
 
+	//ofSetLogLevel("ofxSurfingPBR", OF_LOG_ERROR);
+
 	pbr.setup();
 	pbr.setCameraPtr(&camera);
 
