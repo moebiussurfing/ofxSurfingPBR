@@ -28,16 +28,15 @@ public:
 
 	void setupModels();
 
-	string pathMesh;
 	ofVboMesh mesh;
-
-	string pathModel;
-	bool loadModel(string path);
-	ofxAssimpModelLoader model;
-	vector<ofVboMesh> meshesModel;
 	//ofVboMesh meshModel;
+	vector<ofVboMesh> meshesModel;
+	ofxAssimpModelLoader model;
+	bool loadModel(string path);
 
 	ofxPanel gui;
+	string pathModel;
+	string pathMesh;
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
 	ofParameter<float> yPos { "PosY", 0, -1.f, 1.f };
 	ofParameter<bool> bRotate { "Rotate", false };

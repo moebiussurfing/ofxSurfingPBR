@@ -48,6 +48,7 @@ bool ofApp::loadModel(string path) {
 	ofLogNotice() << "Started loading model file... " << path;
 
 	// model
+	//model = ofxAssimpModelLoader();
 	model.clear();
 
 	bool b = model.load(pathModel, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
@@ -72,7 +73,9 @@ bool ofApp::loadModel(string path) {
 	// TODO: would be nice to queue multi meshes
 	// bc some models have multiple..
 	meshesModel.clear();
-	for (int i = 0; i < model.getMeshCount(); i++) {
+	int sz = model.getMeshCount();
+	for (int i = 0; i < sz; i++) {
+		//meshModel = model.getMesh(i);
 		meshesModel.push_back(model.getMesh(i));
 	}
 
