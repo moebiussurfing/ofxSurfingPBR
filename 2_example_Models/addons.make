@@ -1,4 +1,5 @@
 ofxAssimpModelLoader
 ofxGui
+ofxMeshUtils
 ofxSurfingHelpers
 ofxSurfingPBR

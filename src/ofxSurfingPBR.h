@@ -92,7 +92,8 @@ public:
 
 private:
 	ofParameter<glm::vec2> planeSz;
-	ofParameter<bool> wireframe;
+	ofParameter<bool> bPlaneWireframe;
+	ofParameter<bool> bPlaneInfinite;
 	ofParameter<float> planeRot;
 	ofParameter<float> planePos;
 	ofParameter<float> planeShiness;
@@ -114,6 +115,7 @@ private:
 	ofParameter<float> lightY;
 	ofParameter<float> lightZ;
 	ofParameter<void> resetLight;
+	ofParameter<ofFloatColor> lightAmbientColor;
 
 	ofParameterGroup shadowParams;
 	ofParameter<float> shadowBias;

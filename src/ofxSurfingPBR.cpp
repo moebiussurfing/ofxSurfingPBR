@@ -14,8 +14,9 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetLight() {
 	lightX = 0;
-	lightY = SURFING__SZ_UNIT / 2.f;
+	lightY = SURFING__SZ_UNIT;
 	lightZ = 0;
+	lightAmbientColor.set(ofFloatColor(1));
 }
 
 //--------------------------------------------------------------
@@ -79,17 +80,19 @@ void ofxSurfingPBR::setupParams() {
 	planeTransform.setName("Transform");
 	bDrawPlane.set("Draw Plane", true);
 	planeSz.set("Size", glm::vec2(0.8f, 0.8f), glm::vec2(0, 0), glm::vec2(1, 1));
-	planeRot.set("x Rotation", 0, -180, 180);
+	planeRot.set("x Rotation", 0, -45, 135);
+	//planeRot.set("x Rotation", 0, -180, 180);
 	planePos.set("y Position", 0, -1, 1);
 	planeShiness.set("Shiness", 0.85, 0, 1);
 	globalColor.set("Global Color", ofFloatColor(1.f), ofFloatColor(0), ofFloatColor(1));
 	globalColor.setSerializable(false);
-	planeDiffuseColor.set("Diffuse Color", ofFloatColor(0.6), ofFloatColor(0), ofFloatColor(1));
+	planeDiffuseColor.set("Diffuse Color", ofFloatColor(0.6f), ofFloatColor(0), ofFloatColor(1));
 	planeSpecularColor.set("Specular Color", ofFloatColor(1), ofFloatColor(0), ofFloatColor(1));
 
 	planeParams.add(bDrawPlane);
-	planeParams.add(wireframe.set("Wireframe", false));
+	planeParams.add(bPlaneWireframe.set("Wireframe", false));
 	planeTransform.add(planeSz);
+	planeTransform.add(bPlaneInfinite.set("Infinite", false));
 	planeTransform.add(planeRot);
 	planeTransform.add(planePos);
 	planeTransform.add(resetPlaneTransform);
@@ -113,10 +116,12 @@ void ofxSurfingPBR::setupParams() {
 	parameters.add(planeParams);
 
 	lightParams.setName("Light");
-	float u = SURFING__SZ_UNIT;
-	lightParams.add(lightX.set("X", 0.0f, -1 * u, 1 * u));
-	lightParams.add(lightY.set("Y", 0.0f, -1 * u, 1 * u));
-	lightParams.add(lightZ.set("Z", 0.0f, -1 * u, 1 * u));
+	lightAmbientColor.set("Light Ambient Color", ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
+	float u = 2 * SURFING__SZ_UNIT;
+	lightParams.add(lightX.set("X", 0.0f, -u, u));
+	lightParams.add(lightY.set("Y", 0.0f, -u, u));
+	lightParams.add(lightZ.set("Z", 0.0f, -u, u));
+	lightParams.add(lightAmbientColor);
 	lightParams.add(resetLight);
 	parameters.add(lightParams);
 
@@ -172,12 +177,11 @@ void ofxSurfingPBR::setup() {
 		light->enable();
 		if (i == 0) {
 			light->setPointLight();
-			//light->getShadow().setNearClip(20);
-			//light->getShadow().setFarClip(500);
 			light->getShadow().setNearClip(20);
 			light->getShadow().setFarClip(SURFING__SZ_UNIT);
 		}
 
+		////remove?
 		//else {
 		//	light->setSpotlight(60, 20);
 		//	light->getShadow().setNearClip(200);
@@ -240,7 +244,7 @@ void ofxSurfingPBR::update() {
 		if (lights[0]->getType() == OF_LIGHT_POINT) {
 			float tangle = ofGetElapsedTimef() * 1.05;
 			lights[0]->setPosition(lightX, lightY, lightZ);
-			//lights[0]->setAmbientColor(ofColor::red);
+			lights[0]->setAmbientColor(lightAmbientColor);
 		}
 	}
 
@@ -310,6 +314,10 @@ void ofxSurfingPBR::draw() {
 	{
 		glEnable(GL_CULL_FACE);
 		glFrontFace(GL_CW);
+		// Should fix bc makes some models "transparent"...
+		// sets the orientation for front-facing
+		// polygons1GL_CW means that polygons with vertices
+		// in clockwise order on the screen are considered front-facing1.
 		glCullFace(GL_BACK);
 		{
 			//renderScene();
@@ -368,9 +376,13 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 	ofLogNotice("ofxSurfingPBR") << "Changed " << name << " : " << e;
 
 	if (name == planeSz.getName()) {
-		float u = SURFING__SZ_UNIT * 20.f;
-		int reso = 4;
+		float u = SURFING__SZ_UNIT * (bPlaneInfinite?10000.f:20.f);
+		//int reso = 4;
+		int reso = 100;
 		plane.set(u * planeSz.get().x, u * planeSz.get().y, reso, reso);
+	}
+	else if (name == bPlaneInfinite.getName()) {
+		planeSz = planeSz.get();//refresh
 	}
 
 	else if (name == planeRot.getName()) {
@@ -411,22 +423,15 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 
 #ifdef SURFING__USE_CUBE_MAP
 	else if (name == openCubeMap.getName()) {
-		//Open the Open File Dialog
-		ofFileDialogResult openFileResult = ofSystemLoadDialog("Select a exr or EXR file."); 
-	
-		//Check if the user opened a file
+		ofFileDialogResult openFileResult = ofSystemLoadDialog("Select a exr or EXR file.");
 		if (openFileResult.bSuccess) {
-
 			ofLogVerbose("ofxSurfingPBR") << ("User selected a file");
-
-			//We have a file, check it and process it
 			processOpenFileSelection(openFileResult);
 
 		} else {
 			ofLogVerbose("ofxSurfingPBR") << ("User hit cancel");
 		}
-	} 
-	else if (name == resetCubeMap.getName()) {
+	} else if (name == resetCubeMap.getName()) {
 		doResetcubeMap();
 	} else if (name == cubeMapMode.getName()) {
 		if (cubeMapMode == 1)
@@ -444,7 +449,7 @@ void ofxSurfingPBR::drawPlane() {
 	if (!bDrawPlane) return;
 
 	// plane
-	if (wireframe) {
+	if (bPlaneWireframe) {
 		plane.drawWireframe();
 	} else {
 		beginMaterialPlane();

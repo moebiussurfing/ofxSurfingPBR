@@ -17,6 +17,7 @@ public:
 	void setup();
 	void update();
 	void draw();
+	void drawGui();
 	void keyPressed(int key);
 	void exit();
 
@@ -42,7 +43,7 @@ public:
 	ofParameter<float> yPos { "PosY", 0, -1.f, 1.f };
 	ofParameter<bool> bRotate { "Rotate", false };
 	ofParameter<float> speed { "Speed", 0.5f, 0, 1 };
-	ofParameter<int> scene { "Scene", 0, 0, 2 };
+	ofParameter<int> indexScene { "Scene", 0, 0, 2 };
 	ofParameter<void> reset { "Reset" };
 	ofEventListener eReset;
 

@@ -112,12 +112,12 @@ void SurfingMaterial::update() {
 	material.setReflectance(reflectance);
 	material.setShininess(shininess);
 
-	//material.setTexCoordScale(scaleX, scaleY);
 	material.setClearCoatEnabled(clearCoat);
 	material.setClearCoatRoughness(clearCoatRoughness);
 	material.setClearCoatStrength(clearCoatStrength);
 
 #ifdef SURFING__USE_DISPLACE
+	//material.setTexCoordScale(scaleX, scaleY);
 	material.setDisplacementTexture(img.getTexture());
 	material.setDisplacementStrength(displacementStrength);
 	material.setDisplacementNormalsStrength(displacementNormalsStrength);

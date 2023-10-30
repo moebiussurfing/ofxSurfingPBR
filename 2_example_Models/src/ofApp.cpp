@@ -43,9 +43,20 @@ void ofApp::setupDir(string path) {
 
 //--------------------------------------------------------------
 bool ofApp::loadModel(string path) {
+	
+	/*
+	
+	https://forum.openframeworks.cc/t/ofxassimpmodelloader-how-to-tweak-model-meshes/36665/4
+	ofxAssimpMeshHelper& helper = model.getMeshHelper(i);
+        ofMesh* mesh = &helper.cachedMesh;
+
+	*/
+	
 	pathModel = path;
 
-	ofLogNotice() << "Started loading model file... " << path;
+	ofLogNotice() << "Started loading model file... \n" << path;
+
+
 
 	// model
 	model.clear();
@@ -69,8 +80,8 @@ bool ofApp::loadModel(string path) {
 	//	meshModel.getNormals()[i] *= -1.f;
 	//}
 	
-	// TODO: would be nice to queue multi meshes
-	// bc some models have multiple..
+	// TODO: we queue multi meshes
+	// bc some models have multiple parts..
 	meshesModel.clear();
 	for (int i = 0; i < model.getMeshCount(); i++) {
 		meshesModel.push_back(model.getMesh(i));
@@ -96,8 +107,11 @@ void ofApp::setupModels() {
 
 	// model
 	// (scene 1)
-	pathModel = "models/head25k.obj"; //problems with normals
+	
+	//problems with normals
+	pathModel = "models/head25k.obj"; 
 	//pathModel = "models/basic_form.ply";
+
 	loadModel(pathModel);
 
 	//--
@@ -124,7 +138,7 @@ void ofApp::setupModels() {
 	//--
 
 	gui.setup("ofApp_Model");
-	gui.add(scene);
+	gui.add(indexScene);
 
 #ifdef SURFING__USE_FILE_BROWSER
 	gui.add(indexFile);
@@ -153,6 +167,12 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 	pbr.draw();
+
+	drawGui();
+}
+
+//--------------------------------------------------------------
+void ofApp::drawGui() {
 
 	pbr.drawGui();
 
@@ -192,7 +212,7 @@ void ofApp::drawMyScene() {
 	//--
 
 	// mesh
-	if (scene == 0) {
+	if (indexScene == 0) {
 		// mesh
 		ofPushMatrix();
 		ofScale(s);
@@ -208,14 +228,18 @@ void ofApp::drawMyScene() {
 	//--
 
 	// mesh model
-	else if (scene == 1) {
+	else if (indexScene == 1) {
+		glFrontFace(GL_CCW);//fix for "transparent" model
+
 		ofPushMatrix();
-		ofScale(s);
+		ofScale(s * 2.f);
+		y += 1;
 		ofTranslate(0, y, 0);
 		//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);
 		if (bRotate) ofRotateYDeg(-d);
 		{
 			//meshModel.drawFaces();
+
 			if (meshesModel.size() > 0) {
 				for (int i = 0; i < meshesModel.size(); i++) {
 					meshesModel[i].drawFaces();
@@ -227,8 +251,8 @@ void ofApp::drawMyScene() {
 
 	//--
 
-	// prims
-	else if (scene == 2) {
+	// three prims
+	else if (indexScene == 2) {
 		ofPushMatrix();
 		float uuPos = 800;
 		float yy = ofMap(yPos, -1.f, 1.f, -uuPos, uuPos, true);
@@ -269,6 +293,13 @@ void ofApp::keyPressed(int key) {
 	if (key == OF_KEY_F3) pbr.doRandomMaterial();
 	if (key == OF_KEY_F4) pbr.doResetMaterial();
 
+	if (key == ' ') {
+		if (indexScene < indexScene.getMax())
+			indexScene = indexScene + 1;
+		else
+			indexScene = 0;
+	}
+
 #ifdef SURFING__USE_FILE_BROWSER
 	if (key == OF_KEY_RIGHT) {
 		if (dir.size() > 0) {
@@ -277,13 +308,6 @@ void ofApp::keyPressed(int key) {
 		}
 	}
 #endif
-
-	if (key == ' ') {
-		if (scene < scene.getMax())
-			scene = scene + 1;
-		else
-			scene = 0;
-	}
 }
 
 //--------------------------------------------------------------
