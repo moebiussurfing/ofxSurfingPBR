@@ -36,7 +36,7 @@ void ofxSurfingPBR::doResetPlaneTransform() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetShadow() {
-	bEnableShadow.set(true);
+	bDrawShadow.set(true);
 	shadowBias.set(0.07);
 	shadowNormalBias.set(-4.f);
 }
@@ -121,7 +121,7 @@ void ofxSurfingPBR::setupParams() {
 	parameters.add(lightParams);
 
 	shadowParams.setName("Shadow");
-	shadowParams.add(bEnableShadow.set("Enable", true));
+	shadowParams.add(bDrawShadow.set("Draw Shadow", true));
 	shadowParams.add(shadowBias.set("Bias", 0.07, 0.0, 1.0));
 	shadowParams.add(shadowNormalBias.set("Normal Bias", -4.f, -10.0, 10.0));
 	shadowParams.add(resetShadow);
@@ -233,7 +233,7 @@ void ofxSurfingPBR::update(ofEventArgs & args) {
 //--------------------------------------------------------------
 void ofxSurfingPBR::update() {
 	for (auto & light : lights) {
-		light->getShadow().setEnabled(bEnableShadow);
+		light->getShadow().setEnabled(bDrawShadow);
 	}
 
 	if (lights.size() > 0) {

@@ -92,7 +92,6 @@ public:
 
 private:
 	ofParameter<glm::vec2> planeSz;
-	ofParameter<bool> bDrawPlane;
 	ofParameter<bool> wireframe;
 	ofParameter<float> planeRot;
 	ofParameter<float> planePos;
@@ -119,13 +118,14 @@ private:
 	ofParameterGroup shadowParams;
 	ofParameter<float> shadowBias;
 	ofParameter<float> shadowNormalBias;
-	ofParameter<bool> bEnableShadow;
+	ofParameter<bool> bDrawShadow;
 	ofParameter<void> resetShadow;
 
 	ofParameterGroup parameters;
 
 public:
 	ofParameter<bool> bDebug;
+	ofParameter<bool> bDrawPlane;
 
 public:
 	ofxPanel gui;

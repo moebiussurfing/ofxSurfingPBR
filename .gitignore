@@ -568,3 +568,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+2_example_Models/bin/data/models/basic_form.ply
+2_example_Models/bin/data/models/Big_Data_Maxwell_solo_cubo.fbx
+2_example_Models/bin/data/models/bigData_box.fbx
+2_example_Models/bin/data/models/CALAVERA_RED.fbx
