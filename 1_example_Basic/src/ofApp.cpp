@@ -6,6 +6,8 @@ void ofApp::setup() {
 	ofxSurfingHelpers::setWindowTitleAsProjectName();
 	ofxSurfingHelpers::setMonitorsLayout(-1, false, true);
 #endif
+	
+	ofSetConeResolution(30, 10, 2);
 
 	//--
 
@@ -51,7 +53,7 @@ void ofApp::drawMyScene() {
 	ofPopMatrix();
 
 	ofPushMatrix();
-	static float spd = 240;
+	float spd = 240;
 	ofRotateYDeg(360.f * (ofGetFrameNum() % (int)spd) / spd);
 	ofDrawBox(0, 100, 0, 100);
 	ofPopMatrix();
@@ -61,6 +63,7 @@ void ofApp::drawMyScene() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
+	pbr.keyPressed(key);
 }
 
 //--------------------------------------------------------------

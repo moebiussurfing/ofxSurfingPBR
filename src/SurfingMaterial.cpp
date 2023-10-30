@@ -11,52 +11,11 @@ SurfingMaterial::~SurfingMaterial() {
 	ofRemoveListener(parameters.parameterChangedE(), this, &SurfingMaterial::Changed);
 }
 
+
 //--------------------------------------------------------------
 void SurfingMaterial::setup() {
 
-	parameters.setName("PBR_Material");
-	colorParams.setName("Colors");
-	settingsParams.setName("Settings");
-	coatParams.setName("Coat");
-	
-	globalColor.setSerializable(false);
-
-#ifdef SURFING__USE_DISPLACE
-	planeParams.add(useMaterial.set("Use Material", true));
-	planeParams.add(noiseAmplitude.set("Displacement", 0.0f, 0.0f, 255.0f));
-	planeParams.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
-	planeParams.add(noiseSpeed.set("Noise Speed", 0.0f, 0.0f, 1.0f));
-	parameters.add(planeParams);
-
-	parameters.add(displacementStrength.set("Displacement Strength", 0.0, 0.0, 500.0));
-	parameters.add(displacementNormalsStrength.set("Displacement Normals Strength", 0.0, 0.0, 1.0));
-	parameters.add(normalGeomToNormalMapMix.set("Normal Geom To Normal Map Mix", 0.0, 0.0, 1.0));
-#endif
-
-	settingsParams.add(shininess.set("Shininess", 0.0, 0.0, 1.0));
-	settingsParams.add(roughness.set("Roughness", 0.0, 0.0, 1.0));
-	settingsParams.add(metallic.set("Metallic", 0.0, 0.0, 1.0));
-	settingsParams.add(reflectance.set("Reflectance", 0.0, 0.0, 1.0));
-	settingsParams.add(randomSettings.set("Random Settings"));
-	parameters.add(settingsParams);
-
-	colorParams.add(globalColor.set("Global Color", ofColor::white));
-	colorParams.add(randomColorsGlobal.set("Random Global Color"));
-	colorParams.add(ambientColor.set("Ambient Color", ofColor::white));
-	colorParams.add(specularColor.set("Specular Color", ofColor::white));
-	colorParams.add(diffuseColor.set("Diffuse Color", ofColor::white));
-	colorParams.add(emissiveColor.set("Emissive Color", ofColor::white));
-	colorParams.add(randomColors.set("Random Colors"));
-	colorParams.add(randomColorsAlpha.set("Random ColorsAlpha"));
-	parameters.add(colorParams);
-
-	coatParams.add(clearCoat.set("Clear Coat", false));
-	coatParams.add(clearCoatRoughness.set("Clear Coat Roughness", 0.0001, 0.0001, 10.0));
-	coatParams.add(clearCoatStrength.set("Clear Coat Strength", 0.0001, 0.0001, 10.0));
-	parameters.add(coatParams);
-
-	parameters.add(randomMaterial.set("Random Material"));
-	parameters.add(resetMaterial.set("Reset Material"));
+	setupParams();
 
 	//--
 
@@ -84,6 +43,61 @@ void SurfingMaterial::setup() {
 	doResetMaterial();
 
 	setupGui();
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::setupParams() {
+
+	parameters.setName("PBR_Material");
+
+	colorParams.setName("Colors");
+	settingsParams.setName("Settings");
+	coatParams.setName("Coat");
+	helpersParams.setName("Helpers");
+
+	globalColor.setSerializable(false);
+
+#ifdef SURFING__USE_DISPLACE
+	planeParams.add(useMaterial.set("Use Material", true));
+	planeParams.add(noiseAmplitude.set("Displacement", 0.0f, 0.0f, 255.0f));
+	planeParams.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
+	planeParams.add(noiseSpeed.set("Noise Speed", 0.0f, 0.0f, 1.0f));
+	parameters.add(planeParams);
+
+	parameters.add(displacementStrength.set("Displacement Strength", 0.0, 0.0, 500.0));
+	parameters.add(displacementNormalsStrength.set("Displacement Normals Strength", 0.0, 0.0, 1.0));
+	parameters.add(normalGeomToNormalMapMix.set("Normal Geom To Normal Map Mix", 0.0, 0.0, 1.0));
+#endif
+
+	settingsParams.add(shininess.set("Shininess", 0.0, 0.0, 1.0));
+	settingsParams.add(roughness.set("Roughness", 0.0, 0.0, 1.0));
+	settingsParams.add(metallic.set("Metallic", 0.0, 0.0, 1.0));
+	settingsParams.add(reflectance.set("Reflectance", 0.0, 0.0, 1.0));
+	//settingsParams.add(randomSettings.set("Random Settings"));
+	parameters.add(settingsParams);
+
+	colorParams.add(globalColor.set("Global Color", ofColor::white));
+	//colorParams.add(randomColorsGlobal.set("Random Global Color"));
+	colorParams.add(ambientColor.set("Ambient Color", ofColor::white));
+	colorParams.add(specularColor.set("Specular Color", ofColor::white));
+	colorParams.add(diffuseColor.set("Diffuse Color", ofColor::white));
+	colorParams.add(emissiveColor.set("Emissive Color", ofColor::white));
+	//colorParams.add(randomColors.set("Random Colors"));
+	//colorParams.add(randomColorsAlpha.set("Random ColorsAlpha"));
+	parameters.add(colorParams);
+
+	coatParams.add(clearCoat.set("Clear Coat", false));
+	coatParams.add(clearCoatRoughness.set("Clear Coat Roughness", 0.0001, 0.0001, 10.0));
+	coatParams.add(clearCoatStrength.set("Clear Coat Strength", 0.0001, 0.0001, 10.0));
+	parameters.add(coatParams);
+
+	helpersParams.add(randomSettings.set("Random Settings"));
+	helpersParams.add(randomColorsGlobal.set("Random Global Color"));
+	helpersParams.add(randomColors.set("Random Colors"));
+	helpersParams.add(randomColorsAlpha.set("Random ColorsAlpha"));
+	helpersParams.add(randomMaterial.set("Random Material"));
+	helpersParams.add(resetMaterial.set("Reset Material"));
+	parameters.add(helpersParams);
 }
 
 //--------------------------------------------------------------

@@ -149,6 +149,9 @@ void ofxSurfingPBR::setup() {
 	bDebug.set("Debug", false);
 	parameters.add(bDebug);
 
+	bKeys.set("Keys", true);
+	parameters.add(bKeys);
+
 	parameters.add(resetAll);
 
 	//--
@@ -376,13 +379,11 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 	ofLogNotice("ofxSurfingPBR") << "Changed " << name << " : " << e;
 
 	if (name == planeSz.getName()) {
-		float u = SURFING__SZ_UNIT * (bPlaneInfinite?10000.f:20.f);
-		//int reso = 4;
-		int reso = 100;
-		plane.set(u * planeSz.get().x, u * planeSz.get().y, reso, reso);
-	}
-	else if (name == bPlaneInfinite.getName()) {
-		planeSz = planeSz.get();//refresh
+		int res = (int)SURFING__PLANE_RESOLUTION;
+		float u = SURFING__SZ_UNIT * (bPlaneInfinite ? (float)SURFING__PLANE_INFINITE_MAGNITUDE : 20.f);
+		plane.set(u * planeSz.get().x, u * planeSz.get().y, res, res);
+	} else if (name == bPlaneInfinite.getName()) {
+		planeSz = planeSz.get(); //refresh
 	}
 
 	else if (name == planeRot.getName()) {
@@ -434,12 +435,14 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 	} else if (name == resetCubeMap.getName()) {
 		doResetcubeMap();
 	} else if (name == cubeMapMode.getName()) {
-		if (cubeMapMode == 1)
-			cubeMapModeName = "Cube Map";
-		else if (cubeMapMode == 2)
-			cubeMapModeName = "Prefilter Roughness";
-		else if (cubeMapMode == 3)
-			cubeMapModeName = "Irradiance";
+		//TODO:
+		//return;//fix crash
+		if (cubeMapMode.get() == 1)
+			cubeMapModeName.set(ofToString("Cube Map"));
+		else if (cubeMapMode.get() == 2)
+			cubeMapModeName.set(ofToString("Prefilter Roughness"));
+		else if (cubeMapMode.get() == 3)
+			cubeMapModeName.set(ofToString("Irradiance"));
 	}
 #endif
 }
@@ -512,12 +515,12 @@ bool ofxSurfingPBR::loadCubeMap(string path) {
 void ofxSurfingPBR::setupCubeMap() {
 	// params
 	cubeMapMode.set("Mode", 2, 1, 3);
-	cubeMapModeName.set("Type", "");
+	cubeMapModeName.set("Type", "NONE");
 	cubeMapModeName.setSerializable(false);
 	bDrawCubeMap.set("Draw CubeMap", true);
 	cubeMapprefilterRoughness.set("Roughness", 0.25f, 0, 1.f);
 	openCubeMap.set("Open File");
-	resetCubeMap.set("Reset Cubemap");
+	resetCubeMap.set("Reset CubeMap");
 
 	cubeMapParams.setName("CubeMap");
 	cubeMapParams.add(bDrawCubeMap);
@@ -556,3 +559,17 @@ void ofxSurfingPBR::processOpenFileSelection(ofFileDialogResult openFileResult) 
 	}
 }
 #endif
+
+
+void ofxSurfingPBR::keyPressed(int key) {
+	if (!bKeys) return;
+
+	if (key == 'd') bDebug = !bDebug;
+	if (key == 'p') bDrawPlane = !bDrawPlane;
+	if (key == 'c') bDrawCubeMap = !bDrawCubeMap;
+
+	if (key == OF_KEY_F1) doRandomMaterialColors();
+	if (key == OF_KEY_F2) doRandomMaterialSettings();
+	if (key == OF_KEY_F3) doRandomMaterial();
+	if (key == OF_KEY_F4) doResetMaterial();
+}

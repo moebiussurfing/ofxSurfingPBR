@@ -284,15 +284,6 @@ void ofApp::drawMyScene() {
 void ofApp::keyPressed(int key) {
 	if (key == 'r') bRotate = !bRotate;
 
-	if (key == 'd') pbr.bDebug = !pbr.bDebug;
-	if (key == 'p') pbr.bDrawPlane = !pbr.bDrawPlane;
-	if (key == 'c') pbr.bDrawCubeMap = !pbr.bDrawCubeMap;
-
-	if (key == OF_KEY_F1) pbr.doRandomMaterialColors();
-	if (key == OF_KEY_F2) pbr.doRandomMaterialSettings();
-	if (key == OF_KEY_F3) pbr.doRandomMaterial();
-	if (key == OF_KEY_F4) pbr.doResetMaterial();
-
 	if (key == ' ') {
 		if (indexScene < indexScene.getMax())
 			indexScene = indexScene + 1;
@@ -308,6 +299,8 @@ void ofApp::keyPressed(int key) {
 		}
 	}
 #endif
+
+	pbr.keyPressed(key);
 }
 
 //--------------------------------------------------------------

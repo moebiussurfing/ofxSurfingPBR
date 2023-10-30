@@ -14,6 +14,7 @@ public:
 	~SurfingMaterial();
 
 	void setup();
+	void setupParams();
 	void exit();
 	void drawGui();
 	void Changed(ofAbstractParameter & e);
@@ -43,6 +44,7 @@ public:
 	ofParameterGroup colorParams;
 	ofParameterGroup settingsParams;
 	ofParameterGroup coatParams;
+	ofParameterGroup helpersParams;
 
 #ifdef SURFING__USE_DISPLACE
 	ofPlanePrimitive plane;

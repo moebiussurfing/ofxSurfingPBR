@@ -56,6 +56,13 @@
 // OPTIONAL
 #define SURFING__USE_CUBE_MAP
 
+#define SURFING__PLANE_RESOLUTION 10
+//#define SURFING__PLANE_RESOLUTION 100
+
+#define SURFING__PLANE_INFINITE_MAGNITUDE 100.f
+
+//--
+
 #include "SurfingMaterial.h"
 #include "ofxGui.h"
 
@@ -73,6 +80,7 @@ public:
 	void drawPlane();
 	void drawGui();
 	void exit();
+	void keyPressed(int key);
 
 private:
 	void setupParams();
@@ -93,7 +101,7 @@ public:
 private:
 	ofParameter<glm::vec2> planeSz;
 	ofParameter<bool> bPlaneWireframe;
-	ofParameter<bool> bPlaneInfinite;
+	ofParameter<bool> bPlaneInfinite;//make the plane huge size to "fit horizon line"
 	ofParameter<float> planeRot;
 	ofParameter<float> planePos;
 	ofParameter<float> planeShiness;
@@ -127,6 +135,7 @@ private:
 
 public:
 	ofParameter<bool> bDebug;
+	ofParameter<bool> bKeys;
 	ofParameter<bool> bDrawPlane;
 
 public:
