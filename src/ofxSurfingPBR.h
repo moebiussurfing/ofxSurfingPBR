@@ -53,13 +53,25 @@
 #pragma once
 #include "ofMain.h"
 
+//--
+
 // OPTIONAL
+
 #define SURFING__USE_CUBE_MAP
+
+//#define SURFING__USE_DISPLACE
+// TODO/WIP enable to test custom shader and displacement
+
+//--
+
+// CONSTANTS
 
 #define SURFING__PLANE_RESOLUTION 10
 //#define SURFING__PLANE_RESOLUTION 100
 
 #define SURFING__PLANE_INFINITE_MAGNITUDE 100.f
+
+#define SURFING__SZ_UNIT 1000
 
 //--
 
@@ -93,6 +105,18 @@ private:
 
 private:
 	string path = "scene.json";
+
+public:
+	// autosave workflow
+	// we will autosave after on every param change,
+	// but only once per frame, reducing saving overflow.
+	// we will save also when app exit.
+	ofParameter<bool> bAutoSave;
+	void load();
+	void save();
+
+private:
+	bool bFlagSave = false;
 
 public:
 	void setCameraPtr(ofCamera * camera_) {
@@ -191,7 +215,7 @@ public:
 	ofParameter<void> openCubeMap; //TODO
 	ofParameter<void> resetCubeMap;
 	void setupCubeMap();
-	void doResetcubeMap();
+	void doResetCubeMap();
 	void processOpenFileSelection(ofFileDialogResult openFileResult);
 
 public:

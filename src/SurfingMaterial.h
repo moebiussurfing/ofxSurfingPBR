@@ -3,21 +3,14 @@
 
 #include "ofxGui.h"
 
-//#define SURFING__USE_DISPLACE 
-// TODO/WIP enable to test custom shader and displacement
-
-#define SURFING__SZ_UNIT 1000
-
 class SurfingMaterial {
 public:
 	SurfingMaterial();
 	~SurfingMaterial();
 
 	void setup();
-	void setupParams();
-	void exit();
 	void drawGui();
-	void Changed(ofAbstractParameter & e);
+	void exit();
 
 	void begin();
 	void end();
@@ -30,12 +23,12 @@ public:
 	void doRandomSettings();
 
 private:
+	void setupParams();
 	void setupGui();
+	void Changed(ofAbstractParameter & e);
 
 	void update();
 	void update(ofEventArgs & args);
-
-	string path = "material.json";
 
 	ofMaterial material;
 
@@ -45,24 +38,6 @@ public:
 	ofParameterGroup settingsParams;
 	ofParameterGroup coatParams;
 	ofParameterGroup helpersParams;
-
-#ifdef SURFING__USE_DISPLACE
-	ofPlanePrimitive plane;
-	ofShader shader;
-	ofFloatImage img;
-
-	ofParameter<bool> useMaterial;
-
-	ofParameter<float> displacementStrength;
-	ofParameter<float> displacementNormalsStrength;
-	ofParameter<float> normalGeomToNormalMapMix;
-
-	ofParameter<float> noiseAmplitude;
-	ofParameter<float> noiseScale;
-	ofParameter<float> noiseSpeed;
-
-	ofParameterGroup planeParams;
-#endif
 
 	ofParameter<ofFloatColor> globalColor;
 	ofParameter<ofFloatColor> diffuseColor;
@@ -82,9 +57,22 @@ public:
 	ofParameter<float> clearCoatRoughness;
 	ofParameter<float> clearCoatStrength;
 	ofParameter<bool> clearCoat;
-	
+
 	ofParameter<void> resetMaterial;
 	ofParameter<void> randomMaterial;
-	
+
 	ofxPanel gui;
+
+public:
+	// autosave workflow
+	// we will autosave after on every param change,
+	// but only once per frame, reducing saving overflow.
+	// we will save also when app exit.
+	ofParameter<bool> bAutoSave;
+	void load();
+	void save();
+
+private:
+	bool bFlagSave = false;
+	string path = "material.json";
 };

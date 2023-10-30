@@ -36,14 +36,9 @@ void ofApp::renderScene() {
 	// other objects
 	pbr.beginMaterial();
 	{
-		drawMyScene();
+		pbr.drawTestScene();
 	}
 	pbr.endMaterial();
-}
-
-//--------------------------------------------------------------
-void ofApp::drawMyScene() {
-	pbr.drawTestScene();
 }
 
 //--------------------------------------------------------------

@@ -22,10 +22,14 @@ void ofxSurfingPBR::doResetLight() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetPlane() {
 	doResetPlaneTransform();
+
 	planeShiness.set(0.85);
 	globalColor.set(ofFloatColor(1.f));
 	planeDiffuseColor.set(ofFloatColor(0.6));
 	planeSpecularColor.set(ofFloatColor(1));
+
+	bPlaneInfinite = true;
+	bPlaneWireframe = false;
 }
 
 //--------------------------------------------------------------
@@ -44,7 +48,7 @@ void ofxSurfingPBR::doResetShadow() {
 
 #ifdef SURFING__USE_CUBE_MAP
 //--------------------------------------------------------------
-void ofxSurfingPBR::doResetcubeMap() {
+void ofxSurfingPBR::doResetCubeMap() {
 	cubeMapMode = 2;
 	bDrawCubeMap = true;
 	cubeMapprefilterRoughness = 0.25f;
@@ -60,7 +64,7 @@ void ofxSurfingPBR::doResetAll() {
 	doResetShadow();
 
 #ifdef SURFING__USE_CUBE_MAP
-	doResetcubeMap();
+	doResetCubeMap();
 #endif
 
 	//material.doResetMaterial();
@@ -92,7 +96,7 @@ void ofxSurfingPBR::setupParams() {
 	planeParams.add(bDrawPlane);
 	planeParams.add(bPlaneWireframe.set("Wireframe", false));
 	planeTransform.add(planeSz);
-	planeTransform.add(bPlaneInfinite.set("Infinite", false));
+	planeTransform.add(bPlaneInfinite.set("Infinite", true));
 	planeTransform.add(planeRot);
 	planeTransform.add(planePos);
 	planeTransform.add(resetPlaneTransform);
@@ -131,14 +135,6 @@ void ofxSurfingPBR::setupParams() {
 	shadowParams.add(shadowNormalBias.set("Normal Bias", -4.f, -10.0, 10.0));
 	shadowParams.add(resetShadow);
 	parameters.add(shadowParams);
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::setup() {
-	setupParams();
-
-	// object
-	material.setup();
 
 	//--
 
@@ -146,13 +142,32 @@ void ofxSurfingPBR::setup() {
 	setupCubeMap();
 #endif
 
+	//--
+
 	bDebug.set("Debug", false);
 	parameters.add(bDebug);
+
+	bAutoSave.set("Autosave", true);
+	parameters.add(bAutoSave);
+
+	//link
+	//not working?
+	material.bAutoSave.makeReferenceTo(bAutoSave);
+	//bAutoSave.makeReferenceTo(material.bAutoSave);
 
 	bKeys.set("Keys", true);
 	parameters.add(bKeys);
 
 	parameters.add(resetAll);
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::setup() {
+
+	// for objects
+	material.setup();
+	
+	setupParams();
 
 	//--
 
@@ -214,12 +229,13 @@ void ofxSurfingPBR::setup() {
 	doResetAll();
 
 	setupGui();
+
+	load();
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::setupGui() {
 	gui.setup(parameters);
-	gui.loadFromFile(path);
 
 	//minimize
 	//gui.getGroup(planeParams.getName()).minimize();
@@ -239,6 +255,13 @@ void ofxSurfingPBR::update(ofEventArgs & args) {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::update() {
+	if (bAutoSave & bFlagSave) {
+		bFlagSave = false;
+		save();
+	}
+
+	//--
+
 	for (auto & light : lights) {
 		light->getShadow().setEnabled(bDrawShadow);
 	}
@@ -377,6 +400,9 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 	std::string name = e.getName();
 
 	ofLogNotice("ofxSurfingPBR") << "Changed " << name << " : " << e;
+	
+	if (bAutoSave)
+		bFlagSave = true; //for every modified param, flag to save on the next frame
 
 	if (name == planeSz.getName()) {
 		int res = (int)SURFING__PLANE_RESOLUTION;
@@ -433,7 +459,7 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 			ofLogVerbose("ofxSurfingPBR") << ("User hit cancel");
 		}
 	} else if (name == resetCubeMap.getName()) {
-		doResetcubeMap();
+		doResetCubeMap();
 	} else if (name == cubeMapMode.getName()) {
 		//TODO:
 		//return;//fix crash
@@ -489,8 +515,19 @@ void ofxSurfingPBR::drawPlane() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::exit() {
-	gui.saveToFile(path);
+	save();
 	material.exit();
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::save() {
+	ofLogNotice("ofxSurfingPBR") << "Save: " << path;
+	gui.saveToFile(path);
+}
+//--------------------------------------------------------------
+void ofxSurfingPBR::load() {
+	ofLogNotice("ofxSurfingPBR") << "Load: " << path;
+	gui.loadFromFile(path);
 }
 
 //--
@@ -556,7 +593,7 @@ void ofxSurfingPBR::setupCubeMap() {
 
 	parameters.add(cubeMapParams);
 
-	//doResetcubeMap();
+	//doResetCubeMap();
 
 	//--
 

@@ -11,38 +11,16 @@ SurfingMaterial::~SurfingMaterial() {
 	ofRemoveListener(parameters.parameterChangedE(), this, &SurfingMaterial::Changed);
 }
 
-
 //--------------------------------------------------------------
 void SurfingMaterial::setup() {
 
 	setupParams();
 
-	//--
-
-#ifdef SURFING__USE_DISPLACE
-	ofDisableArbTex();
-
-	shader.load("shadersGL3/shader");
-	#ifdef TARGET_OPENGLES
-	OPENGL ES supports GL_RGBA32F but not GL_R32F
-		img.allocate(80, 60, OF_IMAGE_COLOR_ALPHA);
-	#else
-	img.allocate(800, 600, OF_IMAGE_GRAYSCALE);
-	#endif
-#endif
-
-	//--
-
-#ifdef SURFING__USE_DISPLACE
-	plane.set(800, 600, 80, 60);
-	plane.mapTexCoordsFromTexture(img.getTexture());
-#endif
-
-	//--
-
 	doResetMaterial();
 
 	setupGui();
+
+	load();
 }
 
 //--------------------------------------------------------------
@@ -57,33 +35,17 @@ void SurfingMaterial::setupParams() {
 
 	globalColor.setSerializable(false);
 
-#ifdef SURFING__USE_DISPLACE
-	planeParams.add(useMaterial.set("Use Material", true));
-	planeParams.add(noiseAmplitude.set("Displacement", 0.0f, 0.0f, 255.0f));
-	planeParams.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
-	planeParams.add(noiseSpeed.set("Noise Speed", 0.0f, 0.0f, 1.0f));
-	parameters.add(planeParams);
-
-	parameters.add(displacementStrength.set("Displacement Strength", 0.0, 0.0, 500.0));
-	parameters.add(displacementNormalsStrength.set("Displacement Normals Strength", 0.0, 0.0, 1.0));
-	parameters.add(normalGeomToNormalMapMix.set("Normal Geom To Normal Map Mix", 0.0, 0.0, 1.0));
-#endif
-
 	settingsParams.add(shininess.set("Shininess", 0.0, 0.0, 1.0));
 	settingsParams.add(roughness.set("Roughness", 0.0, 0.0, 1.0));
 	settingsParams.add(metallic.set("Metallic", 0.0, 0.0, 1.0));
 	settingsParams.add(reflectance.set("Reflectance", 0.0, 0.0, 1.0));
-	//settingsParams.add(randomSettings.set("Random Settings"));
 	parameters.add(settingsParams);
 
 	colorParams.add(globalColor.set("Global Color", ofColor::white));
-	//colorParams.add(randomColorsGlobal.set("Random Global Color"));
 	colorParams.add(ambientColor.set("Ambient Color", ofColor::white));
 	colorParams.add(specularColor.set("Specular Color", ofColor::white));
 	colorParams.add(diffuseColor.set("Diffuse Color", ofColor::white));
 	colorParams.add(emissiveColor.set("Emissive Color", ofColor::white));
-	//colorParams.add(randomColors.set("Random Colors"));
-	//colorParams.add(randomColorsAlpha.set("Random ColorsAlpha"));
 	parameters.add(colorParams);
 
 	coatParams.add(clearCoat.set("Clear Coat", false));
@@ -98,14 +60,18 @@ void SurfingMaterial::setupParams() {
 	helpersParams.add(randomMaterial.set("Random Material"));
 	helpersParams.add(resetMaterial.set("Reset Material"));
 	parameters.add(helpersParams);
+
+	bAutoSave.set("Autosave", true);
+	parameters.add(bAutoSave);
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::setupGui() {
 	gui.setup(parameters);
-	gui.loadFromFile(path);
 
+	//minimize
 	gui.getGroup(coatParams.getName()).minimize();
+	gui.getGroup(helpersParams.getName()).minimize();
 }
 
 //--------------------------------------------------------------
@@ -116,80 +82,43 @@ void SurfingMaterial::update(ofEventArgs & args) {
 //--------------------------------------------------------------
 void SurfingMaterial::update() {
 
-	material.setDiffuseColor(diffuseColor);
-	material.setAmbientColor(ambientColor);
-	material.setEmissiveColor(emissiveColor);
-	material.setSpecularColor(specularColor);
+	if (bAutoSave & bFlagSave) {
+		bFlagSave = false;
+		save();
+	}
 
+	//--
+
+	//TODO improve avoiding update() call even when not required..
+	//moved to callback!
+	/*
 	material.setRoughness(roughness);
 	material.setMetallic(metallic);
 	material.setReflectance(reflectance);
 	material.setShininess(shininess);
 
+	material.setDiffuseColor(diffuseColor);
+	material.setAmbientColor(ambientColor);
+	material.setEmissiveColor(emissiveColor);
+	material.setSpecularColor(specularColor);
+
 	material.setClearCoatEnabled(clearCoat);
 	material.setClearCoatRoughness(clearCoatRoughness);
 	material.setClearCoatStrength(clearCoatStrength);
-
-#ifdef SURFING__USE_DISPLACE
-	//material.setTexCoordScale(scaleX, scaleY);
-	material.setDisplacementTexture(img.getTexture());
-	material.setDisplacementStrength(displacementStrength);
-	material.setDisplacementNormalsStrength(displacementNormalsStrength);
-
-	material.setNormalGeomToNormalMapMix(normalGeomToNormalMapMix);
-
-	//--
-
-	// compute displace/shader
-	float n = noiseSpeed * ofGetElapsedTimef();
-
-	auto & pixels = img.getPixels();
-	int numChannels = pixels.getNumChannels();
-	int w = img.getWidth();
-	int h = img.getHeight();
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			int i = y * w + x;
-			float value = noiseAmplitude * ofNoise(x * noiseScale, y * noiseScale, n);
-			for (int k = 0; k < numChannels; k++) {
-				pixels[i * numChannels + k] = value;
-			}
-		}
-	}
-
-	img.update();
-#endif
+	*/
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::begin() {
-#ifdef SURFING__USE_DISPLACE
-	if (useMaterial) {
-		material.begin();
-	} else {
-		shader.begin();
-		shader.setUniformTexture("displacement", img.getTexture(), 1);
-	}
-#else
 	material.begin();
-#endif
 }
 //--------------------------------------------------------------
 void SurfingMaterial::end() {
-#ifdef SURFING__USE_DISPLACE
-	if (useMaterial) {
-		material.end();
-	} else {
-		shader.end();
-	}
-#else
 	material.end();
-#endif
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::drawGui() {
-
 	gui.draw();
 }
 
@@ -197,7 +126,10 @@ void SurfingMaterial::drawGui() {
 void SurfingMaterial::Changed(ofAbstractParameter & e) {
 	std::string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR:SurfingMaterial") << name << " : " << e;
+
+	if (bAutoSave)
+		bFlagSave = true; //for every modified param, flag to save on the next frame
 
 	if (name == resetMaterial.getName()) {
 		doResetMaterial();
@@ -230,6 +162,38 @@ void SurfingMaterial::Changed(ofAbstractParameter & e) {
 		c = ofFloatColor(gc.r, gc.g, gc.b, a);
 		emissiveColor.set(c);
 	}
+
+	//--
+
+	//TODO improve avoiding update() call even when not required..
+
+	else if (name == roughness.getName()) {
+		material.setRoughness(roughness);
+	} else if (name == metallic.getName()) {
+		material.setMetallic(metallic);
+	} else if (name == reflectance.getName()) {
+		material.setReflectance(reflectance);
+	} else if (name == shininess.getName()) {
+		material.setShininess(shininess);
+	}
+
+	else if (name == diffuseColor.getName()) {
+		material.setDiffuseColor(diffuseColor);
+	} else if (name == ambientColor.getName()) {
+		material.setAmbientColor(ambientColor);
+	} else if (name == emissiveColor.getName()) {
+		material.setEmissiveColor(emissiveColor);
+	} else if (name == specularColor.getName()) {
+		material.setSpecularColor(specularColor);
+	}
+
+	else if (name == clearCoat.getName()) {
+		material.setClearCoatEnabled(clearCoat);
+	} else if (name == clearCoatRoughness.getName()) {
+		material.setClearCoatRoughness(clearCoatRoughness);
+	} else if (name == clearCoatStrength.getName()) {
+		material.setClearCoatStrength(clearCoatStrength);
+	}
 }
 
 //--------------------------------------------------------------
@@ -239,16 +203,21 @@ void SurfingMaterial::doRandomMaterial() {
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doResetMaterial() {
+	//reset all the material, params and colors to full alpha.
+
 	shininess.set(0);
 	roughness.set(0);
 	metallic.set(0);
 	reflectance.set(0);
 
 	globalColor.set(ofColor::white);
-	//ambientColor.set(ofColor::white);
-	//specularColor.set(ofColor::white);
-	//diffuseColor.set(ofColor::white);
-	//emissiveColor.set(ofColor::white);
+	// will set all color except the alphas...
+
+	// force again to overwrite the alphas too
+	ambientColor.set(ofColor::white);
+	specularColor.set(ofColor::white);
+	diffuseColor.set(ofColor::white);
+	emissiveColor.set(ofColor::white);
 
 	clearCoat.set(false);
 	clearCoatRoughness.set(0.0001);
@@ -256,6 +225,8 @@ void SurfingMaterial::doResetMaterial() {
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomSettings() {
+	//randomize params
+
 	shininess.set(ofRandom(1));
 	roughness.set(ofRandom(1));
 	metallic.set(ofRandom(1));
@@ -264,6 +235,7 @@ void SurfingMaterial::doRandomSettings() {
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColorsAlpha() {
 	//randomizes the alphas too
+
 	ofFloatColor c;
 	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), ofRandom(1));
 	ambientColor.set(c);
@@ -277,6 +249,7 @@ void SurfingMaterial::doRandomColorsAlpha() {
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColorGlobal() {
 	//do not touches the alphas
+
 	ofFloatColor c;
 	float a;
 	a = globalColor.get().a;
@@ -286,6 +259,7 @@ void SurfingMaterial::doRandomColorGlobal() {
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColors() {
 	//do not touches the alphas
+
 	ofFloatColor c;
 	float a;
 	a = ambientColor.get().a;
@@ -304,5 +278,18 @@ void SurfingMaterial::doRandomColors() {
 
 //--------------------------------------------------------------
 void SurfingMaterial::exit() {
+	save();
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::save() {
+	ofLogNotice("ofxSurfingPBR:SurfingMaterial") << "Save: " << path;
+
 	gui.saveToFile(path);
+}
+//--------------------------------------------------------------
+void SurfingMaterial::load() {
+	ofLogNotice("ofxSurfingPBR:SurfingMaterial") << "Load: " << path;
+
+	gui.loadFromFile(path);
 }
