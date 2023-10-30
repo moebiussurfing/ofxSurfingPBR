@@ -133,9 +133,10 @@ public:
 	ofxPanel gui;
 
 	const ofRectangle getGuiShape() {
-		auto r1 = material.gui.getShape();
-		auto r2 = gui.getShape();
+		ofRectangle r1 = gui.getShape();
+		ofRectangle r2 = material.gui.getShape();
 		ofRectangle bb = r1.getUnion(r2);
+		//ofRectangle bb = r1.getUnion(r2);
 		return bb;
 	};
 	ofParameter<void> resetAll;
