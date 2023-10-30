@@ -244,10 +244,11 @@ void SurfingMaterial::doResetMaterial() {
 	metallic.set(0);
 	reflectance.set(0);
 
-	ambientColor.set(ofColor::white);
-	specularColor.set(ofColor::white);
-	diffuseColor.set(ofColor::white);
-	emissiveColor.set(ofColor::white);
+	globalColor.set(ofColor::white);
+	//ambientColor.set(ofColor::white);
+	//specularColor.set(ofColor::white);
+	//diffuseColor.set(ofColor::white);
+	//emissiveColor.set(ofColor::white);
 
 	clearCoat.set(false);
 	clearCoatRoughness.set(0.0001);
@@ -262,6 +263,7 @@ void SurfingMaterial::doRandomSettings() {
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColorsAlpha() {
+	//randomizes the alphas too
 	ofFloatColor c;
 	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), ofRandom(1));
 	ambientColor.set(c);
@@ -274,6 +276,7 @@ void SurfingMaterial::doRandomColorsAlpha() {
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColorGlobal() {
+	//do not touches the alphas
 	ofFloatColor c;
 	float a;
 	a = globalColor.get().a;
@@ -282,6 +285,7 @@ void SurfingMaterial::doRandomColorGlobal() {
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColors() {
+	//do not touches the alphas
 	ofFloatColor c;
 	float a;
 	a = ambientColor.get().a;

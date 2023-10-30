@@ -6,8 +6,6 @@ void ofApp::setup() {
 	ofxSurfingHelpers::setWindowTitleAsProjectName();
 	ofxSurfingHelpers::setMonitorsLayout(-1, false, true);
 #endif
-	
-	ofSetConeResolution(30, 10, 2);
 
 	//--
 
@@ -35,7 +33,7 @@ void ofApp::renderScene() {
 	// floor plane
 	pbr.drawPlane();
 
-	// objects
+	// other objects
 	pbr.beginMaterial();
 	{
 		drawMyScene();
@@ -45,20 +43,7 @@ void ofApp::renderScene() {
 
 //--------------------------------------------------------------
 void ofApp::drawMyScene() {
-
-	ofPushMatrix();
-	ofTranslate(-200, 100, 0);
-	ofRotateXDeg(180);
-	ofDrawCone(0,0,0, 65, 100);
-	ofPopMatrix();
-
-	ofPushMatrix();
-	float spd = 240;
-	ofRotateYDeg(360.f * (ofGetFrameNum() % (int)spd) / spd);
-	ofDrawBox(0, 100, 0, 100);
-	ofPopMatrix();
-
-	ofDrawSphere(200, 100, 0, 50);
+	pbr.drawTestScene();
 }
 
 //--------------------------------------------------------------

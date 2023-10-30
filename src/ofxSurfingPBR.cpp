@@ -100,9 +100,9 @@ void ofxSurfingPBR::setupParams() {
 
 	planeSettingsParams.setName("Settings");
 	planeSettingsParams.add(globalColor);
-	planeSettingsParams.add(planeShiness);
 	planeSettingsParams.add(planeDiffuseColor);
 	planeSettingsParams.add(planeSpecularColor);
+	planeSettingsParams.add(planeShiness);
 	planeParams.add(planeSettingsParams);
 	planeParams.add(resetPlane);
 
@@ -445,6 +445,30 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 			cubeMapModeName.set(ofToString("Irradiance"));
 	}
 #endif
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::drawTestScene() {
+	// do once
+	static bool b = false;
+	if (!b) {
+		b = true;
+		ofSetConeResolution(30, 10, 2);
+	}
+
+	ofPushMatrix();
+	ofTranslate(-200, 100, 0);
+	ofRotateXDeg(180);
+	ofDrawCone(0, 0, 0, 65, 100);
+	ofPopMatrix();
+
+	ofPushMatrix();
+	float spd = 240;
+	ofRotateYDeg(360.f * (ofGetFrameNum() % (int)spd) / spd);
+	ofDrawBox(0, 100, 0, 100);
+	ofPopMatrix();
+
+	ofDrawSphere(200, 100, 0, 50);
 }
 
 //--------------------------------------------------------------

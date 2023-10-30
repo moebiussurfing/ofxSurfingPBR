@@ -78,6 +78,7 @@ public:
 	void setup();
 	void draw();
 	void drawPlane();
+	void drawTestScene();
 	void drawGui();
 	void exit();
 	void keyPressed(int key);

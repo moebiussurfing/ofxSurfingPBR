@@ -15,7 +15,8 @@ void ofApp::setup() {
 	pbr.setCameraPtr(&camera);
 
 	pbr.loadCubeMap("cubemaps/kloppenheim_06_puresky_1k.exr");
-
+	// replaces the default cubemap
+	
 	// render scene
 	callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
 	pbr.setFunction_renderScene(myFunctionDraw);
