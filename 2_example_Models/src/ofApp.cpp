@@ -11,20 +11,25 @@ void ofApp::setup() {
 
 	//--
 
-	pbr.setup();
-	pbr.setCameraPtr(&camera);
-
-	pbr.loadCubeMap("cubemaps/kloppenheim_06_puresky_1k.exr");
-	// replaces the default cubemap
-	
-	// render scene
-	callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
-	pbr.setFunction_renderScene(myFunctionDraw);
+	setupPBR();
 
 	//--
 
 	// models
 	setupModels();
+}
+
+//--------------------------------------------------------------
+void ofApp::setupPBR() {
+	pbr.setup();
+	pbr.setCameraPtr(&camera);
+
+	pbr.loadCubeMap("cubemaps/kloppenheim_06_puresky_1k.exr");
+	// replaces the default cubemap
+
+	// render scene
+	callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
+	pbr.setFunction_renderScene(myFunctionDraw);
 }
 
 #ifdef SURFING__USE_FILE_BROWSER
@@ -57,8 +62,6 @@ bool ofApp::loadModel(string path) {
 
 	ofLogNotice() << "Started loading model file... \n" << path;
 
-
-
 	// model
 	model.clear();
 
@@ -70,16 +73,6 @@ bool ofApp::loadModel(string path) {
 
 	//model.setPosition(0, 2, 0);
 	//model.setRotation(0, 90, 1, 0, 0);
-
-	// mesh
-	//meshModel.clear();
-	//meshModel = ofVboMesh();
-	//meshModel = model.getMesh(0);
-
-	//// flip the normals
-	//for (size_t i = 0; i < meshModel.getNumNormals(); i++) {
-	//	meshModel.getNormals()[i] *= -1.f;
-	//}
 	
 	// TODO: we queue multi meshes
 	// bc some models have multiple parts..
@@ -95,7 +88,7 @@ bool ofApp::loadModel(string path) {
 void ofApp::setupModels() {
 
 	// mesh
-	// (scene 0)
+	// for scene 0
 	pathMesh = "models/ofLogoHollow.ply";
 	mesh.load(pathMesh);
 	mesh.mergeDuplicateVertices();
@@ -107,7 +100,7 @@ void ofApp::setupModels() {
 	//--
 
 	// model
-	// (scene 1)
+	// for scene 1
 	
 	//problems with normals
 	pathModel = "models/head25k.obj"; 
@@ -212,6 +205,7 @@ void ofApp::drawMyScene() {
 
 	//--
 
+	// scene 0
 	// mesh
 	if (indexScene == 0) {
 		// mesh
@@ -228,6 +222,7 @@ void ofApp::drawMyScene() {
 
 	//--
 
+	// scene 1
 	// mesh model
 	else if (indexScene == 1) {
 		glFrontFace(GL_CCW);//fix for "transparent" model
@@ -239,8 +234,6 @@ void ofApp::drawMyScene() {
 		//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);
 		if (bRotate) ofRotateYDeg(-d);
 		{
-			//meshModel.drawFaces();
-
 			if (meshesModel.size() > 0) {
 				for (int i = 0; i < meshesModel.size(); i++) {
 					meshesModel[i].drawFaces();
@@ -252,8 +245,10 @@ void ofApp::drawMyScene() {
 
 	//--
 
+	// scene 2
 	// three prims
 	else if (indexScene == 2) {
+
 		ofPushMatrix();
 		float uuPos = 800;
 		float yy = ofMap(yPos, -1.f, 1.f, -uuPos, uuPos, true);
@@ -261,21 +256,7 @@ void ofApp::drawMyScene() {
 		ofScale(s * 0.02f);
 		if (bRotate) ofRotateYDeg(d);
 
-		{
-			ofPushMatrix();
-			ofTranslate(-200, 100, 0);
-			ofRotateXDeg(180);
-			ofDrawCone(0, 0, 0, 65, 100);
-			ofPopMatrix();
-
-			ofPushMatrix();
-			float spd = 240;
-			ofRotateYDeg(360.f * (ofGetFrameNum() % (int)spd) / spd);
-			ofDrawBox(0, 100, 0, 100);
-			ofPopMatrix();
-
-			ofDrawSphere(200, 100, 0, 50);
-		}
+		pbr.drawTestScene();
 
 		ofPopMatrix();
 	}
@@ -307,5 +288,6 @@ void ofApp::keyPressed(int key) {
 //--------------------------------------------------------------
 void ofApp::exit() {
 	pbr.exit();
+
 	gui.saveToFile("ofApp.json");
 }

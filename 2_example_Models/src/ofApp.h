@@ -1,10 +1,11 @@
 #pragma once
 #include "ofMain.h"
 
-// OPTIONAL
-//#define SURFING__USE_FILE_BROWSER 
-// requires check previously the sanity of the files you load!
-// some could freeze the app!
+// Optional
+//#define SURFING__USE_FILE_BROWSER
+// requires to check previously 
+// the sanity of the files you pretend to load!
+// bc some could freeze the app or too big!
 
 #include "ofxSurfingHelpers.h"
 #include "ofxSurfingPBR.h"
@@ -21,22 +22,20 @@ public:
 	void keyPressed(int key);
 	void exit();
 
+	ofEasyCam camera;
+
+	ofxSurfingPBR pbr;
+	void setupPBR();
+	void renderScene();
 	void drawMyScene();
 
-	ofEasyCam camera;
-	ofxSurfingPBR pbr;
-	void renderScene();
-
 	void setupModels();
-
 	string pathMesh;
 	ofVboMesh mesh;
-
 	string pathModel;
 	bool loadModel(string path);
 	ofxAssimpModelLoader model;
 	vector<ofVboMesh> meshesModel;
-	//ofVboMesh meshModel;
 
 	ofxPanel gui;
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
