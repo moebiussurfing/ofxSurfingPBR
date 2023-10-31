@@ -9,11 +9,12 @@ public:
 	void setup();
 	void update();
 	void draw();
-	void drawYourScene();
 	void keyPressed(int key);
 	void exit();
 
 	ofEasyCam camera;
+	void drawYourScene();
+
 	ofxSurfingPBR pbr;
 	void renderScene();
 };

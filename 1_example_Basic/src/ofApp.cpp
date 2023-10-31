@@ -10,12 +10,13 @@ void ofApp::setup() {
 	//--
 
 	pbr.setup();
-	pbr.setCameraPtr(&camera);
+	pbr.setCameraPtr(&camera);// Pass the local camera
 
-	// render scene
+	// Pass the scene to render
 	callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
 	pbr.setFunction_renderScene(myFunctionDraw);
 
+	// Set log level
 	ofSetLogLevel("ofxSurfingPBR", OF_LOG_VERBOSE);
 	//ofSetLogLevel("ofxSurfingPBR", OF_LOG_ERROR);
 }

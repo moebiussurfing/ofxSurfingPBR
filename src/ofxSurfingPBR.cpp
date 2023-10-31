@@ -38,7 +38,8 @@ void ofxSurfingPBR::doResetPlane() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetPlaneTransform() {
-	planeSize.set(glm::vec2(0.5f, 0.5f));
+	//planeSize.set(glm::vec2(0.5f, 0.5f));
+	bPlaneInfinite = true;
 	planeRotation.set(10.f);
 	planePosition.set(-0.1f);
 }
@@ -48,6 +49,7 @@ void ofxSurfingPBR::doResetShadow() {
 	bDrawShadow.set(true);
 	shadowBias.set(0.07);
 	shadowNormalBias.set(-4.f);
+	//shadowSize.set(glm::vec2(0.25f,0.25f));
 }
 
 #ifdef SURFING__USE_CUBE_MAP
@@ -91,6 +93,8 @@ void ofxSurfingPBR::setupParams() {
 	resetShadow.set("Reset Shadow");
 	resetAll.set("Reset All");
 
+	//--
+
 	planeParams.setName("Plane");
 	planeTransform.setName("Transform");
 	bDrawPlane.set("Draw Plane", true);
@@ -123,10 +127,10 @@ void ofxSurfingPBR::setupParams() {
 #endif
 
 	planeParams.add(planeSettingsParams);
-
 	planeParams.add(resetPlane);
-
 	parameters.add(planeParams);
+	
+	//--
 
 	lightParams.setName("Light");
 	lightAmbientColor.set("Light Ambient Color", ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
@@ -138,10 +142,13 @@ void ofxSurfingPBR::setupParams() {
 	lightParams.add(resetLight);
 	parameters.add(lightParams);
 
+	//--
+
 	shadowParams.setName("Shadow");
 	shadowParams.add(bDrawShadow.set("Draw Shadow", true));
 	shadowParams.add(shadowBias.set("Bias", 0.07, 0.0, 1.0));
 	shadowParams.add(shadowNormalBias.set("Normal Bias", -4.f, -10.0, 10.0));
+	//shadowParams.add(shadowSize.set("Shadow Size", glm::vec2(0.25f, 0.25f), glm::vec2(0, 0), glm::vec2(1.f, 1.f)));
 	shadowParams.add(resetShadow);
 	parameters.add(shadowParams);
 
@@ -205,8 +212,8 @@ void ofxSurfingPBR::refreshShaderImg() {
 		plane.mapTexCoordsFromTexture(img.getTexture());
 
 		ofLogNotice("ofxSurfingPBR") << "w,h: " << w << "," << h;
-	} 
-	
+	}
+
 	else {
 		ofLogNotice("ofxSurfingPBR") << "Skipped img.allocate";
 	}
@@ -352,6 +359,11 @@ void ofxSurfingPBR::setup() {
 			light->setPointLight();
 			light->getShadow().setNearClip(20);
 			light->getShadow().setFarClip(SURFING__SZ_UNIT);
+
+			//TODO: trying to set "bounding box"
+			//float w = shadowSize.get().x * 5 * SURFING__SZ_UNIT;
+			//float h = shadowSize.get().y * 5 * SURFING__SZ_UNIT;
+			//light->getShadow().setDirectionalBounds(w,h);
 		}
 
 		else {
@@ -699,7 +711,8 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 			ofLogNotice("ofxSurfingPBR") << "Not Changed. Skipped planeSize refresh!";
 		}
 	} else if (name == bPlaneInfinite.getName()) {
-		planeSize = glm::vec2(1, 1); //set max
+		if (bPlaneInfinite) planeSize = glm::vec2(1, 1); //set max
+
 		//planeSize = planeSize.get();//refresh
 	}
 

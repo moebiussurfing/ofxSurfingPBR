@@ -26,7 +26,6 @@ private:
 	void setupParams();
 	void setupGui();
 	void Changed(ofAbstractParameter & e);
-
 	void update();
 	void update(ofEventArgs & args);
 
@@ -45,20 +44,20 @@ public:
 	ofParameter<ofFloatColor> specularColor;
 	ofParameter<ofFloatColor> ambientColor;
 	ofParameter<ofFloatColor> emissiveColor;
-	ofParameter<void> randomColors;
-	ofParameter<void> randomColorsAlpha;
-	ofParameter<void> randomColorsGlobal;
 
 	ofParameter<float> shininess;
 	ofParameter<float> metallic;
 	ofParameter<float> reflectance;
 	ofParameter<float> roughness;
-	ofParameter<void> randomSettings;
 
 	ofParameter<float> clearCoatRoughness;
 	ofParameter<float> clearCoatStrength;
-	ofParameter<bool> clearCoat;
 
+	ofParameter<void> randomColors;
+	ofParameter<void> randomColorsAlpha;
+	ofParameter<void> randomColorsGlobal;
+	ofParameter<void> randomSettings;
+	ofParameter<bool> clearCoat;
 	ofParameter<void> resetMaterial;
 	ofParameter<void> randomMaterial;
 
@@ -67,9 +66,10 @@ public:
 public:
 	// autosave workflow
 	// we will autosave after on every param change,
-	// but only once per frame, reducing saving overflow.
+	// but after waiting some ms. reducing saving overflow.
 	// we will save also when app exit.
 	ofParameter<bool> bAutoSave;
+
 	void load();
 	void save();
 

@@ -12,14 +12,16 @@
 
 
 	TODO:
-	- make a scene manager allowing 
+	- make a scene manager allowing
 		to queue many materials 
 		and lights on a std::vector.
+		something like ofxPBR or ofxPBRHelper.
 	- add ImGui mode.
 	- add presets manager 
 		and randomizer/undo/redo 
 		to explore and save materials.
-	- add ofxBgGradient addon
+	- add ofxBgGradient addon 
+		to draw a cool Bg instead of the cubeMap.
 
 */
 
@@ -91,7 +93,7 @@ public:
 	void setup();
 	void draw();
 	void drawPlane();
-	void drawTestScene();
+	void drawTestScene();//a simple scene for easy testing
 	void drawGui();
 	void exit();
 	void keyPressed(int key);
@@ -101,25 +103,7 @@ private:
 	void setupGui();
 	void update();
 	void update(ofEventArgs & args);
-
 	void Changed(ofAbstractParameter & e);
-
-private:
-	string path = "scene.json";
-
-public:
-	// autosave workflow
-	// we will autosave after on every param change,
-	// but only once per frame, reducing saving overflow.
-	// we will save also when app exit.
-	ofParameter<bool> bAutoSave;
-	void load();
-	void save();
-
-private:
-	uint64_t timeLastChange = 0;
-	int timeSaveGap = 1000; //save every x milliseconds.
-	bool bFlagSave = false;
 
 public:
 	void setCameraPtr(ofCamera * camera_) {
@@ -127,40 +111,48 @@ public:
 	}
 
 private:
-	ofParameter<glm::vec2> planeSize;
+	ofPlanePrimitive plane;
+
+	ofParameterGroup planeParams;
+	ofParameterGroup planeSettingsParams;
+	ofParameterGroup planeTransform;
+
 	ofParameter<bool> bPlaneWireframe;
-	ofParameter<bool> bPlaneInfinite; //make the plane huge size to "fit horizon line"
+	ofParameter<bool> bPlaneInfinite;//make the plane huge size to "fit horizon line"
+	ofParameter<glm::vec2> planeSize;//normalized
 	ofParameter<float> planeRotation;
 	ofParameter<float> planePosition;
 	ofParameter<float> planeShiness;
 	ofParameter<ofFloatColor> planeDiffuseColor;
 	ofParameter<ofFloatColor> planeSpecularColor;
 	ofParameter<ofFloatColor> planeGlobalColor;
-	ofParameterGroup planeSettingsParams;
+
 	ofParameter<void> resetPlane;
 	ofParameter<void> resetPlaneTransform;
 	void refreshPlane();
 
 private:
 	ofMaterial materialPlane;
-	ofParameterGroup planeParams;
-	ofParameterGroup planeTransform;
 
 private:
+	vector<shared_ptr<ofLight>> lights;
+
 	ofParameterGroup lightParams;
 	ofParameter<float> lightX;
 	ofParameter<float> lightY;
 	ofParameter<float> lightZ;
-	ofParameter<void> resetLight;
 	ofParameter<ofFloatColor> lightAmbientColor;
+	ofParameter<void> resetLight;
 
 	ofParameterGroup shadowParams;
+	ofParameter<bool> bDrawShadow;
 	ofParameter<float> shadowBias;
 	ofParameter<float> shadowNormalBias;
-	ofParameter<bool> bDrawShadow;
+	//ofParameter<glm::vec2> shadowSize;
 	ofParameter<void> resetShadow;
 
 	ofParameterGroup parameters;
+	ofParameter<void> resetAll;
 
 public:
 	ofParameter<bool> bDebug;
@@ -170,22 +162,27 @@ public:
 public:
 	ofxPanel gui;
 
+	// helper to improve layout with many gui panels.
 	const ofRectangle getGuiShape() {
 		ofRectangle r1 = gui.getShape();
 		ofRectangle r2 = material.gui.getShape();
 		ofRectangle bb = r1.getUnion(r2);
 		return bb;
 	};
-	ofParameter<void> resetAll;
+
+private:
+	ofCamera * camera;
+
+private:
+	callback_t function_RenderScene = nullptr;
+
+public:
+	void setFunction_renderScene(callback_t f = nullptr) {
+		function_RenderScene = f;
+	};
 
 private:
 	SurfingMaterial material;
-
-	ofCamera * camera;
-
-	vector<shared_ptr<ofLight>> lights;
-
-	ofPlanePrimitive plane;
 
 	//--
 
@@ -196,30 +193,26 @@ public:
 	void beginMaterialPlane();
 	void endMaterialPlane();
 
-private:
-	callback_t function_RenderScene = nullptr;
-
-public:
-	void setFunction_renderScene(callback_t f = nullptr) {
-		function_RenderScene = f;
-	};
-
 	//--
 
 #ifdef SURFING__USE_CUBE_MAP
-	string path_Cubemaps = "cubemaps";
-	string path_CubemapFilename = "modern_buildings_2_1k.exr";
 	ofCubeMap cubeMap;
+
+	void setupCubeMap();
+	string path_Cubemaps = "cubemaps";//bin/data/cubemaps/
+	string path_CubemapFilename = "modern_buildings_2_1k.exr";
+
 	ofParameterGroup cubeMapParams;
 	ofParameter<int> cubeMapMode;
 	ofParameter<string> cubeMapModeName;
 	ofParameter<float> cubeMapprefilterRoughness;
 	ofParameter<bool> bDrawCubeMap;
-	ofParameter<void> openCubeMap; //TODO
-	ofParameter<void> resetCubeMap;
-	void setupCubeMap();
-	void doResetCubeMap();
+	
+	ofParameter<void> openCubeMap;
 	void processOpenFileSelection(ofFileDialogResult openFileResult);
+	
+	ofParameter<void> resetCubeMap;
+	void doResetCubeMap();
 
 public:
 	bool loadCubeMap(string path = "");
@@ -251,30 +244,54 @@ public:
 
 	//--
 
+private:
+	string path = "scene.json";
+
+public:
+	// autosave workflow
+	// we will autosave after on every param change,
+	// but after waiting some ms. reducing saving overflow.
+	// we will save also when app exit.
+	ofParameter<bool> bAutoSave;
+
+	void load();
+	void save();
+
+private:
+	uint64_t timeLastChange = 0;
+	int timeSaveGap = 1000; //save every x milliseconds.
+	bool bFlagSave = false;
+
+	//--
+
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
 private:
 	ofShader shader;
+	ofFloatImage img;
 	void setupShader();
 	bool bShaderReady = false;
-	ofFloatImage img;
 
 	ofParameterGroup displacersParams;
 	ofParameterGroup displaceMaterialParams;
 	ofParameterGroup noiseParams;
+
 	ofParameter<void> resetDisplace;
 	ofParameter<void> resetNoise;
+	void doResetNoise();
+	void doResetDisplace();
+
 	ofParameter<bool> bShaderToPlane;
 	ofParameter<bool> bDisplaceToMaterial;
+
 	ofParameter<float> noiseAmplitude;
 	ofParameter<float> noiseScale;
 	ofParameter<float> noiseSpeed;
+
 	ofParameter<float> displacementStrength;
 	ofParameter<float> displacementNormalsStrength;
 	ofParameter<float> normalGeomToNormalMapMix;
 
 	void setupParamsDisplace();
-	void doResetNoise();
-	void doResetDisplace();
 	void updateDisplace();
 	void refreshShaderImg();
 
