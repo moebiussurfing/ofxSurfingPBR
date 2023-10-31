@@ -16,78 +16,31 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::doResetLight() {
-	lightX = 0;
-	lightY = SURFING__SZ_UNIT;
-	lightZ = 0;
-	lightAmbientColor.set(ofFloatColor(1));
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::doResetPlane() {
-	doResetPlaneTransform();
-
-	planeShiness.set(0.85);
-	planeGlobalColor.set(ofFloatColor(1.f));
-	planeDiffuseColor.set(ofFloatColor(0.6));
-	planeSpecularColor.set(ofFloatColor(1));
-
-	bPlaneInfinite = true;
-	bPlaneWireframe = false;
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::doResetPlaneTransform() {
-	//planeSize.set(glm::vec2(0.5f, 0.5f));
-	bPlaneInfinite = true;
-	planeRotation.set(10.f);
-	planePosition.set(-0.1f);
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::doResetShadow() {
-	bDrawShadow.set(true);
-	shadowBias.set(0.07);
-	shadowNormalBias.set(-4.f);
-	//shadowSize.set(glm::vec2(0.25f,0.25f));
-}
-
-#ifdef SURFING__USE_CUBE_MAP
-//--------------------------------------------------------------
-void ofxSurfingPBR::doResetCubeMap() {
-	cubeMapMode = 2;
-	bDrawCubeMap = true;
-	cubeMapprefilterRoughness = 0.25f;
-}
-#endif
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::doResetAll(bool bExcludeMaterial) {
-	bDebug = false;
-
-	doResetPlane();
-	doResetLight();
-	doResetShadow();
-
-#ifdef SURFING__USE_CUBE_MAP
-	doResetCubeMap();
-#endif
-
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
-	doResetNoise();
-	doResetDisplace();
-#endif
-
-	if (!bExcludeMaterial) material.doResetMaterial();
-}
-
-//--------------------------------------------------------------
 void ofxSurfingPBR::setupParams() {
 	ofLogNotice("ofxSurfingPBR") << "setupParams()";
 
 	bGui.set("PBR", true);
-	
+	bGui_ofxGui.set("PBR", true);
+
+	bDebug.set("Debug", false);
+	bKeys.set("Keys", true);
+
+	bAutoSave.set("Autosave", true);
+	////link
+	////TODO: not working?
+	//material.bAutoSave.makeReferenceTo(bAutoSave);
+	////bAutoSave.makeReferenceTo(material.bAutoSave);
+
+	//--
+
 	parameters.setName("PBR_Scene");
+	planeParams.setName("Plane");
+	planeTransformParams.setName("Transform");
+	planeSettingsParams.setName("Settings");
+	lightParams.setName("Light");
+	shadowParams.setName("Shadow");
+
+	//--
 
 	resetPlane.set("Reset Plane");
 	resetPlaneTransform.set("Reset Transform");
@@ -97,9 +50,9 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	planeParams.setName("Plane");
-	planeTransform.setName("Transform");
 	bDrawPlane.set("Draw Plane", true);
+	bPlaneWireframe.set("Draw Wireframe", false);
+	bPlaneInfinite.set("Infinite", true);
 	planeSize.set("Size", glm::vec2(0.8f, 0.8f), glm::vec2(0, 0), glm::vec2(1, 1));
 	planeRotation.set("x Rotation", 0, -45, 135);
 	planePosition.set("y Position", 0, -1, 1);
@@ -110,15 +63,15 @@ void ofxSurfingPBR::setupParams() {
 	planeSpecularColor.set("Specular Color", ofFloatColor(1), ofFloatColor(0), ofFloatColor(1));
 
 	planeParams.add(bDrawPlane);
-	planeParams.add(bPlaneWireframe.set("Wireframe", false));
-	planeTransform.add(planeSize);
-	planeTransform.add(bPlaneInfinite.set("Infinite", true));
-	planeTransform.add(planeRotation);
-	planeTransform.add(planePosition);
-	planeTransform.add(resetPlaneTransform);
-	planeParams.add(planeTransform);
+	planeParams.add(bPlaneWireframe);
 
-	planeSettingsParams.setName("Settings");
+	planeTransformParams.add(planeSize);
+	planeTransformParams.add(bPlaneInfinite);
+	planeTransformParams.add(planeRotation);
+	planeTransformParams.add(planePosition);
+	planeTransformParams.add(resetPlaneTransform);
+	planeParams.add(planeTransformParams);
+
 	planeSettingsParams.add(planeGlobalColor);
 	planeSettingsParams.add(planeDiffuseColor);
 	planeSettingsParams.add(planeSpecularColor);
@@ -130,11 +83,9 @@ void ofxSurfingPBR::setupParams() {
 
 	planeParams.add(planeSettingsParams);
 	planeParams.add(resetPlane);
-	parameters.add(planeParams);
-	
+
 	//--
 
-	lightParams.setName("Light");
 	lightAmbientColor.set("Light Ambient Color", ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
 	float u = 2 * SURFING__SZ_UNIT;
 	lightParams.add(lightX.set("X", 0.0f, -u, u));
@@ -142,16 +93,21 @@ void ofxSurfingPBR::setupParams() {
 	lightParams.add(lightZ.set("Z", 0.0f, -u, u));
 	lightParams.add(lightAmbientColor);
 	lightParams.add(resetLight);
-	parameters.add(lightParams);
 
 	//--
 
-	shadowParams.setName("Shadow");
 	shadowParams.add(bDrawShadow.set("Draw Shadow", true));
 	shadowParams.add(shadowBias.set("Bias", 0.07, 0.0, 1.0));
 	shadowParams.add(shadowNormalBias.set("Normal Bias", -4.f, -10.0, 10.0));
+	//TODO
+	//shadowParams.add(shadowStrength.set("Strength", 0.6f, 0.f, 1.f));
 	//shadowParams.add(shadowSize.set("Shadow Size", glm::vec2(0.25f, 0.25f), glm::vec2(0, 0), glm::vec2(1.f, 1.f)));
 	shadowParams.add(resetShadow);
+
+	//--
+
+	parameters.add(planeParams);
+	parameters.add(lightParams);
 	parameters.add(shadowParams);
 
 	//--
@@ -161,15 +117,6 @@ void ofxSurfingPBR::setupParams() {
 #endif
 
 	//--
-
-	bDebug.set("Debug", false);
-	bAutoSave.set("Autosave", true);
-	bKeys.set("Keys", true);
-
-	//link
-	//TODO: not working?
-	material.bAutoSave.makeReferenceTo(bAutoSave);
-	//bAutoSave.makeReferenceTo(material.bAutoSave);
 
 	parameters.add(bDebug);
 	parameters.add(bKeys);
@@ -181,23 +128,21 @@ void ofxSurfingPBR::setupParams() {
 
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
 //--------------------------------------------------------------
-void ofxSurfingPBR::refreshShaderImg() {
-	ofLogNotice("ofxSurfingPBR") << "refreshShaderImg()";
+void ofxSurfingPBR::refreshImgShaderPlane() {
+	ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane()";
 
 	float w, h;
 	w = plane.getWidth();
 	h = plane.getHeight();
 
-	//#ifdef SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE
 	w = ofClamp(w, 0, 800);
 	h = ofClamp(h, 0, 600);
-	//#endif
 
 	//reduce a bit image re allocations when not required
 	//bc sizes not changed..
 	static float w_ = -1;
 	static float h_ = -1;
-	if (w != w_ || h != h_) { //changed
+	if (w != w_ || h != h_) { //if changed
 		w_ = w;
 		h_ = h;
 
@@ -207,10 +152,11 @@ void ofxSurfingPBR::refreshShaderImg() {
 	#else
 		//img.clear();
 		img.allocate(w, h, OF_IMAGE_GRAYSCALE);
+		ofLogNotice("ofxSurfingPBR") << "Allocated img: " << w << "," << h;
 	#endif
 
-		// apply to plane
-		//plane.set(800, 600, 80, 60);//TODO
+		//apply to plane
+		//plane.set(800, 600, 80, 60);
 		plane.mapTexCoordsFromTexture(img.getTexture());
 
 		ofLogNotice("ofxSurfingPBR") << "w,h: " << w << "," << h;
@@ -222,14 +168,14 @@ void ofxSurfingPBR::refreshShaderImg() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::setupShader() {
-	ofLogNotice("ofxSurfingPBR") << "setupShader()";
+void ofxSurfingPBR::setupShaderPlane() {
+	ofLogNotice("ofxSurfingPBR") << "setupShaderPlane()";
 
 	ofDisableArbTex();
 
-	bShaderReady = shader.load("shadersGL3/shader");
+	bLoadedShaderPlane = shaderPlane.load("shadersGL3/shader");
 
-	refreshShaderImg();
+	refreshImgShaderPlane();
 
 	doResetNoise();
 	doResetDisplace();
@@ -242,28 +188,25 @@ void ofxSurfingPBR::setupParamsDisplace() {
 	resetDisplace.set("Reset Displace");
 	resetNoise.set("Reset Noise");
 
-	bShaderToPlane.set("ForceFromShader", false);
-	bDisplaceToMaterial.set("ToMaterial", false);
+	bShaderToPlane.set("ShaderToPlane", false);
+	bDisplaceToMaterial.set("DispToMaterial", false);
 
-	displacersParams.setName("Displacers");
-
-	displacersParams.add(bShaderToPlane);
-
-	noiseParams.setName("Noise");
+	noiseParams.setName("Noise Generator");
 	noiseParams.add(noiseAmplitude.set("Noise Amp D", 0.0f, 0.0f, 2.f));
 	noiseParams.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
 	noiseParams.add(noiseSpeed.set("Noise Speed", 0.0f, 0.0f, 1.0f));
 	noiseParams.add(resetNoise);
-	displacersParams.add(noiseParams);
 
-	displacersParams.add(bDisplaceToMaterial);
-
-	displaceMaterialParams.setName("Material");
+	displaceMaterialParams.setName("Material Disp");
 	displaceMaterialParams.add(displacementStrength.set("D Strength", 0.0, 0.0, 500.0));
 	displaceMaterialParams.add(displacementNormalsStrength.set("D Normals Strength", 0.0, 0.0, 1.0));
 	displaceMaterialParams.add(normalGeomToNormalMapMix.set("NGeom NMapMix", 0.0, 0.0, 1.0));
 	displaceMaterialParams.add(resetDisplace);
 
+	displacersParams.setName("Displacers");
+	displacersParams.add(bShaderToPlane);
+	displacersParams.add(bDisplaceToMaterial);
+	displacersParams.add(noiseParams);
 	displacersParams.add(displaceMaterialParams);
 
 	planeSettingsParams.add(displacersParams);
@@ -273,8 +216,8 @@ void ofxSurfingPBR::setupParamsDisplace() {
 void ofxSurfingPBR::doResetNoise() {
 	ofLogNotice("ofxSurfingPBR") << "doResetNoise()";
 
-	noiseAmplitude.set(1.0f);
-	noiseScale.set(0.005f);
+	noiseAmplitude.set(1.5f);
+	noiseScale.set(0.05f);
 	noiseSpeed.set(0.5f);
 }
 
@@ -282,17 +225,19 @@ void ofxSurfingPBR::doResetNoise() {
 void ofxSurfingPBR::doResetDisplace() {
 	ofLogNotice("ofxSurfingPBR") << "doResetDisplace()";
 
-	displacementStrength.set(displacementStrength.getMax() / 4);
+	displacementStrength.set(displacementStrength.getMax() * 0.75);
 	displacementNormalsStrength.set(displacementNormalsStrength.getMax() / 2);
 	normalGeomToNormalMapMix.set(normalGeomToNormalMapMix.getMax() / 2);
 
-	//bShaderToPlane.set(false);
-	//bDisplaceToMaterial.set(false);
+	bShaderToPlane.set(false);
+	bDisplaceToMaterial.set(false);
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::updateDisplace() {
 
+	// compute noise
+	// note that this makes drop the FPS a lot!
 	float n = noiseSpeed * ofGetElapsedTimef();
 
 	auto & pixels = img.getPixels();
@@ -311,6 +256,7 @@ void ofxSurfingPBR::updateDisplace() {
 
 	img.update();
 
+	// apply displace to material plane
 	if (bDisplaceToMaterial) {
 		materialPlane.setDisplacementTexture(img.getTexture());
 
@@ -324,12 +270,12 @@ void ofxSurfingPBR::updateDisplace() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::beginShaderPlane() {
-	shader.begin();
-	shader.setUniformTexture("displacement", img.getTexture(), 1);
+	shaderPlane.begin();
+	shaderPlane.setUniformTexture("displacement", img.getTexture(), 1);
 }
 //--------------------------------------------------------------
 void ofxSurfingPBR::endShaderPlane() {
-	shader.end();
+	shaderPlane.end();
 }
 #endif
 
@@ -345,14 +291,14 @@ void ofxSurfingPBR::setup() {
 	//--
 
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
-	setupShader();
+	setupShaderPlane();
 #endif
 
 	//--
 
 	// lights and shadows
 
-	int amountLights = 1; //currently limited!
+	int amountLights = 1; //currently limited to 1 light!
 
 	for (int i = 0; i < amountLights; i++) {
 		auto light = make_shared<ofLight>();
@@ -362,20 +308,23 @@ void ofxSurfingPBR::setup() {
 			light->getShadow().setNearClip(20);
 			light->getShadow().setFarClip(SURFING__SZ_UNIT);
 
-			//TODO: trying to set "bounding box"
+			//TODO: not working.. trying to set "bounding box"
 			//float w = shadowSize.get().x * 5 * SURFING__SZ_UNIT;
 			//float h = shadowSize.get().y * 5 * SURFING__SZ_UNIT;
 			//light->getShadow().setDirectionalBounds(w,h);
 		}
 
-		else {
-			light->setSpotlight(60, 20);
-			light->getShadow().setNearClip(200);
-			light->getShadow().setFarClip(2000);
-			light->setPosition(210, 330.0, 750);
-			light->setAmbientColor(ofFloatColor(0.4));
-		}
+		//// currently not used
+		//else {
+		//	light->setSpotlight(60, 20);
+		//	light->getShadow().setNearClip(200);
+		//	light->getShadow().setFarClip(2000);
+		//	light->setPosition(210, 330.0, 750);
+		//	light->setAmbientColor(ofFloatColor(0.4));
+		//}
 
+		//TODO: not working..
+		//light->getShadow().setStrength(shadowStrength);
 		light->getShadow().setStrength(0.6);
 
 		if (light->getType() != OF_LIGHT_POINT) {
@@ -406,8 +355,10 @@ void ofxSurfingPBR::setupGui() {
 	gui.setup(parameters);
 
 	//minimize
-	//gui.getGroup(planeParams.getName()).minimize();
-	gui.getGroup(planeParams.getName()).getGroup(planeTransform.getName()).minimize();
+	gui.getGroup(planeParams.getName()).minimize();
+	gui.getGroup(planeParams.getName())
+		.getGroup(planeTransformParams.getName())
+		.minimize();
 	gui.getGroup(lightParams.getName()).minimize();
 	gui.getGroup(shadowParams.getName()).minimize();
 
@@ -419,6 +370,10 @@ void ofxSurfingPBR::setupGui() {
 	gui.getGroup(planeParams.getName())
 		.getGroup(planeSettingsParams.getName())
 		.getGroup(displacersParams.getName())
+		.minimize();
+	gui.getGroup(planeParams.getName())
+		.getGroup(planeSettingsParams.getName())
+		.getGroup(displacersParams.getName())
 		.getGroup(displaceMaterialParams.getName())
 		.minimize();
 	gui.getGroup(planeParams.getName())
@@ -426,7 +381,6 @@ void ofxSurfingPBR::setupGui() {
 		.getGroup(displacersParams.getName())
 		.getGroup(noiseParams.getName())
 		.minimize();
-
 #endif
 }
 
@@ -437,12 +391,17 @@ void ofxSurfingPBR::update(ofEventArgs & args) {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::update() {
+	if (ofGetFrameNum() == 0) {
+		if (!bDoneStartup) bDoneStartup = true;
+	}
 
 	// autosave workflow
-	auto t = ofGetElapsedTimeMillis() - timeLastChange;
-	if (bAutoSave && bFlagSave && t > timeSaveGap) {
-		bFlagSave = false;
-		save();
+	if (bAutoSave) {
+		auto t = ofGetElapsedTimeMillis() - timeLastChange;
+		if (bFlagSave && t > timeSaveDelay) {
+			bFlagSave = false;
+			save();
+		}
 	}
 
 	//--
@@ -467,7 +426,9 @@ void ofxSurfingPBR::update() {
 	//--
 
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
-	updateDisplace();
+	if (bDisplaceToMaterial || bShaderToPlane) {
+		updateDisplace();
+	}
 #endif
 }
 
@@ -487,63 +448,97 @@ void ofxSurfingPBR::beginMaterialPlane() {
 void ofxSurfingPBR::endMaterialPlane() {
 	materialPlane.end();
 }
-
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawGui() {
 	if (!bGui) return;
 
 	ofDisableDepthTest();
 
-	//pos
-	auto p = gui.getShape().getTopRight() + glm::vec2(2, 0);
-	material.gui.setPosition(p);
+	if (bGui_ofxGui) {
+		//force position
+		auto p = gui.getShape().getTopRight() + glm::vec2(2, 0);
+		material.gui.setPosition(p);
 
-	gui.draw();
-	material.drawGui();
+		gui.draw();
+		material.drawGui();
+	}
 
-	//--
+	if (bDebug) drawDebug();
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::drawDebug() {
 
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
-	if (bDebug && (bShaderToPlane || bDisplaceToMaterial)) {
-		int pad = 5;
-		float x, y, w, h;
-		w = img.getWidth();
-		h = img.getHeight();
+	if (bShaderToPlane || bDisplaceToMaterial) {
+		int x, y, w, h;
+		int pad = 0;
 
-		if (1) { //small
-			float r = h / w;
-			w = 150;
-			h = w * r;
-		}
+		//fix offsets
+		int ox = 4;
+		int oy = 3;
 
-		x = ofGetWidth() - w - pad;
-		y = ofGetHeight() - h - pad;
-		img.draw(x, y, w, h);
+		float r = img.getHeight() / img.getWidth();
 
+		// info
 		string s = "";
-		s += "DEBUG SHADER\n\n";
+		s += " \n";
+		s += "DEBUG\nSHADER\n\n";
 		s += "Plane\n";
-		s += "size: " + ofToString(plane.getWidth(), 0) + "," + ofToString(plane.getHeight(), 0) + "\n";
-		s += "reso: " + ofToString(plane.getResolution().x) + "," + ofToString(plane.getResolution().y) + "\n\n";
-		s += "Img\nsz: " + ofToString(img.getWidth()) + "," + ofToString(img.getHeight());
+		s += "Size: " + ofToString(plane.getWidth(), 0) + "," + ofToString(plane.getHeight(), 0) + "\n";
+		s += "Reso: " + ofToString(plane.getResolution().x) + "," + ofToString(plane.getResolution().y) + "\n\n";
+		s += "Image\n";
+		s += "Size: " + ofToString(img.getWidth()) + "," + ofToString(img.getHeight());
+		s += "\n\n" + ofToString(ofGetFrameRate(), 1);
+		s += " FPS";
 
 		ofBitmapFont bf;
 		auto bb = bf.getBoundingBox(s, 0, 0);
-		x = MIN(x, ofGetWidth() - bb.getWidth() - 8);
-		ofDrawBitmapStringHighlight(s, x + 4, y + 8 - bb.getHeight());
+
+		x = ofGetWidth() - bb.getWidth() - pad;
+		y = ofGetHeight() - bb.getHeight() - pad;
+
+		//fix offsets
+		x -= 4;
+		y += 7;
+
+		ofDrawBitmapStringHighlight(s, x, y);
+
+		//image preview
+		w = bb.getWidth() + 2 * ox;
+		h = w * r;
+		x = x + bb.getTopLeft().x - ox;
+		y = y + bb.getTopLeft().y - h - oy;
+		img.draw(x, y, w, h);
+
+		int lw = 2;
+		ofRectangle rbb = ofRectangle(x + lw / 2, y + lw / 2, w - lw / 2, h - lw / 2);
+		ofPushStyle();
+		ofNoFill();
+		ofSetColor(0, 255);
+		ofSetLineWidth(lw);
+		ofDrawRectangle(rbb);
+		ofPopStyle();
 	}
 #endif
 
 	//--
 
-	if (bDebug) {
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+	if (!bShaderToPlane && !bDisplaceToMaterial)
+#endif
+	{
 		float fps = ofGetFrameRate();
 		string s = ofToString(fps, 1);
 		s += " FPS";
-		//TODO: something fails. requires offset to fix
 		ofBitmapFont bf;
 		auto bb = bf.getBoundingBox(s, 0, 0);
-		ofDrawBitmapStringHighlight(s, 4, 8 + ofGetWindowHeight() - bb.getHeight());
+		//fix offsets
+		int ox = -4;
+		int oy = 8;
+		int x = ofGetWindowWidth() - bb.getWidth() + ox;
+		int y = ofGetWindowHeight() - bb.getHeight() + oy;
+		ofDrawBitmapStringHighlight(s, x, y);
 	}
 }
 
@@ -564,7 +559,6 @@ void ofxSurfingPBR::draw() {
 			for (int j = 0; j < numShadowPasses; j++) {
 				light->beginShadowDepthPass(j);
 				{
-					//renderScene();
 					if (function_RenderScene != nullptr) function_RenderScene();
 				}
 				light->endShadowDepthPass(j);
@@ -577,6 +571,15 @@ void ofxSurfingPBR::draw() {
 	// camera
 	camera->begin();
 	{
+#ifdef SURFING__USE_CUBE_MAP
+		// Alternative Bg
+		if (bDrawBgAlt) {
+			ofClear(bgAltColor);
+		}
+#endif
+
+		//--
+
 		glEnable(GL_CULL_FACE);
 
 		glFrontFace(GL_CW);
@@ -587,7 +590,6 @@ void ofxSurfingPBR::draw() {
 
 		glCullFace(GL_BACK);
 		{
-			//renderScene();
 			if (function_RenderScene != nullptr) function_RenderScene();
 		}
 		glDisable(GL_CULL_FACE);
@@ -612,14 +614,14 @@ void ofxSurfingPBR::draw() {
 		//--
 
 #ifdef SURFING__USE_CUBE_MAP
-		if (bDrawCubeMap && bReadeCubeMap) {
+		if (bDrawCubeMap && bLoadedCubeMap) {
 			// drawing of the cube map renders at max depth, so it can be drawn last
 			// this will allow for the benefit of depth clipping
 			if (cubeMapMode == 2) {
 				if (cubeMap.hasPrefilteredMap()) {
 					cubeMap.drawPrefilteredCube(cubeMapprefilterRoughness.get());
 				} else {
-					ofLogNotice("ofxSurfingPBR") << "DOES NOT HAVE PRE FILTERED CUBE MAP " << ofGetFrameNum();
+					ofLogWarning("ofxSurfingPBR") << "DOES NOT HAVE PRE FILTERED CUBE MAP " << ofGetFrameNum();
 				}
 			} else if (cubeMapMode == 3) {
 				if (cubeMap.hasIrradianceMap()) {
@@ -638,15 +640,15 @@ void ofxSurfingPBR::draw() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshPlane() {
-	float szU = SURFING__SZ_UNIT * (bPlaneInfinite ? (float)SURFING__PLANE_INFINITE_MAGNITUDE : 20.f);
+	float szUnit = SURFING__SZ_UNIT * (bPlaneInfinite ? (float)SURFING__PLANE_INFINITE_MAGNITUDE : 20.f);
 
-	float w = szU * planeSize.get().x;
-	float h = szU * planeSize.get().y;
+	float w = szUnit * planeSize.get().x;
+	float h = szUnit * planeSize.get().y;
 
 	//--
 
+	//TODO: make it simple..
 	// clamp plane size
-//TODO
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
 	#ifdef SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE
 
@@ -660,20 +662,8 @@ void ofxSurfingPBR::refreshPlane() {
 	#endif
 #endif
 
-	//TODO: make it simple..
 	int resX, resY;
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
-	//#ifdef SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE
-	//resX = w / 10.f;
-	//resY = h / 10.f;
-	//#else
-	//resX = w / 10.f;
-	//resY = h / 10.f;
-	//#endif
-
-	//resX = 80;
-	//resY = 60;
-
 	resX = MIN(1024, w / 10.f);
 	resY = MIN(1024, h / 10.f);
 #else
@@ -686,7 +676,7 @@ void ofxSurfingPBR::refreshPlane() {
 	//--
 
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
-	refreshShaderImg();
+	refreshImgShaderPlane();
 #endif
 }
 
@@ -696,22 +686,24 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "Changed " << name << ": " << e;
 
-	//for every modified param, flag to save on the next frame but after a time gap.
-	if (bAutoSave) {
-		bFlagSave = true;
-		timeLastChange = ofGetElapsedTimeMillis();
+	if (bDoneStartup) {
+		// flag to save delayed
+		if (bAutoSave) {
+			bFlagSave = true;
+			timeLastChange = ofGetElapsedTimeMillis();
+		}
 	}
 
 	//--
 
 	if (name == planeSize.getName()) {
 		static glm::vec2 planeSize_ = glm::vec2(-1, -1);
-		if (planeSize.get() != planeSize_) { //changed
+		if (planeSize.get() != planeSize_) { // if changed
 			planeSize_ = planeSize.get();
 
 			refreshPlane();
 		} else {
-			ofLogNotice("ofxSurfingPBR") << "Not Changed. Skipped planeSize refresh!";
+			ofLogVerbose("ofxSurfingPBR") << "Plane size not Changed. Skipped refresh!";
 		}
 	} else if (name == bPlaneInfinite.getName()) {
 		if (bPlaneInfinite) planeSize = glm::vec2(1, 1); //set max
@@ -761,25 +753,31 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 	else if (name == openCubeMap.getName()) {
 		ofFileDialogResult openFileResult = ofSystemLoadDialog("Select a exr or EXR file.");
 		if (openFileResult.bSuccess) {
-			ofLogVerbose("ofxSurfingPBR") << ("User selected a file");
+			ofLogNotice("ofxSurfingPBR") << ("User selected a file");
 			processOpenFileSelection(openFileResult);
 
 		} else {
-			ofLogVerbose("ofxSurfingPBR") << ("User hit cancel");
+			ofLogNotice("ofxSurfingPBR") << ("User hit cancel");
 		}
 	} else if (name == resetCubeMap.getName()) {
-		if (!bReadeCubeMap) return;//skip
+		if (!bLoadedCubeMap) return; //skip
 		doResetCubeMap();
 	} else if (name == cubeMapMode.getName()) {
-		if (!bReadeCubeMap) return;//skip
+		if (!bLoadedCubeMap) return; //skip
 		//TODO:
 		//return;//fix crash
 		if (cubeMapMode.get() == 1)
 			cubeMapModeName.set(ofToString("Cube Map"));
 		else if (cubeMapMode.get() == 2)
-			cubeMapModeName.set(ofToString("Prefilter Roughness"));
+			cubeMapModeName.set(ofToString("PreFilter Roughness"));
 		else if (cubeMapMode.get() == 3)
 			cubeMapModeName.set(ofToString("Irradiance"));
+	}
+
+	else if (name == bDrawBgAlt.getName()) {
+		if (bDrawBgAlt) bDrawCubeMap = false; //workflow
+	} else if (name == bDrawCubeMap.getName()) {
+		if (bDrawCubeMap) bDrawBgAlt = false; //workflow
 	}
 #endif
 
@@ -829,6 +827,7 @@ void ofxSurfingPBR::drawTestScene() {
 	ofPushMatrix();
 	float spd = 240;
 	ofRotateYDeg(360.f * (ofGetFrameNum() % (int)spd) / spd);
+	//ofRotateXDeg(360.f * (ofGetFrameNum() % (int)(spd*4)) / (spd*4));
 	ofDrawBox(0, 100, 0, 100);
 	ofPopMatrix();
 
@@ -878,12 +877,80 @@ void ofxSurfingPBR::exit() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::save() {
 	ofLogNotice("ofxSurfingPBR") << "Save: " << path;
-	gui.saveToFile(path);
+
+	// Save
+	{
+		//gui.saveToFile(path);
+
+		if (!ofDirectory::doesDirectoryExist(ofFilePath::getEnclosingDirectory(path))) {
+			ofFilePath::createEnclosingDirectory(path);
+			ofLogWarning("ofxSurfingPBR") << "Created enclosing folder for: " << path;
+		}
+		ofJson settings;
+		ofSerialize(settings, parameters);
+		bool b = ofSavePrettyJson(path, settings);
+		if (b)
+			ofLogNotice("ofxSurfingPBR") << "Saved: `" << parameters.getName() << "` to " << path;
+		else
+			ofLogError("ofxSurfingPBR") << "Error saving: `" << parameters.getName() << "` to " << path;
+	}
 }
+
 //--------------------------------------------------------------
 void ofxSurfingPBR::load() {
 	ofLogNotice("ofxSurfingPBR") << "Load: " << path;
-	gui.loadFromFile(path);
+
+	// disables autosave
+	// to avoid save after loading the settings,
+	// as the params will change and would trig the autosave!
+	bool bAutoSave_ = bAutoSave; //store state
+	if (bAutoSave) {
+		bAutoSave.setWithoutEventNotifications(false);
+	}
+
+	// Load
+	{
+		//gui.loadFromFile(path);
+
+		ofFile f;
+		bool b = f.doesFileExist(path);
+		if (b)
+			ofLogNotice("ofxSurfingPBR") << "Found file: `" << path << "`";
+		else
+			ofLogError("ofxSurfingPBR") << "File `" << path << "` not found!";
+		if (b) {
+			ofJson settings;
+			settings = ofLoadJson(path);
+			ofDeserialize(settings, parameters);
+		}
+	}
+
+	if (bAutoSave_) {
+		bAutoSave.setWithoutEventNotifications(true); //restore state
+	}
+}
+
+//--------------------------------------------------------------
+bool ofxSurfingPBR::getSettingsFileFound() {
+	ofFile f;
+	bool b = f.doesFileExist(path);
+	if (b) {
+		ofLogNotice("ofxSurfingPBR") << "Found SCENE settings file: " << path;
+	} else {
+		ofLogWarning("ofxSurfingPBR") << "SCENE settings file: " << path << " not found!";
+	}
+
+	ofFile f2;
+	bool b2 = f2.doesFileExist(material.path);
+	if (b2) {
+		ofLogNotice("ofxSurfingPBR") << "Found MATERIAL settings file: " << material.path;
+	} else {
+		ofLogWarning("ofxSurfingPBR") << "MATERIAL settings file: " << material.path << " not found!";
+	}
+
+	if (!b) ofLogWarning("ofxSurfingPBR") << "Probably opening the App for the first time!";
+
+	return b;
 }
 
 //--
@@ -900,13 +967,13 @@ bool ofxSurfingPBR::loadCubeMap(string path) {
 
 	ofCubeMap::ofCubeMapSettings csettings;
 
-	if (path == "") //use default path
+	if (path == "") //uses default path
 		csettings.filePath = path_Cubemaps + "/" + path_CubemapFilename;
-	else
+	else //uses passed path
 		csettings.filePath = path;
 
 	// uncomment to load from a cache or make one if it doesn't exist
-	//	csettings.useCache = true;
+	// 	csettings.useCache = true;
 
 	// uncomment to use the maximum precision available. OpenGL ES is float16 and OpenGL is float32;
 	//	csettings.useMaximumPrecision = true;
@@ -918,15 +985,23 @@ bool ofxSurfingPBR::loadCubeMap(string path) {
 
 	bool b = cubeMap.load(csettings);
 	// below is another method for loading a cube map without passing settings class
-	//	cubeMap.load("modern_buildings_2_1k.exr", 512, true );
+	// cubeMap.load("modern_buildings_2_1k.exr", 512, true );
 
 	if (!b)
 		ofLogError("ofxSurfingPBR") << "Error loading cubemap: " << csettings.filePath;
 	else
 		ofLogNotice("ofxSurfingPBR") << "Successfully loaded cubemap: " << csettings.filePath;
 
-	bReadeCubeMap = b;
-	if (b) cubeMapMode = cubeMapMode;//refresh
+	//--
+
+	bLoadedCubeMap = b;
+	if (b) {
+		cubeMapMode = cubeMapMode; //refresh
+		cubeMapName = path_CubemapFilename;
+	} else {
+		cubeMapModeName = "NONE";
+		cubeMapName = "NONE";
+	}
 
 	return b;
 }
@@ -935,39 +1010,39 @@ bool ofxSurfingPBR::loadCubeMap(string path) {
 void ofxSurfingPBR::setupCubeMap() {
 	ofLogNotice("ofxSurfingPBR") << "setupCubeMap()";
 
-	// params
 	cubeMapMode.set("Mode", 2, 1, 3);
+	cubeMapName.set("Filename", "NONE");
 	cubeMapModeName.set("Type", "NONE");
 	cubeMapModeName.setSerializable(false);
 	bDrawCubeMap.set("Draw CubeMap", true);
 	cubeMapprefilterRoughness.set("Roughness", 0.25f, 0, 1.f);
 	openCubeMap.set("Open File");
 	resetCubeMap.set("Reset CubeMap");
+	bDrawBgAlt.set("Draw BgAlt", false);
+	bgAltColor.set("BgAlt Color", ofFloatColor::darkGrey, ofFloatColor(0.f), ofFloatColor(1.f));
 
 	cubeMapParams.setName("CubeMap");
 	cubeMapParams.add(bDrawCubeMap);
+	cubeMapParams.add(bDrawBgAlt);
+	cubeMapParams.add(cubeMapName);
+	cubeMapParams.add(openCubeMap);
 	cubeMapParams.add(cubeMapMode);
 	cubeMapParams.add(cubeMapModeName);
 	cubeMapParams.add(cubeMapprefilterRoughness);
-	cubeMapParams.add(openCubeMap);
+	cubeMapParams.add(bgAltColor);
 	cubeMapParams.add(resetCubeMap);
 
 	parameters.add(cubeMapParams);
 
-	//doResetCubeMap();
-
 	//--
 
-	//bReadeCubeMap = loadCubeMap();
 	loadCubeMap();
-
-	ofEnableArbTex();
 }
 
 void ofxSurfingPBR::processOpenFileSelection(ofFileDialogResult openFileResult) {
 
-	ofLogVerbose("ofxSurfingPBR") << ("getName(): " + openFileResult.getName());
-	ofLogVerbose("ofxSurfingPBR") << ("getPath(): " + openFileResult.getPath());
+	ofLogNotice("ofxSurfingPBR") << "Name: " + openFileResult.getName();
+	ofLogNotice("ofxSurfingPBR") << "Path: " + openFileResult.getPath();
 
 	ofFile file(openFileResult.getPath());
 
@@ -975,9 +1050,9 @@ void ofxSurfingPBR::processOpenFileSelection(ofFileDialogResult openFileResult) 
 		ofLogVerbose("ofxSurfingPBR") << "The file exists - now checking the type via file extension";
 		string fileExtension = ofToUpper(file.getExtension());
 
-		if (fileExtension == "exr" || fileExtension == "EXR") {
+		if (fileExtension == "exr" || fileExtension == "EXR" || fileExtension == "hdr" || fileExtension == "HDR") {
 
-			bReadeCubeMap = loadCubeMap(openFileResult.getPath());
+			bLoadedCubeMap = loadCubeMap(openFileResult.getPath());
 		}
 	}
 }
@@ -989,9 +1064,117 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 'd') bDebug = !bDebug;
 	if (key == 'p') bDrawPlane = !bDrawPlane;
 	if (key == 'c') bDrawCubeMap = !bDrawCubeMap;
+	if (key == 's') bDrawShadow = !bDrawShadow;
+	if (key == 'b') bDrawBgAlt = !bDrawBgAlt;
 
-	if (key == OF_KEY_F1) doRandomMaterialColors();
-	if (key == OF_KEY_F2) doRandomMaterialSettings();
-	if (key == OF_KEY_F3) doRandomMaterial();
-	if (key == OF_KEY_F4) doResetMaterial();
+	if (key == OF_KEY_F1) doResetMaterial();
+	if (key == OF_KEY_F2) doRandomMaterial();
+	if (key == OF_KEY_F3) doRandomMaterialSettings();
+	if (key == OF_KEY_F4) doRandomMaterialColorGlobal();
+	if (key == OF_KEY_F5) doRandomMaterialColors();
+	if (key == OF_KEY_F6) doRandomMaterialColorsAlpha();
+	if (key == OF_KEY_F7) doRandomMaterialAlphas();
+}
+
+void ofxSurfingPBR::setLogLevel(ofLogLevel logLevel) {
+	ofSetLogLevel("ofxSurfingPBR", logLevel);
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetLight() {
+	lightX = 0;
+	lightY = SURFING__SZ_UNIT;
+	lightZ = 0;
+	lightAmbientColor.set(ofFloatColor(1));
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetPlane() {
+	doResetPlaneTransform();
+
+	planeShiness.set(0.85);
+	planeGlobalColor.set(ofFloatColor(1.f));
+	planeDiffuseColor.set(ofFloatColor(0.6));
+	planeSpecularColor.set(ofFloatColor(1));
+
+	bPlaneInfinite = true;
+	bPlaneWireframe = false;
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetPlaneTransform() {
+	//planeSize.set(glm::vec2(0.5f, 0.5f));
+	bPlaneInfinite = true;
+	planeRotation.set(10.f);
+	planePosition.set(-0.1f);
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetShadow() {
+	bDrawShadow.set(true);
+	shadowBias.set(0.07);
+	shadowNormalBias.set(-4.f);
+	//shadowStrength.set(0.6f);
+	//shadowSize.set(glm::vec2(0.25f,0.25f));
+}
+
+#ifdef SURFING__USE_CUBE_MAP
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetCubeMap() {
+	cubeMapMode = 2;
+	bDrawCubeMap = true;
+	cubeMapprefilterRoughness = 0.25f;
+
+	bDrawBgAlt = false;
+	bgAltColor.set(ofFloatColor(0.3));
+}
+#endif
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetAll(bool bExcludeMaterial) {
+	bDebug = false;
+
+	doResetPlane();
+	doResetLight();
+	doResetShadow();
+
+#ifdef SURFING__USE_CUBE_MAP
+	doResetCubeMap();
+#endif
+
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+	doResetNoise();
+	doResetDisplace();
+#endif
+
+	if (!bExcludeMaterial) material.doResetMaterial();
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetMaterial() {
+	material.doResetMaterial();
+}
+//--------------------------------------------------------------
+void ofxSurfingPBR::doRandomMaterial() {
+	material.doRandomMaterial();
+}
+//--------------------------------------------------------------
+void ofxSurfingPBR::doRandomMaterialSettings() {
+	material.doRandomSettings();
+}
+//--------------------------------------------------------------
+void ofxSurfingPBR::doRandomMaterialColorGlobal() {
+	material.doRandomColorGlobal();
+}
+//--------------------------------------------------------------
+void ofxSurfingPBR::doRandomMaterialColors() {
+	material.doRandomColors();
+};
+//--------------------------------------------------------------
+void ofxSurfingPBR::doRandomMaterialColorsAlpha() {
+	material.doRandomColorsAlpha();
+}
+//--------------------------------------------------------------
+void ofxSurfingPBR::doRandomMaterialAlphas() {
+	material.doRandomAlphas();
 }

@@ -10,15 +10,34 @@ void ofApp::setup() {
 	//--
 
 	pbr.setup();
-	pbr.setCameraPtr(&camera);// Pass the local camera
 
-	// Pass the scene to render
+	// Pass the local camera
+	pbr.setCameraPtr(&camera);
+
+	// Pass the scene renderer to be processed
 	callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
 	pbr.setFunction_renderScene(myFunctionDraw);
 
+	//--
+
+	// Optional
+
 	// Set log level
-	ofSetLogLevel("ofxSurfingPBR", OF_LOG_VERBOSE);
-	//ofSetLogLevel("ofxSurfingPBR", OF_LOG_ERROR);
+	if (0) pbr.setLogLevel(OF_LOG_VERBOSE);
+
+#if 0
+	// Check if it's the first time opening the App
+	bool b = pbr.getSettingsFileFound();
+	if (!b) {
+		ofLogWarning() << "ofxSurfingPBR Settings file not found!";
+
+		// Force startup settings
+		pbr.bDrawBgAlt = true;
+		pbr.bgAltColor = ofFloatColor::orange;
+		pbr.planeGlobalColor = ofFloatColor::orange;
+		pbr.material.globalColor = ofFloatColor::blue;
+	}
+#endif
 }
 
 //--------------------------------------------------------------
@@ -30,7 +49,7 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
-	// plane/floor
+	// plane floor
 	pbr.drawPlane();
 
 	// for other objects

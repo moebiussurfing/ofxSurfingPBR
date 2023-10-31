@@ -12,16 +12,6 @@ public:
 	void drawGui();
 	void exit();
 
-	void begin();
-	void end();
-
-	void doResetMaterial();
-	void doRandomMaterial();
-	void doRandomColors();
-	void doRandomColorsAlpha();
-	void doRandomColorGlobal();
-	void doRandomSettings();
-
 private:
 	void setupParams();
 	void setupGui();
@@ -30,6 +20,17 @@ private:
 	void update(ofEventArgs & args);
 
 public:
+	void begin();
+	void end();
+
+	void doResetMaterial();
+	void doRandomMaterial();
+	void doRandomColors();
+	void doRandomAlphas();
+	void doRandomColorsAlpha();
+	void doRandomColorGlobal();
+	void doRandomSettings();
+
 	ofMaterial material;
 
 public:
@@ -50,32 +51,35 @@ public:
 	ofParameter<float> reflectance;
 	ofParameter<float> roughness;
 
+	ofParameter<bool> bClearCoat;
 	ofParameter<float> clearCoatRoughness;
 	ofParameter<float> clearCoatStrength;
 
+	ofParameter<void> resetMaterial;
+	ofParameter<void> randomMaterial;
 	ofParameter<void> randomColors;
+	ofParameter<void> randomAlphas;
 	ofParameter<void> randomColorsAlpha;
 	ofParameter<void> randomColorsGlobal;
 	ofParameter<void> randomSettings;
-	ofParameter<bool> clearCoat;
-	ofParameter<void> resetMaterial;
-	ofParameter<void> randomMaterial;
 
 	ofxPanel gui;
 
 public:
+	string path = "material.json";
+
+public:
+	void load();
+	void save();
+
 	// autosave workflow
-	// we will autosave after on every param change,
+	// we will autosave after every param change,
 	// but after waiting some ms. reducing saving overflow.
 	// we will save also when app exit.
 	ofParameter<bool> bAutoSave;
 
-	void load();
-	void save();
-
 private:
 	uint64_t timeLastChange = 0;
-	int timeSaveGap = 1000; //save every x milliseconds.
+	int timeSaveDelay = 1000; //save delayed x milliseconds.
 	bool bFlagSave = false;
-	string path = "material.json";
 };
