@@ -9,14 +9,15 @@ void ofApp::setup() {
 
 	//--
 
-	//ofSetLogLevel("ofxSurfingPBR", OF_LOG_ERROR);
-
 	pbr.setup();
 	pbr.setCameraPtr(&camera);
 
 	// render scene
 	callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
 	pbr.setFunction_renderScene(myFunctionDraw);
+
+	ofSetLogLevel("ofxSurfingPBR", OF_LOG_VERBOSE);
+	//ofSetLogLevel("ofxSurfingPBR", OF_LOG_ERROR);
 }
 
 //--------------------------------------------------------------
@@ -32,15 +33,20 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
-	// floor plane
+	// plane/floor
 	pbr.drawPlane();
 
-	// other objects
+	// for other objects
 	pbr.beginMaterial();
 	{
-		pbr.drawTestScene();
+		drawYourScene();
 	}
 	pbr.endMaterial();
+}
+
+//--------------------------------------------------------------
+void ofApp::drawYourScene() {
+	pbr.drawTestScene();
 }
 
 //--------------------------------------------------------------

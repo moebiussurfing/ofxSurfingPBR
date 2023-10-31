@@ -9,6 +9,7 @@ public:
 	void setup();
 	void update();
 	void draw();
+	void drawYourScene();
 	void keyPressed(int key);
 	void exit();
 

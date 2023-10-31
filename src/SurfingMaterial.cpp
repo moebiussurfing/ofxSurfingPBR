@@ -1,18 +1,23 @@
 #include "SurfingMaterial.h"
 //--------------------------------------------------------------
 SurfingMaterial::SurfingMaterial() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:constructor()";
+
 	ofAddListener(ofEvents().update, this, &SurfingMaterial::update);
 	ofAddListener(parameters.parameterChangedE(), this, &SurfingMaterial::Changed);
 }
 
 //--------------------------------------------------------------
 SurfingMaterial::~SurfingMaterial() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:destructor()";
+
 	ofRemoveListener(ofEvents().update, this, &SurfingMaterial::update);
 	ofRemoveListener(parameters.parameterChangedE(), this, &SurfingMaterial::Changed);
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::setup() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setup()";
 
 	setupParams();
 
@@ -25,6 +30,7 @@ void SurfingMaterial::setup() {
 
 //--------------------------------------------------------------
 void SurfingMaterial::setupParams() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setupParams()";
 
 	parameters.setName("PBR_Material");
 
@@ -88,26 +94,6 @@ void SurfingMaterial::update() {
 		bFlagSave = false;
 		save();
 	}
-
-	//--
-
-	//TODO improve avoiding update() call even when not required..
-	//moved to callback!
-	/*
-	material.setRoughness(roughness);
-	material.setMetallic(metallic);
-	material.setReflectance(reflectance);
-	material.setShininess(shininess);
-
-	material.setDiffuseColor(diffuseColor);
-	material.setAmbientColor(ambientColor);
-	material.setEmissiveColor(emissiveColor);
-	material.setSpecularColor(specularColor);
-
-	material.setClearCoatEnabled(clearCoat);
-	material.setClearCoatRoughness(clearCoatRoughness);
-	material.setClearCoatStrength(clearCoatStrength);
-	*/
 }
 
 //--------------------------------------------------------------
@@ -283,6 +269,8 @@ void SurfingMaterial::doRandomColors() {
 
 //--------------------------------------------------------------
 void SurfingMaterial::exit() {
+	ofLogNotice("ofxSurfingPBR") << "exit()";
+
 	save();
 }
 

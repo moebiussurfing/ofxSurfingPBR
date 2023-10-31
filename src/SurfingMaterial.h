@@ -30,6 +30,7 @@ private:
 	void update();
 	void update(ofEventArgs & args);
 
+public:
 	ofMaterial material;
 
 public:

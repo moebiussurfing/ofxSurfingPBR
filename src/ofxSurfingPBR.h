@@ -12,9 +12,14 @@
 
 
 	TODO:
-	- make a scene manager allowing to queue many materials and lights on a std::vector.
-	- add ImGui.
-	- add presets manager and randomizer/undo/redo to explore and save materials.
+	- make a scene manager allowing 
+		to queue many materials 
+		and lights on a std::vector.
+	- add ImGui mode.
+	- add presets manager 
+		and randomizer/undo/redo 
+		to explore and save materials.
+	- add ofxBgGradient addon
 
 */
 
@@ -55,22 +60,17 @@
 
 //--
 
-// OPTIONAL
+// Optional
 
 #define SURFING__USE_CUBE_MAP
 
-//#define SURFING__USE_DISPLACE
-// TODO/WIP enable to test custom shader and displacement
+#define SURFING__USE_SHADER_AND_DISPLACE // TODO/WIP enable to test custom shader and displacement
 
 //--
 
-// CONSTANTS
-
+// Constants
 #define SURFING__PLANE_RESOLUTION 10
-//#define SURFING__PLANE_RESOLUTION 100
-
 #define SURFING__PLANE_INFINITE_MAGNITUDE 100.f
-
 #define SURFING__SZ_UNIT 1000
 
 //--
@@ -80,6 +80,8 @@
 
 #include <functional>
 using callback_t = std::function<void()>;
+
+//--
 
 class ofxSurfingPBR {
 public:
@@ -117,7 +119,7 @@ public:
 
 private:
 	uint64_t timeLastChange = 0;
-	int timeSaveGap = 1000;//save every x milliseconds.
+	int timeSaveGap = 1000; //save every x milliseconds.
 	bool bFlagSave = false;
 
 public:
@@ -126,18 +128,19 @@ public:
 	}
 
 private:
-	ofParameter<glm::vec2> planeSz;
+	ofParameter<glm::vec2> planeSize;
 	ofParameter<bool> bPlaneWireframe;
-	ofParameter<bool> bPlaneInfinite;//make the plane huge size to "fit horizon line"
-	ofParameter<float> planeRot;
-	ofParameter<float> planePos;
+	ofParameter<bool> bPlaneInfinite; //make the plane huge size to "fit horizon line"
+	ofParameter<float> planeRotation;
+	ofParameter<float> planePosition;
 	ofParameter<float> planeShiness;
 	ofParameter<ofFloatColor> planeDiffuseColor;
 	ofParameter<ofFloatColor> planeSpecularColor;
-	ofParameter<ofFloatColor> globalColor;
+	ofParameter<ofFloatColor> planeGlobalColor;
 	ofParameterGroup planeSettingsParams;
 	ofParameter<void> resetPlane;
 	ofParameter<void> resetPlaneTransform;
+	void refreshPlane();
 
 private:
 	ofMaterial materialPlane;
@@ -172,7 +175,6 @@ public:
 		ofRectangle r1 = gui.getShape();
 		ofRectangle r2 = material.gui.getShape();
 		ofRectangle bb = r1.getUnion(r2);
-		//ofRectangle bb = r1.getUnion(r2);
 		return bb;
 	};
 	ofParameter<void> resetAll;
@@ -230,7 +232,7 @@ public:
 	void doResetPlaneTransform();
 	void doResetLight();
 	void doResetShadow();
-	void doResetAll(bool bNotMaterial=false);
+	void doResetAll(bool bExcludeMaterial = false);
 
 	void doResetMaterial() {
 		material.doResetMaterial();
@@ -250,14 +252,30 @@ public:
 
 	//--
 
-#ifdef SURFING__USE_DISPLACE
+#ifdef SURFING__USE_SHADER_AND_DISPLACE
 private:
 	ofShader shader;
+	void setupShader();
+	bool bShaderReady = false;
 	ofFloatImage img;
 
-private:
+	ofParameterGroup displaceParams;
+	ofParameterGroup noiseParams;
+	ofParameter<void> resetDisplace;
+	ofParameter<bool> bShaderToPlane;
+	ofParameter<bool> bDisplaceToMaterial;
 	ofParameter<float> noiseAmplitude;
 	ofParameter<float> noiseScale;
 	ofParameter<float> noiseSpeed;
+	ofParameter<float> displacementStrength;
+	ofParameter<float> displacementNormalsStrength;
+	ofParameter<float> normalGeomToNormalMapMix;
+	void doResetDisplace();
+	void updateDisplace();
+	void refreshImg();
+
+public:
+	void beginShader();
+	void endShader();
 #endif
 };
