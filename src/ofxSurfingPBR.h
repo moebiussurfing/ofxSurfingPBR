@@ -61,10 +61,9 @@
 //--
 
 // Optional
-
 #define SURFING__USE_CUBE_MAP
-
-#define SURFING__USE_SHADER_AND_DISPLACERS // TODO/WIP enable to test custom shader and displacement
+#define SURFING__USE_SHADER_AND_DISPLACERS 
+//#define SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE
 
 //--
 
@@ -272,14 +271,15 @@ private:
 	ofParameter<float> displacementStrength;
 	ofParameter<float> displacementNormalsStrength;
 	ofParameter<float> normalGeomToNormalMapMix;
+
 	void setupParamsDisplace();
 	void doResetNoise();
 	void doResetDisplace();
 	void updateDisplace();
-	void refreshImg();
+	void refreshShaderImg();
 
 public:
-	void beginShader();
-	void endShader();
+	void beginShaderPlane();
+	void endShaderPlane();
 #endif
 };

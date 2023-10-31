@@ -172,45 +172,55 @@ void ofxSurfingPBR::setupParams() {
 
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
 //--------------------------------------------------------------
-void ofxSurfingPBR::refreshImg() {
-	ofLogNotice("ofxSurfingPBR") << "refreshImg()";
+void ofxSurfingPBR::refreshShaderImg() {
+	ofLogNotice("ofxSurfingPBR") << "refreshShaderImg()";
 
 	float w, h;
-	//w = 800;
-	//h = 600;
-
 	w = plane.getWidth();
 	h = plane.getHeight();
 
-	////clamp
-	//w = ofClamp(w, 0, 1024);
-	//h = ofClamp(h, 0, 1024);
+	//#ifdef SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE
+	w = ofClamp(w, 0, 800);
+	h = ofClamp(h, 0, 600);
+	//#endif
+
+	//reduce a bit image re allocations when not required
+	//bc sizes not changed..
+	static float w_ = -1;
+	static float h_ = -1;
+	if (w != w_ || h != h_) { //changed
+		w_ = w;
+		h_ = h;
 
 	#ifdef TARGET_OPENGLES
-	OPENGL ES supports GL_RGBA32F but not GL_R32F
-		img.allocate(80, 60, OF_IMAGE_COLOR_ALPHA);
+		OPENGL ES supports GL_RGBA32F but not GL_R32F
+			img.allocate(80, 60, OF_IMAGE_COLOR_ALPHA);
 	#else
-	//img.clear();
-	img.allocate(w, h, OF_IMAGE_GRAYSCALE);
+		//img.clear();
+		img.allocate(w, h, OF_IMAGE_GRAYSCALE);
 	#endif
 
-	// apply to plane
-	//plane.set(800, 600, 80, 60);
-	plane.mapTexCoordsFromTexture(img.getTexture());
+		// apply to plane
+		//plane.set(800, 600, 80, 60);//TODO
+		plane.mapTexCoordsFromTexture(img.getTexture());
 
-	ofLogNotice("ofxSurfingPBR") << "w,h: " << w << "," << h;
+		ofLogNotice("ofxSurfingPBR") << "w,h: " << w << "," << h;
+	} 
+	
+	else {
+		ofLogNotice("ofxSurfingPBR") << "Skipped img.allocate";
+	}
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::setupShader() {
 	ofLogNotice("ofxSurfingPBR") << "setupShader()";
 
-	// shader
 	ofDisableArbTex();
 
 	bShaderReady = shader.load("shadersGL3/shader");
 
-	refreshImg();
+	refreshShaderImg();
 
 	doResetNoise();
 	doResetDisplace();
@@ -263,7 +273,7 @@ void ofxSurfingPBR::doResetNoise() {
 void ofxSurfingPBR::doResetDisplace() {
 	ofLogNotice("ofxSurfingPBR") << "doResetDisplace()";
 
-	displacementStrength.set(displacementStrength.getMax()/4);
+	displacementStrength.set(displacementStrength.getMax() / 4);
 	displacementNormalsStrength.set(displacementNormalsStrength.getMax() / 2);
 	normalGeomToNormalMapMix.set(normalGeomToNormalMapMix.getMax() / 2);
 
@@ -304,12 +314,12 @@ void ofxSurfingPBR::updateDisplace() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::beginShader() {
+void ofxSurfingPBR::beginShaderPlane() {
 	shader.begin();
 	shader.setUniformTexture("displacement", img.getTexture(), 1);
 }
 //--------------------------------------------------------------
-void ofxSurfingPBR::endShader() {
+void ofxSurfingPBR::endShaderPlane() {
 	shader.end();
 }
 #endif
@@ -479,17 +489,37 @@ void ofxSurfingPBR::drawGui() {
 	//--
 
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
-	if (bDebug) {
-		int pad = 10;
-		int x, y, w, h;
+	if (bDebug && (bShaderToPlane || bDisplaceToMaterial)) {
+		int pad = 5;
+		float x, y, w, h;
 		w = img.getWidth();
 		h = img.getHeight();
-		x = ofGetWidth() - pad;
-		y = ofGetHeight() - pad;
-		//auto r = ofRectangle(x, y, w, h);
-		img.draw(x, y);
+
+		if (1) { //small
+			float r = h / w;
+			w = 150;
+			h = w * r;
+		}
+
+		x = ofGetWidth() - w - pad;
+		y = ofGetHeight() - h - pad;
+		img.draw(x, y, w, h);
+
+		string s = "";
+		s += "DEBUG SHADER\n\n";
+		s += "Plane\n";
+		s += "size: " + ofToString(plane.getWidth(), 0) + "," + ofToString(plane.getHeight(), 0) + "\n";
+		s += "reso: " + ofToString(plane.getResolution().x) + "," + ofToString(plane.getResolution().y) + "\n\n";
+		s += "Img\nsz: " + ofToString(img.getWidth()) + "," + ofToString(img.getHeight());
+
+		ofBitmapFont bf;
+		auto bb = bf.getBoundingBox(s, 0, 0);
+		x = MIN(x, ofGetWidth() - bb.getWidth() - 8);
+		ofDrawBitmapStringHighlight(s, x + 4, y + 8 - bb.getHeight());
 	}
 #endif
+
+	//--
 
 	if (bDebug) {
 		float fps = ofGetFrameRate();
@@ -533,11 +563,13 @@ void ofxSurfingPBR::draw() {
 	camera->begin();
 	{
 		glEnable(GL_CULL_FACE);
+
 		glFrontFace(GL_CW);
-		// Should fix bc makes some models "transparent"...
+		// Maybe should fix bc makes some models "transparent"...
 		// sets the orientation for front-facing
 		// polygons1GL_CW means that polygons with vertices
 		// in clockwise order on the screen are considered front-facing1.
+
 		glCullFace(GL_BACK);
 		{
 			//renderScene();
@@ -596,26 +628,50 @@ void ofxSurfingPBR::refreshPlane() {
 	float w = szU * planeSize.get().x;
 	float h = szU * planeSize.get().y;
 
+	//--
+
+	// clamp plane size
 //TODO
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
-	//hardcode
-	w = 800;
-	h = 600;
+	#ifdef SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE
+
+	//hardcoded and clamped
+	//will be applied to both plane and img!
+	//w = 800;
+	//h = 600;
+	w = ofClamp(w, 0, 800);
+	h = ofClamp(h, 0, 600);
+
+	#endif
 #endif
 
 	//TODO: make it simple..
-#ifndef SURFING__USE_SHADER_AND_DISPLACERS
-	int resX = (int)SURFING__PLANE_RESOLUTION;
-	int resY = (int)SURFING__PLANE_RESOLUTION;
+	int resX, resY;
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+	//#ifdef SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE
+	//resX = w / 10.f;
+	//resY = h / 10.f;
+	//#else
+	//resX = w / 10.f;
+	//resY = h / 10.f;
+	//#endif
+
+	//resX = 80;
+	//resY = 60;
+
+	resX = MIN(1024, w / 10.f);
+	resY = MIN(1024, h / 10.f);
 #else
-	int resX = w / 10.f;
-	int resY = h / 10.f;
+	resX = (int)SURFING__PLANE_RESOLUTION;
+	resY = (int)SURFING__PLANE_RESOLUTION;
 #endif
 
 	plane.set(w, h, resX, resY);
 
+	//--
+
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
-	refreshImg();
+	refreshShaderImg();
 #endif
 }
 
@@ -631,10 +687,20 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 		timeLastChange = ofGetElapsedTimeMillis();
 	}
 
+	//--
+
 	if (name == planeSize.getName()) {
-		refreshPlane();
+		static glm::vec2 planeSize_ = glm::vec2(-1, -1);
+		if (planeSize.get() != planeSize_) { //changed
+			planeSize_ = planeSize.get();
+
+			refreshPlane();
+		} else {
+			ofLogNotice("ofxSurfingPBR") << "Not Changed. Skipped planeSize refresh!";
+		}
 	} else if (name == bPlaneInfinite.getName()) {
-		planeSize = planeSize.get(); //refresh
+		planeSize = glm::vec2(1, 1); //set max
+		//planeSize = planeSize.get();//refresh
 	}
 
 	else if (name == planeRotation.getName()) {
@@ -673,6 +739,8 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 		doResetAll();
 	}
 
+	//--
+
 #ifdef SURFING__USE_CUBE_MAP
 	else if (name == openCubeMap.getName()) {
 		ofFileDialogResult openFileResult = ofSystemLoadDialog("Select a exr or EXR file.");
@@ -697,6 +765,8 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 	}
 #endif
 
+	//--
+
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
 	else if (name == resetDisplace.getName()) {
 		doResetDisplace();
@@ -705,16 +775,16 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 	}
 
 	else if (name == bShaderToPlane.getName()) {
-		if (bShaderToPlane) {//workflow
+		if (bShaderToPlane) { //workflow
 			if (bDisplaceToMaterial) bDisplaceToMaterial = false;
 		} else {
 		}
 	}
 
 	else if (name == bDisplaceToMaterial.getName()) {
-		if (bDisplaceToMaterial) {//workflow
+		if (bDisplaceToMaterial) { //workflow
 			if (bShaderToPlane) bShaderToPlane = false;
-		} else {
+		} else { //release mods
 			materialPlane.setDisplacementStrength(0);
 			materialPlane.setDisplacementNormalsStrength(0);
 			materialPlane.setNormalGeomToNormalMapMix(0);
@@ -729,7 +799,7 @@ void ofxSurfingPBR::drawTestScene() {
 	static bool b = false;
 	if (!b) {
 		b = true;
-		ofSetConeResolution(30, 10, 2);
+		ofSetConeResolution(20, 10, 2);
 	}
 
 	ofPushMatrix();
@@ -759,14 +829,14 @@ void ofxSurfingPBR::drawPlane() {
 	else {
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
 		if (bShaderToPlane)
-			beginShader();
+			beginShaderPlane();
 		else
 			beginMaterialPlane();
 		{
 			plane.draw();
 		}
 		if (bShaderToPlane)
-			endShader();
+			endShaderPlane();
 		else
 			endMaterialPlane();
 #else

@@ -122,6 +122,8 @@ void SurfingMaterial::Changed(ofAbstractParameter & e) {
 		timeLastChange = ofGetElapsedTimeMillis();
 	}
 
+	//--
+
 	if (name == resetMaterial.getName()) {
 		doResetMaterial();
 	} else if (name == randomMaterial.getName()) {
@@ -156,7 +158,9 @@ void SurfingMaterial::Changed(ofAbstractParameter & e) {
 
 	//--
 
-	//TODO improve avoiding update() call even when not required..
+	// moved here from update()
+	// improve avoiding call on each frame 
+	// even when not required..
 
 	else if (name == roughness.getName()) {
 		material.setRoughness(roughness);
