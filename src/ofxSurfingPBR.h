@@ -98,6 +98,8 @@ public:
 	void exit();
 	void keyPressed(int key);
 
+	ofParameter<bool> bGui;
+
 private:
 	void setupParams();
 	void setupGui();
@@ -151,10 +153,14 @@ private:
 	//ofParameter<glm::vec2> shadowSize;
 	ofParameter<void> resetShadow;
 
-	ofParameterGroup parameters;
 	ofParameter<void> resetAll;
 
 public:
+	ofParameterGroup parameters;
+	ofParameterGroup & getMaterialParameters() {
+		return material.parameters;
+	};
+	
 	ofParameter<bool> bDebug;
 	ofParameter<bool> bKeys;
 	ofParameter<bool> bDrawPlane;
@@ -201,6 +207,7 @@ public:
 	void setupCubeMap();
 	string path_Cubemaps = "cubemaps";//bin/data/cubemaps/
 	string path_CubemapFilename = "modern_buildings_2_1k.exr";
+	bool bReadeCubeMap = false;
 
 	ofParameterGroup cubeMapParams;
 	ofParameter<int> cubeMapMode;

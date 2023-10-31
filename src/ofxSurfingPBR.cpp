@@ -85,6 +85,8 @@ void ofxSurfingPBR::doResetAll(bool bExcludeMaterial) {
 void ofxSurfingPBR::setupParams() {
 	ofLogNotice("ofxSurfingPBR") << "setupParams()";
 
+	bGui.set("PBR", true);
+	
 	parameters.setName("PBR_Scene");
 
 	resetPlane.set("Reset Plane");
@@ -488,6 +490,7 @@ void ofxSurfingPBR::endMaterialPlane() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawGui() {
+	if (!bGui) return;
 
 	ofDisableDepthTest();
 
@@ -609,7 +612,7 @@ void ofxSurfingPBR::draw() {
 		//--
 
 #ifdef SURFING__USE_CUBE_MAP
-		if (bDrawCubeMap) {
+		if (bDrawCubeMap && bReadeCubeMap) {
 			// drawing of the cube map renders at max depth, so it can be drawn last
 			// this will allow for the benefit of depth clipping
 			if (cubeMapMode == 2) {
@@ -765,8 +768,10 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 			ofLogVerbose("ofxSurfingPBR") << ("User hit cancel");
 		}
 	} else if (name == resetCubeMap.getName()) {
+		if (!bReadeCubeMap) return;//skip
 		doResetCubeMap();
 	} else if (name == cubeMapMode.getName()) {
+		if (!bReadeCubeMap) return;//skip
 		//TODO:
 		//return;//fix crash
 		if (cubeMapMode.get() == 1)
@@ -920,6 +925,9 @@ bool ofxSurfingPBR::loadCubeMap(string path) {
 	else
 		ofLogNotice("ofxSurfingPBR") << "Successfully loaded cubemap: " << csettings.filePath;
 
+	bReadeCubeMap = b;
+	if (b) cubeMapMode = cubeMapMode;//refresh
+
 	return b;
 }
 
@@ -950,6 +958,7 @@ void ofxSurfingPBR::setupCubeMap() {
 
 	//--
 
+	//bReadeCubeMap = loadCubeMap();
 	loadCubeMap();
 
 	ofEnableArbTex();
@@ -968,7 +977,7 @@ void ofxSurfingPBR::processOpenFileSelection(ofFileDialogResult openFileResult) 
 
 		if (fileExtension == "exr" || fileExtension == "EXR") {
 
-			loadCubeMap(openFileResult.getPath());
+			bReadeCubeMap = loadCubeMap(openFileResult.getPath());
 		}
 	}
 }

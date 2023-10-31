@@ -16,6 +16,7 @@
 class ofApp : public ofBaseApp {
 public:
 	void setup();
+	void setupGui();
 	void update();
 	void draw();
 	void drawGui();
@@ -29,10 +30,15 @@ public:
 	void renderScene();
 	void drawMyScene();
 
-	void setupModels();
+	// Mesh
 	string pathMesh;
 	ofVboMesh mesh;
+	void setupMesh();
+
+	// Model
 	string pathModel;
+	void setupModel();
+	void drawModel();
 	bool loadModel(string path);
 	ofxAssimpModelLoader model;
 	vector<ofVboMesh> meshesModel;

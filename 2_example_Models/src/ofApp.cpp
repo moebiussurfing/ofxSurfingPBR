@@ -15,8 +15,34 @@ void ofApp::setup() {
 
 	//--
 
-	// models
-	setupModels();
+	setupMesh();
+
+	setupModel();
+
+	//--
+
+#ifdef SURFING__USE_FILE_BROWSER
+	// models folder
+	setupDir();
+
+	fileName.setSerializable(false);
+
+	eIndexFile = indexFile.newListener([this](int & i) {
+		static int i_ = -1;
+		if (i != i_) { //changed
+			i_ = i;
+			if (i < dir.size()) {
+				fileName = dir.getName(i);
+				string path = dir.getPath(i);
+				loadModel(path);
+			}
+		}
+	});
+#endif
+
+	//--
+
+	setupGui();
 }
 
 //--------------------------------------------------------------
@@ -32,104 +58,8 @@ void ofApp::setupPBR() {
 	pbr.setFunction_renderScene(myFunctionDraw);
 }
 
-#ifdef SURFING__USE_FILE_BROWSER
 //--------------------------------------------------------------
-void ofApp::setupDir(string path) {
-	if (path == "") path = "models/";
-
-	dir.listDir(path);
-	dir.allowExt("ply");
-	dir.allowExt("fbx");
-	dir.allowExt("obj");
-	dir.sort();
-
-	indexFile.setMax(dir.size() - 1);
-}
-#endif
-
-//--------------------------------------------------------------
-bool ofApp::loadModel(string path) {
-	
-	/*
-	
-	https://forum.openframeworks.cc/t/ofxassimpmodelloader-how-to-tweak-model-meshes/36665/4
-	ofxAssimpMeshHelper& helper = model.getMeshHelper(i);
-        ofMesh* mesh = &helper.cachedMesh;
-
-	*/
-	
-	pathModel = path;
-
-	ofLogNotice() << "Started loading model file... \n" << path;
-
-	// model
-	model.clear();
-
-	bool b = model.load(pathModel, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
-	if (b)
-		ofLogNotice() << "Loading successful";
-	else
-		ofLogError() << "File not found!";
-
-	//model.setPosition(0, 2, 0);
-	//model.setRotation(0, 90, 1, 0, 0);
-	
-	// TODO: we queue multi meshes
-	// bc some models have multiple parts..
-	meshesModel.clear();
-	for (int i = 0; i < model.getMeshCount(); i++) {
-		meshesModel.push_back(model.getMesh(i));
-	}
-
-	return b;
-}
-
-//--------------------------------------------------------------
-void ofApp::setupModels() {
-
-	// mesh
-	// for scene 0
-	pathMesh = "models/ofLogoHollow.ply";
-	mesh.load(pathMesh);
-	mesh.mergeDuplicateVertices();
-	// flip the normals
-	for (size_t i = 0; i < mesh.getNumNormals(); i++) {
-		mesh.getNormals()[i] *= -1.f;
-	}
-
-	//--
-
-	// model
-	// for scene 1
-	
-	//problems with normals
-	pathModel = "models/head25k.obj"; 
-	//pathModel = "models/basic_form.ply";
-
-	loadModel(pathModel);
-
-	//--
-
-#ifdef SURFING__USE_FILE_BROWSER
-	// models folder
-	setupDir();
-
-	fileName.setSerializable(false);
-
-	eIndexFile = indexFile.newListener([this](int & i) {
-		static int i_ = -1;
-		if (i != i_) {//changed
-			i_ = i;
-			if (i < dir.size()) {
-				fileName = dir.getName(i);
-				string path = dir.getPath(i);
-				loadModel(path);
-			}
-		}
-	});
-#endif
-
-	//--
+void ofApp::setupGui() {
 
 	gui.setup("ofApp_Model");
 	gui.add(indexScene);
@@ -155,6 +85,101 @@ void ofApp::setupModels() {
 }
 
 //--------------------------------------------------------------
+void ofApp::setupMesh() {
+	// for scene 0
+
+	pathMesh = "models/ofLogoHollow.ply";
+	mesh.load(pathMesh);
+	mesh.mergeDuplicateVertices();
+
+	// flip the normals
+	for (size_t i = 0; i < mesh.getNumNormals(); i++) {
+		mesh.getNormals()[i] *= -1.f;
+	}
+}
+
+//--------------------------------------------------------------
+void ofApp::setupModel() {
+	// for scene 1
+
+	pathModel = "models/head25k.obj"; // This file model have problems with normals
+	//pathModel = "models/basic_form.ply";
+
+	bool b = loadModel(pathModel);
+	if (b)
+		ofLogNotice() << "loaded model file: " << pathModel;
+	else
+		ofLogError() << "model file " << pathModel << " not found!";
+}
+
+//--------------------------------------------------------------
+bool ofApp::loadModel(string path) {
+
+	pathModel = path;
+
+	ofLogNotice() << "Started loading model file... \n"
+				  << path;
+
+	model.clear();
+
+	bool b = model.load(pathModel, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
+
+	if (b)
+		ofLogNotice() << "Loading successful";
+	else
+		ofLogError() << "File not found!";
+
+	// Transform
+	//model.setPosition(0, 2, 0);
+	//model.setRotation(0, 90, 1, 0, 0);
+
+	// Create the vector of ofVboMesh's
+	// We queue multi meshes
+	// bc some models have multiple parts..
+	meshesModel.clear();
+	for (int i = 0; i < model.getMeshCount(); i++) {
+		meshesModel.push_back(model.getMesh(i));
+	}
+
+	/*
+	Modify the mesh. 
+	Get example from \openFrameworks\examples\gl\materialPBR
+	
+	https://forum.openframeworks.cc/t/ofxassimpmodelloader-how-to-tweak-model-meshes/36665/4
+	ofxAssimpMeshHelper& helper = model.getMeshHelper(i);
+        ofMesh* mesh = &helper.cachedMesh;
+	*/
+
+	return b;
+}
+
+//--------------------------------------------------------------
+void ofApp::drawModel() {
+
+	// draw all the meshes
+	if (meshesModel.size() > 0) {
+		for (int i = 0; i < meshesModel.size(); i++) {
+			meshesModel[i].drawFaces();
+		}
+	}
+}
+
+#ifdef SURFING__USE_FILE_BROWSER
+//--------------------------------------------------------------
+void ofApp::setupDir(string path) {
+	if (path == "") path = "models/";
+
+	dir.listDir(path);
+	dir.allowExt("ply");
+	dir.allowExt("fbx");
+	dir.allowExt("obj");
+	dir.sort();
+
+	indexFile.setMax(dir.size() - 1);
+}
+#endif
+
+//--------------------------------------------------------------
 void ofApp::update() {
 }
 
@@ -167,21 +192,22 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::drawGui() {
-
 	pbr.drawGui();
 
-	int pad = 5;
-	glm::vec2 p = glm::vec2(ofGetWindowWidth(), ofGetHeight()) - glm::vec2(gui.getShape().getWidth() + pad, gui.getShape().getHeight() + pad);
+	// move to the window bottom-right
+	int pad = 5; //to borders
+	glm::vec2 p = glm::vec2(ofGetWindowWidth(), ofGetHeight())
+		- glm::vec2(gui.getShape().getWidth() + pad, gui.getShape().getHeight() + pad);
 	gui.setPosition(p.x, p.y);
 	gui.draw();
 }
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
-	// floor plane
+	// plane / floor
 	pbr.drawPlane();
 
-	// objects
+	// other objects
 	pbr.beginMaterial();
 	{
 		drawMyScene();
@@ -192,7 +218,7 @@ void ofApp::renderScene() {
 //--------------------------------------------------------------
 void ofApp::drawMyScene() {
 
-	// transforms
+	// Transforms
 
 	float uPos = 10;
 	float y = ofMap(yPos, -1.f, 1.f, -uPos, uPos, true);
@@ -205,8 +231,8 @@ void ofApp::drawMyScene() {
 
 	//--
 
-	// scene 0
-	// mesh
+	// Scene 0
+	// Mesh
 	if (indexScene == 0) {
 		// mesh
 		ofPushMatrix();
@@ -222,10 +248,10 @@ void ofApp::drawMyScene() {
 
 	//--
 
-	// scene 1
-	// mesh model
+	// Scene 1
+	// Model
 	else if (indexScene == 1) {
-		glFrontFace(GL_CCW);//fix for "transparent" model
+		glFrontFace(GL_CCW); //fix for "transparent" model
 
 		ofPushMatrix();
 		ofScale(s * 2.f);
@@ -234,19 +260,15 @@ void ofApp::drawMyScene() {
 		//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);
 		if (bRotate) ofRotateYDeg(-d);
 		{
-			if (meshesModel.size() > 0) {
-				for (int i = 0; i < meshesModel.size(); i++) {
-					meshesModel[i].drawFaces();
-				}
-			} 
+			drawModel();
 		}
 		ofPopMatrix();
 	}
 
 	//--
 
-	// scene 2
-	// three prims
+	// Scene 2
+	// Three prims
 	else if (indexScene == 2) {
 
 		ofPushMatrix();
@@ -255,9 +277,9 @@ void ofApp::drawMyScene() {
 		ofTranslate(0, yy, 0);
 		ofScale(s * 0.02f);
 		if (bRotate) ofRotateYDeg(d);
-
-		pbr.drawTestScene();
-
+		{
+			pbr.drawTestScene();
+		}
 		ofPopMatrix();
 	}
 }
