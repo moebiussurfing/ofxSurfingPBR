@@ -71,6 +71,11 @@ void ofxSurfingPBR::doResetAll(bool bExcludeMaterial) {
 	doResetCubeMap();
 #endif
 
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+	doResetNoise();
+	doResetDisplace();
+#endif
+
 	if (!bExcludeMaterial) material.doResetMaterial();
 }
 
@@ -112,27 +117,14 @@ void ofxSurfingPBR::setupParams() {
 	planeSettingsParams.add(planeDiffuseColor);
 	planeSettingsParams.add(planeSpecularColor);
 	planeSettingsParams.add(planeShiness);
-	planeParams.add(planeSettingsParams);
-	planeParams.add(resetPlane);
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACE
-	resetDisplace.set("Reset Displace");
-	bShaderToPlane.set("ShaderToPlane", false);
-	bDisplaceToMaterial.set("DisplaceToMaterial", false);
-	displaceParams.setName("Displace");
-	displaceParams.add(bShaderToPlane);
-	displaceParams.add(bDisplaceToMaterial);
-	noiseParams.setName("Noise");
-	noiseParams.add(noiseAmplitude.set("Displace Amp", 0.0f, 0.0f, 255.0f));
-	noiseParams.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
-	noiseParams.add(noiseSpeed.set("Noise Speed", 0.0f, 0.0f, 1.0f));
-	displaceParams.add(noiseParams);
-	displaceParams.add(displacementStrength.set("Displace Strength", 0.0, 0.0, 500.0));
-	displaceParams.add(displacementNormalsStrength.set("Displace Normals Strength", 0.0, 0.0, 1.0));
-	displaceParams.add(normalGeomToNormalMapMix.set("Normal GeomToNormMapMix", 0.0, 0.0, 1.0));
-	displaceParams.add(resetDisplace);
-	planeParams.add(displaceParams);
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+	setupParamsDisplace();
 #endif
+
+	planeParams.add(planeSettingsParams);
+
+	planeParams.add(resetPlane);
 
 	parameters.add(planeParams);
 
@@ -178,7 +170,7 @@ void ofxSurfingPBR::setupParams() {
 
 //--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACE
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshImg() {
 	ofLogNotice("ofxSurfingPBR") << "refreshImg()";
@@ -220,23 +212,63 @@ void ofxSurfingPBR::setupShader() {
 
 	refreshImg();
 
+	doResetNoise();
 	doResetDisplace();
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::setupParamsDisplace() {
+	ofLogNotice("ofxSurfingPBR") << "setupParamsDisplace()";
+
+	resetDisplace.set("Reset Displace");
+	resetNoise.set("Reset Noise");
+
+	bShaderToPlane.set("ForceFromShader", false);
+	bDisplaceToMaterial.set("ToMaterial", false);
+
+	displacersParams.setName("Displacers");
+
+	displacersParams.add(bShaderToPlane);
+
+	noiseParams.setName("Noise");
+	noiseParams.add(noiseAmplitude.set("Noise Amp D", 0.0f, 0.0f, 2.f));
+	noiseParams.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
+	noiseParams.add(noiseSpeed.set("Noise Speed", 0.0f, 0.0f, 1.0f));
+	noiseParams.add(resetNoise);
+	displacersParams.add(noiseParams);
+
+	displacersParams.add(bDisplaceToMaterial);
+
+	displaceMaterialParams.setName("Material");
+	displaceMaterialParams.add(displacementStrength.set("D Strength", 0.0, 0.0, 500.0));
+	displaceMaterialParams.add(displacementNormalsStrength.set("D Normals Strength", 0.0, 0.0, 1.0));
+	displaceMaterialParams.add(normalGeomToNormalMapMix.set("NGeom NMapMix", 0.0, 0.0, 1.0));
+	displaceMaterialParams.add(resetDisplace);
+
+	displacersParams.add(displaceMaterialParams);
+
+	planeSettingsParams.add(displacersParams);
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetNoise() {
+	ofLogNotice("ofxSurfingPBR") << "doResetNoise()";
+
+	noiseAmplitude.set(1.0f);
+	noiseScale.set(0.005f);
+	noiseSpeed.set(0.5f);
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetDisplace() {
 	ofLogNotice("ofxSurfingPBR") << "doResetDisplace()";
 
-	noiseAmplitude.set(0.0f);
-	noiseScale.set(0.0f);
-	noiseSpeed.set(0.0f);
+	displacementStrength.set(displacementStrength.getMax()/4);
+	displacementNormalsStrength.set(displacementNormalsStrength.getMax() / 2);
+	normalGeomToNormalMapMix.set(normalGeomToNormalMapMix.getMax() / 2);
 
-	displacementStrength.set(0.0f);
-	displacementNormalsStrength.set(0.0f);
-	normalGeomToNormalMapMix.set(0.0f);
-
-	bShaderToPlane.set(false);
-	bDisplaceToMaterial.set(false);
+	//bShaderToPlane.set(false);
+	//bDisplaceToMaterial.set(false);
 }
 
 //--------------------------------------------------------------
@@ -261,13 +293,13 @@ void ofxSurfingPBR::updateDisplace() {
 	img.update();
 
 	if (bDisplaceToMaterial) {
-		material.material.setDisplacementTexture(img.getTexture());
-		material.material.setDisplacementStrength(displacementStrength);
-		material.material.setDisplacementNormalsStrength(displacementNormalsStrength);
+		materialPlane.setDisplacementTexture(img.getTexture());
 
-		material.material.setNormalGeomToNormalMapMix(normalGeomToNormalMapMix);
+		materialPlane.setDisplacementStrength(displacementStrength);
+		materialPlane.setDisplacementNormalsStrength(displacementNormalsStrength);
+		materialPlane.setNormalGeomToNormalMapMix(normalGeomToNormalMapMix);
 
-		//material.material.setTexCoordScale(scaleX, scaleY);
+		//materialPlane.setTexCoordScale(scaleX, scaleY);
 	}
 }
 
@@ -293,7 +325,7 @@ void ofxSurfingPBR::setup() {
 
 	//--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACE
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
 	setupShader();
 #endif
 
@@ -352,11 +384,25 @@ void ofxSurfingPBR::setupGui() {
 	//minimize
 	//gui.getGroup(planeParams.getName()).minimize();
 	gui.getGroup(planeParams.getName()).getGroup(planeTransform.getName()).minimize();
-	//gui.getGroup(lightParams.getName()).minimize();
+	gui.getGroup(lightParams.getName()).minimize();
 	gui.getGroup(shadowParams.getName()).minimize();
 
 #ifdef SURFING__USE_CUBE_MAP
 	gui.getGroup(cubeMapParams.getName()).minimize();
+#endif
+
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+	gui.getGroup(planeParams.getName())
+		.getGroup(planeSettingsParams.getName())
+		.getGroup(displacersParams.getName())
+		.getGroup(displaceMaterialParams.getName())
+		.minimize();
+	gui.getGroup(planeParams.getName())
+		.getGroup(planeSettingsParams.getName())
+		.getGroup(displacersParams.getName())
+		.getGroup(noiseParams.getName())
+		.minimize();
+
 #endif
 }
 
@@ -377,10 +423,12 @@ void ofxSurfingPBR::update() {
 
 	//--
 
+	// shadow
 	for (auto & light : lights) {
 		light->getShadow().setEnabled(bDrawShadow);
 	}
 
+	// lights
 	if (lights.size() > 0) {
 		if (lights[0]->getType() == OF_LIGHT_POINT) {
 			float tangle = ofGetElapsedTimef() * 1.05;
@@ -394,7 +442,7 @@ void ofxSurfingPBR::update() {
 
 	//--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACE
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
 	updateDisplace();
 #endif
 }
@@ -430,7 +478,7 @@ void ofxSurfingPBR::drawGui() {
 
 	//--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACE
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
 	if (bDebug) {
 		int pad = 10;
 		int x, y, w, h;
@@ -549,14 +597,14 @@ void ofxSurfingPBR::refreshPlane() {
 	float h = szU * planeSize.get().y;
 
 //TODO
-#ifdef SURFING__USE_SHADER_AND_DISPLACE
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
 	//hardcode
 	w = 800;
 	h = 600;
 #endif
 
 	//TODO: make it simple..
-#ifndef SURFING__USE_SHADER_AND_DISPLACE
+#ifndef SURFING__USE_SHADER_AND_DISPLACERS
 	int resX = (int)SURFING__PLANE_RESOLUTION;
 	int resY = (int)SURFING__PLANE_RESOLUTION;
 #else
@@ -566,7 +614,7 @@ void ofxSurfingPBR::refreshPlane() {
 
 	plane.set(w, h, resX, resY);
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACE
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
 	refreshImg();
 #endif
 }
@@ -649,9 +697,28 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 	}
 #endif
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACE
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
 	else if (name == resetDisplace.getName()) {
 		doResetDisplace();
+	} else if (name == resetNoise.getName()) {
+		doResetNoise();
+	}
+
+	else if (name == bShaderToPlane.getName()) {
+		if (bShaderToPlane) {//workflow
+			if (bDisplaceToMaterial) bDisplaceToMaterial = false;
+		} else {
+		}
+	}
+
+	else if (name == bDisplaceToMaterial.getName()) {
+		if (bDisplaceToMaterial) {//workflow
+			if (bShaderToPlane) bShaderToPlane = false;
+		} else {
+			materialPlane.setDisplacementStrength(0);
+			materialPlane.setDisplacementNormalsStrength(0);
+			materialPlane.setNormalGeomToNormalMapMix(0);
+		}
 	}
 #endif
 }
@@ -690,7 +757,7 @@ void ofxSurfingPBR::drawPlane() {
 	}
 
 	else {
-#ifdef SURFING__USE_SHADER_AND_DISPLACE
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
 		if (bShaderToPlane)
 			beginShader();
 		else

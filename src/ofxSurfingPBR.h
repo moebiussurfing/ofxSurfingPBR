@@ -64,7 +64,7 @@
 
 #define SURFING__USE_CUBE_MAP
 
-#define SURFING__USE_SHADER_AND_DISPLACE // TODO/WIP enable to test custom shader and displacement
+#define SURFING__USE_SHADER_AND_DISPLACERS // TODO/WIP enable to test custom shader and displacement
 
 //--
 
@@ -252,16 +252,18 @@ public:
 
 	//--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACE
+#ifdef SURFING__USE_SHADER_AND_DISPLACERS
 private:
 	ofShader shader;
 	void setupShader();
 	bool bShaderReady = false;
 	ofFloatImage img;
 
-	ofParameterGroup displaceParams;
+	ofParameterGroup displacersParams;
+	ofParameterGroup displaceMaterialParams;
 	ofParameterGroup noiseParams;
 	ofParameter<void> resetDisplace;
+	ofParameter<void> resetNoise;
 	ofParameter<bool> bShaderToPlane;
 	ofParameter<bool> bDisplaceToMaterial;
 	ofParameter<float> noiseAmplitude;
@@ -270,6 +272,8 @@ private:
 	ofParameter<float> displacementStrength;
 	ofParameter<float> displacementNormalsStrength;
 	ofParameter<float> normalGeomToNormalMapMix;
+	void setupParamsDisplace();
+	void doResetNoise();
 	void doResetDisplace();
 	void updateDisplace();
 	void refreshImg();
