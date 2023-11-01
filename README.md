@@ -9,6 +9,10 @@ All this code is copied from and hardly based on the OF forum topic:
 https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
 Original authors: **@NickHardeman** and **@Paolo**.  
 
+## Screenshot
+
+![](2_Example_Models/Capture.PNG)
+
 ## Video
 
 https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd5-ad4d-b77f885d3e24
