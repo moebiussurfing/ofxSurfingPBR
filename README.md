@@ -39,21 +39,12 @@ Look at the examples.
 ## Requeriments 
 
 * Copy the content of 'data.zip' to the examples or your projects **/bin/data**. 
-  
-├── data  
-│    ├── cubemaps  
-│    ├── models  
-│    ├── shadersGL2  
-│    ├── shadersGL3  
-
-
     .
-    ├── ...
-    ├── test                    # Test files (alternatively `spec` or `tests`)
-    │   ├── benchmarks          # Load and stress tests
-    │   ├── integration         # End-to-end, integration tests (alternatively `e2e`)
-    │   └── unit                # Unit tests
-    └── ...
+    ├── data                   
+    │   ├── cubemaps           # exr, hdr, jpg
+    │   ├── models             # obj, ply, fbx
+    │   ├── shadersGL2         # .frag/.vert
+    │   └── shadersGL3         # .frag/.vert
 
 ## Tested Systems
 * **Windows 11** / **VS 2022** / **OF 0.12+ GH Master branch**

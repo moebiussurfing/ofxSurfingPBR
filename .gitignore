@@ -583,3 +583,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
+1_Example_Basic/bin/data/cubemaps/WinterForest_8k.jpg
