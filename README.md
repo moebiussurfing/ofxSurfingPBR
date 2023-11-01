@@ -40,59 +40,59 @@ Look at the examples.
 
 * Copy the content of 'data.zip' to the examples or your projects **/bin/data**. 
 
-    .
-    ├── data                   
-    │   ├── cubemaps           # exr, hdr, jpg
-    │   ├── models             # obj, ply, fbx
-    │   ├── shadersGL2         # .frag/.vert
-    │   └── shadersGL3         # .frag/.vert
+    .  
+    ├── data         
+    │   ├── cubemaps           # exr, hdr, jpg  
+    │   ├── models             # obj, ply, fbx  
+    │   ├── shadersGL2         # .frag/.vert  
+    │   └── shadersGL3         # .frag/.vert  
     └── ...
 
-    .
+    .  
     ├── ...
-    ├── test                    # Test files (alternatively `spec` or `tests`)
-    │   ├── benchmarks          # Load and stress tests
-    │   ├── integration         # End-to-end, integration tests (alternatively `e2e`)
-    │   └── unit                # Unit tests
+    ├── test                    # Test files (alternatively `spec` or `tests`)  
+    │   ├── benchmarks          # Load and stress tests  
+    │   ├── integration         # End-to-end, integration tests (alternatively `e2e`)  
+    │   └── unit                # Unit tests  
     └── ...
 
 
 
 
-├───a/
-│   ├───aa/
-│   ├───ab/
-│   └───ac/
-├───a1/
-├───b/
-│   ├───ba/
-│   │   ├───bafile1.txt
-│   │   └───bafile2.txt
-│   ├───bb/
-│   ├───bc/
-│   │   └───bca/
-│   │       └───bca-file1.txt
-│   ├───bd/
-│   └───bfile1.txt
-├───c/
-├───c1/
-└───d/
-    ├───d1/
-    └───d2/
+├───a/  
+│   ├───aa/  
+│   ├───ab/  
+│   └───ac/  
+├───a1/  
+├───b/  
+│   ├───ba/  
+│   │   ├───bafile1.txt  
+│   │   └───bafile2.txt  
+│   ├───bb/  
+│   ├───bc/  
+│   │   └───bca/  
+│   │       └───bca-file1.txt  
+│   ├───bd/  
+│   └───bfile1.txt  
+├───c/  
+├───c1/  
+└───d/  
+    ├───d1/  
+    └───d2/  
 
 
-my-app/
-├─ node_modules/
-├─ public/
-│  ├─ favicon.ico
-│  ├─ index.html
-│  ├─ robots.txt
-├─ src/
-│  ├─ index.css
-│  ├─ index.js
-├─ .gitignore
-├─ package.json
-├─ README.md
+my-app/  
+├─ node_modules/  
+├─ public/  
+│  ├─ favicon.ico  
+│  ├─ index.html  
+│  ├─ robots.txt  
+├─ src/  
+│  ├─ index.css  
+│  ├─ index.js  
+├─ .gitignore  
+├─ package.json    
+├─ README.md  
 
 
 
