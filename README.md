@@ -56,6 +56,47 @@ Look at the examples.
     │   └── unit                # Unit tests
     └── ...
 
+
+
+
+├───a/
+│   ├───aa/
+│   ├───ab/
+│   └───ac/
+├───a1/
+├───b/
+│   ├───ba/
+│   │   ├───bafile1.txt
+│   │   └───bafile2.txt
+│   ├───bb/
+│   ├───bc/
+│   │   └───bca/
+│   │       └───bca-file1.txt
+│   ├───bd/
+│   └───bfile1.txt
+├───c/
+├───c1/
+└───d/
+    ├───d1/
+    └───d2/
+
+
+my-app/
+├─ node_modules/
+├─ public/
+│  ├─ favicon.ico
+│  ├─ index.html
+│  ├─ robots.txt
+├─ src/
+│  ├─ index.css
+│  ├─ index.js
+├─ .gitignore
+├─ package.json
+├─ README.md
+
+
+
+
 ## Tested Systems
 * **Windows 11** / **VS 2022** / **OF 0.12+ GH Master branch**
 
