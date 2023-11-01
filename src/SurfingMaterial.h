@@ -1,7 +1,7 @@
 #pragma once
 #include "ofMain.h"
 
-#define SURFING__USE_AUTOSAVE_ENGINE
+#include "SurfingConstantsPBR.h"
 
 #include "SurfingHelpersLite.h"
 #include "ofxGui.h"

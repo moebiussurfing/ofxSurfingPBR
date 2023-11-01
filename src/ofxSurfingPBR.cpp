@@ -15,7 +15,8 @@ ofxSurfingPBR::ofxSurfingPBR() {
 	sHelp += "\n";
 	sHelp += "h Help\n";
 	sHelp += "d Debug\n";
-	sHelp += "g/G Gui\n";
+	sHelp += "g Gui\n";
+	sHelp += "G ofxGui\n";
 	sHelp += "p Draw Plane\n";
 	sHelp += "c Draw CubeMap\n";
 	sHelp += "s Draw Shadow \n";
@@ -107,19 +108,19 @@ void ofxSurfingPBR::setupParams() {
 	planeParams.add(bDrawPlane);
 	planeParams.add(bPlaneWireframe);
 
-	planeTransformParams.add(planeSize);
-	planeTransformParams.add(bPlaneInfinite);
-	planeTransformParams.add(planeRotation);
 	planeTransformParams.add(planePosition);
+	planeTransformParams.add(planeRotation);
+	planeTransformParams.add(bPlaneInfinite);
+	planeTransformParams.add(planeSize);
 	planeTransformParams.add(resetPlaneTransform);
 	planeParams.add(planeTransformParams);
 
 	planeSettingsParams.add(planeGlobalColor);
+	planeSettingsParams.add(planeShiness);
 	planeSettingsParams.add(planeDiffuseColor);
 	planeSettingsParams.add(planeSpecularColor);
-	planeSettingsParams.add(planeShiness);
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	setupParamsDisplace();
 #endif
 
@@ -177,7 +178,7 @@ void ofxSurfingPBR::setupParams() {
 
 //--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshImgShaderPlane() {
 	ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane()";
@@ -338,7 +339,7 @@ void ofxSurfingPBR::setup() {
 
 	//--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	setupShaderPlane();
 #endif
 
@@ -417,7 +418,7 @@ void ofxSurfingPBR::setupGui() {
 	gui.getGroup(cubeMapParams.getName()).minimize();
 #endif
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	gui.getGroup(planeParams.getName())
 		.getGroup(planeSettingsParams.getName())
 		.getGroup(displacersParams.getName())
@@ -478,7 +479,7 @@ void ofxSurfingPBR::update() {
 
 	//--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	if (bDisplaceToMaterial || bShaderToPlane) {
 		updateDisplace();
 	}
@@ -554,7 +555,7 @@ void ofxSurfingPBR::drawHelp() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawDebug() {
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	if (bShaderToPlane || bDisplaceToMaterial) {
 		int x, y, w, h;
 		int pad = 0;
@@ -610,7 +611,7 @@ void ofxSurfingPBR::drawDebug() {
 
 	//--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	if (!bShaderToPlane && !bDisplaceToMaterial)
 #endif
 	{
@@ -729,25 +730,24 @@ void ofxSurfingPBR::draw() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshPlane() {
 
-	float szUnit;
+	float planeSizeUnit;
 	float w;
 	float h;
 
 	if (bPlaneInfinite) {
-		szUnit = SURFING__SZ_UNIT * (float)SURFING__PLANE_INFINITE_MAGNITUDE;
-		w = szUnit;
-		h = szUnit;
+		w = SURFING__PLANE_SIZE_INFINITE_MODE;
+		h = SURFING__PLANE_SIZE_INFINITE_MODE;
 	} else {
-		szUnit = SURFING__SZ_UNIT * 20.f;
-		w = szUnit * planeSize.get().x;
-		h = szUnit * planeSize.get().y;
+		planeSizeUnit = SURFING__SZ_UNIT * SURFING__PLANE_SIZE_MULTIPLIER;
+		w = planeSizeUnit * planeSize.get().x;
+		h = planeSizeUnit * planeSize.get().y;
 	}
 
 	//--
 
 	//TODO: make it simple..
 	// clamp plane size
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	#ifdef SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE
 
 	//hardcoded and clamped
@@ -761,7 +761,7 @@ void ofxSurfingPBR::refreshPlane() {
 #endif
 
 	int resX, resY;
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	resX = MIN(1024, w / 10.f);
 	resY = MIN(1024, h / 10.f);
 #else
@@ -773,7 +773,7 @@ void ofxSurfingPBR::refreshPlane() {
 
 	//--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	if (bDisplaceToMaterial || bShaderToPlane)
 		refreshImgShaderPlane();
 #endif
@@ -831,7 +831,7 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 	}
 
 	else if (name == planeShiness.getName()) {
-		materialPlane.setShininess(planeShiness.get() * 100);
+		materialPlane.setShininess(planeShiness.get() * SUIRFING__PBR__MAX_SHININESS);
 	}
 
 	else if (name == planeGlobalColor.getName()) {
@@ -908,7 +908,7 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 
 	//--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	else if (name == resetDisplace.getName()) {
 		doResetDisplace();
 	} else if (name == resetNoise.getName()) {
@@ -984,7 +984,7 @@ void ofxSurfingPBR::drawPlane() {
 	}
 
 	else {
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 		if (bShaderToPlane)
 			beginShaderPlane();
 		else
@@ -1124,6 +1124,7 @@ bool ofxSurfingPBR::loadCubeMap(string path) {
 	//--
 
 	bLoadedCubeMap = b;
+
 	if (1)
 		if (b) {
 			cubeMapMode = cubeMapMode; //refresh
@@ -1143,10 +1144,10 @@ void ofxSurfingPBR::setupCubeMap() {
 	cubeMapName.setSerializable(false);
 	cubeMapModeName.setSerializable(false);
 
-	cubeMapModeName.set("Type", "NONE");
-	cubeMapMode.set("Mode", 2, 1, 3);
-	cubeMapName.set("Filename", "NONE");
 	bDrawCubeMap.set("Draw CubeMap", true);
+	cubeMapModeName.set("Type", "NONE");
+	cubeMapMode.set("Mode C", 2, 1, 3);
+	cubeMapName.set("Filename C", "NONE");
 	cubeMapprefilterRoughness.set("Roughness", 0.25f, 0, 1.f);
 	openCubeMap.set("Open File");
 	resetCubeMap.set("Reset CubeMap");
@@ -1187,10 +1188,10 @@ void ofxSurfingPBR::processOpenFileSelection(ofFileDialogResult openFileResult) 
 
 		if (fileExtension == "exr" || fileExtension == "EXR" || fileExtension == "hdr" || fileExtension == "HDR" || fileExtension == "jpg" || fileExtension == "JPG") {
 
-			bLoadedCubeMap = loadCubeMap(openFileResult.getPath());
+			loadCubeMap(openFileResult.getPath());
 
 			if (fileExtension == "jpg" || fileExtension == "JPG") {
-				//only cube map mode is supported for fpg!
+				//only cube map mode is supported for jpg's!
 				cubeMapMode = 1;
 			}
 		} else {
@@ -1292,7 +1293,7 @@ void ofxSurfingPBR::doResetAll(bool bExcludeMaterial) {
 	doResetCubeMap();
 #endif
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	doResetNoise();
 	doResetDisplace();
 #endif

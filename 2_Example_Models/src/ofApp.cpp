@@ -131,8 +131,9 @@ void ofApp::setupMesh() {
 void ofApp::setupModel() {
 	// for scene 1
 
-	pathModel = "models/head25k.obj"; // This file model have problems with normals
+	//pathModel = "models/head25k.obj"; // This file model have problems with normals
 	//pathModel = "models/basic_form.ply";
+	pathModel = "models/ultraviolence.fbx";
 
 	bool b = loadModel(pathModel);
 	if (b)
@@ -158,8 +159,11 @@ bool ofApp::loadModel(string path) {
 	else
 		ofLogError() << "File not found!";
 
-	// Transform
+	// Model transforms
+	// must be applied before draw!
 	//model.setPosition(0, 2, 0);
+	float s = 0.01f;
+	model.setScale(s,s,s);
 	//model.setRotation(0, 90, 1, 0, 0);
 
 	// Create the vector of ofVboMesh's
@@ -283,7 +287,12 @@ void ofApp::drawMyScene() {
 		ofScale(s * 2.f);
 		y += 1;
 		ofTranslate(0, y, 0);
+		
+		// Model transforms
+		// apply before draw!
 		//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);
+		ofScale(model.getScale().x, model.getScale().y, model.getScale().z);
+
 		if (bRotate) ofRotateYDeg(-d);
 		{
 			drawModel();

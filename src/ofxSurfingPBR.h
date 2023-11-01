@@ -14,18 +14,26 @@
 
 	TODO:
 
+	- fix startup plane
+	- add callbacks per group?
+
+	- hardcode infinite plane mode.
+	- add save/load camera
+	- cusomize share plane divisions and img size.
+	- get mesh mods example.
 	- add undo history/browser..
 		store each group on a vector to browse back
+	- add cubemap file path to settings
+
 	- add ImGui mode.
 	- add presets manager 
 		and randomizer/undo/redo 
 		to explore and save materials.
-	- add cubemap file path to settings
 	- make a scene manager allowing
 		to queue many materials 
 		and lights on a std::vector.
 		something like ofxPBR or ofxPBRHelper.
-	- add ofxBgGradient addon ? 
+	- add ofxBgGradient addon ? copy just the gradients
 	- add custom global path to /data/ofxSurfingPBR/
 	- add randomizers for plane/scene too.
 
@@ -33,19 +41,7 @@
 
 //--
 
-// Optional
-
-#define SURFING__USE_SHADER_AND_DISPLACERS // TODO: WIP: add another shader/material.
-//#define SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE // TODO: testing to improve performance.
-
-#define SURFING__USE_CUBE_MAP
-
-//--
-
-// Constants
-#define SURFING__PLANE_RESOLUTION 10
-#define SURFING__PLANE_INFINITE_MAGNITUDE 200.f
-#define SURFING__SZ_UNIT 1000
+#include "SurfingConstantsPBR.h"
 
 //--
 
@@ -272,7 +268,7 @@ private:
 
 	//--
 
-#ifdef SURFING__USE_SHADER_AND_DISPLACERS
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 private:
 	ofShader shaderPlane;
 	bool bLoadedShaderPlane = false;
