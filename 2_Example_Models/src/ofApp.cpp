@@ -2,10 +2,15 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-#ifdef OF_APP_DEFINED_ofxSurfingHelpers
-	ofxSurfingHelpers::setWindowTitleAsProjectName();
-	ofxSurfingHelpers::setMonitorsLayout(-1, false, true);
+	ofxSurfing::setWindowTitleAsProjectName(); // Name the window
+
+#if 1
+	ofxSurfing::setWindowAtMonitor(); // Center monitor / landscape.
+	//ofxSurfing::setWindowAtMonitor(-1); // Move to left monitor / landscape.
+	//ofxSurfing::setWindowAtMonitor(1,true); // Move to right monitor / portrait.
 #endif
+
+	//--
 
 	camera.setFarClip(10000);
 
@@ -21,6 +26,7 @@ void ofApp::setup() {
 
 	//--
 
+	// TODO: make a simple class to browse models.
 #ifdef SURFING__USE_FILE_BROWSER
 	// models folder
 	setupDir();
@@ -50,8 +56,10 @@ void ofApp::setupPBR() {
 	pbr.setup();
 	pbr.setCameraPtr(&camera);
 
+#if 1
 	pbr.loadCubeMap("cubemaps/kloppenheim_06_puresky_1k.exr");
-	// replaces the default cubemap
+// replaces the default cubemap
+#endif
 
 	// render scene
 	callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
@@ -82,6 +90,27 @@ void ofApp::setupGui() {
 	});
 
 	gui.loadFromFile("ofApp.json");
+
+	//--
+
+	// move gui panel
+	glm::vec2 p;
+	int pad = 5; //to borders
+
+	// to window bottom-right
+#if 0
+	{
+		glm::vec2 p1 = glm::vec2(ofGetWindowWidth(), ofGetHeight());
+		glm::vec2 p2 = glm::vec2(gui.getShape().getWidth() + pad, gui.getShape().getHeight() + pad);
+		p = p1 - p2;
+	}
+	// to window bottom-left
+#else
+	{
+		p = glm::vec2(pad, ofGetHeight() - gui.getShape().getHeight() - pad);
+	}
+#endif
+	gui.setPosition(p.x, p.y);
 }
 
 //--------------------------------------------------------------
@@ -194,11 +223,8 @@ void ofApp::draw() {
 void ofApp::drawGui() {
 	pbr.drawGui();
 
-	// move to the window bottom-right
-	int pad = 5; //to borders
-	glm::vec2 p = glm::vec2(ofGetWindowWidth(), ofGetHeight())
-		- glm::vec2(gui.getShape().getWidth() + pad, gui.getShape().getHeight() + pad);
-	gui.setPosition(p.x, p.y);
+	//--
+
 	gui.draw();
 }
 

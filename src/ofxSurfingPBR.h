@@ -13,19 +13,21 @@
 
 
 	TODO:
+
+	- add undo history/browser..
+		store each group on a vector to browse back
+	- add ImGui mode.
+	- add presets manager 
+		and randomizer/undo/redo 
+		to explore and save materials.
 	- add cubemap file path to settings
 	- make a scene manager allowing
 		to queue many materials 
 		and lights on a std::vector.
 		something like ofxPBR or ofxPBRHelper.
-	- add ImGui mode.
-	- add presets manager 
-		and randomizer/undo/redo 
-		to explore and save materials.
-	- add ofxBgGradient addon 
-		or a simple Bg color
-		to draw a cool Bg instead of the cubeMap.
-	- add custom gloabal path to /data/ofxSurfingPBR/
+	- add ofxBgGradient addon ? 
+	- add custom global path to /data/ofxSurfingPBR/
+	- add randomizers for plane/scene too.
 
 */
 
@@ -34,7 +36,7 @@
 // Optional
 
 #define SURFING__USE_SHADER_AND_DISPLACERS // TODO: WIP: add another shader/material.
-//#define SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE // TODO: testing to improve performance
+//#define SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE // TODO: testing to improve performance.
 
 #define SURFING__USE_CUBE_MAP
 

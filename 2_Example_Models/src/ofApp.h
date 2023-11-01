@@ -7,7 +7,6 @@
 // the sanity of the files you pretend to load!
 // bc some could freeze the app or too big!
 
-#include "ofxSurfingHelpers.h"
 #include "ofxSurfingPBR.h"
 
 #include "ofVboMesh.h"

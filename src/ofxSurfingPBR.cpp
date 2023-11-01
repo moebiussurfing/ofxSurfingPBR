@@ -21,6 +21,7 @@ ofxSurfingPBR::ofxSurfingPBR() {
 	sHelp += "s Draw Shadow \n";
 	sHelp += "b Draw BgAlt\n";
 	sHelp += "f FullScreen\n";
+	sHelp += "q Square/1080\n";
 	sHelp += "\n";
 	sHelp += "MATERIAL\n";
 	sHelp += "HELPERS\n";
@@ -361,14 +362,14 @@ void ofxSurfingPBR::setup() {
 			//light->getShadow().setDirectionalBounds(w,h);
 		}
 
-		//// currently not used
-		//else {
-		//	light->setSpotlight(60, 20);
-		//	light->getShadow().setNearClip(200);
-		//	light->getShadow().setFarClip(2000);
-		//	light->setPosition(210, 330.0, 750);
-		//	light->setAmbientColor(ofFloatColor(0.4));
-		//}
+		// currently not used ?
+		else {
+			light->setSpotlight(60, 20);
+			light->getShadow().setNearClip(200);
+			light->getShadow().setFarClip(2000);
+			light->setPosition(210, 330.0, 750);
+			light->setAmbientColor(ofFloatColor(0.4));
+		}
 
 		//TODO: not working..
 		//light->getShadow().setStrength(shadowStrength);
@@ -400,6 +401,8 @@ void ofxSurfingPBR::setup() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::setupGui() {
 	gui.setup(parameters);
+	
+	gui.setPosition(5, 5);
 
 	//minimize
 	//gui.getGroup(planeParams.getName()).minimize();
@@ -697,7 +700,7 @@ void ofxSurfingPBR::draw() {
 
 			//--
 
-		// debug shadows
+			// debug shadows
 #ifdef SURFING__USE_CUBE_MAP
 		if (bDrawCubeMap && bLoadedCubeMap) {
 			// drawing of the cube map renders at max depth, so it can be drawn last
@@ -778,7 +781,14 @@ void ofxSurfingPBR::refreshPlane() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
+
+#if 1
+	//TODO: must fix/debug some callbacks exceptions
 	if (!bEnableCallbacks) return;
+	if (!bDoneStartup) return;
+#endif
+
+	//--
 
 	std::string name = e.getName();
 
@@ -1202,6 +1212,7 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 's') bDrawShadow = !bDrawShadow;
 	if (key == 'b') bDrawBgAlt = !bDrawBgAlt;
 	if (key == 'f') ofToggleFullscreen();
+	if (key == 'q') ofxSurfing::setWindowSquared(1080);
 
 	if (key == OF_KEY_F1) doResetMaterial();
 	if (key == OF_KEY_F2) doRandomMaterial();
