@@ -39,11 +39,12 @@ Look at the examples.
 ## Requeriments 
 
 * Copy the content of 'data.zip' to the examples or your projects **/bin/data**. 
-  - /bin/data/
-    - /cubemaps/
-    - /models/
-    - /shadersGL2/
-    - /shadersGL3/
+
+/bin/data/  
+  /cubemaps/  
+  /models/  
+  /shadersGL2/  
+  /shadersGL3/  
 
 ## Tested Systems
 * **Windows 11** / **VS 2022** / **OF 0.12+ GH Master branch**
