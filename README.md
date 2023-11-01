@@ -40,12 +40,14 @@ Look at the examples.
 
 * Copy the content of 'data.zip' to the examples or your projects **/bin/data**. 
 
-.  
-├── data  
-│   ├── cubemaps  
-│   ├── models  
-│   ├── shadersGL2  
-│   └── shadersGL3  
+.
+├── ...
+├── data                    # Documentation files (alternatively `doc`)
+│   ├── cubemaps              # Table of contents
+│   ├── models              # Frequently asked questions
+│   ├── shadersGL2             # Miscellaneous information
+│   ├── shadersGL3            # Getting started guide
+│   └── ...                 # etc.
 └── ...
 
 ## Tested Systems
