@@ -41,64 +41,36 @@ Look at the examples.
 * Copy the content of 'data.zip' to the examples or your projects **/bin/data**. 
 
     .  
-    ├── data         
-    │   ├── cubemaps           # exr, hdr, jpg  
-    │   ├── models             # obj, ply, fbx  
-    │   ├── shadersGL2         # .frag/.vert  
-    │   └── shadersGL3         # .frag/.vert  
+    ├── data  
+    │   ├── cubemaps (exr, hdr, jpg)  
+    │   ├── models (obj, ply, fbx)  
+    │   ├── shadersGL2 (.frag/.vert)  
+    │   └── shadersGL3 (.frag/.vert)  
     └── ...
 
 
-├───cubemaps
-│       hdrvfx_chanc_1_n1_v3_3k_Ref.hdr
-│       kloppenheim_06_puresky_1k.exr
-│       modern_buildings_2_1k.exr
-│       WinterForest_8k.jpg
-│
-├───models
-│       basic_form.ply
-│       FlatCap.fbx
-│       head25k.obj
-│       ofLogoHollow.ply
-│       Skull.obj
-│       SkullLowPoly.fbx
-│
-├───shadersGL2
-│       shader.frag
-│       shader.vert
-│
-└───shadersGL3
-        shader.frag
-        shader.vert
+├───cubemaps  
+│       hdrvfx_chanc_1_n1_v3_3k_Ref.hdr  
+│       kloppenheim_06_puresky_1k.exr  
+│       modern_buildings_2_1k.exr  
+│       WinterForest_8k.jpg  
+│  
+├───models  
+│       basic_form.ply  
+│       FlatCap.fbx  
+│       head25k.obj  
+│       ofLogoHollow.ply  
+│       Skull.obj  
+│       SkullLowPoly.fbx  
+│  
+├───shadersGL2  
+│       shader.frag  
+│       shader.vert  
+│  
+└───shadersGL3  
+        shader.frag  
+        shader.vert  
 
-
-        ª   ofxSurfingPBR_Material.json
-ª   ofxSurfingPBR_Scene.json
-ª   r.md
-ª   
-+---cubemaps
-ª       hdrvfx_chanc_1_n1_v3_3k_Ref.hdr
-ª       kloppenheim_06_puresky_1k.exr
-ª       modern_buildings_2_1k.exr
-ª       WinterForest_8k.jpg
-ª       
-+---models
-ª       basic_form.ply
-ª       FlatCap.fbx
-ª       head25k.obj
-ª       ofLogoHollow.ply
-ª       Skull.obj
-ª       SkullLowPoly.fbx
-ª       
-+---shadersGL2
-ª       shader.frag
-ª       shader.vert
-ª       
-+---shadersGL3
-        shader.frag
-        shader.vert
-
-        
 ## Tested Systems
 * **Windows 11** / **VS 2022** / **OF 0.12+ GH Master branch**
 
