@@ -661,7 +661,7 @@ void ofxSurfingPBR::draw() {
 		}
 #endif
 
-		//--
+		//----
 
 		glEnable(GL_CULL_FACE);
 
@@ -677,25 +677,27 @@ void ofxSurfingPBR::draw() {
 		}
 		glDisable(GL_CULL_FACE);
 
-		//--
+		//----
 
-		// lights
-		for (int i = 0; i < lights.size(); i++) {
-			auto & light = lights[i];
+		// debug lights
+		if (bGui)
+			for (int i = 0; i < lights.size(); i++) {
+				auto & light = lights[i];
 
-			ofSetColor(light->getDiffuseColor());
-			if (light->getType() == OF_LIGHT_POINT) {
-				if (bDebug) ofDrawSphere(light->getPosition(), 12);
-			} else {
-				light->draw();
+				ofSetColor(light->getDiffuseColor());
+				if (light->getType() == OF_LIGHT_POINT) {
+					if (bDebug) ofDrawSphere(light->getPosition(), 12);
+				} else {
+					light->draw();
+				}
+				if (light->getShadow().getIsEnabled()) {
+					if (bDebug && bDebugShadow) light->getShadow().drawFrustum();
+				}
 			}
-			if (light->getShadow().getIsEnabled()) {
-				if (bDebug && bDebugShadow) light->getShadow().drawFrustum();
-			}
-		}
 
-		//--
+			//--
 
+		// debug shadows
 #ifdef SURFING__USE_CUBE_MAP
 		if (bDrawCubeMap && bLoadedCubeMap) {
 			// drawing of the cube map renders at max depth, so it can be drawn last
@@ -1173,9 +1175,16 @@ void ofxSurfingPBR::processOpenFileSelection(ofFileDialogResult openFileResult) 
 		ofLogVerbose("ofxSurfingPBR") << "The file exists - now checking the type via file extension";
 		string fileExtension = ofToUpper(file.getExtension());
 
-		if (fileExtension == "exr" || fileExtension == "EXR" || fileExtension == "hdr" || fileExtension == "HDR") {
+		if (fileExtension == "exr" || fileExtension == "EXR" || fileExtension == "hdr" || fileExtension == "HDR" || fileExtension == "jpg" || fileExtension == "JPG") {
 
 			bLoadedCubeMap = loadCubeMap(openFileResult.getPath());
+
+			if (fileExtension == "jpg" || fileExtension == "JPG") {
+				//only cube map mode is supported for fpg!
+				cubeMapMode = 1;
+			}
+		} else {
+			ofLogError("ofxSurfingPBR") << "Wrong file extension/format: " + fileExtension;
 		}
 	}
 }
@@ -1233,7 +1242,7 @@ void ofxSurfingPBR::doResetPlane() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetPlaneTransform() {
 	planeSize.set(glm::vec2(0.09f, 0.09f));
-	bPlaneInfinite = false;
+	//bPlaneInfinite = false;
 	planeRotation.set(10.f);
 	planePosition.set(-0.1f);
 }
@@ -1252,7 +1261,7 @@ void ofxSurfingPBR::doResetShadow() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetCubeMap() {
 	cubeMapMode = 2;
-	bDrawCubeMap = true;
+	//bDrawCubeMap = true;
 	cubeMapprefilterRoughness = 0.25f;
 
 	if (bDrawBgAlt) bDrawBgAlt = false;
