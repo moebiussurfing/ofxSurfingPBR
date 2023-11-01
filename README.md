@@ -40,15 +40,15 @@ Look at the examples.
 
 * Copy the content of 'data.zip' to the examples or your projects **/bin/data**. 
 
-.
-├── ...
-├── data                    # Documentation files (alternatively `doc`)
-│   ├── cubemaps              # Table of contents
-│   ├── models              # Frequently asked questions
-│   ├── shadersGL2             # Miscellaneous information
-│   ├── shadersGL3            # Getting started guide
-│   └── ...                 # etc.
-└── ...
+.  
+├── ...  
+├── data  
+│   ├── cubemaps  
+│   ├── models  
+│   ├── shadersGL2  
+│   ├── shadersGL3  
+│   └── ...  
+└── ...  
 
 ## Tested Systems
 * **Windows 11** / **VS 2022** / **OF 0.12+ GH Master branch**
