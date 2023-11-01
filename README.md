@@ -11,7 +11,7 @@ Original authors: **@NickHardeman** and **@Paolo**.
 
 ## Video
 
-https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/62c00037-f810-4fc4-8656-1dd61cdf06db
+https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd5-ad4d-b77f885d3e24
 
 ## Features
 
