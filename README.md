@@ -3,7 +3,7 @@
 ### WIP 
 
 **openFrameworks** addon to easily test, learn, and use the new **PBR features** from the new **OF 0.12+** releases.  
-(You should use the **GitHub master branch**!)  
+(You should use the [GitHub master branch](https://github.com/openframeworks/openFrameworks)!)  
 
 All this code is copied from and hardly based on the OF forum topic:  
 https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
@@ -30,16 +30,23 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/62c00037-f810-4fc
 
 ## Usage
 
-Look at the example.
+Look at the examples.
 
 ## Dependencies
 
-* Copy the content of 'data.zip' to your projects **OF_APP/bin/data**. 
+[OF 0.12+](https://github.com/openframeworks/openFrameworks)
 
-* [ofxSurfingHelpers](https://github.com/moebiussurfing/ofxSurfingHelpers) / Only for the example. Trivial to remove.  
+## Requeriments 
+
+* Copy the content of 'data.zip' to the examples or your projects **/bin/data**. 
+  - /bin/data/
+    - /cubemaps/
+    - /models/
+    - /shadersGL2/
+    - /shadersGL3/
 
 ## Tested Systems
-* **Windows 11** / **VS 2022** / **OF 0.12+**
+* **Windows 11** / **VS 2022** / **OF 0.12+ GH Master branch**
 
 ## License
 **MIT License**

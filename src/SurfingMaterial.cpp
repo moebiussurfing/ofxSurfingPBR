@@ -4,7 +4,6 @@ SurfingMaterial::SurfingMaterial() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:constructor()";
 
 	ofAddListener(ofEvents().update, this, &SurfingMaterial::update);
-	ofAddListener(parameters.parameterChangedE(), this, &SurfingMaterial::Changed);
 }
 
 //--------------------------------------------------------------
@@ -32,21 +31,33 @@ void SurfingMaterial::setup() {
 void SurfingMaterial::setupParams() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setupParams()";
 
+	//--
+
+	parameters.setName("PBR_Material");
+
 	colorParams.setName("Colors");
 	settingsParams.setName("Settings");
 	coatParams.setName("Coat");
 	helpersParams.setName("Helpers");
 
-	bAutoSave.set("Autosave", true);
+	//--
+
+	helpersParams.setSerializable(false);
 
 	globalColor.setSerializable(false);
+	globalAlpha.setSerializable(false);
+
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
+	bAutoSave.set("Autosave", true);
+#endif
+
+	//--
 
 	settingsParams.add(shininess.set("Shininess", 0.0, 0.0, 1.0));
 	settingsParams.add(roughness.set("Roughness", 0.0, 0.0, 1.0));
 	settingsParams.add(metallic.set("Metallic", 0.0, 0.0, 1.0));
 	settingsParams.add(reflectance.set("Reflectance", 0.0, 0.0, 1.0));
 
-	colorParams.add(globalColor.set("Global Color", ofColor::white));
 	colorParams.add(ambientColor.set("Ambient Color", ofColor::white));
 	colorParams.add(specularColor.set("Specular Color", ofColor::white));
 	colorParams.add(diffuseColor.set("Diffuse Color", ofColor::white));
@@ -64,16 +75,28 @@ void SurfingMaterial::setupParams() {
 	helpersParams.add(randomColorsAlpha.set("Random ColorsAlpha"));
 	helpersParams.add(randomAlphas.set("Random Alphas"));
 
-	parameters.setName("PBR_Material");
+	//--
+
 	parameters.add(settingsParams);
+
+	parameters.add(globalAlpha.set("Global Alpha", 1.0f, 0.0f, 1.0f));
+	parameters.add(globalColor.set("Global Color", ofColor::white));
+
 	parameters.add(colorParams);
 	parameters.add(coatParams);
 	parameters.add(helpersParams);
+
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
 	parameters.add(bAutoSave);
+#endif
+
+	ofAddListener(parameters.parameterChangedE(), this, &SurfingMaterial::Changed);
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::setupGui() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setupGui()";
+
 	gui.setup(parameters);
 
 	//minimize
@@ -88,7 +111,7 @@ void SurfingMaterial::update(ofEventArgs & args) {
 
 //--------------------------------------------------------------
 void SurfingMaterial::update() {
-
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
 	// autosave workflow
 	if (bAutoSave) {
 		auto t = ofGetElapsedTimeMillis() - timeLastChange;
@@ -97,6 +120,7 @@ void SurfingMaterial::update() {
 			save();
 		}
 	}
+#endif
 }
 
 //--------------------------------------------------------------
@@ -119,11 +143,13 @@ void SurfingMaterial::Changed(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Changed: " << name << ": " << e;
 
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
 	// flag to save delayed
 	if (bAutoSave) {
 		bFlagSave = true;
 		timeLastChange = ofGetElapsedTimeMillis();
 	}
+#endif
 
 	//--
 
@@ -147,16 +173,42 @@ void SurfingMaterial::Changed(ofAbstractParameter & e) {
 		ofFloatColor gc = globalColor.get();
 		ofFloatColor c;
 		float a;
+
 		a = ambientColor.get().a;
 		c = ofFloatColor(gc.r, gc.g, gc.b, a);
 		ambientColor.set(c);
+
 		a = specularColor.get().a;
 		c = ofFloatColor(gc.r, gc.g, gc.b, a);
 		specularColor.set(c);
+
 		a = diffuseColor.get().a;
 		c = ofFloatColor(gc.r, gc.g, gc.b, a);
 		diffuseColor.set(c);
+
 		a = emissiveColor.get().a;
+		c = ofFloatColor(gc.r, gc.g, gc.b, a);
+		emissiveColor.set(c);
+	}
+
+	else if (name == globalAlpha.getName()) {
+		float a = globalAlpha.get();
+		ofFloatColor c;
+		ofFloatColor gc;
+
+		gc = ambientColor.get();
+		c = ofFloatColor(gc.r, gc.g, gc.b, a);
+		ambientColor.set(c);
+
+		gc = specularColor.get();
+		c = ofFloatColor(gc.r, gc.g, gc.b, a);
+		specularColor.set(c);
+
+		gc = diffuseColor.get();
+		c = ofFloatColor(gc.r, gc.g, gc.b, a);
+		diffuseColor.set(c);
+
+		gc = emissiveColor.get();
 		c = ofFloatColor(gc.r, gc.g, gc.b, a);
 		emissiveColor.set(c);
 	}
@@ -210,8 +262,8 @@ void SurfingMaterial::doResetMaterial() {
 	metallic.set(0);
 	reflectance.set(0);
 
+	globalAlpha.set(1.f);
 	globalColor.set(ofColor::white);
-	// will set all color except the alphas...
 
 	// force again to overwrite the alphas too
 	ambientColor.set(ofColor::white);
@@ -314,7 +366,7 @@ void SurfingMaterial::doRandomAlphas() {
 
 //--------------------------------------------------------------
 void SurfingMaterial::exit() {
-	ofLogNotice("ofxSurfingPBR") << "exit()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:exit()";
 
 	save();
 }
@@ -326,18 +378,7 @@ void SurfingMaterial::save() {
 	// Save
 	{
 		//gui.saveToFile(path);
-
-		if (!ofDirectory::doesDirectoryExist(ofFilePath::getEnclosingDirectory(path))) {
-			ofFilePath::createEnclosingDirectory(path);
-			ofLogWarning("ofxSurfingPBR") << "SurfingMaterial:Created enclosing folder for: " << path;
-		}
-		ofJson settings;
-		ofSerialize(settings, parameters);
-		bool b = ofSavePrettyJson(path, settings);
-		if (b)
-			ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Saved: `" << parameters.getName() << "` to " << path;
-		else
-			ofLogError("ofxSurfingPBR") << "SurfingMaterial:Error saving: `" << parameters.getName() << "` to " << path;
+		ofxSurfing::saveSettings(parameters, path);
 	}
 }
 
@@ -345,6 +386,7 @@ void SurfingMaterial::save() {
 void SurfingMaterial::load() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Load: " << path;
 
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
 	// disables autosave
 	// to avoid save after loading the settings,
 	// as the params will change and would trig the autosave!
@@ -352,25 +394,17 @@ void SurfingMaterial::load() {
 	if (bAutoSave) {
 		bAutoSave.setWithoutEventNotifications(false);
 	}
+#endif
 
 	// Load
 	{
 		//gui.loadFromFile(path);
-
-		ofFile f;
-		bool b = f.doesFileExist(path);
-		if (b)
-			ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Found file: `" << path << "`";
-		else
-			ofLogError("ofxSurfingPBR") << "SurfingMaterial:File `" << path << "` not found!";
-		if (b) {
-			ofJson settings;
-			settings = ofLoadJson(path);
-			ofDeserialize(settings, parameters);
-		}
+		ofxSurfing::loadSettings(parameters, path);
 	}
 
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
 	if (bAutoSave_) {
 		bAutoSave.setWithoutEventNotifications(true); //restore state
 	}
+#endif
 }

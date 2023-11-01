@@ -1,6 +1,9 @@
 #pragma once
 #include "ofMain.h"
 
+#define SURFING__USE_AUTOSAVE_ENGINE
+
+#include "SurfingHelpersLite.h"
 #include "ofxGui.h"
 
 class SurfingMaterial {
@@ -13,11 +16,12 @@ public:
 	void exit();
 
 private:
+	void update();
+	void update(ofEventArgs & args);
+
 	void setupParams();
 	void setupGui();
 	void Changed(ofAbstractParameter & e);
-	void update();
-	void update(ofEventArgs & args);
 
 public:
 	void begin();
@@ -40,7 +44,9 @@ public:
 	ofParameterGroup coatParams;
 	ofParameterGroup helpersParams;
 
-	ofParameter<ofFloatColor> globalColor;
+	ofParameter<ofFloatColor> globalColor; //will set all colors except touching their alphas.
+	ofParameter<float> globalAlpha; //will set this alpha to all colors.
+
 	ofParameter<ofFloatColor> diffuseColor;
 	ofParameter<ofFloatColor> specularColor;
 	ofParameter<ofFloatColor> ambientColor;
@@ -66,12 +72,14 @@ public:
 	ofxPanel gui;
 
 public:
-	string path = "material.json";
+	string path = "ofxSurfingPBR_Material.json";
 
 public:
 	void load();
 	void save();
 
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
+public:
 	// autosave workflow
 	// we will autosave after every param change,
 	// but after waiting some ms. reducing saving overflow.
@@ -82,4 +90,5 @@ private:
 	uint64_t timeLastChange = 0;
 	int timeSaveDelay = 1000; //save delayed x milliseconds.
 	bool bFlagSave = false;
+#endif
 };

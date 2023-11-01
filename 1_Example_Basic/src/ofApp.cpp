@@ -2,10 +2,11 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-#ifdef OF_APP_DEFINED_ofxSurfingHelpers
-	ofxSurfingHelpers::setWindowTitleAsProjectName();
-	ofxSurfingHelpers::setMonitorsLayout(-1, false, true);
-#endif
+	ofxSurfing::setWindowTitleAsProjectName(); // Name the window
+
+	//ofxSurfing::setWindowAtMonitor(); // Center monitor landscape 
+	//ofxSurfing::setWindowAtMonitor(-1); // Move to left monitor landscape 
+	ofxSurfing::setWindowAtMonitor(1,true); // Move to right monitor portrait 
 
 	//--
 
@@ -25,19 +26,17 @@ void ofApp::setup() {
 	// Set log level
 	if (0) pbr.setLogLevel(OF_LOG_VERBOSE);
 
-#if 0
 	// Check if it's the first time opening the App
-	bool b = pbr.getSettingsFileFound();
-	if (!b) {
-		ofLogWarning() << "ofxSurfingPBR Settings file not found!";
+	if (0)
+		if (!pbr.getSettingsFileFound()) {
+			ofLogWarning() << "ofxSurfingPBR Settings file not found!";
 
-		// Force startup settings
-		pbr.bDrawBgAlt = true;
-		pbr.bgAltColor = ofFloatColor::orange;
-		pbr.planeGlobalColor = ofFloatColor::orange;
-		pbr.material.globalColor = ofFloatColor::blue;
-	}
-#endif
+			// Force startup settings
+			pbr.bDrawBgAlt = true;
+			pbr.bgAltColor = ofFloatColor::orange;
+			pbr.planeGlobalColor = ofFloatColor::red;
+			pbr.material.globalColor = ofFloatColor::yellow;
+		}
 }
 
 //--------------------------------------------------------------
@@ -68,6 +67,8 @@ void ofApp::drawYourScene() {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	pbr.keyPressed(key);
+
+	if (key == 'q') ofxSurfing::setWindowSquared(1080);
 }
 
 //--------------------------------------------------------------

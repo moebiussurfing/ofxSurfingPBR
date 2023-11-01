@@ -1,8 +1,15 @@
+#pragma once
+#include "ofMain.h"
+
+//--
+
 /*
 
 	All this code is copied and/or hardly based on the OF forum topic: 
 	https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19
 	authors: @NickHardeman and @Paolo
+
+	See SIMPLE EXAMPLE at the bottom.
 
 
 	TODO:
@@ -22,57 +29,11 @@
 
 */
 
-/*
-
-	SIMPLE EXAMPLE
-
-	//ofApp.h
-	
-	#include "ofxSurfingPBR.h"
-	
-	ofEasyCam camera;
-	
-	ofxSurfingPBR pbr;
-	void renderScene();
-
-	//ofApp.cpp
-
-	void ofApp::setup() {
-		pbr.setup();
-
-		// pass the local camera
-		pbr.setCameraPtr(&camera);
-
-		// pass the render scene function
-		callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
-		pbr.setFunction_renderScene(myFunctionDraw);
-	}
-
-	void ofApp::renderScene()
-	{
-		// plane floor
-		pbr.drawPlane();
-
-		// other objects
-		pbr.beginMaterial();
-		{
-			ofDrawBox(0, 0, 0, 100);
-		}
-		pbr.endMaterial();
-	}
-
-*/
-
-//--
-
-#pragma once
-#include "ofMain.h"
-
 //--
 
 // Optional
 
-//#define SURFING__USE_SHADER_AND_DISPLACERS // TODO: WIP: add another shader/material.
+#define SURFING__USE_SHADER_AND_DISPLACERS // TODO: WIP: add another shader/material.
 //#define SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE // TODO: testing to improve performance
 
 #define SURFING__USE_CUBE_MAP
@@ -86,6 +47,7 @@
 
 //--
 
+#include "SurfingHelpersLite.h"
 #include "SurfingMaterial.h"
 #include "ofxGui.h"
 
@@ -103,9 +65,10 @@ public:
 	void setup();
 	void draw();
 	void drawPlane();
-	void drawTestScene();//a simple scene for easy testing
+	void drawTestScene(); //a simple scene for easy testing
 	void drawGui();
 	void drawDebug();
+	void drawHelp();
 	void exit();
 	void keyPressed(int key);
 
@@ -124,17 +87,27 @@ public:
 	}
 
 public:
-	ofParameterGroup parameters;//main container to expose to gui and to handle settings
+	ofParameterGroup parameters; //main container to expose to gui and to handle settings
 
-	ofParameterGroup & getMaterialParameters() {//mainly to expose to external gui's like ImGui
+	ofParameterGroup & getMaterialParameters() { //mainly to expose to external gui's like ImGui
 		return material.parameters;
 	};
 
 	ofParameter<bool> bGui; //for global ui
 	ofParameter<bool> bGui_ofxGui; //for ofxGui
 
+	ofParameterGroup internalParams;
+
+	ofParameterGroup testSceneParams;
+	ofParameter<float> scaleTestScene;
+	ofParameter<float> positionTestScene;
+	ofParameter<void> resetTestScene;
+
 	ofParameter<bool> bDebug;
 	ofParameter<bool> bKeys;
+	ofParameter<bool> bHelp;
+	string sHelp = "";
+
 	ofParameter<bool> bDrawPlane;
 
 	ofParameterGroup planeParams;
@@ -144,34 +117,35 @@ public:
 	ofParameterGroup shadowParams;
 
 	ofParameter<bool> bPlaneWireframe;
-	ofParameter<bool> bPlaneInfinite;//make the plane huge size to better "fit a full horizon line"
-	ofParameter<glm::vec2> planeSize;//normalized
-	ofParameter<float> planeRotation;//x axis
-	ofParameter<float> planePosition;//y pos
+	ofParameter<bool> bPlaneInfinite; //will ignore planeSize
+	//make the plane huge size to better "fit a full horizon line"
+	ofParameter<glm::vec2> planeSize; //normalized
+	ofParameter<float> planeRotation; //x axis
+	ofParameter<float> planePosition; //y pos
 
-	ofParameter<ofFloatColor> planeGlobalColor;//linked to the other colors
+	ofParameter<ofFloatColor> planeGlobalColor; //linked to the other colors
 	ofParameter<ofFloatColor> planeDiffuseColor;
 	ofParameter<ofFloatColor> planeSpecularColor;
+
 	ofParameter<float> planeShiness;
-
-	ofParameter<void> resetPlane;
-	ofParameter<void> resetPlaneTransform;
-	
-	ofParameter<void> resetLight;
-	ofParameter<void> resetShadow;
-	ofParameter<void> resetAll;
-
 	ofParameter<float> lightX;
 	ofParameter<float> lightY;
 	ofParameter<float> lightZ;
 	ofParameter<ofFloatColor> lightAmbientColor;
 
 	ofParameter<bool> bDrawShadow;
+	ofParameter<bool> bDebugShadow;
 	ofParameter<float> shadowBias;
 	ofParameter<float> shadowNormalBias;
 	//TODO: add other internal PBR params
 	//ofParameter<float> shadowStrength;
 	//ofParameter<glm::vec2> shadowSize;
+
+	ofParameter<void> resetPlane;
+	ofParameter<void> resetPlaneTransform;
+	ofParameter<void> resetLight;
+	ofParameter<void> resetShadow;
+	ofParameter<void> resetAll;
 
 private:
 	ofxPanel gui;
@@ -224,8 +198,8 @@ public:
 	ofCubeMap cubeMap;
 
 	void setupCubeMap();
-	string path_Cubemaps = "cubemaps";//bin/data/cubemaps/
-	string path_CubemapFilename = "modern_buildings_2_1k.exr";//TODO: store path on settings
+	string path_Cubemaps = "cubemaps"; //bin/data/cubemaps/
+	string path_CubemapFilename = "modern_buildings_2_1k.exr"; //TODO: store path on settings
 	bool bLoadedCubeMap = false;
 
 	ofParameterGroup cubeMapParams;
@@ -236,10 +210,10 @@ public:
 	ofParameter<bool> bDrawCubeMap;
 	ofParameter<ofFloatColor> bgAltColor;
 	ofParameter<bool> bDrawBgAlt;
-	
+
 	ofParameter<void> openCubeMap;
 	void processOpenFileSelection(ofFileDialogResult openFileResult);
-	
+
 	ofParameter<void> resetCubeMap;
 	void doResetCubeMap();
 
@@ -266,15 +240,17 @@ public:
 	//--
 
 private:
-	string path = "scene.json";
+	string path = "ofxSurfingPBR_Scene.json";
 
 public:
 	void load();
 	void save();
 
-	bool getSettingsFileFound();//to check if the app is opened for the first time
+	bool getSettingsFileFound(); //to check if the app is opened for the first time
 	// that allows to force customize the scene from ofApp at startup!
-	
+
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
+public:
 	// autosave workflow
 	// we will autosave after every param change,
 	// but after waiting some ms. reducing saving overflow.
@@ -285,10 +261,12 @@ private:
 	uint64_t timeLastChange = 0;
 	int timeSaveDelay = 1000; //save delayed x milliseconds.
 	bool bFlagSave = false;
+#endif
 
 	//some app flow controls
 	//bool bDoneSetup = false;
-	bool bDoneStartup = false;//fixes some callback crashes at startup
+	bool bDoneStartup = false; //fixes some callback crashes at startup
+	bool bEnableCallbacks = true;
 
 	//--
 
@@ -328,3 +306,44 @@ public:
 	void endShaderPlane();
 #endif
 };
+
+/*
+
+	SIMPLE EXAMPLE
+
+	//ofApp.h
+	
+	#include "ofxSurfingPBR.h"
+	
+	ofEasyCam camera;
+	
+	ofxSurfingPBR pbr;
+	void renderScene();
+
+	//ofApp.cpp
+
+	void ofApp::setup() {
+		pbr.setup();
+
+		// pass the local camera
+		pbr.setCameraPtr(&camera);
+
+		// pass the render scene function
+		callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
+		pbr.setFunction_renderScene(myFunctionDraw);
+	}
+
+	void ofApp::renderScene()
+	{
+		// plane floor
+		pbr.drawPlane();
+
+		// other objects
+		pbr.beginMaterial();
+		{
+			ofDrawBox(0, 0, 0, 100);
+		}
+		pbr.endMaterial();
+	}
+
+*/

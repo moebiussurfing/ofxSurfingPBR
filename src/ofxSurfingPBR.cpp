@@ -4,7 +4,34 @@ ofxSurfingPBR::ofxSurfingPBR() {
 	ofLogNotice("ofxSurfingPBR") << "constructor()";
 
 	ofAddListener(ofEvents().update, this, &ofxSurfingPBR::update);
-	ofAddListener(parameters.parameterChangedE(), this, &ofxSurfingPBR::Changed);
+
+	sHelp = "";
+	//sHelp += " \n";
+	sHelp += " \n";
+	sHelp += "HELP\n";
+	sHelp += "ofxSurfingPBR\n";
+	sHelp += "\n";
+	sHelp += "KEYS\n";
+	sHelp += "\n";
+	sHelp += "h Help\n";
+	sHelp += "d Debug\n";
+	sHelp += "g/G Gui\n";
+	sHelp += "p Draw Plane\n";
+	sHelp += "c Draw CubeMap\n";
+	sHelp += "s Draw Shadow \n";
+	sHelp += "b Draw BgAlt\n";
+	sHelp += "f FullScreen\n";
+	sHelp += "\n";
+	sHelp += "MATERIAL\n";
+	sHelp += "HELPERS\n";
+	sHelp += "\n";
+	sHelp += "F1 Reset Material\n";
+	sHelp += "F2 Random Material\n";
+	sHelp += "F3 Random Settings\n";
+	sHelp += "F4 Random ColorGlobal\n";
+	sHelp += "F5 Random Colors\n";
+	sHelp += "F6 Random ColorsAlpha\n";
+	sHelp += "F7 Random Alphas";
 }
 
 //--------------------------------------------------------------
@@ -24,21 +51,35 @@ void ofxSurfingPBR::setupParams() {
 
 	bDebug.set("Debug", false);
 	bKeys.set("Keys", true);
+	bHelp.set("Help", false);
 
+	scaleTestScene.set("Scale", 0, 0, 1);
+	positionTestScene.set("yPosition", 0, -1, 1);
+	resetTestScene.set("Reset SceneTest");
+
+	testSceneParams.setName("TestScene");
+	testSceneParams.add(scaleTestScene);
+	testSceneParams.add(positionTestScene);
+	testSceneParams.add(resetTestScene);
+
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
 	bAutoSave.set("Autosave", true);
 	////link
 	////TODO: not working?
 	//material.bAutoSave.makeReferenceTo(bAutoSave);
 	////bAutoSave.makeReferenceTo(material.bAutoSave);
+#endif
 
 	//--
 
 	parameters.setName("PBR_Scene");
+
 	planeParams.setName("Plane");
 	planeTransformParams.setName("Transform");
 	planeSettingsParams.setName("Settings");
 	lightParams.setName("Light");
 	shadowParams.setName("Shadow");
+	internalParams.setName("Internal");
 
 	//--
 
@@ -102,6 +143,7 @@ void ofxSurfingPBR::setupParams() {
 	//TODO
 	//shadowParams.add(shadowStrength.set("Strength", 0.6f, 0.f, 1.f));
 	//shadowParams.add(shadowSize.set("Shadow Size", glm::vec2(0.25f, 0.25f), glm::vec2(0, 0), glm::vec2(1.f, 1.f)));
+	shadowParams.add(bDebugShadow.set("Debug Shadow", false));
 	shadowParams.add(resetShadow);
 
 	//--
@@ -118,10 +160,18 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	parameters.add(bDebug);
-	parameters.add(bKeys);
-	parameters.add(bAutoSave);
+	internalParams.add(testSceneParams);
+	internalParams.add(bDebug);
+	internalParams.add(bHelp);
+	internalParams.add(bKeys);
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
+	internalParams.add(bAutoSave);
+#endif
+	parameters.add(internalParams);
+
 	parameters.add(resetAll);
+
+	ofAddListener(parameters.parameterChangedE(), this, &ofxSurfingPBR::Changed);
 }
 
 //--
@@ -152,18 +202,18 @@ void ofxSurfingPBR::refreshImgShaderPlane() {
 	#else
 		//img.clear();
 		img.allocate(w, h, OF_IMAGE_GRAYSCALE);
-		ofLogNotice("ofxSurfingPBR") << "Allocated img: " << w << "," << h;
+		ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane() Allocated img: " << w << "," << h;
 	#endif
 
 		//apply to plane
 		//plane.set(800, 600, 80, 60);
 		plane.mapTexCoordsFromTexture(img.getTexture());
 
-		ofLogNotice("ofxSurfingPBR") << "w,h: " << w << "," << h;
+		ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane() w,h: " << w << "," << h;
 	}
 
 	else {
-		ofLogNotice("ofxSurfingPBR") << "Skipped img.allocate";
+		ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane() Skipped img.allocate";
 	}
 }
 
@@ -228,9 +278,6 @@ void ofxSurfingPBR::doResetDisplace() {
 	displacementStrength.set(displacementStrength.getMax() * 0.75);
 	displacementNormalsStrength.set(displacementNormalsStrength.getMax() / 2);
 	normalGeomToNormalMapMix.set(normalGeomToNormalMapMix.getMax() / 2);
-
-	bShaderToPlane.set(false);
-	bDisplaceToMaterial.set(false);
 }
 
 //--------------------------------------------------------------
@@ -355,12 +402,13 @@ void ofxSurfingPBR::setupGui() {
 	gui.setup(parameters);
 
 	//minimize
-	gui.getGroup(planeParams.getName()).minimize();
+	//gui.getGroup(planeParams.getName()).minimize();
 	gui.getGroup(planeParams.getName())
 		.getGroup(planeTransformParams.getName())
 		.minimize();
 	gui.getGroup(lightParams.getName()).minimize();
 	gui.getGroup(shadowParams.getName()).minimize();
+	gui.getGroup(internalParams.getName()).minimize();
 
 #ifdef SURFING__USE_CUBE_MAP
 	gui.getGroup(cubeMapParams.getName()).minimize();
@@ -395,6 +443,7 @@ void ofxSurfingPBR::update() {
 		if (!bDoneStartup) bDoneStartup = true;
 	}
 
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
 	// autosave workflow
 	if (bAutoSave) {
 		auto t = ofGetElapsedTimeMillis() - timeLastChange;
@@ -403,6 +452,7 @@ void ofxSurfingPBR::update() {
 			save();
 		}
 	}
+#endif
 
 	//--
 
@@ -464,6 +514,38 @@ void ofxSurfingPBR::drawGui() {
 	}
 
 	if (bDebug) drawDebug();
+	if (bHelp) drawHelp();
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::drawHelp() {
+	int x, y, w, h;
+	int pad = 0;
+	int ox;
+	int oy;
+
+	ofBitmapFont bf;
+	auto bb = bf.getBoundingBox(sHelp, 0, 0);
+
+	if (0) {
+		// left-bottom
+		x = pad;
+		y = ofGetHeight() - bb.getHeight() - pad;
+		ox = 4;
+		oy = -6;
+	} else {
+		// top-right
+		x = ofGetWidth() - bb.getWidth() - pad;
+		y = pad;
+		ox = -4;
+		oy = 14;
+	}
+
+	//fix offsets
+	x += ox;
+	y += oy;
+
+	ofDrawBitmapStringHighlight(sHelp, x, y);
 }
 
 //--------------------------------------------------------------
@@ -484,10 +566,10 @@ void ofxSurfingPBR::drawDebug() {
 		string s = "";
 		s += " \n";
 		s += "DEBUG\nSHADER\n\n";
-		s += "Plane\n";
+		s += "PLANE\n";
 		s += "Size: " + ofToString(plane.getWidth(), 0) + "," + ofToString(plane.getHeight(), 0) + "\n";
 		s += "Reso: " + ofToString(plane.getResolution().x) + "," + ofToString(plane.getResolution().y) + "\n\n";
-		s += "Image\n";
+		s += "IMAGE\n";
 		s += "Size: " + ofToString(img.getWidth()) + "," + ofToString(img.getHeight());
 		s += "\n\n" + ofToString(ofGetFrameRate(), 1);
 		s += " FPS";
@@ -495,6 +577,7 @@ void ofxSurfingPBR::drawDebug() {
 		ofBitmapFont bf;
 		auto bb = bf.getBoundingBox(s, 0, 0);
 
+		// bottom-right
 		x = ofGetWidth() - bb.getWidth() - pad;
 		y = ofGetHeight() - bb.getHeight() - pad;
 
@@ -504,7 +587,7 @@ void ofxSurfingPBR::drawDebug() {
 
 		ofDrawBitmapStringHighlight(s, x, y);
 
-		//image preview
+		// image preview
 		w = bb.getWidth() + 2 * ox;
 		h = w * r;
 		x = x + bb.getTopLeft().x - ox;
@@ -607,7 +690,7 @@ void ofxSurfingPBR::draw() {
 				light->draw();
 			}
 			if (light->getShadow().getIsEnabled()) {
-				if (bDebug) light->getShadow().drawFrustum();
+				if (bDebug && bDebugShadow) light->getShadow().drawFrustum();
 			}
 		}
 
@@ -640,10 +723,20 @@ void ofxSurfingPBR::draw() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshPlane() {
-	float szUnit = SURFING__SZ_UNIT * (bPlaneInfinite ? (float)SURFING__PLANE_INFINITE_MAGNITUDE : 20.f);
 
-	float w = szUnit * planeSize.get().x;
-	float h = szUnit * planeSize.get().y;
+	float szUnit;
+	float w;
+	float h;
+
+	if (bPlaneInfinite) {
+		szUnit = SURFING__SZ_UNIT * (float)SURFING__PLANE_INFINITE_MAGNITUDE;
+		w = szUnit;
+		h = szUnit;
+	} else {
+		szUnit = SURFING__SZ_UNIT * 20.f;
+		w = szUnit * planeSize.get().x;
+		h = szUnit * planeSize.get().y;
+	}
 
 	//--
 
@@ -676,16 +769,20 @@ void ofxSurfingPBR::refreshPlane() {
 	//--
 
 #ifdef SURFING__USE_SHADER_AND_DISPLACERS
-	refreshImgShaderPlane();
+	if (bDisplaceToMaterial || bShaderToPlane)
+		refreshImgShaderPlane();
 #endif
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
+	if (!bEnableCallbacks) return;
+
 	std::string name = e.getName();
 
 	ofLogNotice("ofxSurfingPBR") << "Changed " << name << ": " << e;
 
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
 	if (bDoneStartup) {
 		// flag to save delayed
 		if (bAutoSave) {
@@ -693,6 +790,7 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 			timeLastChange = ofGetElapsedTimeMillis();
 		}
 	}
+#endif
 
 	//--
 
@@ -706,9 +804,7 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 			ofLogVerbose("ofxSurfingPBR") << "Plane size not Changed. Skipped refresh!";
 		}
 	} else if (name == bPlaneInfinite.getName()) {
-		if (bPlaneInfinite) planeSize = glm::vec2(1, 1); //set max
-
-		//planeSize = planeSize.get();//refresh
+		refreshPlane();
 	}
 
 	else if (name == planeRotation.getName()) {
@@ -763,9 +859,9 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 		if (!bLoadedCubeMap) return; //skip
 		doResetCubeMap();
 	} else if (name == cubeMapMode.getName()) {
-		if (!bLoadedCubeMap) return; //skip
 		//TODO:
 		//return;//fix crash
+		if (!bLoadedCubeMap) return; //skip
 		if (cubeMapMode.get() == 1)
 			cubeMapModeName.set(ofToString("Cube Map"));
 		else if (cubeMapMode.get() == 2)
@@ -774,12 +870,29 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 			cubeMapModeName.set(ofToString("Irradiance"));
 	}
 
+	//TODO:
+	//fixing crash
+	#if 1
 	else if (name == bDrawBgAlt.getName()) {
-		if (bDrawBgAlt) bDrawCubeMap = false; //workflow
-	} else if (name == bDrawCubeMap.getName()) {
-		if (bDrawCubeMap) bDrawBgAlt = false; //workflow
+		if (!bLoadedCubeMap) return; //skip
+		//workflow
+		if (bDrawBgAlt)
+			if (bDrawCubeMap) bDrawCubeMap = false;
 	}
+
+	else if (name == bDrawCubeMap.getName()) {
+		if (!bLoadedCubeMap) return; //skip
+		//workflow
+		if (bDrawCubeMap)
+			if (bDrawBgAlt) bDrawBgAlt = false;
+	}
+	#endif
 #endif
+
+	else if (name == resetTestScene.getName()) {
+		scaleTestScene = 0;
+		positionTestScene = 0;
+	}
 
 	//--
 
@@ -815,23 +928,38 @@ void ofxSurfingPBR::drawTestScene() {
 	static bool b = false;
 	if (!b) {
 		b = true;
-		ofSetConeResolution(20, 10, 2);
+		ofSetConeResolution(50, 10, 2);
 	}
 
 	ofPushMatrix();
-	ofTranslate(-200, 100, 0);
-	ofRotateXDeg(180);
-	ofDrawCone(0, 0, 0, 65, 100);
-	ofPopMatrix();
 
-	ofPushMatrix();
-	float spd = 240;
-	ofRotateYDeg(360.f * (ofGetFrameNum() % (int)spd) / spd);
-	//ofRotateXDeg(360.f * (ofGetFrameNum() % (int)(spd*4)) / (spd*4));
-	ofDrawBox(0, 100, 0, 100);
-	ofPopMatrix();
+	float s = ofMap(scaleTestScene, 0, 1, 1.8, 8.0, true);
+	ofScale(s);
 
-	ofDrawSphere(200, 100, 0, 50);
+	float u = SURFING__SZ_UNIT / 4.f;
+	float y = ofMap(positionTestScene, -1, 1, -u, u, true);
+	ofTranslate(0, y, 0);
+
+	{
+		// Cone
+		ofPushMatrix();
+		ofTranslate(-200, 100, 0);
+		ofRotateXDeg(180);
+		ofDrawCone(0, 0, 0, 65, 100);
+		ofPopMatrix();
+
+		// Box
+		ofPushMatrix();
+		float spd = 240;
+		ofRotateYDeg(360.f * (ofGetFrameNum() % (int)spd) / spd);
+		ofDrawBox(0, 100, 0, 100);
+		ofPopMatrix();
+
+		// Sphere
+		ofDrawSphere(200, 100, 0, 50);
+	}
+
+	ofPopMatrix();
 }
 
 //--------------------------------------------------------------
@@ -881,18 +1009,7 @@ void ofxSurfingPBR::save() {
 	// Save
 	{
 		//gui.saveToFile(path);
-
-		if (!ofDirectory::doesDirectoryExist(ofFilePath::getEnclosingDirectory(path))) {
-			ofFilePath::createEnclosingDirectory(path);
-			ofLogWarning("ofxSurfingPBR") << "Created enclosing folder for: " << path;
-		}
-		ofJson settings;
-		ofSerialize(settings, parameters);
-		bool b = ofSavePrettyJson(path, settings);
-		if (b)
-			ofLogNotice("ofxSurfingPBR") << "Saved: `" << parameters.getName() << "` to " << path;
-		else
-			ofLogError("ofxSurfingPBR") << "Error saving: `" << parameters.getName() << "` to " << path;
+		ofxSurfing::saveSettings(parameters, path);
 	}
 }
 
@@ -900,6 +1017,7 @@ void ofxSurfingPBR::save() {
 void ofxSurfingPBR::load() {
 	ofLogNotice("ofxSurfingPBR") << "Load: " << path;
 
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
 	// disables autosave
 	// to avoid save after loading the settings,
 	// as the params will change and would trig the autosave!
@@ -907,31 +1025,29 @@ void ofxSurfingPBR::load() {
 	if (bAutoSave) {
 		bAutoSave.setWithoutEventNotifications(false);
 	}
+#endif
 
 	// Load
 	{
 		//gui.loadFromFile(path);
-
-		ofFile f;
-		bool b = f.doesFileExist(path);
-		if (b)
-			ofLogNotice("ofxSurfingPBR") << "Found file: `" << path << "`";
-		else
-			ofLogError("ofxSurfingPBR") << "File `" << path << "` not found!";
-		if (b) {
-			ofJson settings;
-			settings = ofLoadJson(path);
-			ofDeserialize(settings, parameters);
-		}
+		ofxSurfing::loadSettings(parameters, path);
 	}
 
+#ifdef SURFING__USE_AUTOSAVE_ENGINE
 	if (bAutoSave_) {
 		bAutoSave.setWithoutEventNotifications(true); //restore state
 	}
+#endif
 }
 
 //--------------------------------------------------------------
 bool ofxSurfingPBR::getSettingsFileFound() {
+	/*
+		will search for the settings files:
+		ofxSurfingPBR_Material.json
+		ofxSurfingPBR_Scene.json
+	*/
+
 	ofFile f;
 	bool b = f.doesFileExist(path);
 	if (b) {
@@ -940,6 +1056,7 @@ bool ofxSurfingPBR::getSettingsFileFound() {
 		ofLogWarning("ofxSurfingPBR") << "SCENE settings file: " << path << " not found!";
 	}
 
+	//not required but will log if located or not
 	ofFile f2;
 	bool b2 = f2.doesFileExist(material.path);
 	if (b2) {
@@ -995,13 +1112,14 @@ bool ofxSurfingPBR::loadCubeMap(string path) {
 	//--
 
 	bLoadedCubeMap = b;
-	if (b) {
-		cubeMapMode = cubeMapMode; //refresh
-		cubeMapName = path_CubemapFilename;
-	} else {
-		cubeMapModeName = "NONE";
-		cubeMapName = "NONE";
-	}
+	if (1)
+		if (b) {
+			cubeMapMode = cubeMapMode; //refresh
+			cubeMapName = path_CubemapFilename;
+		} else {
+			cubeMapModeName = "NONE";
+			cubeMapName = "NONE";
+		}
 
 	return b;
 }
@@ -1010,10 +1128,12 @@ bool ofxSurfingPBR::loadCubeMap(string path) {
 void ofxSurfingPBR::setupCubeMap() {
 	ofLogNotice("ofxSurfingPBR") << "setupCubeMap()";
 
+	cubeMapName.setSerializable(false);
+	cubeMapModeName.setSerializable(false);
+
+	cubeMapModeName.set("Type", "NONE");
 	cubeMapMode.set("Mode", 2, 1, 3);
 	cubeMapName.set("Filename", "NONE");
-	cubeMapModeName.set("Type", "NONE");
-	cubeMapModeName.setSerializable(false);
 	bDrawCubeMap.set("Draw CubeMap", true);
 	cubeMapprefilterRoughness.set("Roughness", 0.25f, 0, 1.f);
 	openCubeMap.set("Open File");
@@ -1021,7 +1141,10 @@ void ofxSurfingPBR::setupCubeMap() {
 	bDrawBgAlt.set("Draw BgAlt", false);
 	bgAltColor.set("BgAlt Color", ofFloatColor::darkGrey, ofFloatColor(0.f), ofFloatColor(1.f));
 
+	//--
+
 	cubeMapParams.setName("CubeMap");
+
 	cubeMapParams.add(bDrawCubeMap);
 	cubeMapParams.add(bDrawBgAlt);
 	cubeMapParams.add(cubeMapName);
@@ -1061,11 +1184,15 @@ void ofxSurfingPBR::processOpenFileSelection(ofFileDialogResult openFileResult) 
 void ofxSurfingPBR::keyPressed(int key) {
 	if (!bKeys) return;
 
+	if (key == 'h') bHelp = !bHelp;
 	if (key == 'd') bDebug = !bDebug;
+	if (key == 'g') bGui = !bGui;
+	if (key == 'G') bGui_ofxGui = !bGui_ofxGui;
 	if (key == 'p') bDrawPlane = !bDrawPlane;
 	if (key == 'c') bDrawCubeMap = !bDrawCubeMap;
 	if (key == 's') bDrawShadow = !bDrawShadow;
 	if (key == 'b') bDrawBgAlt = !bDrawBgAlt;
+	if (key == 'f') ofToggleFullscreen();
 
 	if (key == OF_KEY_F1) doResetMaterial();
 	if (key == OF_KEY_F2) doRandomMaterial();
@@ -1097,14 +1224,16 @@ void ofxSurfingPBR::doResetPlane() {
 	planeDiffuseColor.set(ofFloatColor(0.6));
 	planeSpecularColor.set(ofFloatColor(1));
 
-	bPlaneInfinite = true;
+	bShaderToPlane.set(false);
+	bDisplaceToMaterial.set(false);
+
 	bPlaneWireframe = false;
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetPlaneTransform() {
-	//planeSize.set(glm::vec2(0.5f, 0.5f));
-	bPlaneInfinite = true;
+	planeSize.set(glm::vec2(0.09f, 0.09f));
+	bPlaneInfinite = false;
 	planeRotation.set(10.f);
 	planePosition.set(-0.1f);
 }
@@ -1116,6 +1245,7 @@ void ofxSurfingPBR::doResetShadow() {
 	shadowNormalBias.set(-4.f);
 	//shadowStrength.set(0.6f);
 	//shadowSize.set(glm::vec2(0.25f,0.25f));
+	bDebugShadow.set(false);
 }
 
 #ifdef SURFING__USE_CUBE_MAP
@@ -1125,7 +1255,7 @@ void ofxSurfingPBR::doResetCubeMap() {
 	bDrawCubeMap = true;
 	cubeMapprefilterRoughness = 0.25f;
 
-	bDrawBgAlt = false;
+	if (bDrawBgAlt) bDrawBgAlt = false;
 	bgAltColor.set(ofFloatColor(0.3));
 }
 #endif
@@ -1148,6 +1278,8 @@ void ofxSurfingPBR::doResetAll(bool bExcludeMaterial) {
 #endif
 
 	if (!bExcludeMaterial) material.doResetMaterial();
+
+	resetTestScene.trigger();
 }
 
 //--------------------------------------------------------------

@@ -1,7 +1,6 @@
 #pragma once
 #include "ofMain.h"
 
-#include "ofxSurfingHelpers.h"
 #include "ofxSurfingPBR.h"
 
 class ofApp : public ofBaseApp {

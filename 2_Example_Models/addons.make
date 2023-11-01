@@ -1,4 +1,3 @@
 ofxAssimpModelLoader
 ofxGui
-ofxSurfingHelpers
 ofxSurfingPBR
