@@ -41,10 +41,10 @@ Look at the examples.
 * Copy the content of 'data.zip' to the examples or your projects **/bin/data**. 
   
 ├── data  
-│   ├── cubemaps  
-│   ├── models  
-│   ├── shadersGL2  
-│   ├── shadersGL3  
+│    ├── cubemaps  
+│    ├── models  
+│    ├── shadersGL2  
+│    ├── shadersGL3  
 
 
 ## Tested Systems
