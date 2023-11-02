@@ -23,20 +23,26 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 ## Features
 
 - Two ready-to-use editable parametric materials:
-  - A. For the plane floor.
-  - B. For other objects.
-- A positionable Ambient light.
-- Shadows.
-- Cubemaps with a loader on runtime.
+  - A. For the **Plane** floor.
+  - B. For other **Objects**.
+- A positionable Ambient **light**.
+- **Shadows**.
+- **Cubemaps** / **HDR** with a loader on runtime.
   - Alternative background color.
-- Persistent settings.
+- Persistent settings:
+  - **Plane** colors, transforms, simple material, etc...
+  - **Objects** material with full specs. 
   - Included [ofxCameraSaveLoad](https://github.com/roymacdonald/ofxCameraSaveLoad) into `/libs`.
 - Easy to pass a local camera and your render scene.
+  - Test camera workflow between classes. [TODO] 
 - Material and scene randomizers.
-  - History browsing **Undo/Redo** workflow. TODO 
-- Added shader for testing.
+  - History browsing **Undo/Redo** workflow. [TODO/WIP] 
+- Added **Shader** for testing/code.
   - Displacement applied to the plane (floor) and his material/mesh...
-- 3D models browser class into `\2_Example_Models\`.
+  - Mesh/vertex displacements (not just heightmaps). [TODO/WIP]
+  - Shader Debugger. [TODO/WIP]
+- 3D models browser class
+  - Used into `\2_Example_Models\`.
 
 ## Usage
 
