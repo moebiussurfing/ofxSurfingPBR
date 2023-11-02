@@ -37,7 +37,7 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 
 ## Usage
 
-#### ofApp.h
+### ofApp.h
 ```.cpp
 #pragma once
 #include "ofMain.h"
@@ -58,7 +58,7 @@ public:
       void renderScene();
 };
 ```
-#### ofApp.cpp
+### ofApp.cpp
 ```.cpp
 void ofApp::setup() {
       pbr.setup();
@@ -98,7 +98,7 @@ void ofApp::renderScene()
 ## Requeriments 
 
 * Copy the content of `data.zip` to the examples or your projects `/bin/data`.  
-bin  
+  
 └ data  
    ├ cubemaps / .exr / .hdr / .jpg  
    ├ models / .obj / .ply / .fbx  
