@@ -41,47 +41,50 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 
 #include "ofxSurfingPBR.h"
 
+#include <functional>
+using callback_t = std::function<void()>;
+
 class ofApp : public ofBaseApp {
 public:
-    void setup();
-    void draw();
+      void setup();
+      void draw();
 
-    ofEasyCam cam;
+      ofEasyCam cam;
 
-    ofxSurfingPBR pbr;
-    void renderScene();
+      ofxSurfingPBR pbr;
+      void renderScene();
 };
 ```
 ### ofApp.cpp
 ```.cpp
 void ofApp::setup() {
-    pbr.setup();
+      pbr.setup();
 
-    // Pass the local camera
-    pbr.setCameraPtr(&cam);
+      // Pass the local camera
+      pbr.setCameraPtr(&cam);
 
-    // Pass the render scene function
-    callback_t f = std::bind(&ofApp::renderScene, this);
-    pbr.setFunctionRenderScene(f);
+      // Pass the render scene function
+      callback_t f = std::bind(&ofApp::renderScene, this);
+      pbr.setFunctionRenderScene(f);
 }
 
 void ofApp::draw() {
-    pbr.draw();
+      pbr.draw();
 
-    drawGui();
+      drawGui();
 }
 
 void ofApp::renderScene()
 {
-    // Plane floor
-    pbr.drawPlane();
+      // Plane floor
+      pbr.drawPlane();
 
-    // Other objects
-    pbr.beginMaterial();
-    {
-        // Draw here!
-    }
-    pbr.endMaterial();
+      // Other objects
+      pbr.beginMaterial();
+      {
+          ///* Draw here! *///
+      }
+      pbr.endMaterial();
 }
 ```
 
