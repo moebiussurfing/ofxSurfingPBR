@@ -6,9 +6,8 @@
 
 (You should use the [GitHub master branch](https://github.com/openframeworks/openFrameworks)!)  
 
-All this code is copied from and hardly based on this OF forum topic:  
-https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
-
+All this code is copied from and hardly based on this [OF forum topic](https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19 ).  
+ 
 Original authors:  
 [@NickHardeman](https://github.com/NickHardeman) and [@paolo-scoppola](https://github.com/paolo-scoppola).  
 
@@ -23,25 +22,25 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 ## Features
 
 - Two ready-to-use editable parametric materials:
-  - A. For the **Plane** floor.
-  - B. For other **Objects**.
-- A positionable Ambient **light**.
-- **Shadows**.
-- **Cubemaps** / **HDR** with a loader on runtime.
+  - A. For the **Plane** (floor).
+  - B. For the other **Objects**.
+- A positionable Ambient **light** with **Shadows**.
+- **Cubemaps** (**HDR**) files with on runtime loader.
   - Alternative background color.
 - Persistent settings:
   - **Plane** colors, transforms, simple material, etc...
   - **Objects** material with full specs. 
-  - Included [ofxCameraSaveLoad](https://github.com/roymacdonald/ofxCameraSaveLoad) into `/libs`.
-- Easy to pass a local camera and your render scene.
+  - Camera settings.
+    - Included [ofxCameraSaveLoad](https://github.com/roymacdonald/ofxCameraSaveLoad) into `/libs`.
+- Easy to pass a local **camera** and your **render scene**.
   - Test camera workflow between classes. [TODO] 
-- Material and scene randomizers.
+- Material and scene **Randomizers**.
   - History browsing **Undo/Redo** workflow. [TODO] 
-- Added **Shader** for testing/code.
-  - Displacement applied to the plane (floor) and his material/mesh...
+- Added **Shader** for *testing/code*.
+  - **Displacement** applied to the plane and his material/mesh.
   - Mesh/vertex displacements (not just heightmaps). [TODO]
-  - Shader Debugger. [TODO]
-- 3D models browser class
+  - Shader **Debugger**. [TODO]
+- **3D models** browser/loader class
   - Used into `\2_Example_Models\`.
 
 ## Usage
