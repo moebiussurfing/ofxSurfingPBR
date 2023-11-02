@@ -30,12 +30,13 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 - Cubemaps with a loader on runtime.
   - Alternative background color.
 - Persistent settings.
-  - Included (ofxCameraSaveLoad)[https://github.com/roymacdonald/ofxCameraSaveLoad].
-- Easy to pass a local camera and pass your render scene.
+  - Included [ofxCameraSaveLoad](https://github.com/roymacdonald/ofxCameraSaveLoad) into `/libs`.
+- Easy to pass a local camera and your render scene.
 - Material and scene randomizers.
+  - History browsing **Undo/Redo** workflow. TODO 
 - Added shader for testing.
-  - Applied to the plane (floor) and his material/mesh...
-- 3D models browser class.
+  - Displacement applied to the plane (floor) and his material/mesh...
+- 3D models browser class into `\2_Example_Models\`.
 
 ## Usage
 
