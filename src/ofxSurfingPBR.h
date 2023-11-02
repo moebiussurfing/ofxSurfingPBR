@@ -103,7 +103,7 @@ public:
 	}
 
 private:
-	string pathCamera = "ofxSurfingPBR_CameraSettings";
+	string pathCamera = "ofxSurfingPBR_CameraSettings.ini";
 	bool bEnableCameraSettings = true;
 
 public:
