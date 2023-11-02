@@ -1,6 +1,6 @@
 ## Overview
 
-### WIP 
+## WIP 
 
 **openFrameworks** addon to easily test, learn, and use the new **PBR features** from the new **OF 0.12+** releases.  
 (You should use the [GitHub master branch](https://github.com/openframeworks/openFrameworks)!)  
@@ -99,7 +99,7 @@ Look at the examples.
 * Copy the content of 'data.zip' to the examples or your projects **/bin/data**. 
 
 ├─ data  
-│   ├── cubemaps | / .exr / .hdr / .jpg (limited)  
+│   ├── cubemaps | / .exr / .hdr / .jpg  
 │   ├── models | .obj / .ply / .fbx  
 │   ├── shadersGL2 | .frag / .vert  
 │   └── shadersGL3 | .frag / .vert  
