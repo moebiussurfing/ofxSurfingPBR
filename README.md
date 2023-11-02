@@ -1,6 +1,6 @@
 ## Overview
 
-## WIP 
+# WIP 
 
 **openFrameworks** addon to easily test, learn, and use the new **PBR features** from the new **OF 0.12+** releases.  
 
@@ -100,7 +100,7 @@ Look at the examples.
 ## Requeriments 
 
 * Copy the content of `data.zip` to the examples or your projects `/bin/data`. 
-bin
+bin  
 └ data  
    ├ cubemaps / .exr / .hdr / .jpg  
    ├ models / .obj / .ply / .fbx  
