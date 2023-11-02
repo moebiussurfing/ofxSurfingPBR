@@ -14,16 +14,11 @@
 
 	TODO:
 
-	- fix startup plane
-	- add callbacks per group?
-	- make autosave class
-
-	- hardcode infinite plane mode.
-	- add save/load camera
-	- cusomize share plane divisions and img size.
-	- get mesh mods example.
 	- add undo history/browser..
 		store each group on a vector to browse back
+	- add save/load camera
+	- customize share plane divisions and img size.
+	- get mesh mods example.
 	- add cubemap file path to settings
 
 	- add ImGui mode.
@@ -49,6 +44,7 @@
 #include "SurfingHelpersLite.h"
 #include "SurfingMaterial.h"
 #include "ofxGui.h"
+#include "ofxCameraSaveLoad.h"
 
 #include <functional>
 using callback_t = std::function<void()>;
@@ -105,6 +101,10 @@ public:
 	void setCameraPtr(ofCamera * camera_) {
 		camera = camera_;
 	}
+
+private:
+	string pathCamera = "ofxSurfingPBR_CameraSettings";
+	bool bEnableCameraSettings = true;
 
 public:
 	ofParameterGroup parameters; //main container to expose to gui and to handle settings

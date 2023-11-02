@@ -120,7 +120,8 @@ void ofxSurfingPBR::setupParams() {
 	bPlaneInfinite.set("Infinite", true);
 	planeSize.set("Size", glm::vec2(0.8f, 0.8f), glm::vec2(0, 0), glm::vec2(1.f, 1.f));
 	planeResolution.set("Resolution",
-		glm::ivec2(SURFING__PLANE_RESOLUTION, SURFING__PLANE_RESOLUTION), glm::ivec2(1, 1), glm::ivec2(SURFING__PLANE_RESOLUTION_MAX, SURFING__PLANE_RESOLUTION_MAX));
+		glm::ivec2(SURFING__PLANE_RESOLUTION, SURFING__PLANE_RESOLUTION),
+		glm::ivec2(1, 1), glm::ivec2(SURFING__PLANE_RESOLUTION_MAX, SURFING__PLANE_RESOLUTION_MAX));
 	planeRotation.set("x Rotation", 0, -45, 135);
 	planePosition.set("y Position", 0, -1, 1);
 	planeShiness.set("Shiness", 0.85, 0, 1);
@@ -174,9 +175,11 @@ void ofxSurfingPBR::setupParams() {
 	shadowParams.add(bDrawShadow.set("Draw Shadow", true));
 	shadowParams.add(shadowBias.set("Bias", 0.07, 0.0, 1.0));
 	shadowParams.add(shadowNormalBias.set("Normal Bias", -4.f, -10.0, 10.0));
+
 	//TODO
 	//shadowParams.add(shadowStrength.set("Strength", 0.6f, 0.f, 1.f));
 	//shadowParams.add(shadowSize.set("Shadow Size", glm::vec2(0.25f, 0.25f), glm::vec2(0, 0), glm::vec2(1.f, 1.f)));
+
 	shadowParams.add(bDebugShadow.set("Debug Shadow", false));
 	shadowParams.add(resetShadow);
 
@@ -205,6 +208,7 @@ void ofxSurfingPBR::setupParams() {
 	autoSaver.setFunctionSaver(f);
 	internalParams.add(autoSaver.bEnable);
 
+	//TODO
 	// History undo/redo
 	resetHistory.set("Reset History");
 	indexHistory.set("Level", -1, -1, -1);
@@ -527,12 +531,9 @@ void ofxSurfingPBR::update(ofEventArgs & args) {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::update() {
-	//if (ofGetFrameNum() == 0) {
-	//	if (!bDoneStartup) {
-	//		bDoneStartup = true;
-	//		bFlagSave = false;//just in case has been flagged before.
-	//	}
-	//}
+	if (ofGetFrameNum() == 0) {
+		if (bEnableCameraSettings && camera != nullptr) ofxLoadCamera(*camera, pathCamera);
+	}
 
 	//--
 
@@ -1143,6 +1144,8 @@ void ofxSurfingPBR::exit() {
 
 	save();
 	material.exit();
+
+	if (bEnableCameraSettings) ofxSaveCamera(*camera, pathCamera);
 }
 
 //--------------------------------------------------------------

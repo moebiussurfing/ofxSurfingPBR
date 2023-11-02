@@ -18,8 +18,8 @@ void ofApp::setup() {
 	pbr.setCameraPtr(&camera);
 
 	// Pass the scene renderer to be processed
-	callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
-	pbr.setFunction_renderScene(myFunctionDraw);
+	callback_t f = std::bind(&ofApp::renderScene, this);
+	pbr.setFunctionRenderScene(f);
 
 	//--
 
