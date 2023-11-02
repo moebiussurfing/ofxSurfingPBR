@@ -108,14 +108,15 @@ void ofApp::renderScene()
 
 * Copy the content of `data.zip` to the examples or to your projects into `/bin/data`.  
   
-└ data  
-    ├ cubemaps / .exr / .hdr / (.jpg)  
-    ├ models / .obj / .ply / .fbx  
-    ├ shadersGL2 / .frag / .vert  
-    └ shadersGL3 / .frag / .vert  
+  └ data  
+     ├ cubemaps / .exr / .hdr / (.jpg)  
+     ├ models / .obj / .ply / .fbx  
+     ├ shadersGL2 / .frag / .vert  
+     └ shadersGL3 / .frag / .vert  
 
 ## Tested Systems
-* **Windows 11** / **VS 2022** / **OF 0.12+** @[GitHub master branch](https://github.com/openframeworks/openFrameworks)
+* **Windows 11** / **VS 2022** / **OF 0.12+**
+@[GitHub master branch](https://github.com/openframeworks/openFrameworks)
 
 ## License
 **MIT License**
