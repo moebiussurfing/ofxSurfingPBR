@@ -97,7 +97,7 @@ private:
 	void ChangedDisplacers(ofAbstractParameter & e);
 #endif
 
-	ofEventListener evResetAll;
+	ofEventListener listenerResetAll;
 
 	//--
 
@@ -261,6 +261,13 @@ public:
 	void doRandomMaterialColorsAlpha();
 	void doRandomMaterialAlphas();
 
+private:
+	// History undo/redo
+	ofParameterGroup historyParams;
+	vector<ofParameterGroup> history;
+	ofParameter<void> resetHistory;
+	ofParameter<int> indexHistory;
+	
 	//--
 
 private:

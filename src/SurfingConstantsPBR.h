@@ -1,19 +1,24 @@
 #pragma once
-//#include "ofMain.h"
 
 //--
 
 // OPTIONAL
 
-#define SURFING__USE__PLANE_SHADER_AND_DISPLACERS // TODO: WIP: add another shader/material.
+#define SURFING__USE_FILE_BROWSER // allow browse model files on the folder.
 
-#define SURFING__USE_CUBE_MAP
+#define SURFING__USE__PLANE_SHADER_AND_DISPLACERS // TODO: WIP: add another shader/material.
 
 //--
  
 // DEBUG
 
 //#define SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE // TODO: testing to improve performance.
+
+//--
+
+// MODULES
+
+#define SURFING__USE_CUBE_MAP
 
 //--
 

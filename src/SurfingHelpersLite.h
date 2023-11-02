@@ -1,7 +1,12 @@
 #pragma once
 #include "ofMain.h"
 
+#include "ofxGui.h"
+
+//------
+
 // CONSTANTS
+
 #define SURFING__PAD_TO_BORDER 5
 #define SURFING__PAD_X_TO_BORDER 5
 #define SURFING__PAD_Y_TO_BORDER 5
@@ -12,6 +17,14 @@
 #define SURFING__OFXGUI_PAD_X 2
 #define SURFING__OFXGUI_PAD_Y 2
 
+#define SURFING__STRING_BOX__DEFAULT_XPAD 10
+#define SURFING__STRING_BOX__DEFAULT_YPAD 10
+#define SURFING__STRING_BOX__DEFAULT_XPAD_TO_BORDER 5
+#define SURFING__STRING_BOX__DEFAULT_YPAD_TO_BORDER 5
+
+#define SURFING__STRING_BOX__DEFAULT_ROUND 0.f
+//#define SURFING__STRING_BOX__DEFAULT_ROUND 7.f
+
 //------
 
 namespace ofxSurfing {
@@ -19,9 +32,7 @@ namespace ofxSurfing {
 //------
 
 /*
-	
 	Settings de/serializers for ofParameterGroup.
-
 */
 
 // Load
@@ -68,9 +79,7 @@ inline bool saveSettings(ofParameterGroup & parameters, string path) {
 //------
 
 /*
-
 	App window tools to handle position, settings or name.
-
 */
 
 // Get the OF project file path name and set to the window title.
@@ -146,18 +155,11 @@ inline void setWindowSquared(int sz = 800) {
 //------
 
 /*
-
 	A text box widget with layout management.
-
 */
 
-#define SURFING__STRING_BOX__DEFAULT_XPAD 10
-#define SURFING__STRING_BOX__DEFAULT_YPAD 10
-#define SURFING__STRING_BOX__DEFAULT_XPAD_TO_BORDER SURFING__PAD_X_TO_BORDER
-#define SURFING__STRING_BOX__DEFAULT_YPAD_TO_BORDER SURFING__PAD_Y_TO_BORDER
-
 //--------------------------------------------------------------
-inline void ofDrawBitmapStringBox(string s, int x, int y, float round = 0) {
+inline void ofDrawBitmapStringBox(string s, int x, int y, float round = SURFING__STRING_BOX__DEFAULT_ROUND) {
 	bool bdebug = 0;
 
 	int a1 = 255;
@@ -178,7 +180,7 @@ inline void ofDrawBitmapStringBox(string s, int x, int y, float round = 0) {
 	int xoffset = 0;
 	int yoffset = 0;
 	//xoffset = 0;
-	yoffset = 11;
+	yoffset = 11; //TODO
 
 	ofRectangle bb1;
 	bb1 = { (float)x, (float)y, bb.width, bb.height };
@@ -283,11 +285,15 @@ inline glm::vec2 getBitmapStringBoxPosToBottomRight(string s, int xpad = SURFING
 enum SURFING_LAYOUT {
 	SURFING_LAYOUT_CENTER = 0,
 	SURFING_LAYOUT_TOP_LEFT,
+	//SURFING_LAYOUT_TOP_CENTERED,//TODO
 	SURFING_LAYOUT_TOP_RIGHT,
 	SURFING_LAYOUT_BOTTOM_LEFT,
+	//SURFING_LAYOUT_BOTTOM_CENTERED,//TODO
 	SURFING_LAYOUT_BOTTOM_RIGHT,
+
 	SURFING_LAYOUT_MOUSE_POS,
 	SURFING_LAYOUT_MOUSE_POS_CENTER,
+
 	SURFING_LAYOUT_AMOUNT,
 };
 
@@ -386,7 +392,7 @@ inline void ofDrawBitmapStringBox(string s, SURFING_LAYOUT layout = SURFING_LAYO
 	ofxSurfing::ofDrawBitmapStringBox(s, p.x, p.y);
 }
 //--------------------------------------------------------------
-inline void ofDrawBitmapStringBox(string s, int layout = 0) {
+inline void ofDrawBitmapStringBox(string s, int layout /* = 0*/) {
 	ofDrawBitmapStringBox(s, (SURFING_LAYOUT)layout);
 }
 
@@ -418,10 +424,54 @@ inline void ofDrawBitmapStringBox(string s, int layout = 0) {
 */
 
 //------
-};
 
 /*
+	ofxGui Helpers
+*/
 
+inline void setGuiPositionToLayout(ofxPanel & gui, int layout = 0) {
+	//TODO: Could add other layout positions and use above enum..
+
+	// Move gui panel window to:
+	glm::vec2 p;
+	int pad = SURFING__OFXGUI_PAD_TO_BORDER; //to borders
+
+	// bottom-center
+	if (layout == 0) {
+		int x = ofGetWindowWidth() / 2 - gui.getShape().getWidth() / 2;
+		int y = ofGetWindowHeight() - gui.getShape().getHeight() - pad;
+		p = glm::vec2(x, y);
+	}
+
+	// top-center
+	else if (layout == 1) {
+		int x = ofGetWindowWidth() / 2 - gui.getShape().getWidth() / 2;
+		int y = pad;
+		p = glm::vec2(x, y);
+	}
+
+	else if (layout == 2)
+	// bottom-right
+	{
+		glm::vec2 p1 = glm::vec2(ofGetWindowWidth(), ofGetHeight());
+		glm::vec2 p2 = glm::vec2(gui.getShape().getWidth() + pad, gui.getShape().getHeight() + pad);
+		p = p1 - p2;
+	}
+
+	else if (layout == 3)
+	// bottom-left
+	{
+		p = glm::vec2(pad, ofGetHeight() - gui.getShape().getHeight() - pad);
+	}
+
+	gui.setPosition(p.x, p.y);
+}
+
+};
+
+//------
+
+/*
 	A class to auto save an ofParameterGroup.
 	settings are saved one second 
 	after any change to avoid overflow o file savings.
@@ -434,7 +484,7 @@ inline void ofDrawBitmapStringBox(string s, int layout = 0) {
 	//setup()
 	callback_t f = std::bind(&ofxSurfingPBR::save, this);
 	autoSaver.setFunctionSaver(f);
-	internalParams.add(autoSaver.bAutoSave);
+	internalParams.add(autoSaver.bEnable);
 
 	void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 		// ...	
@@ -461,12 +511,12 @@ public:
 	// we will autosave after every param change,
 	// but after waiting some ms. reducing saving overflow.
 	// we will save also when app exit.
-	ofParameter<bool> bAutoSave { "Autosave", true };
+	ofParameter<bool> bEnable { "Autosave", true };
 
 	void saveSoon(bool b = true) {
 		if (b) {
 			// flag to save delayed
-			if (bAutoSave) {
+			if (bEnable) {
 				bFlagSave = true;
 				timeLastChange = ofGetElapsedTimeMillis();
 			}
@@ -478,15 +528,15 @@ public:
 		// disables autosave
 		// to avoid save after loading the settings,
 		// as the params will change and would trig the autosave!
-		bAutoSave_ = bAutoSave; //store state
-		if (bAutoSave) {
-			bAutoSave.setWithoutEventNotifications(false);
+		bAutoSave_ = bEnable; //store state
+		if (bEnable) {
+			bEnable.setWithoutEventNotifications(false);
 		}
 	}
 
 	void start() {
 		if (bAutoSave_) {
-			bAutoSave.setWithoutEventNotifications(true); //restore state
+			bEnable.setWithoutEventNotifications(true); //restore state
 		}
 	}
 
@@ -507,7 +557,7 @@ public:
 
 private:
 	void update(ofEventArgs & args) {
-		if (bAutoSave) {
+		if (bEnable) {
 			auto t = ofGetElapsedTimeMillis() - timeLastChange;
 			if (bFlagSave && t > timeSaveDelay) {
 				bFlagSave = false;
@@ -517,7 +567,7 @@ private:
 		}
 	}
 
-//public:
+	//public:
 	void save() {
 		if (f_Saver != nullptr) f_Saver();
 	}

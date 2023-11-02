@@ -12,10 +12,6 @@ void ofApp::setup() {
 
 	//--
 
-	camera.setFarClip(10000);
-
-	//--
-
 	setupPBR();
 
 	//--
@@ -27,22 +23,13 @@ void ofApp::setup() {
 	//--
 
 #ifdef SURFING__USE_FILE_BROWSER
-	// TODO: make a simple class to browse models.
-	// models folder
-	setupDir();
+	surfingModels.setup();
 
-	fileName.setSerializable(false);
-
-	eIndexFile = indexFile.newListener([this](int & i) {
-		static int i_ = -1;
-		if (i != i_) { //changed
-			i_ = i;
-			if (i < dir.size()) {
-				fileName = dir.getName(i);
-				string path = dir.getPath(i);
-				loadModel(path);
-			}
-		}
+	// callback to trig loading.
+	// model path is ready on surfingModels.pathModel!
+	listenerLoadModel = surfingModels.loadBang.newListener([this](void) {
+		string path = surfingModels.pathModel;
+		this->loadModel(path);
 	});
 #endif
 
@@ -56,7 +43,7 @@ void ofApp::setupPBR() {
 	pbr.setup();
 	pbr.setCameraPtr(&camera);
 
-#if 1
+#if 0
 	pbr.loadCubeMap("cubemaps/kloppenheim_06_puresky_1k.exr");
 // replaces the default cubemap
 #endif
@@ -69,48 +56,100 @@ void ofApp::setupPBR() {
 //--------------------------------------------------------------
 void ofApp::setupGui() {
 
-	gui.setup("ofApp_Model");
+	gui.setup("ofApp");
 	gui.add(indexScene);
+	gui.add(next);
 
 #ifdef SURFING__USE_FILE_BROWSER
-	gui.add(indexFile);
-	gui.add(fileName);
+	gui.add(surfingModels.parameters);
 #endif
 
-	gui.add(scale);
-	gui.add(yPos);
+	gui.add(bHelp);
 	gui.add(bRotate);
 	gui.add(speed);
+	gui.add(yPos);
+	gui.add(scale);
 	gui.add(reset);
 
-	evReset = reset.newListener([this](void) {
+	ofxSurfing::setGuiPositionToLayout(gui);
+
+	//--
+
+	// callbacks
+
+	listenerNext = next.newListener([this](void) {
+		nextScene();
+	});
+
+	listenerReset = reset.newListener([this](void) {
 		scale = 0;
 		yPos = 0;
 		speed = 0.5;
 	});
 
-	gui.loadFromFile("ofApp.json");
+	listenerIndexScene = indexScene.newListener([this](int & i) {
+		buildHelp(); //refresh info
+		refreshGui(); //refresh gui for minimize/collapse workflow
+	});
+
+	buildHelp();
 
 	//--
 
-	// Move gui panel window
-	glm::vec2 p;
-	int pad = SURFING__OFXGUI_PAD_TO_BORDER; //to borders
+	gui.loadFromFile("ofApp.json");
+}
 
-#if 0
-	// to bottom-right
-	{
-		glm::vec2 p1 = glm::vec2(ofGetWindowWidth(), ofGetHeight());
-		glm::vec2 p2 = glm::vec2(gui.getShape().getWidth() + pad, gui.getShape().getHeight() + pad);
-		p = p1 - p2;
+//--------------------------------------------------------------
+void ofApp::buildHelp() {
+
+	sHelp = "";
+	sHelp += "\n";
+	sHelp += "HELP\n";
+	sHelp += "ofApp\n";
+	sHelp += "\n";
+	sHelp += "H > Help\n";
+	sHelp += "g > Gui\n";
+	sHelp += "G > ofxGui\n";
+	sHelp += "R > Rotate\n";
+	sHelp += "\n";
+
+	sHelp += "Space > Next Scene\n";
+	sHelp += "\n\n";
+
+	switch (indexScene) {
+	case 0:
+		sHelp += "SCENE #0 MESH";
+		break;
+	case 1:
+		sHelp += "SCENE #1 MODEL";
+		break;
+	case 2:
+		sHelp += "SCENE #2 THREE PRIMS";
+		break;
 	}
-#else
-	// to bottom-left
-	{
-		p = glm::vec2(pad, ofGetHeight() - gui.getShape().getHeight() - pad);
+	sHelp += "\n\n\n";
+
+#ifdef SURFING__USE_FILE_BROWSER
+	if (indexScene == 1) {
+		sHelp += "MODELS BROWSER\n";
+		sHelp += "\n";
+		sHelp += "Left  > Previous\n";
+		sHelp += "Right > Next\n";
 	}
 #endif
-	gui.setPosition(p.x, p.y);
+
+	sHelp += " \n";
+	sHelp += " \n";
+}
+
+//--------------------------------------------------------------
+void ofApp::refreshGui() {
+#ifdef SURFING__USE_FILE_BROWSER
+	if (indexScene == 1)
+		gui.getGroup(surfingModels.parameters.getName()).maximize();
+	else
+		gui.getGroup(surfingModels.parameters.getName()).minimize();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -135,8 +174,7 @@ void ofApp::setupModel() {
 
 	//--
 
-	pathModel = "models/head25k.obj"; // This file model have problems with normals
-	scaled = 1.0;
+	pathModel = "models/head25k.obj"; // This file model have problems with normals..
 
 	//pathModel = "models/basic_form.ply";
 	//scaled = 2.0;
@@ -169,32 +207,29 @@ bool ofApp::loadModel(string path, float scaled) {
 
 		// Model transforms
 		// Then must be applied before draw!
-		//model.setPosition(0, 2, 0);
-		//model.setRotation(0, 90, 1, 0, 0);
 		float s = scaled;
 		model.setScale(s, s, s);
 		ofLogNotice() << "Model scaled by:" << s;
 
-		// Create the vector of ofVboMesh's
-		// We queue multi meshes
-		// bc some models have multiple parts..
+		//model.setPosition(0, 2, 0);//TODO
+		//model.setRotation(0, 90, 1, 0, 0);//TODO
+
+		//--
+
+		// Add meshes to the vector of ofVboMesh's.
+		// We queue multi meshes,
+		// bc some models could have multiple parts.
 		meshesModel.clear();
 		for (int i = 0; i < model.getMeshCount(); i++) {
 			meshesModel.push_back(model.getMesh(i));
 		}
-		if (meshesModel.size() > 0)
-			ofLogNotice() << "Queued " << meshesModel.size() << " meshes into vector<ofVboMesh>";
 
-		/*
-	Modify the mesh. 
-	Get example from \openFrameworks\examples\gl\materialPBR
-	
-	https://forum.openframeworks.cc/t/ofxassimpmodelloader-how-to-tweak-model-meshes/36665/4
-	ofxAssimpMeshHelper& helper = model.getMeshHelper(i);
-        ofMesh* mesh = &helper.cachedMesh;
-	*/
-	} else {
-		ofLogError() << "File not found!";
+		if (meshesModel.size() > 0)
+			ofLogNotice() << "Queued " << meshesModel.size() << " meshes into meshesModel vector<ofVboMesh>.";
+	}
+
+	else {
+		ofLogError() << "File " << pathModel << " not found or failed!";
 	}
 
 	return b;
@@ -211,25 +246,6 @@ void ofApp::drawModel() {
 	}
 }
 
-#ifdef SURFING__USE_FILE_BROWSER
-//--------------------------------------------------------------
-void ofApp::setupDir(string path) {
-	if (path == "") path = "models/";
-
-	dir.listDir(path);
-	dir.allowExt("ply");
-	dir.allowExt("fbx");
-	dir.allowExt("obj");
-	dir.sort();
-
-	indexFile.setMax(dir.size() - 1);
-}
-#endif
-
-//--------------------------------------------------------------
-void ofApp::update() {
-}
-
 //--------------------------------------------------------------
 void ofApp::draw() {
 	pbr.draw();
@@ -239,15 +255,35 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::drawGui() {
+	if (!pbr.bGui) return; //used as global show gui
+
 	pbr.drawGui();
 
 	//--
+
+	if (bHelp) {
+		ofxSurfing::ofDrawBitmapStringBox(sHelp); //centered
+
+		//ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_CENTER); //top centered
+
+		//TODO: fix to put above gui panel
+		// not sure if there is some bug on OF getBoundingBox..
+		//auto bbG = gui.getShape();
+		//auto bbH = ofxSurfing::getBBBitmapStringBox(sHelp);
+		//int x = bbG.getTopLeft().x + bbG.getWidth() / 2;
+		//int y = bbG.getTopLeft().y - bbG.getHeight();
+		//x -= bbH.getWidth() / 2;
+		//y -= 20;
+		//glm::vec2 p { x, y };
+		//ofxSurfing::ofDrawBitmapStringBox(sHelp, p.x, p.y);
+	}
 
 	if (pbr.bGui_ofxGui) gui.draw();
 }
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
+
 	// Plane / floor
 	pbr.drawPlane();
 
@@ -264,29 +300,32 @@ void ofApp::drawMyScene() {
 
 	// Transforms
 
-	float uPos = 10;
-	float y = ofMap(yPos, -1.f, 1.f, -uPos, uPos, true);
+	float yPosUnit = 10;
+	float y = ofMap(yPos, -1.f, 1.f, -yPosUnit, yPosUnit, true);
 
-	float uScale = 200;
-	float s = ofMap(scale, -1.f, 1.f, 10, uScale, true);
+	float scaleUnit = 200;
+	float s = ofMap(scale, -1.f, 1.f, 10.f, scaleUnit, true);
 
-	int st = ofMap(speed, 0.f, 1.f, 60 * 30, 60, true);
-	float d = ofMap(ofGetFrameNum() % st, 0.f, st, 0.f, 360.f);
+	int f = ofMap(speed, 0.f, 1.f, 60 * 30, 60, true);
+	float d = ofMap(ofGetFrameNum() % f, 0.f, f, 0.f, 360.f);
 
 	//--
 
 	// Scene 0
 	// Mesh
+
 	if (indexScene == 0) {
-		// mesh
+
 		ofPushMatrix();
 		ofScale(s);
 		ofTranslate(0, y, 0);
 		ofRotateXDeg(-90);
+
 		if (bRotate) ofRotateZDeg(d);
 		{
 			mesh.draw();
 		}
+
 		ofPopMatrix();
 	}
 
@@ -294,66 +333,82 @@ void ofApp::drawMyScene() {
 
 	// Scene 1
 	// Model
+
 	else if (indexScene == 1) {
 		glFrontFace(GL_CCW); //fix for "transparent" model
 
 		ofPushMatrix();
-		ofScale(s * 2.f);
-		y += 1;
+
+		// Scene transforms
+		ofScale(s * 2.0f);
 		ofTranslate(0, y, 0);
 
 		// Model transforms
-		// apply before draw!
-		//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);
+		// Settled when loading the model,
+		// but requires apply here before draw!
 		ofScale(model.getScale().x, model.getScale().y, model.getScale().z);
+		//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);//TODO
 
 		if (bRotate) ofRotateYDeg(-d);
 		{
 			drawModel();
 		}
+
 		ofPopMatrix();
 	}
 
 	//--
 
 	// Scene 2
-	// Three prims
+	// Three Prims
+
 	else if (indexScene == 2) {
 
 		ofPushMatrix();
-		float uuPos = 800;
-		float yy = ofMap(yPos, -1.f, 1.f, -uuPos, uuPos, true);
-		ofTranslate(0, yy, 0);
+		float yPosUnit = 800;
+		float y = ofMap(yPos, -1.f, 1.f, -yPosUnit, yPosUnit, true);
+		ofTranslate(0, y, 0);
 		ofScale(s * 0.02f);
+
 		if (bRotate) ofRotateYDeg(d);
 		{
 			pbr.drawTestScene();
 		}
+
 		ofPopMatrix();
 	}
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
-	if (key == 'r') bRotate = !bRotate;
+	if (key == 'R') bRotate = !bRotate;
+	if (key == 'H') bHelp = !bHelp;
 
 	if (key == ' ') {
-		if (indexScene < indexScene.getMax())
-			indexScene = indexScene + 1;
-		else
-			indexScene = 0;
+		nextScene();
 	}
 
 #ifdef SURFING__USE_FILE_BROWSER
 	if (key == OF_KEY_RIGHT) {
-		if (dir.size() > 0) {
-			indexFile.setWithoutEventNotifications(indexFile.get() + 1);
-			indexFile.set(indexFile % dir.size());
-		}
+		surfingModels.next();
+	}
+
+	if (key == OF_KEY_LEFT) {
+		surfingModels.previous();
 	}
 #endif
 
+	//--
+
 	pbr.keyPressed(key);
+}
+
+//--------------------------------------------------------------
+void ofApp::nextScene() {
+	if (indexScene < indexScene.getMax())
+		indexScene = indexScene + 1;
+	else
+		indexScene = 0;
 }
 
 //--------------------------------------------------------------

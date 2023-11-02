@@ -86,7 +86,7 @@ void SurfingMaterial::setupParams() {
 	parameters.add(coatParams);
 	parameters.add(helpersParams);
 
-	parameters.add(autoSaver.bAutoSave);
+	parameters.add(autoSaver.bEnable);
 
 	ofAddListener(parameters.parameterChangedE(), this, &SurfingMaterial::Changed);
 }
