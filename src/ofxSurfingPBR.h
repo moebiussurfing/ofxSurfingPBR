@@ -5,20 +5,24 @@
 
 /*
 
-	All this code is copied and/or hardly based on the OF forum topic: 
-	https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19
-	authors: @NickHardeman and @Paolo
+OpenFrameworks addon to easily test, learn, and use the new PBR features from the new OF 0.12+ releases.
 
-	See SIMPLE EXAMPLE at the bottom.
+(You should use the GitHub master branch: https://github.com/openframeworks/openFrameworks !
+
+All this code is copied from and hardly based on this OF forum topic:
+https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
+
+Original authors:  
+@NickHardeman | https://github.com/NickHardeman
+and @paolo-scoppola | https://github.com/paolo-scoppola.
 
 
-	TODO:
+	TODO
 
 	- add undo history/browser..
 		store each group on a vector to browse back
-	- add save/load camera
 	- customize share plane divisions and img size.
-	- get mesh mods example.
+	- get mesh mods/shader example.
 	- add cubemap file path to settings
 
 	- add ImGui mode.
@@ -26,12 +30,12 @@
 		and randomizer/undo/redo 
 		to explore and save materials.
 	- make a scene manager allowing
-		to queue many materials 
+		to queue many actors/ofNodes, materials 
 		and lights on a std::vector.
 		something like ofxPBR or ofxPBRHelper.
 	- add ofxBgGradient addon ? copy just the gradients
 	- add custom global path to /data/ofxSurfingPBR/
-	- add randomizers for plane/scene too.
+
 
 */
 
@@ -161,6 +165,7 @@ public:
 	ofParameter<bool> bDebugShadow;
 	ofParameter<float> shadowBias;
 	ofParameter<float> shadowNormalBias;
+
 	//TODO: add other internal PBR params
 	//ofParameter<float> shadowStrength;
 	//ofParameter<glm::vec2> shadowSize;
@@ -262,6 +267,7 @@ public:
 	void doRandomMaterialAlphas();
 
 private:
+	//TODO
 	// History undo/redo
 	ofParameterGroup historyParams;
 	vector<ofParameterGroup> history;
