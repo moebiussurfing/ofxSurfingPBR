@@ -43,44 +43,44 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 
 class ofApp : public ofBaseApp {
   public:
-    void setup();
-    void draw();
+      void setup();
+      void draw();
 
-    ofEasyCam cam;
+      ofEasyCam cam;
 
-    ofxSurfingPBR pbr;
-    void renderScene();
+      ofxSurfingPBR pbr;
+      void renderScene();
 };
 ```
 ### ofApp.cpp
 ```.cpp
 void ofApp::setup() {
-  pbr.setup();
+      pbr.setup();
 
-  // Pass the local camera
-  pbr.setCameraPtr(&cam);
+      // Pass the local camera
+      pbr.setCameraPtr(&cam);
 
-  // Pass the render scene function
-  callback_t f = std::bind(&ofApp::renderScene, this);
-  pbr.setFunctionRenderScene(f);
+      // Pass the render scene function
+      callback_t f = std::bind(&ofApp::renderScene, this);
+      pbr.setFunctionRenderScene(f);
 }
 
 void ofApp::draw() {
-  pbr.draw();
-  drawGui();
+      pbr.draw();
+      drawGui();
 }
 
 void ofApp::renderScene()
 {
-  // Plane floor
-  pbr.drawPlane();
+      // Plane floor
+      pbr.drawPlane();
 
-  // Other objects
-  pbr.beginMaterial();
-  {
-    // Draw here!
-  }
-  pbr.endMaterial();
+      // Other objects
+      pbr.beginMaterial();
+      {
+          // Draw here!
+      }
+      pbr.endMaterial();
 }
 ```
 
@@ -94,14 +94,14 @@ Look at the examples.
 
 * Copy the content of 'data.zip' to the examples or your projects **/bin/data**. 
 
-    ├─ data  
-    │   ├── cubemaps | / .exr / .hdr / .jpg (limited)  
-    │   ├── models | .obj / .ply / .fbx  
-    │   ├── shadersGL2 | .frag / .vert  
-    │   └── shadersGL3 | .frag / .vert  
+├─ data  
+│   ├── cubemaps | / .exr / .hdr / .jpg (limited)  
+│   ├── models | .obj / .ply / .fbx  
+│   ├── shadersGL2 | .frag / .vert  
+│   └── shadersGL3 | .frag / .vert  
 
 ## Tested Systems
-* **Windows 11** / **VS 2022** / **OF 0.12+[GitHub master branch](https://github.com/openframeworks/openFrameworks)**
+* **Windows 11** / **VS 2022** / **OF 0.12+** [GitHub master branch](https://github.com/openframeworks/openFrameworks)
 
 ## License
 **MIT License**
