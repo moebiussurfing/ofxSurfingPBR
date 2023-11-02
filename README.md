@@ -98,7 +98,7 @@ Look at the examples.
 
 * Copy the content of 'data.zip' to the examples or your projects **/bin/data**. 
 
-├─ data  
+├ data  
 │   ├── cubemaps / .exr / .hdr / .jpg  
 │   ├── models / .obj / .ply / .fbx  
 │   ├── shadersGL2 / .frag / .vert  
