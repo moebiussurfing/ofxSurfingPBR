@@ -6,11 +6,11 @@
 
 (You should use the [GitHub master branch](https://github.com/openframeworks/openFrameworks)!)  
 
-All this code is copied from and hardly based on the OF forum topic:  
+All this code is copied from and hardly based on this OF forum topic:  
 https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
 
 Original authors:  
-**@NickHardeman** and **@Paolo**.  
+[@NickHardeman](https://github.com/NickHardeman) and [@paolo-scoppola](https://github.com/paolo-scoppola).  
 
 ## Screenshot
 
@@ -27,13 +27,15 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
   - B. For other objects.
 - A positionable Ambient light.
 - Shadows.
-- Cubemaps with loader on runtime.
+- Cubemaps with a loader on runtime.
   - Alternative background color.
 - Persistent settings.
-- Easy to pass a local camera and draw your scene.
+  - Included (ofxCameraSaveLoad)[https://github.com/roymacdonald/ofxCameraSaveLoad].
+- Easy to pass a local camera and pass your render scene.
 - Material and scene randomizers.
 - Added shader for testing.
-  - Applied to plane (floor) and his material/mesh...
+  - Applied to the plane (floor) and his material/mesh...
+- 3D models browser class.
 
 ## Usage
 
@@ -97,13 +99,13 @@ void ofApp::renderScene()
 
 ## Requeriments 
 
-* Copy the content of `data.zip` to the examples or your projects `/bin/data`.  
+* Copy the content of `data.zip` to the examples or to your projects into `/bin/data`.  
   
 └ data  
-   ├ cubemaps / .exr / .hdr / .jpg  
-   ├ models / .obj / .ply / .fbx  
-   ├ shadersGL2 / .frag / .vert  
-   └ shadersGL3 / .frag / .vert  
+    ├ cubemaps / .exr / .hdr / (.jpg)  
+    ├ models / .obj / .ply / .fbx  
+    ├ shadersGL2 / .frag / .vert  
+    └ shadersGL3 / .frag / .vert  
 
 ## Tested Systems
 * **Windows 11** / **VS 2022** / **OF 0.12+** @[GitHub master branch](https://github.com/openframeworks/openFrameworks)
