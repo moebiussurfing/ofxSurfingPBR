@@ -36,11 +36,11 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 - Easy to pass a local camera and your render scene.
   - Test camera workflow between classes. [TODO] 
 - Material and scene randomizers.
-  - History browsing **Undo/Redo** workflow. [TODO/WIP] 
+  - History browsing **Undo/Redo** workflow. [TODO] 
 - Added **Shader** for testing/code.
   - Displacement applied to the plane (floor) and his material/mesh...
-  - Mesh/vertex displacements (not just heightmaps). [TODO/WIP]
-  - Shader Debugger. [TODO/WIP]
+  - Mesh/vertex displacements (not just heightmaps). [TODO]
+  - Shader Debugger. [TODO]
 - 3D models browser class
   - Used into `\2_Example_Models\`.
 
@@ -106,16 +106,16 @@ void ofApp::renderScene()
 
 ## Requeriments 
 
-* Copy the content of `data.zip` to the examples or to your projects into `/bin/data`.  
-  
+* Copy the content of `data.zip` to the examples or to your projects into `/bin/data`.
+
   └ data  
-     ├ cubemaps / .exr / .hdr / (.jpg)  
-     ├ models / .obj / .ply / .fbx  
-     ├ shadersGL2 / .frag / .vert  
-     └ shadersGL3 / .frag / .vert  
+      ├ cubemaps / .exr / .hdr / .jpg  
+      ├ models / .obj / .ply / .fbx  
+      ├ shadersGL2 / .frag / .vert  
+      └ shadersGL3 / .frag / .vert  
 
 ## Tested Systems
-* **Windows 11** / **VS 2022** / **OF 0.12+**
+* **Windows 11** / **VS 2022** / **OF 0.12+**  
 @[GitHub master branch](https://github.com/openframeworks/openFrameworks)
 
 ## License
