@@ -78,17 +78,5 @@ public:
 	void load();
 	void save();
 
-#ifdef SURFING__USE_AUTOSAVE_ENGINE
-public:
-	// autosave workflow
-	// we will autosave after every param change,
-	// but after waiting some ms. reducing saving overflow.
-	// we will save also when app exit.
-	ofParameter<bool> bAutoSave;
-
-private:
-	uint64_t timeLastChange = 0;
-	int timeSaveDelay = 1000; //save delayed x milliseconds.
-	bool bFlagSave = false;
-#endif
+	SurfingAutoSaver autoSaver;
 };

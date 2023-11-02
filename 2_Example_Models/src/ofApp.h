@@ -38,7 +38,7 @@ public:
 	string pathModel;
 	void setupModel();
 	void drawModel();
-	bool loadModel(string path);
+	bool loadModel(string path, float scaled=1.0f);
 	ofxAssimpModelLoader model;
 	vector<ofVboMesh> meshesModel;
 
@@ -49,7 +49,7 @@ public:
 	ofParameter<float> speed { "Speed", 0.5f, 0, 1 };
 	ofParameter<int> indexScene { "Scene", 0, 0, 2 };
 	ofParameter<void> reset { "Reset" };
-	ofEventListener eReset;
+	ofEventListener evReset;
 
 #ifdef SURFING__USE_FILE_BROWSER
 	void setupDir(string path = "");

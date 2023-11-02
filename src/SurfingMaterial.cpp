@@ -47,9 +47,9 @@ void SurfingMaterial::setupParams() {
 	globalColor.setSerializable(false);
 	globalAlpha.setSerializable(false);
 
-#ifdef SURFING__USE_AUTOSAVE_ENGINE
-	bAutoSave.set("Autosave", true);
-#endif
+	// autosaver
+	callback_t f = std::bind(&SurfingMaterial::save, this);
+	autoSaver.setFunctionSaver(f);
 
 	//--
 
@@ -86,9 +86,7 @@ void SurfingMaterial::setupParams() {
 	parameters.add(coatParams);
 	parameters.add(helpersParams);
 
-#ifdef SURFING__USE_AUTOSAVE_ENGINE
-	parameters.add(bAutoSave);
-#endif
+	parameters.add(autoSaver.bAutoSave);
 
 	ofAddListener(parameters.parameterChangedE(), this, &SurfingMaterial::Changed);
 }
@@ -111,16 +109,7 @@ void SurfingMaterial::update(ofEventArgs & args) {
 
 //--------------------------------------------------------------
 void SurfingMaterial::update() {
-#ifdef SURFING__USE_AUTOSAVE_ENGINE
-	// autosave workflow
-	if (bAutoSave) {
-		auto t = ofGetElapsedTimeMillis() - timeLastChange;
-		if (bFlagSave && t > timeSaveDelay) {
-			bFlagSave = false;
-			save();
-		}
-	}
-#endif
+
 }
 
 //--------------------------------------------------------------
@@ -143,13 +132,7 @@ void SurfingMaterial::Changed(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Changed: " << name << ": " << e;
 
-#ifdef SURFING__USE_AUTOSAVE_ENGINE
-	// flag to save delayed
-	if (bAutoSave) {
-		bFlagSave = true;
-		timeLastChange = ofGetElapsedTimeMillis();
-	}
-#endif
+	autoSaver.saveSoon();
 
 	//--
 
@@ -262,14 +245,16 @@ void SurfingMaterial::doResetMaterial() {
 	metallic.set(0);
 	reflectance.set(0);
 
+	ofFloatColor c = ofFloatColor(0.5f, 1.f);
+
+	globalColor.set(c);
 	globalAlpha.set(1.f);
-	globalColor.set(ofColor::white);
 
 	// force again to overwrite the alphas too
-	ambientColor.set(ofColor::white);
-	specularColor.set(ofColor::white);
-	diffuseColor.set(ofColor::white);
-	emissiveColor.set(ofColor::white);
+	ambientColor.set(c);
+	specularColor.set(c);
+	diffuseColor.set(c);
+	emissiveColor.set(c);
 
 	bClearCoat.set(false);
 	clearCoatRoughness.set(0.0001);
@@ -386,15 +371,7 @@ void SurfingMaterial::save() {
 void SurfingMaterial::load() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Load: " << path;
 
-#ifdef SURFING__USE_AUTOSAVE_ENGINE
-	// disables autosave
-	// to avoid save after loading the settings,
-	// as the params will change and would trig the autosave!
-	bool bAutoSave_ = bAutoSave; //store state
-	if (bAutoSave) {
-		bAutoSave.setWithoutEventNotifications(false);
-	}
-#endif
+	autoSaver.pause();
 
 	// Load
 	{
@@ -402,9 +379,5 @@ void SurfingMaterial::load() {
 		ofxSurfing::loadSettings(parameters, path);
 	}
 
-#ifdef SURFING__USE_AUTOSAVE_ENGINE
-	if (bAutoSave_) {
-		bAutoSave.setWithoutEventNotifications(true); //restore state
-	}
-#endif
+	autoSaver.start();
 }

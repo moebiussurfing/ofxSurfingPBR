@@ -1,13 +1,26 @@
 #pragma once
 #include "ofMain.h"
 
+// CONSTANTS
+#define SURFING__PAD_TO_BORDER 5
+#define SURFING__PAD_X_TO_BORDER 5
+#define SURFING__PAD_Y_TO_BORDER 5
+#define SURFING__OFXGUI_PAD_TO_BORDER 5
+#define SURFING__OFXGUI_PAD_X_TO_BORDER 5
+#define SURFING__OFXGUI_PAD_Y_TO_BORDER 5
+#define SURFING__OFXGUI_PAD 2
+#define SURFING__OFXGUI_PAD_X 2
+#define SURFING__OFXGUI_PAD_Y 2
+
+//------
+
 namespace ofxSurfing {
 
 //------
 
 /*
 	
-	Settings serializers for ofParameterGroup.
+	Settings de/serializers for ofParameterGroup.
 
 */
 
@@ -140,15 +153,17 @@ inline void setWindowSquared(int sz = 800) {
 
 #define SURFING__STRING_BOX__DEFAULT_XPAD 10
 #define SURFING__STRING_BOX__DEFAULT_YPAD 10
-#define SURFING__STRING_BOX__DEFAULT_XPAD_TO_BORDER 0
-#define SURFING__STRING_BOX__DEFAULT_YPAD_TO_BORDER 0
+#define SURFING__STRING_BOX__DEFAULT_XPAD_TO_BORDER SURFING__PAD_X_TO_BORDER
+#define SURFING__STRING_BOX__DEFAULT_YPAD_TO_BORDER SURFING__PAD_Y_TO_BORDER
 
 //--------------------------------------------------------------
 inline void ofDrawBitmapStringBox(string s, int x, int y, float round = 0) {
 	bool bdebug = 0;
 
-	ofColor c1 = ofColor(ofColor::white, 255);
-	ofColor c2 = ofColor(ofColor::black, 255);
+	int a1 = 255;
+	int a2 = 200;
+	ofColor c1 = ofColor(ofColor::white, a1);
+	ofColor c2 = ofColor(ofColor::black, a2);
 
 	int xpad = SURFING__STRING_BOX__DEFAULT_XPAD;
 	int ypad = SURFING__STRING_BOX__DEFAULT_YPAD;
@@ -162,7 +177,7 @@ inline void ofDrawBitmapStringBox(string s, int x, int y, float round = 0) {
 	//fix
 	int xoffset = 0;
 	int yoffset = 0;
-	xoffset = 0;
+	//xoffset = 0;
 	yoffset = 11;
 
 	ofRectangle bb1;
@@ -403,5 +418,117 @@ inline void ofDrawBitmapStringBox(string s, int layout = 0) {
 */
 
 //------
-
 };
+
+/*
+
+	A class to auto save an ofParameterGroup.
+	settings are saved one second 
+	after any change to avoid overflow o file savings.
+
+	EXAMPLE
+
+	//.h
+	SurfingAutoSaver autoSaver;
+
+	//setup()
+	callback_t f = std::bind(&ofxSurfingPBR::save, this);
+	autoSaver.setFunctionSaver(f);
+	internalParams.add(autoSaver.bAutoSave);
+
+	void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
+		// ...	
+		autoSaver.saveSoon();
+	}
+
+	void load() {
+		autoSaver.pause();//stop saving
+		// load //
+		autoSaver.start();//start
+	}
+*/
+
+#include <functional>
+using callback_t = std::function<void()>;
+
+//--------------------------------------------------------------
+class SurfingAutoSaver {
+public:
+	SurfingAutoSaver();
+	~SurfingAutoSaver();
+
+	// autosave workflow
+	// we will autosave after every param change,
+	// but after waiting some ms. reducing saving overflow.
+	// we will save also when app exit.
+	ofParameter<bool> bAutoSave { "Autosave", true };
+
+	void saveSoon(bool b = true) {
+		if (b) {
+			// flag to save delayed
+			if (bAutoSave) {
+				bFlagSave = true;
+				timeLastChange = ofGetElapsedTimeMillis();
+			}
+		}
+	}
+
+	void pause() {
+		// Pause autosave
+		// disables autosave
+		// to avoid save after loading the settings,
+		// as the params will change and would trig the autosave!
+		bAutoSave_ = bAutoSave; //store state
+		if (bAutoSave) {
+			bAutoSave.setWithoutEventNotifications(false);
+		}
+	}
+
+	void start() {
+		if (bAutoSave_) {
+			bAutoSave.setWithoutEventNotifications(true); //restore state
+		}
+	}
+
+private:
+	uint64_t timeLastChange = 0;
+	int timeSaveDelay = 1000; //save delayed x milliseconds.
+	bool bFlagSave = false;
+
+	bool bAutoSave_ = false;
+
+private:
+	callback_t f_Saver = nullptr;
+
+public:
+	void setFunctionSaver(callback_t f = nullptr) {
+		f_Saver = f;
+	}
+
+private:
+	void update(ofEventArgs & args) {
+		if (bAutoSave) {
+			auto t = ofGetElapsedTimeMillis() - timeLastChange;
+			if (bFlagSave && t > timeSaveDelay) {
+				bFlagSave = false;
+
+				save();
+			}
+		}
+	}
+
+//public:
+	void save() {
+		if (f_Saver != nullptr) f_Saver();
+	}
+};
+
+SurfingAutoSaver::SurfingAutoSaver() {
+	ofAddListener(ofEvents().update, this, &SurfingAutoSaver::update);
+}
+
+SurfingAutoSaver::~SurfingAutoSaver() {
+	ofRemoveListener(ofEvents().update, this, &SurfingAutoSaver::update);
+}
+
+//------

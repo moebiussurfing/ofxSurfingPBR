@@ -62,6 +62,7 @@ public:
 
 public:
 	void setup();
+	void startup();
 	void draw();
 	void drawPlane();
 	void drawTestScene(); //a simple scene for easy testing
@@ -78,7 +79,27 @@ private:
 	void setupGui();
 	void update();
 	void update(ofEventArgs & args);
-	void Changed(ofAbstractParameter & e);
+
+	//--
+
+private:
+	//void Changed(ofAbstractParameter & e);
+	void ChangedPlane(ofAbstractParameter & e);
+	void ChangedLight(ofAbstractParameter & e);
+	void ChangedShadow(ofAbstractParameter & e);
+	void ChangedInternal(ofAbstractParameter & e);
+
+#ifdef SURFING__USE_CUBE_MAP
+	void ChangedCubeMaps(ofAbstractParameter & e);
+#endif
+
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
+	void ChangedDisplacers(ofAbstractParameter & e);
+#endif
+
+	ofEventListener evResetAll;
+
+	//--
 
 public:
 	void setCameraPtr(ofCamera * camera_) {
@@ -108,7 +129,7 @@ public:
 	ofParameter<bool> bHelp;
 	string sHelp;
 	void buildHelpInfo();
-	int helpLayout = 2;//top-right
+	int helpLayout = 2; //top-right
 
 	ofParameter<bool> bDrawPlane;
 
@@ -122,6 +143,7 @@ public:
 	ofParameter<bool> bPlaneInfinite; //will ignore planeSize
 	//make the plane huge size to better "fit a full horizon line"
 	ofParameter<glm::vec2> planeSize; //normalized
+	ofParameter<glm::ivec2> planeResolution;
 	ofParameter<float> planeRotation; //x axis
 	ofParameter<float> planePosition; //y pos
 
@@ -167,11 +189,11 @@ private:
 	ofCamera * camera;
 
 private:
-	callback_t function_RenderScene = nullptr;
+	callback_t f_RenderScene = nullptr;
 
 public:
-	void setFunction_renderScene(callback_t f = nullptr) {
-		function_RenderScene = f;
+	void setFunctionRenderScene(callback_t f = nullptr) {
+		f_RenderScene = f;
 	};
 
 private:
@@ -251,24 +273,13 @@ public:
 	bool getSettingsFileFound(); //to check if the app is opened for the first time
 	// that allows to force customize the scene from ofApp at startup!
 
-#ifdef SURFING__USE_AUTOSAVE_ENGINE
-public:
-	// autosave workflow
-	// we will autosave after every param change,
-	// but after waiting some ms. reducing saving overflow.
-	// we will save also when app exit.
-	ofParameter<bool> bAutoSave;
-
-private:
-	uint64_t timeLastChange = 0;
-	int timeSaveDelay = 1000; //save delayed x milliseconds.
-	bool bFlagSave = false;
-#endif
+	SurfingAutoSaver autoSaver;
 
 	//some app flow controls
 	//bool bDoneSetup = false;
+	bool bDoneSetupParams = false;
 	bool bDoneStartup = false; //fixes some callback crashes at startup
-	bool bEnableCallbacks = true;
+	//bool bEnableCallbacks = true;
 
 	//--
 
@@ -303,49 +314,13 @@ private:
 	void updateDisplace();
 	void refreshImgShaderPlane();
 
+	void setupPBRScene();
+	void updatePBRScene();
+	void drawPBRScene();
+	void drawPBRSceneDebug();
+
 public:
 	void beginShaderPlane();
 	void endShaderPlane();
 #endif
 };
-
-/*
-
-	SIMPLE EXAMPLE
-
-	//ofApp.h
-	
-	#include "ofxSurfingPBR.h"
-	
-	ofEasyCam camera;
-	
-	ofxSurfingPBR pbr;
-	void renderScene();
-
-	//ofApp.cpp
-
-	void ofApp::setup() {
-		pbr.setup();
-
-		// pass the local camera
-		pbr.setCameraPtr(&camera);
-
-		// pass the render scene function
-		callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
-		pbr.setFunction_renderScene(myFunctionDraw);
-	}
-
-	void ofApp::renderScene()
-	{
-		// plane floor
-		pbr.drawPlane();
-
-		// other objects
-		pbr.beginMaterial();
-		{
-			ofDrawBox(0, 0, 0, 100);
-		}
-		pbr.endMaterial();
-	}
-
-*/

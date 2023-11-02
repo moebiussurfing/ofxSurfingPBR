@@ -5,8 +5,8 @@ void ofApp::setup() {
 	ofxSurfing::setWindowTitleAsProjectName(); // Name the window
 
 #if 1
-	ofxSurfing::setWindowAtMonitor(); // Center monitor / landscape.
-	//ofxSurfing::setWindowAtMonitor(-1); // Move to left monitor / landscape.
+	//ofxSurfing::setWindowAtMonitor(); // Center monitor / landscape.
+	ofxSurfing::setWindowAtMonitor(-1); // Move to left monitor / landscape.
 	//ofxSurfing::setWindowAtMonitor(1,true); // Move to right monitor / portrait.
 #endif
 
@@ -61,9 +61,9 @@ void ofApp::setupPBR() {
 // replaces the default cubemap
 #endif
 
-	// render scene
-	callback_t myFunctionDraw = std::bind(&ofApp::renderScene, this);
-	pbr.setFunction_renderScene(myFunctionDraw);
+	// Render scene
+	callback_t f = std::bind(&ofApp::renderScene, this);
+	pbr.setFunctionRenderScene(f);
 }
 
 //--------------------------------------------------------------
@@ -83,7 +83,7 @@ void ofApp::setupGui() {
 	gui.add(speed);
 	gui.add(reset);
 
-	eReset = reset.newListener([this](void) {
+	evReset = reset.newListener([this](void) {
 		scale = 0;
 		yPos = 0;
 		speed = 0.5;
@@ -93,9 +93,9 @@ void ofApp::setupGui() {
 
 	//--
 
-	// move gui panel window
+	// Move gui panel window
 	glm::vec2 p;
-	int pad = 5; //to borders
+	int pad = SURFING__OFXGUI_PAD_TO_BORDER; //to borders
 
 #if 0
 	// to bottom-right
@@ -115,7 +115,7 @@ void ofApp::setupGui() {
 
 //--------------------------------------------------------------
 void ofApp::setupMesh() {
-	// for scene 0
+	// For scene 0
 
 	pathMesh = "models/ofLogoHollow.ply";
 	mesh.load(pathMesh);
@@ -129,52 +129,63 @@ void ofApp::setupMesh() {
 
 //--------------------------------------------------------------
 void ofApp::setupModel() {
-	// for scene 1
+	// For scene 1
 
-	//pathModel = "models/head25k.obj"; // This file model have problems with normals
+	float scaled = 1.0f;
+
+	//--
+
+	pathModel = "models/head25k.obj"; // This file model have problems with normals
+	scaled = 1.0;
+
 	//pathModel = "models/basic_form.ply";
-	pathModel = "models/ultraviolence.fbx";
+	//scaled = 2.0;
 
-	bool b = loadModel(pathModel);
+	//pathModel = "models/ultraviolence.fbx";
+	//scaled = 0.01;
+
+	//--
+
+	bool b = loadModel(pathModel, scaled);
 	if (b)
-		ofLogNotice() << "loaded model file: " << pathModel;
+		ofLogNotice() << "Successfully loaded model file: " << pathModel;
 	else
-		ofLogError() << "model file " << pathModel << " not found!";
+		ofLogError() << "Unable to load model file " << pathModel << ". Maybe not found!";
 }
 
 //--------------------------------------------------------------
-bool ofApp::loadModel(string path) {
+bool ofApp::loadModel(string path, float scaled) {
 
 	pathModel = path;
 
-	ofLogNotice() << "Started loading model file... \n"
-				  << path;
+	ofLogNotice() << "loadModel() Trying to load model file " << path;
 
 	model.clear();
 
 	bool b = model.load(pathModel, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
 
-	if (b)
+	if (b) {
 		ofLogNotice() << "Loading successful";
-	else
-		ofLogError() << "File not found!";
 
-	// Model transforms
-	// must be applied before draw!
-	//model.setPosition(0, 2, 0);
-	float s = 0.01f;
-	model.setScale(s, s, s);
-	//model.setRotation(0, 90, 1, 0, 0);
+		// Model transforms
+		// Then must be applied before draw!
+		//model.setPosition(0, 2, 0);
+		//model.setRotation(0, 90, 1, 0, 0);
+		float s = scaled;
+		model.setScale(s, s, s);
+		ofLogNotice() << "Model scaled by:" << s;
 
-	// Create the vector of ofVboMesh's
-	// We queue multi meshes
-	// bc some models have multiple parts..
-	meshesModel.clear();
-	for (int i = 0; i < model.getMeshCount(); i++) {
-		meshesModel.push_back(model.getMesh(i));
-	}
+		// Create the vector of ofVboMesh's
+		// We queue multi meshes
+		// bc some models have multiple parts..
+		meshesModel.clear();
+		for (int i = 0; i < model.getMeshCount(); i++) {
+			meshesModel.push_back(model.getMesh(i));
+		}
+		if (meshesModel.size() > 0)
+			ofLogNotice() << "Queued " << meshesModel.size() << " meshes into vector<ofVboMesh>";
 
-	/*
+		/*
 	Modify the mesh. 
 	Get example from \openFrameworks\examples\gl\materialPBR
 	
@@ -182,6 +193,9 @@ bool ofApp::loadModel(string path) {
 	ofxAssimpMeshHelper& helper = model.getMeshHelper(i);
         ofMesh* mesh = &helper.cachedMesh;
 	*/
+	} else {
+		ofLogError() << "File not found!";
+	}
 
 	return b;
 }
@@ -189,7 +203,7 @@ bool ofApp::loadModel(string path) {
 //--------------------------------------------------------------
 void ofApp::drawModel() {
 
-	// draw all the meshes
+	// Draw all the meshes
 	if (meshesModel.size() > 0) {
 		for (int i = 0; i < meshesModel.size(); i++) {
 			meshesModel[i].drawFaces();
@@ -234,10 +248,10 @@ void ofApp::drawGui() {
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
-	// plane / floor
+	// Plane / floor
 	pbr.drawPlane();
 
-	// other objects
+	// Other objects
 	pbr.beginMaterial();
 	{
 		drawMyScene();
