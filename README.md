@@ -9,7 +9,8 @@
 All this code is copied from and hardly based on the OF forum topic:  
 https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
 
-Original authors: **@NickHardeman** and **@Paolo**.  
+Original authors:  
+**@NickHardeman** and **@Paolo**.  
 
 ## Screenshot
 
@@ -99,15 +100,15 @@ Look at the examples.
 ## Requeriments 
 
 * Copy the content of `data.zip` to the examples or your projects `/bin/data`. 
-
-├ data  
-│   ├ cubemaps / .exr / .hdr / .jpg  
-│   ├ models / .obj / .ply / .fbx  
-│   ├ shadersGL2 / .frag / .vert  
-│   └ shadersGL3 / .frag / .vert  
+bin
+└ data  
+   ├ cubemaps / .exr / .hdr / .jpg  
+   ├ models / .obj / .ply / .fbx  
+   ├ shadersGL2 / .frag / .vert  
+   └ shadersGL3 / .frag / .vert  
 
 ## Tested Systems
-* **Windows 11** / **VS 2022** / **OF 0.12+** @ [GitHub master branch](https://github.com/openframeworks/openFrameworks)
+* **Windows 11** / **VS 2022** / **OF 0.12+** @[GitHub master branch](https://github.com/openframeworks/openFrameworks)
 
 ## License
 **MIT License**
