@@ -16,6 +16,7 @@
 
 	- fix startup plane
 	- add callbacks per group?
+	- make autosave class
 
 	- hardcode infinite plane mode.
 	- add save/load camera
@@ -103,8 +104,11 @@ public:
 
 	ofParameter<bool> bDebug;
 	ofParameter<bool> bKeys;
+
 	ofParameter<bool> bHelp;
-	string sHelp = "";
+	string sHelp;
+	void buildHelpInfo();
+	int helpLayout = 2;//top-right
 
 	ofParameter<bool> bDrawPlane;
 

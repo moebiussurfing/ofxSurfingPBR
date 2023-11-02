@@ -26,8 +26,8 @@ void ofApp::setup() {
 
 	//--
 
-	// TODO: make a simple class to browse models.
 #ifdef SURFING__USE_FILE_BROWSER
+	// TODO: make a simple class to browse models.
 	// models folder
 	setupDir();
 
@@ -93,19 +93,19 @@ void ofApp::setupGui() {
 
 	//--
 
-	// move gui panel
+	// move gui panel window
 	glm::vec2 p;
 	int pad = 5; //to borders
 
-	// to window bottom-right
 #if 0
+	// to bottom-right
 	{
 		glm::vec2 p1 = glm::vec2(ofGetWindowWidth(), ofGetHeight());
 		glm::vec2 p2 = glm::vec2(gui.getShape().getWidth() + pad, gui.getShape().getHeight() + pad);
 		p = p1 - p2;
 	}
-	// to window bottom-left
 #else
+	// to bottom-left
 	{
 		p = glm::vec2(pad, ofGetHeight() - gui.getShape().getHeight() - pad);
 	}
@@ -163,7 +163,7 @@ bool ofApp::loadModel(string path) {
 	// must be applied before draw!
 	//model.setPosition(0, 2, 0);
 	float s = 0.01f;
-	model.setScale(s,s,s);
+	model.setScale(s, s, s);
 	//model.setRotation(0, 90, 1, 0, 0);
 
 	// Create the vector of ofVboMesh's
@@ -229,7 +229,7 @@ void ofApp::drawGui() {
 
 	//--
 
-	gui.draw();
+	if (pbr.bGui_ofxGui) gui.draw();
 }
 
 //--------------------------------------------------------------
@@ -287,7 +287,7 @@ void ofApp::drawMyScene() {
 		ofScale(s * 2.f);
 		y += 1;
 		ofTranslate(0, y, 0);
-		
+
 		// Model transforms
 		// apply before draw!
 		//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);

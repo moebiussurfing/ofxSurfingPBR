@@ -4,36 +4,6 @@ ofxSurfingPBR::ofxSurfingPBR() {
 	ofLogNotice("ofxSurfingPBR") << "constructor()";
 
 	ofAddListener(ofEvents().update, this, &ofxSurfingPBR::update);
-
-	sHelp = "";
-	//sHelp += " \n";
-	sHelp += " \n";
-	sHelp += "HELP\n";
-	sHelp += "ofxSurfingPBR\n";
-	sHelp += "\n";
-	sHelp += "KEYS\n";
-	sHelp += "\n";
-	sHelp += "h Help\n";
-	sHelp += "d Debug\n";
-	sHelp += "g Gui\n";
-	sHelp += "G ofxGui\n";
-	sHelp += "p Draw Plane\n";
-	sHelp += "c Draw CubeMap\n";
-	sHelp += "s Draw Shadow \n";
-	sHelp += "b Draw BgAlt\n";
-	sHelp += "f FullScreen\n";
-	sHelp += "q Square/1080\n";
-	sHelp += "\n";
-	sHelp += "MATERIAL\n";
-	sHelp += "HELPERS\n";
-	sHelp += "\n";
-	sHelp += "F1 Reset Material\n";
-	sHelp += "F2 Random Material\n";
-	sHelp += "F3 Random Settings\n";
-	sHelp += "F4 Random ColorGlobal\n";
-	sHelp += "F5 Random Colors\n";
-	sHelp += "F6 Random ColorsAlpha\n";
-	sHelp += "F7 Random Alphas";
 }
 
 //--------------------------------------------------------------
@@ -42,6 +12,49 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 
 	ofRemoveListener(ofEvents().update, this, &ofxSurfingPBR::update);
 	ofRemoveListener(parameters.parameterChangedE(), this, &ofxSurfingPBR::Changed);
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::buildHelpInfo() {
+
+	ofLogNotice("ofxSurfingPBR") << "buildHelpInfo()";
+
+	sHelp = "";
+	sHelp += "HELP\n";
+	sHelp += "ofxSurfingPBR\n";
+	sHelp += "\n";
+	sHelp += "KEYS\n";
+	sHelp += "\n";
+	sHelp += "h Help\n";
+	sHelp += "l Help Layout\n";
+	sHelp += "d Debug\n";
+	sHelp += "g Gui\n";
+	sHelp += "G ofxGui\n";
+	sHelp += "\n";
+	sHelp += "DRAW\n";
+	sHelp += "p Plane\n";
+	sHelp += "s Shadow \n";
+	sHelp += "c CubeMap\n";
+	sHelp += "b BgAlt\n";
+	sHelp += "\n";
+	sHelp += "WINDOW\n";
+	sHelp += "f FullScreen\n";
+	sHelp += "q Square/1080\n";
+	sHelp += "\n";
+	sHelp += "HELPERS\n";
+	sHelp += "\n";
+	sHelp += "RESET ";
+	sHelp += "MATERIAL\n";
+	sHelp += "F1 Full\n";
+	sHelp += "\n";
+	sHelp += "RANDOM ";
+	sHelp += "MATERIAL\n";
+	sHelp += "F2 Full\n";
+	sHelp += "F3 Settings\n";
+	sHelp += "F4 ColorGlobalNoAlpha\n";
+	sHelp += "F5 ColorsNoAlpha\n";
+	sHelp += "F6 ColorsAlpha\n";
+	sHelp += "F7 Alphas";
 }
 
 //--------------------------------------------------------------
@@ -392,9 +405,11 @@ void ofxSurfingPBR::setup() {
 	//--
 
 	// reset
-	doResetAll(true); //except material
+	doResetAll(true); //except material top avoid do it twice
 
 	setupGui();
+
+	buildHelpInfo();
 
 	load();
 }
@@ -402,7 +417,7 @@ void ofxSurfingPBR::setup() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::setupGui() {
 	gui.setup(parameters);
-	
+
 	gui.setPosition(5, 5);
 
 	//minimize
@@ -523,33 +538,7 @@ void ofxSurfingPBR::drawGui() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawHelp() {
-	int x, y, w, h;
-	int pad = 0;
-	int ox;
-	int oy;
-
-	ofBitmapFont bf;
-	auto bb = bf.getBoundingBox(sHelp, 0, 0);
-
-	if (0) {
-		// left-bottom
-		x = pad;
-		y = ofGetHeight() - bb.getHeight() - pad;
-		ox = 4;
-		oy = -6;
-	} else {
-		// top-right
-		x = ofGetWidth() - bb.getWidth() - pad;
-		y = pad;
-		ox = -4;
-		oy = 14;
-	}
-
-	//fix offsets
-	x += ox;
-	y += oy;
-
-	ofDrawBitmapStringHighlight(sHelp, x, y);
+	ofxSurfing::ofDrawBitmapStringBox(sHelp, helpLayout);
 }
 
 //--------------------------------------------------------------
@@ -557,49 +546,54 @@ void ofxSurfingPBR::drawDebug() {
 
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	if (bShaderToPlane || bDisplaceToMaterial) {
-		int x, y, w, h;
-		int pad = 0;
+		// layout is responsive
 
-		//fix offsets
-		int ox = 4;
-		int oy = 3;
+		int x, y, w, h;
 
 		float r = img.getHeight() / img.getWidth();
 
 		// info
 		string s = "";
-		s += " \n";
+		//s += " \n";
 		s += "DEBUG\nSHADER\n\n";
 		s += "PLANE\n";
-		s += "Size: " + ofToString(plane.getWidth(), 0) + "," + ofToString(plane.getHeight(), 0) + "\n";
-		s += "Reso: " + ofToString(plane.getResolution().x) + "," + ofToString(plane.getResolution().y) + "\n\n";
+		s += "Size: ";
+		s += ofToString(plane.getWidth(), 0) + "," + ofToString(plane.getHeight(), 0) + "\n";
+		s += "Reso: ";
+		s += ofToString(plane.getResolution().x) + "," + ofToString(plane.getResolution().y) + "\n\n";
 		s += "IMAGE\n";
-		s += "Size: " + ofToString(img.getWidth()) + "," + ofToString(img.getHeight());
-		s += "\n\n" + ofToString(ofGetFrameRate(), 1);
-		s += " FPS";
+		s += "Size: ";
+		s += ofToString(img.getWidth()) + "," + ofToString(img.getHeight()) + "\n\n";
+		s += ofToString(ofGetFrameRate(), 1) + " FPS";
 
-		ofBitmapFont bf;
-		auto bb = bf.getBoundingBox(s, 0, 0);
+		ofxSurfing::SURFING_LAYOUT layout;
+		bool bflip = helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
+		if (!bflip)
+			layout = ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
+		else //flip to avoid overlap
+			layout = ofxSurfing::SURFING_LAYOUT_TOP_RIGHT;
+		ofxSurfing::ofDrawBitmapStringBox(s, layout);
 
-		// bottom-right
-		x = ofGetWidth() - bb.getWidth() - pad;
-		y = ofGetHeight() - bb.getHeight() - pad;
-
-		//fix offsets
-		x -= 4;
-		y += 7;
-
-		ofDrawBitmapStringHighlight(s, x, y);
+		auto bb = ofxSurfing::getBBBitmapStringBoxToLayout(s, layout);
 
 		// image preview
-		w = bb.getWidth() + 2 * ox;
-		h = w * r;
-		x = x + bb.getTopLeft().x - ox;
-		y = y + bb.getTopLeft().y - h - oy;
+		if (!bflip) {
+			w = bb.getWidth();
+			h = w * r;
+			x = bb.getTopLeft().x;
+			y = bb.getTopLeft().y - h;
+		} else {
+			w = bb.getWidth();
+			h = w * r;
+			x = bb.getBottomLeft().x;
+			y = bb.getBottomLeft().y;
+		}
 		img.draw(x, y, w, h);
 
-		int lw = 2;
-		ofRectangle rbb = ofRectangle(x + lw / 2, y + lw / 2, w - lw / 2, h - lw / 2);
+		// border rect
+		float lw = 2.f;
+		//ofRectangle rbb = ofRectangle(x, y, w, h);
+		ofRectangle rbb = ofRectangle(x + lw / 2, y + lw / 2, w - lw / 2, h - lw / 2); //small fix
 		ofPushStyle();
 		ofNoFill();
 		ofSetColor(0, 255);
@@ -618,14 +612,7 @@ void ofxSurfingPBR::drawDebug() {
 		float fps = ofGetFrameRate();
 		string s = ofToString(fps, 1);
 		s += " FPS";
-		ofBitmapFont bf;
-		auto bb = bf.getBoundingBox(s, 0, 0);
-		//fix offsets
-		int ox = -4;
-		int oy = 8;
-		int x = ofGetWindowWidth() - bb.getWidth() + ox;
-		int y = ofGetWindowHeight() - bb.getHeight() + oy;
-		ofDrawBitmapStringHighlight(s, x, y);
+		ofxSurfing::ofDrawBitmapStringBox(s, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
 	}
 }
 
@@ -1030,6 +1017,7 @@ void ofxSurfingPBR::load() {
 	ofLogNotice("ofxSurfingPBR") << "Load: " << path;
 
 #ifdef SURFING__USE_AUTOSAVE_ENGINE
+	// Pause autosave
 	// disables autosave
 	// to avoid save after loading the settings,
 	// as the params will change and would trig the autosave!
@@ -1046,6 +1034,7 @@ void ofxSurfingPBR::load() {
 	}
 
 #ifdef SURFING__USE_AUTOSAVE_ENGINE
+	// Restart autosave
 	if (bAutoSave_) {
 		bAutoSave.setWithoutEventNotifications(true); //restore state
 	}
@@ -1205,6 +1194,11 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (!bKeys) return;
 
 	if (key == 'h') bHelp = !bHelp;
+	if (key == 'l') {
+		helpLayout++;
+		helpLayout = helpLayout % ((int)ofxSurfing::SURFING_LAYOUT_AMOUNT + 1);
+		buildHelpInfo();
+	}
 	if (key == 'd') bDebug = !bDebug;
 	if (key == 'g') bGui = !bGui;
 	if (key == 'G') bGui_ofxGui = !bGui_ofxGui;
