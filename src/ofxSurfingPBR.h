@@ -47,8 +47,8 @@ and @paolo-scoppola | https://github.com/paolo-scoppola.
 
 #include "SurfingHelpersLite.h"
 #include "SurfingMaterial.h"
-#include "ofxGui.h"
 #include "ofxCameraSaveLoad.h"
+#include "ofxGui.h"
 
 #include <functional>
 using callback_t = std::function<void()>;
@@ -78,6 +78,7 @@ public:
 private:
 	void setupParams();
 	void setupGui();
+	void refreshGui();
 	void update();
 	void update(ofEventArgs & args);
 
@@ -107,15 +108,20 @@ private:
 public:
 	void setCameraPtr(ofCamera * camera_) {
 		camera = camera_;
+
+		//FORCED
+		camera->setFarClip(SURFING__SCENE_CAMERA_FAR);
 	}
 
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 private:
 	ofParameterGroup cameraParams;
 	ofParameter<bool> bEnableCameraAutosave;
 	ofParameter<void> saveCamera;
 	ofParameter<void> loadCamera;
+	ofParameter<void> resetCamera;
 	string pathCamera = "ofxSurfingPBR_CameraSettings.ini";
-
+#endif
 
 public:
 	ofParameterGroup parameters; //main container to expose to gui and to handle settings
@@ -146,6 +152,7 @@ public:
 
 	ofParameterGroup planeParams;
 	ofParameterGroup planeSettingsParams;
+	ofParameterGroup planeColorsParams;
 	ofParameterGroup planeTransformParams;
 	ofParameterGroup lightParams;
 	ofParameterGroup shadowParams;
@@ -194,6 +201,12 @@ public:
 		ofRectangle bb = r1.getUnion(r2);
 		return bb;
 	};
+	const bool isVisibleDebugShader() {
+		if (bDebug && (bShaderToPlane || bDisplaceToMaterial))
+			return true;
+		else
+			return false;
+	}
 
 	//--
 
@@ -282,7 +295,7 @@ private:
 	vector<ofParameterGroup> history;
 	ofParameter<void> resetHistory;
 	ofParameter<int> indexHistory;
-	
+
 	//--
 
 private:
@@ -295,7 +308,9 @@ public:
 	bool getSettingsFileFound(); //to check if the app is opened for the first time
 	// that allows to force customize the scene from ofApp at startup!
 
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	SurfingAutoSaver autoSaver;
+#endif
 
 	//some app flow controls
 	//bool bDoneSetup = false;

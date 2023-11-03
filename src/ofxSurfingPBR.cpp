@@ -108,7 +108,7 @@ void ofxSurfingPBR::setupParams() {
 	testSceneParams.setName("TestScene");
 	scaleTestScene.set("Scale", 0, 0, 1);
 	positionTestScene.set("yPosition", 0, -1, 1);
-	resetTestScene.set("Reset SceneTest");
+	resetTestScene.set("Reset TestScene");
 	testSceneParams.add(scaleTestScene);
 	testSceneParams.add(positionTestScene);
 	testSceneParams.add(resetTestScene);
@@ -117,9 +117,11 @@ void ofxSurfingPBR::setupParams() {
 	bEnableCameraAutosave.set("Autosave", true);
 	saveCamera.set("Save");
 	loadCamera.set("Load");
+	resetCamera.set("Reset");
 	cameraParams.add(bEnableCameraAutosave);
 	cameraParams.add(saveCamera);
 	cameraParams.add(loadCamera);
+	cameraParams.add(resetCamera);
 
 	//--
 
@@ -128,6 +130,7 @@ void ofxSurfingPBR::setupParams() {
 	planeParams.setName("Plane");
 	planeTransformParams.setName("Transform");
 	planeSettingsParams.setName("Settings");
+	planeColorsParams.setName("Colors");
 	lightParams.setName("Light");
 	shadowParams.setName("Shadow");
 	internalParams.setName("Internal");
@@ -169,22 +172,25 @@ void ofxSurfingPBR::setupParams() {
 
 	planeTransformParams.add(planePosition);
 	planeTransformParams.add(planeRotation);
-	planeTransformParams.add(bPlaneInfinite);
 	planeTransformParams.add(planeSize);
+	planeTransformParams.add(bPlaneInfinite);
 	planeTransformParams.add(planeResolution);
 	planeTransformParams.add(resetPlaneTransform);
 	planeParams.add(planeTransformParams);
 
 	planeParams.add(planeGlobalColor);
 	planeSettingsParams.add(planeShiness);
-	planeSettingsParams.add(planeDiffuseColor);
-	planeSettingsParams.add(planeSpecularColor);
+	//TODO: add more..
+	planeColorsParams.add(planeDiffuseColor);
+	planeColorsParams.add(planeSpecularColor);
+
+	planeParams.add(planeSettingsParams);
+	planeParams.add(planeColorsParams);
 
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	setupParamsDisplace();
 #endif
 
-	planeParams.add(planeSettingsParams);
 	planeParams.add(resetPlane);
 
 	//--
@@ -231,16 +237,19 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	internalParams.add(testSceneParams);
+	parameters.add(testSceneParams);
+
 	internalParams.add(bDebug);
 	internalParams.add(bHelp);
 	internalParams.add(bKeys);
 
+	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	// autosaver
 	callback_t f = std::bind(&ofxSurfingPBR::save, this);
 	//register the local save function to be called when saving is required.
 	autoSaver.setFunctionSaver(f);
 	internalParams.add(autoSaver.bEnable);
+#endif
 
 	//TODO
 	// History undo/redo
@@ -250,9 +259,8 @@ void ofxSurfingPBR::setupParams() {
 	historyParams.add(resetHistory);
 	historyParams.add(indexHistory);
 
-	parameters.add(internalParams);
-
 	parameters.add(cameraParams);
+	parameters.add(internalParams);
 
 	parameters.add(resetAll);
 
@@ -362,12 +370,12 @@ void ofxSurfingPBR::setupParamsDisplace() {
 	displaceMaterialParams.add(resetDisplace);
 
 	displacersParams.setName("Displacers");
-	displacersParams.add(bShaderToPlane);
 	displacersParams.add(bDisplaceToMaterial);
+	displacersParams.add(bShaderToPlane);
 	displacersParams.add(noiseParams);
 	displacersParams.add(displaceMaterialParams);
 
-	planeSettingsParams.add(displacersParams);
+	planeParams.add(displacersParams);
 }
 
 //--------------------------------------------------------------
@@ -532,6 +540,11 @@ void ofxSurfingPBR::setupGui() {
 
 	gui.setPosition(SURFING__OFXGUI_PAD_X_TO_BORDER, SURFING__OFXGUI_PAD_Y_TO_BORDER);
 
+	refreshGui();
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::refreshGui() {
 	// minimize sub panels
 
 	gui.getGroup(planeParams.getName())
@@ -540,11 +553,15 @@ void ofxSurfingPBR::setupGui() {
 	gui.getGroup(planeParams.getName())
 		.getGroup(planeSettingsParams.getName())
 		.minimize();
+	gui.getGroup(planeParams.getName())
+		.getGroup(planeColorsParams.getName())
+		.minimize();
 	gui.getGroup(lightParams.getName()).minimize();
 	gui.getGroup(shadowParams.getName()).minimize();
-	gui.getGroup(internalParams.getName()).minimize();
-	gui.getGroup(cameraParams.getName()).minimize();
 	gui.getGroup(backgroundParams.getName()).minimize();
+	gui.getGroup(testSceneParams.getName()).minimize();
+	gui.getGroup(cameraParams.getName()).minimize();
+	gui.getGroup(internalParams.getName()).minimize();
 
 #ifdef SURFING__USE_CUBE_MAP
 	gui.getGroup(cubeMapParams.getName()).minimize();
@@ -552,16 +569,13 @@ void ofxSurfingPBR::setupGui() {
 
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	gui.getGroup(planeParams.getName())
-		.getGroup(planeSettingsParams.getName())
 		.getGroup(displacersParams.getName())
 		.minimize();
 	gui.getGroup(planeParams.getName())
-		.getGroup(planeSettingsParams.getName())
 		.getGroup(displacersParams.getName())
 		.getGroup(displaceMaterialParams.getName())
 		.minimize();
 	gui.getGroup(planeParams.getName())
-		.getGroup(planeSettingsParams.getName())
 		.getGroup(displacersParams.getName())
 		.getGroup(noiseParams.getName())
 		.minimize();
@@ -728,13 +742,12 @@ void ofxSurfingPBR::drawDebug() {
 #endif
 	{
 		string s = "";
-		//s += "WINDOW\n";
 		s += ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight());
 		s += "\n";
 		float fps = ofGetFrameRate();
 		s += ofToString(fps, 1);
 		s += " FPS\n";
-		ofxSurfing::ofDrawBitmapStringBox(s, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
+		ofxSurfing::ofDrawBitmapStringBox(s, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
 	}
 }
 
@@ -911,7 +924,9 @@ void ofxSurfingPBR::ChangedPlane(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedPlane " << name << ": " << e;
 
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
+#endif
 
 	//--
 
@@ -974,7 +989,9 @@ void ofxSurfingPBR::ChangedLight(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedLight " << name << ": " << e;
 
+	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
+#endif
 
 	//--
 
@@ -990,7 +1007,9 @@ void ofxSurfingPBR::ChangedShadow(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedShadow " << name << ": " << e;
 
+	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
+#endif
 
 	//--
 
@@ -1012,7 +1031,9 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedInternal " << name << ": " << e;
 
+	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
+#endif
 
 	//--
 
@@ -1029,7 +1050,9 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedCamera " << name << ": " << e;
 
+	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
+#endif
 
 	//--
 
@@ -1037,6 +1060,12 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 		ofxSaveCamera(*camera, pathCamera);
 	} else if (name == loadCamera.getName()) {
 		ofxLoadCamera(*camera, pathCamera);
+	} else if (name == resetCamera.getName()) {
+		ofEasyCam * easyCam = dynamic_cast<ofEasyCam *>(camera);
+		if (easyCam != nullptr) {
+			easyCam->reset();
+			camera->setFarClip(SURFING__SCENE_CAMERA_FAR);
+		}
 	}
 }
 
@@ -1047,7 +1076,9 @@ void ofxSurfingPBR::ChangedBg(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedBg " << name << ": " << e;
 
+	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
+#endif
 
 	//--
 
@@ -1068,7 +1099,9 @@ void ofxSurfingPBR::ChangedDisplacers(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedDisplacers " << name << ": " << e;
 
+	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
+	#endif
 
 	//--
 
@@ -1104,7 +1137,9 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedCubeMaps " << name << ": " << e;
 
+	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
+	#endif
 
 	//--
 
@@ -1240,7 +1275,9 @@ void ofxSurfingPBR::save() {
 void ofxSurfingPBR::load() {
 	ofLogNotice("ofxSurfingPBR") << "Load: " << path;
 
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.pause();
+#endif
 
 	// Load
 	{
@@ -1248,7 +1285,9 @@ void ofxSurfingPBR::load() {
 		ofxSurfing::loadSettings(parameters, path);
 	}
 
+	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.start();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -1505,6 +1544,8 @@ void ofxSurfingPBR::doResetAll(bool bExcludeMaterial) {
 	if (!bExcludeMaterial) material.doResetMaterial();
 
 	resetTestScene.trigger();
+
+	resetCamera.trigger();
 }
 
 //--------------------------------------------------------------

@@ -77,10 +77,10 @@ void SurfingMaterial::setupParams() {
 
 	//--
 
-	parameters.add(settingsParams);
-
 	parameters.add(globalColor.set("Global Color", ofFloatColor::white));
 	parameters.add(globalAlpha.set("Global Alpha", 1.0f, 0.0f, 1.0f));
+
+	parameters.add(settingsParams);
 
 	parameters.add(colorParams);
 	parameters.add(coatParams);

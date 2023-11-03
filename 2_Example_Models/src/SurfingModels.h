@@ -31,7 +31,7 @@ public:
 
 		fileName.setSerializable(false);
 
-		parameters.setName("SurfingModels");
+		parameters.setName("MODELS");
 		parameters.add(indexFile);
 		parameters.add(fileName);
 		parameters.add(previousBang);
@@ -60,9 +60,10 @@ public:
 	}
 
 	void setupDir(string path = "") {
+
 		if (path == "") path = "models/";
 		// bin/data/models/
-		
+
 		pathModels = path;
 
 		dir.listDir(path);
@@ -75,6 +76,25 @@ public:
 		dir.sort();
 
 		indexFile.setMax(dir.size() - 1);
+	}
+
+	const string getFilename() {
+		string s = "NONE";
+		if (indexFile < dir.size()) s = dir.getName(indexFile.get());
+		return s;
+	}
+
+	const string getFilenamesList() {
+		string s = "";
+		for (size_t i = 0; i < dir.size(); i++) {
+			bool b = (i == indexFile);
+			s += b ? "* " : "  ";
+			s += ofToString(i);
+			s += " ";
+			s += dir.getName(i);
+			s += "\n";
+		}
+		return s;
 	}
 
 	void next() {
@@ -103,20 +123,19 @@ private:
 public:
 	ofParameterGroup parameters;
 
-private:
 	ofParameter<string> fileName { "Name", "" };
 	ofParameter<int> indexFile { "File", 0, 0, 0 };
 	ofParameter<void> nextBang { "Next" };
 	ofParameter<void> previousBang { "Previous" };
 
-	////TODO
+	////TODO. store each model ofNode/transforms/gizmo
 	//ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
 	//ofParameter<float> yPos { "PosY", 0, -1.f, 1.f };
 
 public:
 	ofParameter<void> loadBang { "LoadBang" };
 	// to be listened from parent the scope!
-	// then will load the model getting the path: 
+	// then will load the model getting the path:
 	// pathModel
 
 private:
@@ -125,8 +144,8 @@ private:
 	ofEventListener listenerPrevious;
 
 public:
-	string pathModel = "";//to get the path for the model. ready to load!
-	string pathModels = "";//for display only
+	string pathModel = ""; //to get the path for the model. ready to load!
+	string pathModels = ""; //for display only
 };
 
 SurfingModels::SurfingModels() {
@@ -134,7 +153,6 @@ SurfingModels::SurfingModels() {
 
 SurfingModels::~SurfingModels() {
 }
-
 
 /*
 

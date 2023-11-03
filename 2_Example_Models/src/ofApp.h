@@ -19,7 +19,7 @@ ofMesh* mesh = &helper.cachedMesh;
 #include "ofxAssimpModelLoader.h"
 
 #ifdef SURFING__USE_FILE_BROWSER
-#include "SurfingModels.h"
+	#include "SurfingModels.h"
 #endif
 
 class ofApp : public ofBaseApp {
@@ -29,8 +29,7 @@ public:
 	void keyPressed(int key);
 	void exit();
 
-	void setupGui();
-	void refreshGui();
+	void setupParams();
 	void drawGui();
 
 	ofEasyCam camera;
@@ -55,25 +54,33 @@ public:
 
 	// Gui
 	ofxPanel gui;
+	void refreshGui(); //refresh gui for minimize/collapse workflow
+	
+	ofParameterGroup parameters;
+	string path = "ofApp.json";
+
+	// Params
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
-	ofParameter<float> yPos { "PosY", 0, -1.f, 1.f };
+	ofParameter<float> yPos { "Pos y", 0, -1.f, 1.f };
 	ofParameter<bool> bRotate { "Rotate", false };
 	ofParameter<float> speed { "Speed", 0.5f, 0, 1 };
 	ofParameter<int> indexScene { "Scene", 0, 0, 2 };
 	ofEventListener listenerIndexScene;
 	ofParameter<void> reset { "Reset" };
 	ofEventListener listenerReset;
-	ofParameter<void> next{ "Next" };
+	ofParameter<void> next { "Next" };
 	ofEventListener listenerNext;
-	void nextScene();
 
 	ofParameter<bool> bHelp { "Help", false };
 	string sHelp;
-	void buildHelp();
+	void buildHelp(); //refresh help info to display updated
+
+	void nextScene();
 
 	// Models files browser
 #ifdef SURFING__USE_FILE_BROWSER
 	SurfingModels surfingModels;
 	ofEventListener listenerLoadModel;
+	ofEventListener listenerIndexModel;
 #endif
 };

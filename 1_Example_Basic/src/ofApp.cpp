@@ -10,6 +10,8 @@ void ofApp::setup() {
 	//ofxSurfing::setWindowAtMonitor(1,true); // Move to right monitor / portrait.
 #endif
 
+	camera.setFarClip(100000);
+
 	//--
 
 	pbr.setup();
@@ -20,28 +22,6 @@ void ofApp::setup() {
 	// Pass the scene renderer to be processed
 	callback_t f = std::bind(&ofApp::renderScene, this);
 	pbr.setFunctionRenderScene(f);
-
-	//--
-
-	// Optional
-
-	// Set log level
-	if (0) pbr.setLogLevel(OF_LOG_VERBOSE);
-
-		//TODO:
-		// Check if it's the first time opening the App
-#if 0
-	if (!pbr.getSettingsFileFound()) {
-		ofLogWarning() << "ofxSurfingPBR Settings file not found!";
-
-		// must fix crashing on callback..
-		// Force startup settings
-		pbr.bDrawBgAlt.set(true);
-		pbr.bgAltColor.setWithoutEventNotifications(ofFloatColor::orange);
-		pbr.planeGlobalColor.setWithoutEventNotifications(ofFloatColor::red);
-		pbr.material.globalColor.setWithoutEventNotifications(ofFloatColor::yellow);
-	}
-#endif
 }
 
 //--------------------------------------------------------------
