@@ -67,6 +67,7 @@ public:
 	void drawHelp();
 	void exit();
 	void keyPressed(int key);
+	void windowResized(ofResizeEventArgs & e);
 
 	void setLogLevel(ofLogLevel logLevel);
 
@@ -84,6 +85,8 @@ private:
 	void ChangedLight(ofAbstractParameter & e);
 	void ChangedShadow(ofAbstractParameter & e);
 	void ChangedInternal(ofAbstractParameter & e);
+	void ChangedCamera(ofAbstractParameter & e);
+	void ChangedBg(ofAbstractParameter & e);
 
 #ifdef SURFING__USE_CUBE_MAP
 	void ChangedCubeMaps(ofAbstractParameter & e);
@@ -103,8 +106,12 @@ public:
 	}
 
 private:
+	ofParameterGroup cameraParams;
+	ofParameter<bool> bEnableCameraAutosave;
+	ofParameter<void> saveCamera;
+	ofParameter<void> loadCamera;
 	string pathCamera = "ofxSurfingPBR_CameraSettings.ini";
-	bool bEnableCameraSettings = true;
+
 
 public:
 	ofParameterGroup parameters; //main container to expose to gui and to handle settings
@@ -128,7 +135,7 @@ public:
 
 	ofParameter<bool> bHelp;
 	string sHelp;
-	void buildHelpInfo();
+	void buildHelp();
 	int helpLayout = 2; //top-right
 
 	ofParameter<bool> bDrawPlane;
@@ -232,6 +239,8 @@ public:
 	ofParameter<string> cubeMapModeName;
 	ofParameter<float> cubeMapprefilterRoughness;
 	ofParameter<bool> bDrawCubeMap;
+
+	ofParameterGroup backgroundParams;
 	ofParameter<ofFloatColor> bgAltColor;
 	ofParameter<bool> bDrawBgAlt;
 

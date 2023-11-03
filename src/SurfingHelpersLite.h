@@ -418,7 +418,7 @@ inline void ofDrawBitmapStringBox(string s, int layout /* = 0*/) {
 		if (key == 'l') {
 			helpLayout++;
 			helpLayout = helpLayout % ((int)ofxSurfing::SURFING_LAYOUT_AMOUNT + 1);
-			buildHelpInfo();
+			buildHelp();
 		}
 	}
 */

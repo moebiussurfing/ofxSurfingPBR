@@ -58,10 +58,10 @@ void SurfingMaterial::setupParams() {
 	settingsParams.add(metallic.set("Metallic", 0.0, 0.0, 1.0));
 	settingsParams.add(reflectance.set("Reflectance", 0.0, 0.0, 1.0));
 
-	colorParams.add(ambientColor.set("Ambient Color", ofColor::white));
-	colorParams.add(specularColor.set("Specular Color", ofColor::white));
-	colorParams.add(diffuseColor.set("Diffuse Color", ofColor::white));
-	colorParams.add(emissiveColor.set("Emissive Color", ofColor::white));
+	colorParams.add(ambientColor.set("Ambient Color", ofFloatColor::white));
+	colorParams.add(specularColor.set("Specular Color", ofFloatColor::white));
+	colorParams.add(diffuseColor.set("Diffuse Color", ofFloatColor::white));
+	colorParams.add(emissiveColor.set("Emissive Color", ofFloatColor::white));
 
 	coatParams.add(bClearCoat.set("Clear Coat", false));
 	coatParams.add(clearCoatRoughness.set("Clear Coat Roughness", 0.0001, 0.0001, 10.0));
@@ -79,8 +79,8 @@ void SurfingMaterial::setupParams() {
 
 	parameters.add(settingsParams);
 
+	parameters.add(globalColor.set("Global Color", ofFloatColor::white));
 	parameters.add(globalAlpha.set("Global Alpha", 1.0f, 0.0f, 1.0f));
-	parameters.add(globalColor.set("Global Color", ofColor::white));
 
 	parameters.add(colorParams);
 	parameters.add(coatParams);
@@ -97,9 +97,11 @@ void SurfingMaterial::setupGui() {
 
 	gui.setup(parameters);
 
-	//minimize
+	// minimize sub panels
+
 	gui.getGroup(coatParams.getName()).minimize();
 	gui.getGroup(helpersParams.getName()).minimize();
+	gui.getGroup(colorParams.getName()).minimize();
 }
 
 //--------------------------------------------------------------
