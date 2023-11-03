@@ -199,7 +199,8 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	lightAmbientColor.set("Light Ambient Color", ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
+	lightAmbientColor.set("Light Ambient Color",
+		ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
 	float u = 4 * SURFING__SCENE_SIZE_UNIT;
 	lightParams.add(lightX.set("X", 0.0f, -u, u));
 	lightParams.add(lightY.set("Y", 0.0f, -u, u));
@@ -1514,9 +1515,9 @@ void ofxSurfingPBR::setLogLevel(ofLogLevel logLevel) {
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetLight() {
 	lightX = 0;
-	lightY = SURFING__SCENE_SIZE_UNIT;
+	lightY = 1.25f * SURFING__SCENE_SIZE_UNIT;
 	lightZ = 0;
-	lightAmbientColor.set(ofFloatColor(1));
+	lightAmbientColor.set(ofFloatColor(1.f, 1.f));
 }
 
 //--------------------------------------------------------------

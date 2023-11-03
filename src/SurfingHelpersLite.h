@@ -55,6 +55,7 @@ inline bool loadSettings(ofParameterGroup & parameters, string path) {
 
 	return b;
 }
+
 // Save
 //--------------------------------------------------------------
 inline bool saveSettings(ofParameterGroup & parameters, string path) {
@@ -90,6 +91,7 @@ inline string getProjectName() {
 	string s = (path.parent_path().parent_path().filename()).string();
 	return s;
 }
+
 //--------------------------------------------------------------
 inline void setWindowTitleAsProjectName() {
 	ofSetWindowTitle(getProjectName());

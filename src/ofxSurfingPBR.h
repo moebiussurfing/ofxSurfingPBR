@@ -22,6 +22,8 @@
 
 	TODO
 
+	- fix plane light not working
+		- check pipeline / enable arbTex from the example!
 	- add undo history/browser..
 		store each group on a vector to browse back
 	- customize share plane divisions and img size.
@@ -87,7 +89,6 @@ private:
 	//--
 
 private:
-	//void Changed(ofAbstractParameter & e);
 	void ChangedPlane(ofAbstractParameter & e);
 	void ChangedLight(ofAbstractParameter & e);
 	void ChangedShadow(ofAbstractParameter & e);
@@ -103,6 +104,12 @@ private:
 	void ChangedDisplacers(ofAbstractParameter & e);
 #endif
 
+	//Some app flow controls
+	//Help fixes some callback crashes at startup
+	//bool bDoneSetup = false;
+	bool bDoneSetupParams = false;
+	bool bDoneStartup = false;
+
 	ofEventListener listenerResetAll;
 
 	//--
@@ -115,7 +122,8 @@ public:
 		camera->setFarClip(SURFING__SCENE_CAMERA_FAR);
 	}
 
-	// For getting camera from our parent class/ofApp
+	// For getting camera from the parent class/ofApp
+	// (TODO: Currently is not required bc the cam is instantiated on there!)
 	ofCamera * getOfCameraPtr() {
 		if (camera != nullptr)
 			return camera;
@@ -329,12 +337,6 @@ public:
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	SurfingAutoSaver autoSaver;
 #endif
-
-	//Some app flow controls
-	//Help fixes some callback crashes at startup
-	//bool bDoneSetup = false;
-	bool bDoneSetupParams = false;
-	bool bDoneStartup = false;
 
 	//--
 
