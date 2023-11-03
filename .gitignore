@@ -584,3 +584,4 @@ MigrationBackup/
 .ionide/
 
 1_Example_Basic/bin/data/cubemaps/WinterForest_8k.jpg
+1_Example_Basic/bin/data/CamSettings

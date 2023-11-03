@@ -4,9 +4,9 @@
 void ofApp::setup() {
 	ofxSurfing::setWindowTitleAsProjectName(); // Name the window
 
-#if 0
-	//ofxSurfing::setWindowAtMonitor(); // Center monitor / landscape.
+#if 1
 	ofxSurfing::setWindowAtMonitor(-1); // Move to left monitor / landscape.
+	//ofxSurfing::setWindowAtMonitor(); // Center monitor / landscape.
 	//ofxSurfing::setWindowAtMonitor(1,true); // Move to right monitor / portrait.
 #endif
 

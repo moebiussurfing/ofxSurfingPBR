@@ -117,14 +117,17 @@ public:
 
 	// For getting camera from our parent class/ofApp
 	ofCamera * getOfCameraPtr() {
-		if (camera != nullptr) return camera;
-		else return nullptr;
-
+		if (camera != nullptr)
+			return camera;
+		else
+			return nullptr;
 	}
 	ofEasyCam * getOfEasyCamPtr() {
 		ofEasyCam * easyCam = dynamic_cast<ofEasyCam *>(camera);
-		if (easyCam != nullptr) return easyCam;
-		else return nullptr;
+		if (easyCam != nullptr)
+			return easyCam;
+		else
+			return nullptr;
 	}
 
 private:
@@ -327,11 +330,11 @@ public:
 	SurfingAutoSaver autoSaver;
 #endif
 
-	//some app flow controls
+	//Some app flow controls
+	//Help fixes some callback crashes at startup
 	//bool bDoneSetup = false;
 	bool bDoneSetupParams = false;
-	bool bDoneStartup = false; //fixes some callback crashes at startup
-	//bool bEnableCallbacks = true;
+	bool bDoneStartup = false;
 
 	//--
 
@@ -341,6 +344,7 @@ private:
 	bool bLoadedShaderPlane = false;
 	void setupShaderPlane();
 	ofFloatImage img;
+	ofParameter<bool> bLimitImage;
 
 	ofParameterGroup displacersParams;
 	ofParameterGroup displaceMaterialParams;

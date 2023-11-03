@@ -4,13 +4,11 @@
 void ofApp::setup() {
 	ofxSurfing::setWindowTitleAsProjectName(); // Name the window
 
-#if 1
+#if 0
 	//ofxSurfing::setWindowAtMonitor(); // Center monitor / landscape.
 	ofxSurfing::setWindowAtMonitor(-1); // Move to left monitor / landscape.
 	//ofxSurfing::setWindowAtMonitor(1,true); // Move to right monitor / portrait.
 #endif
-
-	camera.setFarClip(100000);
 
 	//--
 

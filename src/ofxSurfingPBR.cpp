@@ -55,40 +55,44 @@ void ofxSurfingPBR::buildHelp() {
 	sHelp += "HELP\n";
 	sHelp += "ofxSurfingPBR\n";
 	sHelp += "\n";
-	sHelp += "KEYS\n";
+	sHelp += "KEYS [" + string(bKeys ? "ON" : "OFF") + "]\n";
 	sHelp += "\n";
-	sHelp += "h Help\n";
-	sHelp += "l Help Layout\n";
-	sHelp += "d Debug\n";
-	sHelp += "g Gui\n";
-	sHelp += "G ofxGui\n";
-	sHelp += "\n";
-	sHelp += "DRAW\n";
-	sHelp += "p Plane\n";
-	sHelp += "s Shadow \n";
-	sHelp += "c CubeMap\n";
-	sHelp += "b BgAlt\n";
-	sHelp += "\n";
+	if (bKeys) {
+		sHelp += "h Help\n";
+		sHelp += "l Help Layout\n";
+		sHelp += "d Debug\n";
+		sHelp += "g Gui\n";
+		sHelp += "G ofxGui\n";
+		sHelp += "\n";
+		sHelp += "DRAW\n";
+		sHelp += "p Plane\n";
+		sHelp += "s Shadow \n";
+		sHelp += "c CubeMap\n";
+		sHelp += "b BgAlt\n";
+		sHelp += "\n";
+	}
 	sHelp += "WINDOW\n";
 	sHelp += ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + "\n";
-	sHelp += "f FullScreen\n";
-	sHelp += "q Squared\n";
-	sHelp += "\n";
-	sHelp += "HELPERS\n";
-	sHelp += "\n";
-	sHelp += "RESET ";
-	sHelp += "MATERIAL\n";
-	sHelp += "F1 Full\n";
-	sHelp += "\n";
-	sHelp += "RANDOM ";
-	sHelp += "MATERIAL\n";
-	sHelp += "F2 Full\n";
-	sHelp += "F3 Settings\n";
-	sHelp += "F4 ColorGlobalNoAlpha\n";
-	sHelp += "F5 ColorsNoAlpha\n";
-	sHelp += "F6 ColorsAlpha\n";
-	sHelp += "F7 Alphas";
-	sHelp += " \n";
+	if (bKeys) {
+		sHelp += "f FullScreen\n";
+		sHelp += "q Squared\n";
+		sHelp += "\n";
+		sHelp += "HELPERS\n";
+		sHelp += "\n";
+		sHelp += "RESET ";
+		sHelp += "MATERIAL\n";
+		sHelp += "F1 Full\n";
+		sHelp += "\n";
+		sHelp += "RANDOM ";
+		sHelp += "MATERIAL\n";
+		sHelp += "F2 Full\n";
+		sHelp += "F3 Settings\n";
+		sHelp += "F4 ColorGlobalNoAlpha\n";
+		sHelp += "F5 ColorsNoAlpha\n";
+		sHelp += "F6 ColorsAlpha\n";
+		sHelp += "F7 Alphas";
+		sHelp += " \n";
+	}
 	sHelp += " \n";
 }
 
@@ -243,7 +247,7 @@ void ofxSurfingPBR::setupParams() {
 	internalParams.add(bHelp);
 	internalParams.add(bKeys);
 
-	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	// autosaver
 	callback_t f = std::bind(&ofxSurfingPBR::save, this);
 	//register the local save function to be called when saving is required.
@@ -297,17 +301,21 @@ void ofxSurfingPBR::setupParams() {
 void ofxSurfingPBR::refreshImgShaderPlane() {
 	ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane()";
 
-	float w, h;
-	w = plane.getWidth();
-	h = plane.getHeight();
+	int w = plane.getWidth();
+	int h = plane.getHeight();
 
-	w = ofClamp(w, 0, 800);
-	h = ofClamp(h, 0, 600);
+	if (bLimitImage) {
+		w = ofClamp(w, 0, SURFING__SHADER_LIMIT_IMAGE);
+		h = ofClamp(h, 0, SURFING__SHADER_LIMIT_IMAGE);
+	} else { //ma
+		w = ofClamp(w, 0, SURFING__SHADER_LIMIT_IMAGE_MAX);
+		h = ofClamp(h, 0, SURFING__SHADER_LIMIT_IMAGE_MAX);
+	}
 
-	//reduce a bit image re allocations when not required
+	//reduce a bit image re allocations calls when not required
 	//bc sizes not changed..
-	static float w_ = -1;
-	static float h_ = -1;
+	static int w_ = -1;
+	static int h_ = -1;
 	if (w != w_ || h != h_) { //if changed
 		w_ = w;
 		h_ = h;
@@ -322,14 +330,13 @@ void ofxSurfingPBR::refreshImgShaderPlane() {
 	#endif
 
 		//apply to plane
-		//plane.set(800, 600, 80, 60);
 		plane.mapTexCoordsFromTexture(img.getTexture());
 
 		ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane() w,h: " << w << "," << h;
 	}
 
 	else {
-		ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane() Skipped img.allocate";
+		ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane() Skipped img.allocate (" << w << "," << h << ")";
 	}
 }
 
@@ -356,6 +363,7 @@ void ofxSurfingPBR::setupParamsDisplace() {
 
 	bShaderToPlane.set("ShaderToPlane", false);
 	bDisplaceToMaterial.set("DispToMaterial", false);
+	bLimitImage.set("Limit IMG", true);
 
 	noiseParams.setName("Noise Generator");
 	noiseParams.add(noiseAmplitude.set("Noise Amp D", 0.0f, 0.0f, 2.f));
@@ -370,6 +378,7 @@ void ofxSurfingPBR::setupParamsDisplace() {
 	displaceMaterialParams.add(resetDisplace);
 
 	displacersParams.setName("Displacers");
+	displacersParams.add(bLimitImage);
 	displacersParams.add(bDisplaceToMaterial);
 	displacersParams.add(bShaderToPlane);
 	displacersParams.add(noiseParams);
@@ -394,6 +403,10 @@ void ofxSurfingPBR::doResetDisplace() {
 	displacementStrength.set(displacementStrength.getMax() * 0.75);
 	displacementNormalsStrength.set(displacementNormalsStrength.getMax() / 2);
 	normalGeomToNormalMapMix.set(normalGeomToNormalMapMix.getMax() / 2);
+
+	bShaderToPlane.set(false);
+	bDisplaceToMaterial.set(false);
+	bLimitImage.set(false);
 }
 
 //--------------------------------------------------------------
@@ -476,6 +489,29 @@ void ofxSurfingPBR::setup() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::startup() {
 	ofLogNotice("ofxSurfingPBR") << "startup()";
+
+	if (this - getSettingsFileFound()) {
+		ofLogWarning("ofxSurfingPBR") << "Settings file  not found!";
+		ofLogWarning("ofxSurfingPBR") << "Forcing some stuff (scene, help, debug mode, etc ...";
+
+#if 0
+		// Background alt
+		bDrawBgAlt.set(true);
+		bgAltColor.set(ofFloatColor(0, 0.03, 0.3, 1));
+
+		// Plane
+		planeGlobalColor.set(ofFloatColor(0.25, 0, 0.5, 1));
+
+		// Material
+		material.roughness = 0.5;
+		material.reflectance = 0.5;
+		material.globalColor.set(ofFloatColor::orange);
+#endif
+		// Force enable Help and Debug states!
+		bHelp = true;
+		bDebug = true;
+		bDebugShadow = true;
+	}
 
 	load();
 
@@ -678,7 +714,7 @@ void ofxSurfingPBR::drawDebug() {
 
 		int x, y, w, h;
 
-		float r = img.getHeight() / img.getWidth();
+		float r = img.getHeight() / (float)img.getWidth();
 
 		// info
 		string s = "";
@@ -747,7 +783,12 @@ void ofxSurfingPBR::drawDebug() {
 		float fps = ofGetFrameRate();
 		s += ofToString(fps, 1);
 		s += " FPS\n";
-		ofxSurfing::ofDrawBitmapStringBox(s, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
+
+		bool bFlipPos = (helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
+		if (bFlipPos)
+			ofxSurfing::ofDrawBitmapStringBox(s, ofxSurfing::SURFING_LAYOUT_TOP_RIGHT);
+		else
+			ofxSurfing::ofDrawBitmapStringBox(s, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
 	}
 }
 
@@ -867,37 +908,23 @@ void ofxSurfingPBR::drawPBRSceneDebug() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshPlane() {
 
-	float planeSizeUnit;
-	float w;
-	float h;
+	int w, h;
 
 	if (bPlaneInfinite) {
+		// size hardcoded to a safety max!
 		w = SURFING__PLANE_SIZE_INFINITE_MODE;
 		h = SURFING__PLANE_SIZE_INFINITE_MODE;
 	} else {
-		planeSizeUnit = SURFING__SCENE_SIZE_UNIT * SURFING__PLANE_SIZE_MULTIPLIER;
-		w = planeSizeUnit * planeSize.get().x;
-		h = planeSizeUnit * planeSize.get().y;
+		// size from normalized param multiplied by a unit
+		int planeSizeUnit = SURFING__SCENE_SIZE_UNIT * SURFING__PLANE_SIZE_MULTIPLIER;
+		w = planeSize.get().x * planeSizeUnit;
+		h = planeSize.get().y * planeSizeUnit;
 	}
 
 	//--
 
-	//TODO: make it simple..
-	// clamp plane size
-#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
-	#ifdef SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE
-
-	//hardcoded and clamped
-	//will be applied to both plane and img!
-	//w = 800;
-	//h = 600;
-	w = ofClamp(w, 0, 800);
-	h = ofClamp(h, 0, 600);
-
-	#endif
-#endif
-
 	//TODO
+	//use params to allow customize
 	int resX, resY;
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	resX = MIN(1024, w / 10.f);
@@ -989,7 +1016,7 @@ void ofxSurfingPBR::ChangedLight(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedLight " << name << ": " << e;
 
-	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
 #endif
 
@@ -1007,7 +1034,7 @@ void ofxSurfingPBR::ChangedShadow(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedShadow " << name << ": " << e;
 
-	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
 #endif
 
@@ -1031,7 +1058,7 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedInternal " << name << ": " << e;
 
-	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
 #endif
 
@@ -1040,6 +1067,10 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 	if (name == resetTestScene.getName()) {
 		scaleTestScene = 0;
 		positionTestScene = 0;
+	}
+
+	if (name == bKeys.getName()) {
+		buildHelp();
 	}
 }
 
@@ -1050,7 +1081,7 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedCamera " << name << ": " << e;
 
-	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
 #endif
 
@@ -1072,7 +1103,7 @@ void ofxSurfingPBR::ChangedBg(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedBg " << name << ": " << e;
 
-	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
 #endif
 
@@ -1122,6 +1153,10 @@ void ofxSurfingPBR::ChangedDisplacers(ofAbstractParameter & e) {
 			materialPlane.setDisplacementNormalsStrength(0);
 			materialPlane.setNormalGeomToNormalMapMix(0);
 		}
+	}
+
+	else if (name == bLimitImage.getName()) {
+		refreshPlane();
 	}
 }
 #endif
@@ -1281,7 +1316,7 @@ void ofxSurfingPBR::load() {
 		ofxSurfing::loadSettings(parameters, path);
 	}
 
-	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.start();
 #endif
 }
@@ -1449,7 +1484,7 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 'h') bHelp = !bHelp;
 	if (key == 'l') {
 		helpLayout++;
-		helpLayout = helpLayout % ((int)ofxSurfing::SURFING_LAYOUT_AMOUNT + 1);
+		helpLayout = helpLayout % ((int)ofxSurfing::SURFING_LAYOUT_AMOUNT);
 		buildHelp();
 	}
 	if (key == 'd') bDebug = !bDebug;
@@ -1495,9 +1530,6 @@ void ofxSurfingPBR::doResetPlane() {
 
 	//planeDiffuseColor.set(ofFloatColor(0.6));
 	//planeSpecularColor.set(ofFloatColor(1));
-
-	bShaderToPlane.set(false);
-	bDisplaceToMaterial.set(false);
 
 	bPlaneWireframe = false;
 }

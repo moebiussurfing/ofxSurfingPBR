@@ -12,7 +12,7 @@
  
 // DEBUG
 
-//#define SURFING__CLAMP_PLANE_SIZE_BC_PERFORMANCE // TODO: testing to improve performance.
+//#define SURFING__SHADER_DEBUG // TODO: testing to improve performance.
 
 //--
 
@@ -34,6 +34,9 @@
 #define SURFING__SCENE_CAMERA_FAR 1000000.f
 
 #define SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+
+#define SURFING__SHADER_LIMIT_IMAGE 128
+#define SURFING__SHADER_LIMIT_IMAGE_MAX 1024
 
 //--
 
