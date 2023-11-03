@@ -5,17 +5,20 @@
 
 /*
 
-OpenFrameworks addon to easily test, learn, and use the new PBR features from the new OF 0.12+ releases.
+	OpenFrameworks addon to easily test, learn, and use the new PBR features from the new OF 0.12+ releases.
 
-(You should use the GitHub master branch: https://github.com/openframeworks/openFrameworks !
+	(You should use the GitHub master branch: https://github.com/openframeworks/openFrameworks !
 
-All this code is copied from and hardly based on this OF forum topic:
-https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
+	All this code is copied from and hardly based on this OF forum topic:
+	https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
 
-Original authors:  
-@NickHardeman | https://github.com/NickHardeman
-and @paolo-scoppola | https://github.com/paolo-scoppola.
+	Original authors:  
+	@NickHardeman | https://github.com/NickHardeman
+	and @paolo-scoppola | https://github.com/paolo-scoppola.
 
+*/
+
+/*
 
 	TODO
 
@@ -35,7 +38,6 @@ and @paolo-scoppola | https://github.com/paolo-scoppola.
 		something like ofxPBR or ofxPBRHelper.
 	- add ofxBgGradient addon ? copy just the gradients
 	- add custom global path to /data/ofxSurfingPBR/
-
 
 */
 
@@ -113,7 +115,18 @@ public:
 		camera->setFarClip(SURFING__SCENE_CAMERA_FAR);
 	}
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+	// For getting camera from our parent class/ofApp
+	ofCamera * getOfCameraPtr() {
+		if (camera != nullptr) return camera;
+		else return nullptr;
+
+	}
+	ofEasyCam * getOfEasyCamPtr() {
+		ofEasyCam * easyCam = dynamic_cast<ofEasyCam *>(camera);
+		if (easyCam != nullptr) return easyCam;
+		else return nullptr;
+	}
+
 private:
 	ofParameterGroup cameraParams;
 	ofParameter<bool> bEnableCameraAutosave;
@@ -121,7 +134,9 @@ private:
 	ofParameter<void> loadCamera;
 	ofParameter<void> resetCamera;
 	string pathCamera = "ofxSurfingPBR_CameraSettings.ini";
-#endif
+
+public:
+	void doResetCamera();
 
 public:
 	ofParameterGroup parameters; //main container to expose to gui and to handle settings

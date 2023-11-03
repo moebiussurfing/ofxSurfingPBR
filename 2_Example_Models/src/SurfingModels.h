@@ -29,20 +29,20 @@ public:
 	void setup(string path = "") {
 		setupDir(path);
 
-		fileName.setSerializable(false);
+		nameFile.setSerializable(false);
 
 		parameters.setName("MODELS");
-		parameters.add(indexFile);
-		parameters.add(fileName);
-		parameters.add(previousBang);
 		parameters.add(nextBang);
+		parameters.add(prevBang);
+		parameters.add(indexFile);
+		parameters.add(nameFile);
 
 		listenerIndexFile = indexFile.newListener([this](int & i) {
 			static int i_ = -1;
 			if (i != i_) { //changed
 				i_ = i;
 				if (i < dir.size()) {
-					fileName = dir.getName(i);
+					nameFile = dir.getName(i);
 
 					pathModel = dir.getPath(i);
 					loadBang.trigger();
@@ -54,7 +54,7 @@ public:
 			next();
 		});
 
-		listenerPrevious = previousBang.newListener([this](void) {
+		listenerPrevious = prevBang.newListener([this](void) {
 			previous();
 		});
 	}
@@ -65,14 +65,11 @@ public:
 		// bin/data/models/
 
 		pathModels = path;
-
-		dir.listDir(path);
-
 		//supported formats
 		dir.allowExt("ply");
 		dir.allowExt("fbx");
 		dir.allowExt("obj");
-
+		dir.listDir(path);
 		dir.sort();
 
 		indexFile.setMax(dir.size() - 1);
@@ -123,10 +120,10 @@ private:
 public:
 	ofParameterGroup parameters;
 
-	ofParameter<string> fileName { "Name", "" };
+	ofParameter<string> nameFile { "Name", "" };
 	ofParameter<int> indexFile { "File", 0, 0, 0 };
 	ofParameter<void> nextBang { "Next" };
-	ofParameter<void> previousBang { "Previous" };
+	ofParameter<void> prevBang { "Previous" };
 
 	////TODO. store each model ofNode/transforms/gizmo
 	//ofParameter<float> scale { "Scale", 0, -1.f, 1.f };

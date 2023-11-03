@@ -196,7 +196,7 @@ void ofxSurfingPBR::setupParams() {
 	//--
 
 	lightAmbientColor.set("Light Ambient Color", ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
-	float u = 2 * SURFING__SCENE_SIZE_UNIT;
+	float u = 4 * SURFING__SCENE_SIZE_UNIT;
 	lightParams.add(lightX.set("X", 0.0f, -u, u));
 	lightParams.add(lightY.set("Y", 0.0f, -u, u));
 	lightParams.add(lightZ.set("Z", 0.0f, -u, u));
@@ -1061,11 +1061,7 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 	} else if (name == loadCamera.getName()) {
 		ofxLoadCamera(*camera, pathCamera);
 	} else if (name == resetCamera.getName()) {
-		ofEasyCam * easyCam = dynamic_cast<ofEasyCam *>(camera);
-		if (easyCam != nullptr) {
-			easyCam->reset();
-			camera->setFarClip(SURFING__SCENE_CAMERA_FAR);
-		}
+		doResetCamera();
 	}
 }
 
@@ -1301,6 +1297,7 @@ bool ofxSurfingPBR::getSettingsFileFound() {
 	ofFile f;
 	bool b = f.doesFileExist(path);
 	if (b) {
+		ofLogNotice("ofxSurfingPBR") << "getSettingsFileFound(): Found file settings!";
 		ofLogNotice("ofxSurfingPBR") << "Found SCENE settings file: " << path;
 	} else {
 		ofLogWarning("ofxSurfingPBR") << "SCENE settings file: " << path << " not found!";
@@ -1314,6 +1311,17 @@ bool ofxSurfingPBR::getSettingsFileFound() {
 	} else {
 		ofLogWarning("ofxSurfingPBR") << "MATERIAL settings file: " << material.path << " not found!";
 	}
+
+	//not required but will log if located or not
+	ofFile f3;
+	bool b3 = f3.doesFileExist(pathCamera);
+	if (b3) {
+		ofLogNotice("ofxSurfingPBR") << "Found CAMERA settings file: " << pathCamera;
+	} else {
+		ofLogWarning("ofxSurfingPBR") << "CAMERA settings file: " << pathCamera << " not found!";
+	}
+
+	//--
 
 	if (!b) ofLogWarning("ofxSurfingPBR") << "Probably opening the App for the first time!";
 
@@ -1523,6 +1531,15 @@ void ofxSurfingPBR::doResetCubeMap() {
 	bgAltColor.set(ofFloatColor(0.3));
 }
 #endif
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetCamera() {
+	ofEasyCam * easyCam = dynamic_cast<ofEasyCam *>(camera);
+	if (easyCam != nullptr) {
+		easyCam->reset();
+		camera->setFarClip(SURFING__SCENE_CAMERA_FAR);
+	}
+}
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetAll(bool bExcludeMaterial) {

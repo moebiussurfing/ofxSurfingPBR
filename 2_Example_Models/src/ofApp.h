@@ -3,16 +3,6 @@
 
 #define SURFING__USE_FILE_BROWSER
 
-/*
-* //TODO
-Modify the mesh. 
-Get example from \openFrameworks\examples\gl\materialPBR
-	
-https://forum.openframeworks.cc/t/ofxassimpmodelloader-how-to-tweak-model-meshes/36665/4
-ofxAssimpMeshHelper& helper = model.getMeshHelper(i);
-ofMesh* mesh = &helper.cachedMesh;
-*/
-
 #include "ofxSurfingPBR.h"
 
 #include "ofVboMesh.h"
@@ -25,9 +15,11 @@ ofMesh* mesh = &helper.cachedMesh;
 class ofApp : public ofBaseApp {
 public:
 	void setup();
+	void update();
 	void draw();
-	void keyPressed(int key);
 	void exit();
+	void keyPressed(int key);
+	void windowResized(ofResizeEventArgs & e);
 
 	void setupParams();
 	void drawGui();
@@ -51,10 +43,6 @@ public:
 	bool loadModel(string path, float scaled = 1.0f);
 	ofxAssimpModelLoader model;
 	vector<ofVboMesh> meshesModel;
-
-	// Gui
-	ofxPanel gui;
-	void refreshGui(); //refresh gui for minimize/collapse workflow
 	
 	ofParameterGroup parameters;
 	string path = "ofApp.json";
@@ -64,22 +52,30 @@ public:
 	ofParameter<float> yPos { "Pos y", 0, -1.f, 1.f };
 	ofParameter<bool> bRotate { "Rotate", false };
 	ofParameter<float> speed { "Speed", 0.5f, 0, 1 };
-	ofParameter<int> indexScene { "Scene", 0, 0, 2 };
-	ofEventListener listenerIndexScene;
+	ofParameter<int> indexScene { "SCENE", 0, 0, 2 };
 	ofParameter<void> reset { "Reset" };
+	ofParameter<void> nextIndexScene { "Next" };
+
+	ofEventListener listenerIndexScene;
 	ofEventListener listenerReset;
-	ofParameter<void> next { "Next" };
 	ofEventListener listenerNext;
+
+	void doNextScene();
+	void doReset();
 
 	ofParameter<bool> bHelp { "Help", false };
 	string sHelp;
 	void buildHelp(); //refresh help info to display updated
 
-	void nextScene();
+	// Gui
+	ofxPanel gui;
+	void refreshGui(); //refresh gui for minimize/collapse workflow
 
 	// Models files browser
 #ifdef SURFING__USE_FILE_BROWSER
+	void setupModelsBrowser();
 	SurfingModels surfingModels;
+
 	ofEventListener listenerLoadModel;
 	ofEventListener listenerIndexModel;
 #endif
