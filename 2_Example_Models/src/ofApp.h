@@ -12,6 +12,8 @@
 	#include "SurfingModels.h"
 #endif
 
+#define USE_OPTIONAL_SETUP 1
+
 class ofApp : public ofBaseApp {
 public:
 	void setup();
@@ -60,6 +62,7 @@ public:
 	ofEventListener listenerReset;
 	ofEventListener listenerNext;
 
+	void doPrevScene();
 	void doNextScene();
 	void doReset();
 

@@ -575,7 +575,7 @@ void ofxSurfingPBR::setupPBRScene() {
 void ofxSurfingPBR::setupGui() {
 	gui.setup(parameters);
 
-	gui.setPosition(SURFING__OFXGUI_PAD_X_TO_BORDER, SURFING__OFXGUI_PAD_Y_TO_BORDER);
+	gui.setPosition(SURFING__PAD_TO_WINDOW_BORDER, SURFING__PAD_TO_WINDOW_BORDER);
 
 	refreshGui();
 }
@@ -690,7 +690,7 @@ void ofxSurfingPBR::drawGui() {
 
 	if (bGui_ofxGui) {
 		//force position
-		auto p = gui.getShape().getTopRight() + glm::vec2(SURFING__OFXGUI_PAD_X, 0);
+		auto p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_TO_WINDOW_BORDER, 0);
 		material.gui.setPosition(p);
 
 		gui.draw();

@@ -4,7 +4,7 @@
 void ofApp::setup() {
 	ofxSurfing::setWindowTitleAsProjectName(); // Name the window
 
-#if 1
+#if USE_OPTIONAL_SETUP
 	ofxSurfing::setWindowAtMonitor(-1); // Move to left monitor / landscape.
 	//ofxSurfing::setWindowAtMonitor(); // Center monitor / landscape.
 	//ofxSurfing::setWindowAtMonitor(1,true); // Move to right monitor / portrait.
@@ -38,12 +38,12 @@ void ofApp::setupPBR() {
 
 	// Optional
 
-#if 1
+#if USE_OPTIONAL_SETUP
 	// Set log level
 	pbr.setLogLevel(OF_LOG_VERBOSE);
 #endif
 
-#if 1
+#if USE_OPTIONAL_SETUP
 	// Check if it's the first time opening the App.
 	// If not, we will force some settings for the scene:
 	if (!pbr.getSettingsFileFound()) {
@@ -67,7 +67,7 @@ void ofApp::setupPBR() {
 	}
 #endif
 
-#if 0
+#if USE_OPTIONAL_SETUP
 	// Force replace the default cubemap
 	pbr.loadCubeMap("cubemaps/kloppenheim_06_puresky_1k.exr");
 #endif
@@ -132,13 +132,14 @@ void ofApp::setupModelsBrowser() {
 
 	listenerIndexModel = surfingModels.indexFile.newListener([this](int & i) {
 		buildHelp(); //refresh help info
-		//refreshGui(); //refresh gui collapse folders
 	});
 }
 #endif
 
 //--------------------------------------------------------------
 void ofApp::setupParams() {
+
+	// Parameters
 
 	parameters.setName("ofApp");
 	parameters.add(yPos);
@@ -157,16 +158,6 @@ void ofApp::setupParams() {
 
 	//--
 
-	// Gui
-
-	gui.setup(parameters);
-
-#ifdef SURFING__USE_FILE_BROWSER
-	gui.getGroup(surfingModels.parameters.getName()).minimize();
-#endif
-
-	//--
-
 	// Callbacks
 
 	listenerNext = nextIndexScene.newListener([this](void) {
@@ -182,16 +173,23 @@ void ofApp::setupParams() {
 		//refreshGui();
 	});
 
+	//--
+
+	// Gui
+
+	gui.setup(parameters);
+
+	refreshGui();
 	buildHelp();
 
 	//--
 
+	// Startup
+
 	reset.trigger();
 
-	//gui.loadFromFile(path);
 	ofxSurfing::loadSettings(parameters, path);
-
-	ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center
+	//gui.loadFromFile(path);
 }
 
 //--------------------------------------------------------------
@@ -210,20 +208,20 @@ void ofApp::buildHelp() {
 
 	switch (indexScene) {
 	case 0:
-		sHelp += "SCENE\n#0 \nTEST SCENE";
+		sHelp += "#0\nSCENE\nTHREE-PRIMS";
 		break;
 	case 1:
-		sHelp += "SCENE\n#1 \nMESH";
+		sHelp += "#1\nSCENE\nMESH";
 		break;
 	case 2:
-		sHelp += "SCENE\n#2 \nMODEL";
-#ifdef SURFING__USE_FILE_BROWSER
-		sHelp += "S";
+#ifndef SURFING__USE_FILE_BROWSER
+		sHelp += "#2\nSCENE\nMODEL";
+#else
+		sHelp += "#2\nSCENE\nMODELS";
 #endif
 		break;
 	}
 	sHelp += "\n\n";
-
 	sHelp += "SPACE\nNext Scene\n";
 	sHelp += "\n";
 
@@ -233,20 +231,18 @@ void ofApp::buildHelp() {
 		sHelp += "UP    Prev\n";
 		sHelp += "DOWN  Next\n";
 		sHelp += "\n";
-
 		sHelp += surfingModels.getFilename();
 		sHelp += "\n\n";
-
 		sHelp += surfingModels.getFilenamesList();
 	}
 #endif
 
-	sHelp += " \n";
-	//sHelp += " \n";
+	sHelp += " \n"; //fix bb
 }
 
 //--------------------------------------------------------------
 void ofApp::refreshGui() {
+
 	gui.getGroup(surfingModels.parameters.getName()).minimize();
 	//#ifdef SURFING__USE_FILE_BROWSER
 	//	if (indexScene == 2)
@@ -254,6 +250,8 @@ void ofApp::refreshGui() {
 	//	else
 	//		gui.getGroup(surfingModels.parameters.getName()).minimize();
 	//#endif
+
+	ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center
 }
 
 //--------------------------------------------------------------
@@ -340,25 +338,11 @@ void ofApp::drawGui() {
 	//--
 
 	if (bHelp) {
-		//ofxSurfing::ofDrawBitmapStringBox(sHelp); //centered
-
+		// responsive layout
 		if (!pbr.isVisibleDebugShader())
 			ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
 		else
 			ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
-
-		//ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_CENTER); //top centered
-
-		//TODO: fix to put above gui panel
-		// not sure if there is some bug on OF getBoundingBox..
-		//auto bbG = gui.getShape();
-		//auto bbH = ofxSurfing::getBBBitmapStringBox(sHelp);
-		//int x = bbG.getTopLeft().x + bbG.getWidth() / 2;
-		//int y = bbG.getTopLeft().y - bbG.getHeight();
-		//x -= bbH.getWidth() / 2;
-		//y -= 20;
-		//glm::vec2 p { x, y };
-		//ofxSurfing::ofDrawBitmapStringBox(sHelp, p.x, p.y);
 	}
 
 	if (pbr.bGui_ofxGui) gui.draw();
@@ -383,90 +367,88 @@ void ofApp::drawMyScene() {
 
 	// Scene transforms
 
-	float yPosUnit = 20;
+	//float yPosUnit = 20;
+	//float y = ofMap(yPos, -1.f, 1.f, -yPosUnit, yPosUnit, true);
+
+	// Position
+	float yPosUnit = SURFING__SCENE_SIZE_UNIT / 2.f;
 	float y = ofMap(yPos, -1.f, 1.f, -yPosUnit, yPosUnit, true);
 
-	float scaleUnit = 200;
-	float s = ofMap(scale, -1.f, 1.f, 10.f, scaleUnit, true);
+	// Scale
+	float scaleUnit = 20;
+	float s = ofMap(scale, -1.f, 1.f, .2f, scaleUnit, true);
 
+	// Rotation
 	int tmax = 30; //30 seconds to do 360deg at 60 fps, for the slower speed. faster speed is one second per 360deg.
 	int f = ofMap(speed, 0.f, 1.f, 60 * tmax, 60, true);
-	float d = ofMap(ofGetFrameNum() % f, 0.f, f, 0.f, 360.f);
+	float d = ofMap(ofGetFrameNum() % f, 0, f, 0.f, 360.f);
 
-	//--
+	ofPushMatrix();
+	ofTranslate(0, y, 0);
+	ofScale(s);
+	if (bRotate) ofRotateYDeg(d);
 
-	// Scene 0
-	// Three Prims
+	{
+		// Scene 0
+		// Three Prims
 
-	if (indexScene == 0) {
-
-		ofPushMatrix();
-		float yPosUnit = 800;
-		float y = ofMap(yPos, -1.f, 1.f, -yPosUnit, yPosUnit, true);
-		ofTranslate(0, y, 0);
-		ofScale(s * 0.02f);
-
-		if (bRotate) ofRotateYDeg(d);
-		{
+		if (indexScene == 0) {
 			pbr.drawTestScene();
 		}
 
-		ofPopMatrix();
-	}
+		//--
 
-	//--
+		// Scene 1
+		// Mesh
 
-	// Scene 1
-	// Mesh
+		if (indexScene == 1) {
 
-	if (indexScene == 1) {
+			//ofRotateXDeg(-90);
 
-		ofPushMatrix();
-		ofScale(s);
-		ofTranslate(0, y, 0);
-		ofRotateXDeg(-90);
-
-		if (bRotate) ofRotateZDeg(d);
-		{
 			mesh.draw();
 		}
 
-		ofPopMatrix();
-	}
+		//--
 
-	//--
+		// Scene 2
+		// Model(s)
 
-	// Scene 2
-	// Model
+		else if (indexScene == 2) {
+			glFrontFace(GL_CCW); //fix for "transparent" for model head25k.obj with normals problems..
 
-	else if (indexScene == 2) {
-		glFrontFace(GL_CCW); //fix for "transparent" for model head25k.obj with normals problems..
+#define USE_MODEL_TRANSFORMS 0
+#if (USE_MODEL_TRANSFORMS)
+			if (bModelTransforms) {
+				ofPushMatrix();
 
-		ofPushMatrix();
+				//// Scene transforms
+				//float s_ = 1;
+				//float y_ = 0;
+				//ofScale(s_ * 2.0f);
+				//ofTranslate(0, y_, 0);
 
-		// Scene transforms
-		ofScale(s * 2.0f);
-		ofTranslate(0, y, 0);
-
-		// Model transforms
-		// Settled when loading the model,
-		// but requires apply here before draw!
-		ofScale(model.getScale().x, model.getScale().y, model.getScale().z);
-		//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);//TODO
-
-		if (bRotate) ofRotateYDeg(-d);
-		{
+				// Model transforms
+				// Settled when loading the model,
+				// but requires apply here before draw!
+				ofScale(model.getScale().x, model.getScale().y, model.getScale().z);
+				//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);//TODO
+			}
+#endif
 			drawModel();
-		}
 
-		ofPopMatrix();
+#if (USE_MODEL_TRANSFORMS)
+			ofPopMatrix();
+#endif
+		}
 	}
+
+	ofPopMatrix();
 }
 
 //--------------------------------------------------------------
 void ofApp::doReset() {
-	scale = -0.5;
-	yPos = 0;
+	scale = 0.f;
+	yPos = 0.f;
 	speed = 0.5;
 
 	//pbr.doResetCamera();
@@ -478,6 +460,14 @@ void ofApp::doNextScene() {
 		indexScene = indexScene + 1;
 	else
 		indexScene = 0;
+}
+
+//--------------------------------------------------------------
+void ofApp::doPrevScene() {
+	if (indexScene > 0)
+		indexScene = indexScene - 1;
+	else
+		indexScene = indexScene.getMax();
 }
 
 //--------------------------------------------------------------
@@ -514,9 +504,7 @@ void ofApp::windowResized(ofResizeEventArgs & resize) {
 		sz_ = sz;
 		ofLogNotice("ofApp") << "windowResized() Size: " << w << "," << h;
 
-		//buildHelp();
 		refreshGui(); //refresh gui collapse folders
-		ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center
 	}
 }
 
@@ -524,6 +512,6 @@ void ofApp::windowResized(ofResizeEventArgs & resize) {
 void ofApp::exit() {
 	pbr.exit();
 
-	//gui.saveToFile("ofApp.json");
 	ofxSurfing::saveSettings(parameters, path);
+	//gui.saveToFile(path);
 }

@@ -9,8 +9,12 @@
 All this code is copied from and hardly based on this [OF forum topic](https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19 ).  
 Original authors: [@NickHardeman](https://github.com/NickHardeman) and [@paolo-scoppola](https://github.com/paolo-scoppola).  
 
-## Screenshot
+## Screenshots
 
+### 1_Example_Basic
+![](1_Example_Basic/Capture.PNG)
+
+### 2_Example_Models
 ![](2_Example_Models/Capture.PNG)
 
 ## Video
@@ -41,7 +45,9 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 - **3D models** browser/loader class
   - Used into `\2_Example_Models\`.
 
-## Usage
+<details>
+  <summary>Usage</summary>
+  <p>
 
 ### ofApp.h
 ```.cpp
@@ -91,20 +97,25 @@ void ofApp::renderScene()
       // Other objects
       pbr.beginMaterial();
       {
-          ///* Draw here! *///
+          ///*  Draw here !  *///
       }
       pbr.endMaterial();
 }
 ```
 
+  </p>
+</details>
+
 ## Dependencies
 
-[OF 0.12+](https://github.com/openframeworks/openFrameworks)
+* [OF 0.12+](https://github.com/openframeworks/openFrameworks).
+* **ofxAssimpModelLoader** [OF CORE]: For `2_Example_Models`. 
 
 ## Requeriments 
 
 * Copy the content of `data.zip` to the examples or to your projects into `/bin/data`.
 
+bin
   └ data  
       ├ cubemaps / .exr / .hdr / .jpg  
       ├ models / .obj / .ply / .fbx  

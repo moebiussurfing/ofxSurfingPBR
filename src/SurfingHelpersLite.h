@@ -7,20 +7,13 @@
 
 // CONSTANTS
 
-#define SURFING__PAD_TO_BORDER 5
-#define SURFING__PAD_X_TO_BORDER 5
-#define SURFING__PAD_Y_TO_BORDER 5
-#define SURFING__OFXGUI_PAD_TO_BORDER 5
-#define SURFING__OFXGUI_PAD_X_TO_BORDER 5
-#define SURFING__OFXGUI_PAD_Y_TO_BORDER 5
+//#define SURFING__PAD_TO_WINDOW_BORDER 5
+#define SURFING__PAD_TO_WINDOW_BORDER 10
+
 #define SURFING__OFXGUI_PAD 2
-#define SURFING__OFXGUI_PAD_X 2
-#define SURFING__OFXGUI_PAD_Y 2
 
 #define SURFING__STRING_BOX__DEFAULT_XPAD 10
 #define SURFING__STRING_BOX__DEFAULT_YPAD 10
-#define SURFING__STRING_BOX__DEFAULT_XPAD_TO_BORDER 5
-#define SURFING__STRING_BOX__DEFAULT_YPAD_TO_BORDER 5
 
 //#define SURFING__STRING_BOX__DEFAULT_ROUND 0.f
 #define SURFING__STRING_BOX__DEFAULT_ROUND 4.f
@@ -253,7 +246,7 @@ inline glm::vec2 getBitmapStringBoxPosToCenter(string s) {
 	return p;
 }
 //--------------------------------------------------------------
-inline glm::vec2 getBitmapStringBoxPosToTopLeft(string s, int xpad = SURFING__STRING_BOX__DEFAULT_XPAD_TO_BORDER, int ypad = SURFING__STRING_BOX__DEFAULT_YPAD_TO_BORDER) {
+inline glm::vec2 getBitmapStringBoxPosToTopLeft(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDER, int ypad = SURFING__PAD_TO_WINDOW_BORDER) {
 	auto bb = getBBBitmapStringBox(s, 0, 0);
 	int x = xpad;
 	int y = ypad;
@@ -261,7 +254,7 @@ inline glm::vec2 getBitmapStringBoxPosToTopLeft(string s, int xpad = SURFING__ST
 	return p;
 }
 //--------------------------------------------------------------
-inline glm::vec2 getBitmapStringBoxPosToTopRight(string s, int xpad = SURFING__STRING_BOX__DEFAULT_XPAD_TO_BORDER, int ypad = SURFING__STRING_BOX__DEFAULT_YPAD_TO_BORDER) {
+inline glm::vec2 getBitmapStringBoxPosToTopRight(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDER, int ypad = SURFING__PAD_TO_WINDOW_BORDER) {
 	auto bb = getBBBitmapStringBox(s, 0, 0);
 	int x = ofGetWidth() - bb.getWidth() - xpad;
 	int y = ypad;
@@ -269,7 +262,7 @@ inline glm::vec2 getBitmapStringBoxPosToTopRight(string s, int xpad = SURFING__S
 	return p;
 }
 //--------------------------------------------------------------
-inline glm::vec2 getBitmapStringBoxPosToBottomLeft(string s, int xpad = SURFING__STRING_BOX__DEFAULT_XPAD_TO_BORDER, int ypad = SURFING__STRING_BOX__DEFAULT_YPAD_TO_BORDER) {
+inline glm::vec2 getBitmapStringBoxPosToBottomLeft(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDER, int ypad = SURFING__PAD_TO_WINDOW_BORDER) {
 	auto bb = getBBBitmapStringBox(s, 0, 0);
 	int x = xpad;
 	int y = ofGetHeight() - bb.getHeight() - ypad;
@@ -277,7 +270,7 @@ inline glm::vec2 getBitmapStringBoxPosToBottomLeft(string s, int xpad = SURFING_
 	return p;
 }
 //--------------------------------------------------------------
-inline glm::vec2 getBitmapStringBoxPosToBottomRight(string s, int xpad = SURFING__STRING_BOX__DEFAULT_XPAD_TO_BORDER, int ypad = SURFING__STRING_BOX__DEFAULT_YPAD_TO_BORDER) {
+inline glm::vec2 getBitmapStringBoxPosToBottomRight(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDER, int ypad = SURFING__PAD_TO_WINDOW_BORDER) {
 	auto bb = getBBBitmapStringBox(s, 0, 0);
 	int x = ofGetWidth() - bb.getWidth() - xpad;
 	int y = ofGetHeight() - bb.getHeight() - ypad;
@@ -437,7 +430,7 @@ inline void setGuiPositionToLayout(ofxPanel & gui, int layout = 0) {
 
 	// Move gui panel window to:
 	glm::vec2 p;
-	int pad = SURFING__OFXGUI_PAD_TO_BORDER; //to borders
+	int pad = SURFING__PAD_TO_WINDOW_BORDER; //to borders
 
 	// bottom-center
 	if (layout == 0) {
@@ -469,6 +462,22 @@ inline void setGuiPositionToLayout(ofxPanel & gui, int layout = 0) {
 
 	gui.setPosition(p.x, p.y);
 }
+
+/*
+
+TODO
+
+		//TODO: put bb above gui panel
+		// not sure if there is some bug on OF getBoundingBox..
+		//auto bbG = gui.getShape();
+		//auto bbH = ofxSurfing::getBBBitmapStringBox(sHelp);
+		//int x = bbG.getTopLeft().x + bbG.getWidth() / 2;
+		//int y = bbG.getTopLeft().y - bbG.getHeight();
+		//x -= bbH.getWidth() / 2;
+		//y -= 20;
+		//glm::vec2 p { x, y };
+		//ofxSurfing::ofDrawBitmapStringBox(sHelp, p.x, p.y);
+*/
 
 };
 
