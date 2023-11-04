@@ -144,10 +144,10 @@ void ofApp::renderScene()
 
 bin  
 $~$ └ data  
-$~~~~~~~$ ├ cubemaps$~~~~~~~~$.exr, .hdr, .jpg  
-$~~~~~~~$ ├ models$~~~~~~~~~~$.obj, .ply, .fbx  
-$~~~~~~~$ ├ shadersGL2$~~~~~~$.frag, .vert  
-$~~~~~~~$ └ shadersGL3$~~~~~~$.frag, .vert  
+$~~~~~~~$ ├ cubemaps $~~~~~~~~$.exr, .hdr, .jpg  
+$~~~~~~~$ ├ models $~~~~~~~~~~$.obj, .ply, .fbx  
+$~~~~~~~$ ├ shadersGL2 $~~~~~~$.frag, .vert  
+$~~~~~~~$ └ shadersGL3 $~~~~~~$.frag, .vert  
 
 ## Tested Systems
 * **Windows 11** / **VS 2022** / **OF 0.12+** @[GitHub master branch](https://github.com/openframeworks/openFrameworks)
