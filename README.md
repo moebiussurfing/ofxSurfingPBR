@@ -145,7 +145,7 @@ void ofApp::renderScene()
 bin  
 $~$ └ data  
 $~~~~$ ├ cubemaps $~~~~~~$ .exr, .hdr, .jpg  
-$~~~~$ ├ models $~~~~~~~~$ .obj, .ply, .fbx  
+$~~~~$ ├ models $~~~~~~~~~$ .obj, .ply, .fbx  
 $~~~~$ ├ shadersGL2 $~~~~$ .frag, .vert  
 $~~~~$ └ shadersGL3 $~~~~$ .frag, .vert  
 
