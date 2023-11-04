@@ -142,7 +142,7 @@ void ofApp::renderScene()
 
 * Copy the content of `data.zip` to the examples or to your projects into `/bin/data`.
 
-$~$ bin  
+bin  
 $~$ └ data  
 $~~~~$ ├ cubemaps $~~~~~~$ .exr, .hdr, .jpg  
 $~~~~$ ├ models $~~~~~~~~$ .obj, .ply, .fbx  
