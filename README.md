@@ -29,25 +29,48 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 - A positionable Ambient **light** with **Shadows**.
 - **Cubemaps** (**HDR**) files with on runtime loader.
   - Alternative background color.
+- Added **Shader** for *testing/code*.
+  - **Displacement** applied to the plane and his material/mesh.
 - Persistent settings:
   - **Plane** colors, transforms, simple material, etc...
   - **Objects** material with full specs. 
   - Camera settings.
     - Included [ofxCameraSaveLoad](https://github.com/roymacdonald/ofxCameraSaveLoad) into `/libs`.
-- Easy to pass a local **camera** and your **render scene**.
-  - Test camera workflow between classes. [TODO] 
 - Material and scene **Randomizers**.
   - History browsing **Undo/Redo** workflow. [TODO] 
-- Added **Shader** for *testing/code*.
-  - **Displacement** applied to the plane and his material/mesh.
-  - Mesh/vertex displacements (not just heightmaps). [TODO]
-  - Shader **Debugger**. [TODO]
 - **3D models** browser/loader class
   - Used into `\2_Example_Models\`.
+
+### TODO
+  - Add more Shaders related stuff. 
+  - Mesh/vertex displacements (not just heightmaps). [TODO]
+  - Shader **Debugger**. [TODO]
 
 <details>
   <summary>Usage</summary>
   <p>
+
+### main.cpp
+```.cpp
+#include "ofApp.h"
+#include "ofMain.h"
+
+int main() {
+
+#ifdef TARGET_OPENGLES // TODO
+    ofGLESWindowSettings settings;
+    settings.glesVersion = 2;
+#else
+    ofGLWindowSettings settings;
+    settings.setGLVersion(3, 2);
+#endif
+
+    auto window = ofCreateWindow(settings);
+
+    ofRunApp(window, make_shared<ofApp>());
+    ofRunMainLoop();
+}
+```
 
 ### ofApp.h
 ```.cpp
@@ -61,45 +84,46 @@ using callback_t = std::function<void()>;
 
 class ofApp : public ofBaseApp {
 public:
-      void setup();
-      void draw();
+    void setup();
+    void draw();
 
-      ofxSurfingPBR pbr;
-      void renderScene();
+    ofEasyCam cam;
 
-      ofEasyCam cam;
-};
+    ofxSurfingPBR pbr;
+    void renderScene();
+    };
 ```
+
 ### ofApp.cpp
 ```.cpp
 void ofApp::setup() {
-      pbr.setup();
+    pbr.setup();
 
-      // Pass the local camera
-      pbr.setCameraPtr(&cam);
+    // Pass the local camera
+    pbr.setCameraPtr(&cam);
 
-      // Pass the render scene function
-      callback_t f = std::bind(&ofApp::renderScene, this);
-      pbr.setFunctionRenderScene(f);
+    // Pass the render scene function
+    callback_t f = std::bind(&ofApp::renderScene, this);
+    pbr.setFunctionRenderScene(f);
 }
 
 void ofApp::draw() {
-      pbr.draw();
+    pbr.draw();
 
-      pbr.drawGui();
+    pbr.drawGui();
 }
 
 void ofApp::renderScene()
 {
-      // Plane floor
-      pbr.drawPlane();
+    // Plane floor
+    pbr.drawPlane();
 
-      // Other objects
-      pbr.beginMaterial();
-      {
-          ///*  Draw here !  *///
-      }
-      pbr.endMaterial();
+    // Other objects
+    pbr.beginMaterial();
+    {
+        ///*   Draw here!   *///
+    }
+    pbr.endMaterial();
 }
 ```
 
@@ -110,7 +134,7 @@ void ofApp::renderScene()
 
 * [OF 0.12+](https://github.com/openframeworks/openFrameworks).
 * **ofxAssimpModelLoader** [OF CORE]
-    * For the `2_Example_Models`. 
+    * Only for the example `2_Example_Models`. 
 
 ## Requeriments 
 
@@ -118,10 +142,10 @@ void ofApp::renderScene()
 
 bin  
   └ data  
-      ├ cubemaps / .exr / .hdr / .jpg  
-      ├ models / .obj / .ply / .fbx  
-      ├ shadersGL2 / .frag / .vert  
-      └ shadersGL3 / .frag / .vert  
+        ├ cubemaps / .exr, .hdr, .jpg  
+        ├ models / .obj, .ply, .fbx  
+        ├ shadersGL2 / .frag, .vert  
+        └ shadersGL3 / .frag, .vert  
 
 ## Tested Systems
 * **Windows 11** / **VS 2022** / **OF 0.12+** @[GitHub master branch](https://github.com/openframeworks/openFrameworks)
