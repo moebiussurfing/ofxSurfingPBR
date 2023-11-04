@@ -86,7 +86,7 @@ void ofApp::setup() {
 void ofApp::draw() {
       pbr.draw();
 
-      drawGui();
+      pbr.drawGui();
 }
 
 void ofApp::renderScene()
