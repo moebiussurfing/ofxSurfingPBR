@@ -64,10 +64,10 @@ public:
       void setup();
       void draw();
 
-      ofEasyCam cam;
-
       ofxSurfingPBR pbr;
       void renderScene();
+
+      ofEasyCam cam;
 };
 ```
 ### ofApp.cpp
@@ -109,13 +109,14 @@ void ofApp::renderScene()
 ## Dependencies
 
 * [OF 0.12+](https://github.com/openframeworks/openFrameworks).
-* **ofxAssimpModelLoader** [OF CORE]: For `2_Example_Models`. 
+* **ofxAssimpModelLoader** [OF CORE]
+    * For the `2_Example_Models`. 
 
 ## Requeriments 
 
 * Copy the content of `data.zip` to the examples or to your projects into `/bin/data`.
 
-bin
+bin  
   └ data  
       ├ cubemaps / .exr / .hdr / .jpg  
       ├ models / .obj / .ply / .fbx  
@@ -123,8 +124,7 @@ bin
       └ shadersGL3 / .frag / .vert  
 
 ## Tested Systems
-* **Windows 11** / **VS 2022** / **OF 0.12+**  
-@[GitHub master branch](https://github.com/openframeworks/openFrameworks)
+* **Windows 11** / **VS 2022** / **OF 0.12+** @[GitHub master branch](https://github.com/openframeworks/openFrameworks)
 
 ## License
 **MIT License**

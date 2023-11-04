@@ -1,7 +1,11 @@
 #pragma once
 #include "ofMain.h"
 
+#define USE_OPTIONAL_SETUP 0
+
 #define SURFING__USE_FILE_BROWSER
+
+//--
 
 #include "ofxSurfingPBR.h"
 
@@ -11,8 +15,6 @@
 #ifdef SURFING__USE_FILE_BROWSER
 	#include "SurfingModels.h"
 #endif
-
-#define USE_OPTIONAL_SETUP 1
 
 class ofApp : public ofBaseApp {
 public:
@@ -26,17 +28,18 @@ public:
 	void setupParams();
 	void drawGui();
 
-	ofEasyCam camera;
-
 	ofxSurfingPBR pbr;
 	void setupPBR();
 	void renderScene();
 	void drawMyScene();
 
+	ofEasyCam camera;
+
 	// Mesh
 	string pathMesh;
 	ofVboMesh mesh;
 	void setupMesh();
+	void drawMesh();
 
 	// Model
 	string pathModel;
@@ -54,21 +57,31 @@ public:
 	ofParameter<float> yPos { "Pos y", 0, -1.f, 1.f };
 	ofParameter<bool> bRotate { "Rotate", false };
 	ofParameter<float> speed { "Speed", 0.5f, 0, 1 };
+
 	ofParameter<int> indexScene { "SCENE", 0, 0, 2 };
+	ofParameter<string> nameScene { "Name", "" };
+	vector<string> sceneNames = {
+		"THREE-PRIMS",
+		"MESH",
+		"MODELS"
+	};
+
 	ofParameter<void> reset { "Reset" };
 	ofParameter<void> nextIndexScene { "Next" };
+	ofParameter<void> prevIndexScene { "Prev" };
 
 	ofEventListener listenerIndexScene;
 	ofEventListener listenerReset;
 	ofEventListener listenerNext;
+	ofEventListener listenerPrev;
 
 	void doPrevScene();
 	void doNextScene();
 	void doReset();
 
 	ofParameter<bool> bHelp { "Help", false };
-	string sHelp;
 	void buildHelp(); //refresh help info to display updated
+	string sHelp;
 
 	// Gui
 	ofxPanel gui;
@@ -78,6 +91,7 @@ public:
 #ifdef SURFING__USE_FILE_BROWSER
 	void setupModelsBrowser();
 	SurfingModels surfingModels;
+	ofxPanel guiModels;
 
 	ofEventListener listenerLoadModel;
 	ofEventListener listenerIndexModel;

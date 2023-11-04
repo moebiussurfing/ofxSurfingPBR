@@ -7,17 +7,13 @@
 
 // CONSTANTS
 
-//#define SURFING__PAD_TO_WINDOW_BORDER 5
 #define SURFING__PAD_TO_WINDOW_BORDER 10
 
-#define SURFING__OFXGUI_PAD 2
+#define SURFING__PAD_OFXGUI_PANELS 4
 
 #define SURFING__STRING_BOX__DEFAULT_XPAD 10
 #define SURFING__STRING_BOX__DEFAULT_YPAD 10
-
-//#define SURFING__STRING_BOX__DEFAULT_ROUND 0.f
-#define SURFING__STRING_BOX__DEFAULT_ROUND 4.f
-//#define SURFING__STRING_BOX__DEFAULT_ROUND 7.f
+#define SURFING__STRING_BOX__DEFAULT_ROUND 5.f
 
 //------
 
@@ -569,6 +565,11 @@ public:
 
 private:
 	void update(ofEventArgs & args) {
+		update();
+	}
+
+public:
+	void update() {
 		if (bEnable) {
 			auto t = ofGetElapsedTimeMillis() - timeLastChange;
 			if (bFlagSave && t > timeSaveDelay) {
@@ -579,7 +580,7 @@ private:
 		}
 	}
 
-	//public:
+public:
 	void save() {
 		if (f_Saver != nullptr) f_Saver();
 	}

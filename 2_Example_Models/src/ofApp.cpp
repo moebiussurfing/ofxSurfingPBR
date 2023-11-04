@@ -30,9 +30,142 @@ void ofApp::setup() {
 }
 
 //--------------------------------------------------------------
+void ofApp::setupParams() {
+
+	// Parameters
+
+	parameters.setName("ofApp");
+
+	parameters.add(yPos);
+	parameters.add(scale);
+	parameters.add(speed);
+	parameters.add(bRotate);
+
+	parameters.add(nameScene);
+	parameters.add(indexScene);
+	parameters.add(nextIndexScene);
+	parameters.add(prevIndexScene);
+
+	parameters.add(bHelp);
+	parameters.add(reset);
+
+	nameScene.setSerializable(false);
+
+	//--
+
+	// Callbacks
+
+	listenerIndexScene = indexScene.newListener([this](int & i) {
+		switch (indexScene) {
+		case 0:
+			nameScene = "THREE-PRIMS";
+			break;
+		case 1:
+			nameScene = "MESH";
+			break;
+		case 2:
+#ifndef SURFING__USE_FILE_BROWSER
+			nameScene = "MODEL";
+#else
+			nameScene = "MODELS";
+#endif
+			break;
+		}
+
+		buildHelp();
+	});
+
+	listenerNext = nextIndexScene.newListener([this](void) {
+		doNextScene();
+	});
+	listenerPrev = prevIndexScene.newListener([this](void) {
+		doPrevScene();
+	});
+
+	listenerReset = reset.newListener([this](void) {
+		doReset();
+	});
+
+	//--
+
+	// Gui
+
+	gui.setup(parameters);
+
+	refreshGui();
+	buildHelp();
+
+	//--
+
+	// Startup
+
+	reset.trigger(); //before loading settings or in case not settings file / app open for the first time.
+
+	ofxSurfing::loadSettings(parameters, path);
+}
+
+//--------------------------------------------------------------
+void ofApp::buildHelp() {
+
+	sHelp = "";
+	sHelp += "\n";
+	sHelp += "HELP\n";
+	sHelp += "ofApp\n";
+	sHelp += "\n";
+	sHelp += "H Help\n";
+	sHelp += "g Gui\n";
+	sHelp += "G ofxGui\n";
+	sHelp += "R Rotate\n";
+	sHelp += "\n";
+
+	sHelp += "SCENE:\n";
+	switch (indexScene) {
+	case 0:
+		sHelp += sceneNames[0]+ "\n#0";
+		break;
+	case 1:
+		sHelp += sceneNames[1]+ "\n#1";
+		break;
+	case 2:
+		sHelp += sceneNames[2]+ "\n#2";
+		break;
+	}
+	sHelp += "\n";
+	sHelp += "LEFT  Prev\n";
+	sHelp += "RIGHT Next\n";
+	sHelp += "\n";
+
+#ifdef SURFING__USE_FILE_BROWSER
+	if (indexScene == 2) {
+		sHelp += "MODEL:\n";
+		sHelp += surfingModels.getFilename() + "\n";
+		sHelp += "\n";
+		sHelp += "BROWSE\n";
+		sHelp += "UP    Prev\n";
+		sHelp += "DOWN  Next\n";
+		sHelp += "\n";
+		sHelp += surfingModels.getFilenamesList();
+	}
+#endif
+
+	sHelp += " \n"; //fix bb
+}
+
+//--------------------------------------------------------------
+void ofApp::refreshGui() {
+	ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center
+}
+
+//--------------------------------------------------------------
 void ofApp::setupPBR() {
 	pbr.setup();
+
+	// Pass the camera pointer
 	pbr.setCameraPtr(&camera);
+
+	// Pass the render scene
+	callback_t f = std::bind(&ofApp::renderScene, this);
+	pbr.setFunctionRenderScene(f);
 
 	//--
 
@@ -63,18 +196,15 @@ void ofApp::setupPBR() {
 		pbr.material.globalColor.set(ofFloatColor::orange);
 
 		bHelp = true;
-		pbr.bHelp = true;
 	}
 #endif
 
 #if USE_OPTIONAL_SETUP
+	#ifdef SURFING__USE_CUBE_MAP
 	// Force replace the default cubemap
 	pbr.loadCubeMap("cubemaps/kloppenheim_06_puresky_1k.exr");
+	#endif
 #endif
-
-	// Render scene
-	callback_t f = std::bind(&ofApp::renderScene, this);
-	pbr.setFunctionRenderScene(f);
 }
 
 //--------------------------------------------------------------
@@ -90,6 +220,19 @@ void ofApp::setupMesh() {
 	for (size_t i = 0; i < mesh.getNumNormals(); i++) {
 		mesh.getNormals()[i] *= -1.f;
 	}
+}
+
+//--------------------------------------------------------------
+void ofApp::drawMesh() {
+	// Transforms for the ofLogoHollow.ply mesh.
+	ofPushMatrix();
+	ofTranslate(0, 60, 0);
+	ofScale(40.f);
+	ofRotateXDeg(-90);
+	{
+		mesh.draw();
+	}
+	ofPopMatrix();
 }
 
 //--------------------------------------------------------------
@@ -121,7 +264,10 @@ void ofApp::setupModel() {
 #ifdef SURFING__USE_FILE_BROWSER
 //--------------------------------------------------------------
 void ofApp::setupModelsBrowser() {
+
 	surfingModels.setup();
+
+	guiModels.setup(surfingModels.parameters);
 
 	// Callback to trig the model file loading.
 	// The model path is ready on surfingModels.pathModel!
@@ -135,124 +281,6 @@ void ofApp::setupModelsBrowser() {
 	});
 }
 #endif
-
-//--------------------------------------------------------------
-void ofApp::setupParams() {
-
-	// Parameters
-
-	parameters.setName("ofApp");
-	parameters.add(yPos);
-	parameters.add(scale);
-	parameters.add(nextIndexScene);
-	parameters.add(indexScene);
-
-#ifdef SURFING__USE_FILE_BROWSER
-	parameters.add(surfingModels.parameters);
-#endif
-
-	parameters.add(bRotate);
-	parameters.add(speed);
-	parameters.add(bHelp);
-	parameters.add(reset);
-
-	//--
-
-	// Callbacks
-
-	listenerNext = nextIndexScene.newListener([this](void) {
-		doNextScene();
-	});
-
-	listenerReset = reset.newListener([this](void) {
-		doReset();
-	});
-
-	listenerIndexScene = indexScene.newListener([this](int & i) {
-		buildHelp();
-		//refreshGui();
-	});
-
-	//--
-
-	// Gui
-
-	gui.setup(parameters);
-
-	refreshGui();
-	buildHelp();
-
-	//--
-
-	// Startup
-
-	reset.trigger();
-
-	ofxSurfing::loadSettings(parameters, path);
-	//gui.loadFromFile(path);
-}
-
-//--------------------------------------------------------------
-void ofApp::buildHelp() {
-
-	sHelp = "";
-	sHelp += "\n";
-	sHelp += "HELP\n";
-	sHelp += "ofApp\n";
-	sHelp += "\n";
-	sHelp += "H Help\n";
-	sHelp += "g Gui\n";
-	sHelp += "G ofxGui\n";
-	sHelp += "R Rotate\n";
-	sHelp += "\n";
-
-	switch (indexScene) {
-	case 0:
-		sHelp += "#0\nSCENE\nTHREE-PRIMS";
-		break;
-	case 1:
-		sHelp += "#1\nSCENE\nMESH";
-		break;
-	case 2:
-#ifndef SURFING__USE_FILE_BROWSER
-		sHelp += "#2\nSCENE\nMODEL";
-#else
-		sHelp += "#2\nSCENE\nMODELS";
-#endif
-		break;
-	}
-	sHelp += "\n\n";
-	sHelp += "SPACE\nNext Scene\n";
-	sHelp += "\n";
-
-#ifdef SURFING__USE_FILE_BROWSER
-	if (indexScene == 2) {
-		sHelp += "BROWSE\n";
-		sHelp += "UP    Prev\n";
-		sHelp += "DOWN  Next\n";
-		sHelp += "\n";
-		sHelp += surfingModels.getFilename();
-		sHelp += "\n\n";
-		sHelp += surfingModels.getFilenamesList();
-	}
-#endif
-
-	sHelp += " \n"; //fix bb
-}
-
-//--------------------------------------------------------------
-void ofApp::refreshGui() {
-
-	gui.getGroup(surfingModels.parameters.getName()).minimize();
-	//#ifdef SURFING__USE_FILE_BROWSER
-	//	if (indexScene == 2)
-	//		gui.getGroup(surfingModels.parameters.getName()).maximize();
-	//	else
-	//		gui.getGroup(surfingModels.parameters.getName()).minimize();
-	//#endif
-
-	ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center
-}
 
 //--------------------------------------------------------------
 bool ofApp::loadModel(string path, float scaled) {
@@ -300,26 +328,58 @@ bool ofApp::loadModel(string path, float scaled) {
 
 //--------------------------------------------------------------
 void ofApp::update() {
+
 #if 0
-	// Shows how to access the internal camera
-	// Make some animation.
+	// DEBUG cam
+	if (ofGetFrameNum() % 60 == 0) {
+		cout << "dist:" << pbr.getOfEasyCamPtr()->getDistance() << endl;
+		cout << "pos:" << pbr.getOfEasyCamPtr()->getPosition() << endl;
+	}
+#endif
+
+#if 0
+
+	// Shows how to access the internal camera.
+	// Make some animation to the distance.
 	float t = ofGetElapsedTimef();
 	float v = glm::sin(2.0f * glm::pi<float>() * t);
 	v = ofMap(v, -1, 1, 700, 4000, true);
 	pbr.getOfEasyCamPtr()->setDistance(v);
-	//camera.setDistance(v);
+	//camera.setDistance(v);//will does the same than above line.
 #endif
 }
 
 //--------------------------------------------------------------
 void ofApp::drawModel() {
+	glFrontFace(GL_CCW); //fix for "transparent" for model head25k.obj with normals problems..
 
-	// Draw all the meshes
-	if (meshesModel.size() > 0) {
-		for (int i = 0; i < meshesModel.size(); i++) {
-			meshesModel[i].drawFaces();
+#define USE_MODEL_TRANSFORMS 1
+
+#if (USE_MODEL_TRANSFORMS)
+	// Scene transforms
+	ofPushMatrix();
+	ofTranslate(0, 100, 0);
+	ofScale(50.f);
+
+	// Model transforms
+	// Settled when loading the model,
+	// but requires apply here before draw!
+	ofScale(model.getScale().x, model.getScale().y, model.getScale().z);
+	//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);//TODO
+#endif
+
+	// Draw all the model queued meshes
+	{
+		if (meshesModel.size() > 0) {
+			for (int i = 0; i < meshesModel.size(); i++) {
+				meshesModel[i].drawFaces();
+			}
 		}
 	}
+
+#if (USE_MODEL_TRANSFORMS)
+	ofPopMatrix();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -331,21 +391,31 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::drawGui() {
-	if (!pbr.bGui) return; //used as global show gui
+	if (!pbr.bGui) return; //used as global show ui.
 
 	pbr.drawGui();
 
 	//--
 
 	if (bHelp) {
-		// responsive layout
-		if (!pbr.isVisibleDebugShader())
+		// Simple responsive layout
+		if (!pbr.isVisibleDebugShader() && ofGetHeight() > 800)
 			ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
 		else
 			ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
 	}
 
-	if (pbr.bGui_ofxGui) gui.draw();
+	if (pbr.bGui_ofxGui) {
+		gui.draw();
+
+#ifdef SURFING__USE_FILE_BROWSER
+		if (indexScene == 2) {
+			auto bb = gui.getShape();
+			guiModels.setPosition(bb.getTopRight() + glm::vec2 { (float)SURFING__PAD_OFXGUI_PANELS, 0.f });
+			guiModels.draw();
+		}
+#endif
+	}
 }
 
 //--------------------------------------------------------------
@@ -365,30 +435,34 @@ void ofApp::renderScene() {
 //--------------------------------------------------------------
 void ofApp::drawMyScene() {
 
-	// Scene transforms
+#define DO_SCENE_TRANSFORMS 1
 
-	//float yPosUnit = 20;
-	//float y = ofMap(yPos, -1.f, 1.f, -yPosUnit, yPosUnit, true);
+#if (DO_SCENE_TRANSFORMS)
+	// Scene transforms
+	ofPushMatrix();
 
 	// Position
-	float yPosUnit = SURFING__SCENE_SIZE_UNIT / 2.f;
-	float y = ofMap(yPos, -1.f, 1.f, -yPosUnit, yPosUnit, true);
+	float yUnit = SURFING__SCENE_SIZE_UNIT / 2.f;
+	float y = ofMap(yPos, -1.f, 1.f,
+		-yUnit, yUnit, true);
 
 	// Scale
-	float scaleUnit = 20;
-	float s = ofMap(scale, -1.f, 1.f, .2f, scaleUnit, true);
+	float s = ofMap(scale, -1.f, 1.f,
+		1.f / SURFING__SCENE_TEST_UNIT_SCALE, SURFING__SCENE_TEST_UNIT_SCALE, true);
 
 	// Rotation
 	int tmax = 30; //30 seconds to do 360deg at 60 fps, for the slower speed. faster speed is one second per 360deg.
 	int f = ofMap(speed, 0.f, 1.f, 60 * tmax, 60, true);
 	float d = ofMap(ofGetFrameNum() % f, 0, f, 0.f, 360.f);
 
-	ofPushMatrix();
 	ofTranslate(0, y, 0);
 	ofScale(s);
 	if (bRotate) ofRotateYDeg(d);
+#endif
 
 	{
+		//--
+
 		// Scene 0
 		// Three Prims
 
@@ -402,10 +476,7 @@ void ofApp::drawMyScene() {
 		// Mesh
 
 		if (indexScene == 1) {
-
-			//ofRotateXDeg(-90);
-
-			mesh.draw();
+			drawMesh();
 		}
 
 		//--
@@ -414,43 +485,25 @@ void ofApp::drawMyScene() {
 		// Model(s)
 
 		else if (indexScene == 2) {
-			glFrontFace(GL_CCW); //fix for "transparent" for model head25k.obj with normals problems..
-
-#define USE_MODEL_TRANSFORMS 0
-#if (USE_MODEL_TRANSFORMS)
-			if (bModelTransforms) {
-				ofPushMatrix();
-
-				//// Scene transforms
-				//float s_ = 1;
-				//float y_ = 0;
-				//ofScale(s_ * 2.0f);
-				//ofTranslate(0, y_, 0);
-
-				// Model transforms
-				// Settled when loading the model,
-				// but requires apply here before draw!
-				ofScale(model.getScale().x, model.getScale().y, model.getScale().z);
-				//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);//TODO
-			}
-#endif
 			drawModel();
-
-#if (USE_MODEL_TRANSFORMS)
-			ofPopMatrix();
-#endif
 		}
 	}
 
+#if DO_SCENE_TRANSFORMS
 	ofPopMatrix();
+#endif
 }
 
 //--------------------------------------------------------------
 void ofApp::doReset() {
-	scale = 0.f;
-	yPos = 0.f;
+	scale = -0.6;
+	yPos = 0;
 	speed = 0.5;
 
+	// PBR
+	// Reset all, including camera
+	pbr.doResetAll();
+	// Reset camera
 	//pbr.doResetCamera();
 }
 
@@ -475,16 +528,16 @@ void ofApp::keyPressed(int key) {
 	if (key == 'R') bRotate = !bRotate;
 	if (key == 'H') bHelp = !bHelp;
 
-	if (key == ' ') {
+	if (key == OF_KEY_RIGHT) {
 		doNextScene();
+	} else if (key == OF_KEY_LEFT) {
+		doPrevScene();
 	}
 
 #ifdef SURFING__USE_FILE_BROWSER
-	if (key == OF_KEY_DOWN) {
+	else if (key == OF_KEY_DOWN) {
 		surfingModels.next();
-	}
-
-	if (key == OF_KEY_UP) {
+	} else if (key == OF_KEY_UP) {
 		surfingModels.previous();
 	}
 #endif
@@ -513,5 +566,4 @@ void ofApp::exit() {
 	pbr.exit();
 
 	ofxSurfing::saveSettings(parameters, path);
-	//gui.saveToFile(path);
 }

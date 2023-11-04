@@ -10,9 +10,9 @@ public:
 	void keyPressed(int key);
 	void exit();
 
-	ofEasyCam camera;
-	void drawYourScene();
-
 	ofxSurfingPBR pbr;
 	void renderScene();
+
+	ofEasyCam camera;
+	void drawYourScene();
 };

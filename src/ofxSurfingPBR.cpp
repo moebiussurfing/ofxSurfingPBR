@@ -20,6 +20,7 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 	ofRemoveListener(lightParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedLight);
 	ofRemoveListener(shadowParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedShadow);
 	ofRemoveListener(internalParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
+	ofRemoveListener(testSceneParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
 	ofRemoveListener(cameraParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
 	ofRemoveListener(backgroundParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedBg);
 
@@ -41,7 +42,9 @@ void ofxSurfingPBR::windowResized(ofResizeEventArgs & resize) {
 	if (sz != sz_) {
 		sz_ = sz;
 		ofLogNotice("ofxSurfingPBR") << "windowResized() Size: " << w << "," << h;
+
 		buildHelp();
+		refreshGui();
 	}
 }
 
@@ -109,9 +112,9 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	testSceneParams.setName("TestScene");
-	scaleTestScene.set("Scale", 0, 0, 1);
-	positionTestScene.set("yPosition", 0, -1, 1);
+	testSceneParams.setName("Test Scene");
+	scaleTestScene.set("Scale", 0, -1.f, 1.f);
+	positionTestScene.set("yPosition", 0, -1.f, 1.f);
 	resetTestScene.set("Reset TestScene");
 	testSceneParams.add(scaleTestScene);
 	testSceneParams.add(positionTestScene);
@@ -155,7 +158,8 @@ void ofxSurfingPBR::setupParams() {
 	planeSize.set("Size", glm::vec2(0.8f, 0.8f), glm::vec2(0, 0), glm::vec2(1.f, 1.f));
 	planeResolution.set("Resolution",
 		glm::ivec2(SURFING__PLANE_RESOLUTION, SURFING__PLANE_RESOLUTION),
-		glm::ivec2(1, 1), glm::ivec2(SURFING__PLANE_RESOLUTION_MAX, SURFING__PLANE_RESOLUTION_MAX));
+		glm::ivec2(1, 1),
+		glm::ivec2(SURFING__PLANE_RESOLUTION_MAX, SURFING__PLANE_RESOLUTION_MAX));
 	planeRotation.set("x Rotation", 0, -45, 135);
 	planePosition.set("y Position", 0, -1, 1);
 	planeShiness.set("Shiness", 0.85, 0, 1);
@@ -201,7 +205,7 @@ void ofxSurfingPBR::setupParams() {
 
 	lightAmbientColor.set("Light Ambient Color",
 		ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
-	float u = 4 * SURFING__SCENE_SIZE_UNIT;
+	float u = 1.5 * SURFING__SCENE_SIZE_UNIT;
 	lightParams.add(lightX.set("X", 0.0f, -u, u));
 	lightParams.add(lightY.set("Y", 0.0f, -u, u));
 	lightParams.add(lightZ.set("Z", 0.0f, -u, u));
@@ -279,6 +283,7 @@ void ofxSurfingPBR::setupParams() {
 	ofAddListener(lightParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedLight);
 	ofAddListener(shadowParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedShadow);
 	ofAddListener(internalParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
+	ofAddListener(testSceneParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
 	ofAddListener(cameraParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
 	ofAddListener(backgroundParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedBg);
 
@@ -491,8 +496,8 @@ void ofxSurfingPBR::setup() {
 void ofxSurfingPBR::startup() {
 	ofLogNotice("ofxSurfingPBR") << "startup()";
 
-	if (this - getSettingsFileFound()) {
-		ofLogWarning("ofxSurfingPBR") << "Settings file  not found!";
+	if (!this->getSettingsFileFound()) {
+		ofLogWarning("ofxSurfingPBR") << "Settings file not found!";
 		ofLogWarning("ofxSurfingPBR") << "Forcing some stuff (scene, help, debug mode, etc ...";
 
 #if 0
@@ -508,11 +513,19 @@ void ofxSurfingPBR::startup() {
 		material.reflectance = 0.5;
 		material.globalColor.set(ofFloatColor::orange);
 #endif
+		//--
+		
 		// Force enable Help and Debug states!
 		bHelp = true;
 		bDebug = true;
 		bDebugShadow = true;
 	}
+
+	if (!this->getSettingsCameraFileFound()) {
+		doResetCamera();
+	}
+
+	//--
 
 	load();
 
@@ -575,24 +588,22 @@ void ofxSurfingPBR::setupPBRScene() {
 void ofxSurfingPBR::setupGui() {
 	gui.setup(parameters);
 
-	gui.setPosition(SURFING__PAD_TO_WINDOW_BORDER, SURFING__PAD_TO_WINDOW_BORDER);
-
 	refreshGui();
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshGui() {
+
+	gui.setPosition(SURFING__PAD_TO_WINDOW_BORDER, SURFING__PAD_TO_WINDOW_BORDER);
+
 	// minimize sub panels
 
 	gui.getGroup(planeParams.getName())
-		.getGroup(planeTransformParams.getName())
-		.minimize();
+		.getGroup(planeTransformParams.getName()).minimize();
 	gui.getGroup(planeParams.getName())
-		.getGroup(planeSettingsParams.getName())
-		.minimize();
+		.getGroup(planeSettingsParams.getName()).minimize();
 	gui.getGroup(planeParams.getName())
-		.getGroup(planeColorsParams.getName())
-		.minimize();
+		.getGroup(planeColorsParams.getName()).minimize();
 	gui.getGroup(lightParams.getName()).minimize();
 	gui.getGroup(shadowParams.getName()).minimize();
 	gui.getGroup(backgroundParams.getName()).minimize();
@@ -627,7 +638,10 @@ void ofxSurfingPBR::update(ofEventArgs & args) {
 //--------------------------------------------------------------
 void ofxSurfingPBR::update() {
 	if (ofGetFrameNum() == 0) {
-		if (camera != nullptr) ofxLoadCamera(*camera, pathCamera);
+		if (!this->getSettingsCameraFileFound()) {
+			doResetCamera();
+		}
+		else if (camera != nullptr) ofxLoadCamera(*camera, pathCamera);
 	}
 
 	//--
@@ -690,7 +704,7 @@ void ofxSurfingPBR::drawGui() {
 
 	if (bGui_ofxGui) {
 		//force position
-		auto p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_TO_WINDOW_BORDER, 0);
+		auto p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_OFXGUI_PANELS, 0);
 		material.gui.setPosition(p);
 
 		gui.draw();
@@ -806,12 +820,10 @@ void ofxSurfingPBR::draw() {
 	// camera
 	camera->begin();
 	{
-#ifdef SURFING__USE_CUBE_MAP
 		// Alternative Bg
 		if (bDrawBgAlt) {
 			ofClear(bgAltColor);
 		}
-#endif
 
 		//----
 
@@ -1065,13 +1077,26 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 
 	//--
 
-	if (name == resetTestScene.getName()) {
-		scaleTestScene = 0;
-		positionTestScene = 0;
-	}
-
 	if (name == bKeys.getName()) {
 		buildHelp();
+	}
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::ChangedTestScene(ofAbstractParameter & e) {
+
+	std::string name = e.getName();
+
+	ofLogNotice("ofxSurfingPBR") << "ChangedTestScene " << name << ": " << e;
+
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+	autoSaver.saveSoon();
+#endif
+
+	//--
+
+	if (name == resetTestScene.getName()) {
+		doResetTestScene();
 	}
 }
 
@@ -1213,41 +1238,59 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawTestScene() {
 	// do once
-	static bool b = false;
-	if (!b) {
-		b = true;
-		ofSetConeResolution(50, 10, 2);
+	{
+		static bool b = false;
+		if (!b) {
+			b = true;
+			ofSetConeResolution(50, 10, 2);
+		}
 	}
 
+	//--
+
+#define DO_SCENE_TEST_TRANSFORMS 1
+
+#if (DO_SCENE_TEST_TRANSFORMS)
+	// Scene transforms
 	ofPushMatrix();
+	
+	// Position
+	float yUnit = SURFING__SCENE_SIZE_UNIT / 2.f;
+	float y = ofMap(positionTestScene, -1.f, 1.f, 
+		-yUnit, yUnit, true);
 
-	float s = ofMap(scaleTestScene, 0, 1, 1.8, 8.0, true);
-	ofScale(s);
+	// Scale
+	float s = ofMap(scaleTestScene, -1.f, 1.f,
+		1.f / SURFING__SCENE_TEST_UNIT_SCALE, SURFING__SCENE_TEST_UNIT_SCALE, true);
 
-	float u = SURFING__SCENE_SIZE_UNIT / 4.f;
-	float y = ofMap(positionTestScene, -1, 1, -u, u, true);
 	ofTranslate(0, y, 0);
+	ofScale(s);
+#endif
 
 	{
+		float u = SURFING__SCENE_SIZE_UNIT / 10.f;
+
 		// Cone
 		ofPushMatrix();
-		ofTranslate(-200, 100, 0);
+		ofTranslate(-2 * u, u, 0);
 		ofRotateXDeg(180);
-		ofDrawCone(0, 0, 0, 65, 100);
+		ofDrawCone(0, 0, 0, u * 0.65f, u);
 		ofPopMatrix();
 
 		// Box
 		ofPushMatrix();
 		float spd = 240;
 		ofRotateYDeg(360.f * (ofGetFrameNum() % (int)spd) / spd);
-		ofDrawBox(0, 100, 0, 100);
+		ofDrawBox(0, u, 0, u);
 		ofPopMatrix();
 
 		// Sphere
-		ofDrawSphere(200, 100, 0, 50);
+		ofDrawSphere(2 * u, u, 0, u / 2.f);
 	}
 
+#if DO_SCENE_TEST_TRANSFORMS
 	ofPopMatrix();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -1325,21 +1368,37 @@ void ofxSurfingPBR::load() {
 //--------------------------------------------------------------
 bool ofxSurfingPBR::getSettingsFileFound() {
 	/*
-		will search for the settings files:
-		ofxSurfingPBR_Material.json
-		ofxSurfingPBR_Scene.json
+		We will search for the settings files:
+		ofxSurfingPBR_Scene.json -> mandatory!
+		ofxSurfingPBR_Material.json -> optional
+		ofxSurfingPBR_Camera.json -> optional
 	*/
 
+	// search for the mandatory settings file to consider if the app is opened for the first time.
 	ofFile f;
-	bool b = f.doesFileExist(path);
-	if (b) {
+	bool bFileSettingsFound = f.doesFileExist(path);
+	if (bFileSettingsFound) {
 		ofLogNotice("ofxSurfingPBR") << "getSettingsFileFound(): Found file settings!";
 		ofLogNotice("ofxSurfingPBR") << "Found SCENE settings file: " << path;
 	} else {
 		ofLogWarning("ofxSurfingPBR") << "SCENE settings file: " << path << " not found!";
 	}
 
-	//not required but will log if located or not
+	//not required, but we log if it's located or not.
+	getSettingsMaterialFileFound();
+
+	//not required, but we log if it's located or not.
+	getSettingsCameraFileFound();
+
+	//--
+
+	if (!bFileSettingsFound) ofLogWarning("ofxSurfingPBR") << "Probably opening the App for the first time!";
+
+	return bFileSettingsFound;
+}
+
+//--------------------------------------------------------------
+bool ofxSurfingPBR::getSettingsMaterialFileFound() {
 	ofFile f2;
 	bool b2 = f2.doesFileExist(material.path);
 	if (b2) {
@@ -1347,8 +1406,11 @@ bool ofxSurfingPBR::getSettingsFileFound() {
 	} else {
 		ofLogWarning("ofxSurfingPBR") << "MATERIAL settings file: " << material.path << " not found!";
 	}
+	return b2;
+}
 
-	//not required but will log if located or not
+//--------------------------------------------------------------
+bool ofxSurfingPBR::getSettingsCameraFileFound() {
 	ofFile f3;
 	bool b3 = f3.doesFileExist(pathCamera);
 	if (b3) {
@@ -1356,12 +1418,7 @@ bool ofxSurfingPBR::getSettingsFileFound() {
 	} else {
 		ofLogWarning("ofxSurfingPBR") << "CAMERA settings file: " << pathCamera << " not found!";
 	}
-
-	//--
-
-	if (!b) ofLogWarning("ofxSurfingPBR") << "Probably opening the App for the first time!";
-
-	return b;
+	return b3;
 }
 
 //--
@@ -1407,14 +1464,13 @@ bool ofxSurfingPBR::loadCubeMap(string path) {
 
 	bLoadedCubeMap = b;
 
-	if (1)
-		if (b) {
-			cubeMapMode = cubeMapMode; //refresh
-			cubeMapName = path_CubemapFilename;
-		} else {
-			cubeMapModeName = "NONE";
-			cubeMapName = "NONE";
-		}
+	if (b) {
+		cubeMapMode = cubeMapMode; //refresh
+		cubeMapName = path_CubemapFilename;
+	} else {
+		cubeMapModeName = "NONE";
+		cubeMapName = "NONE";
+	}
 
 	return b;
 }
@@ -1492,9 +1548,12 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 'g') bGui = !bGui;
 	if (key == 'G') bGui_ofxGui = !bGui_ofxGui;
 	if (key == 'p') bDrawPlane = !bDrawPlane;
-	if (key == 'c') bDrawCubeMap = !bDrawCubeMap;
 	if (key == 's') bDrawShadow = !bDrawShadow;
 	if (key == 'b') bDrawBgAlt = !bDrawBgAlt;
+
+#ifdef SURFING__USE_CUBE_MAP
+	if (key == 'c') bDrawCubeMap = !bDrawCubeMap;
+#endif
 
 	if (key == 'f') ofToggleFullscreen();
 	if (key == 'q') ofxSurfing::setWindowSquared(800);
@@ -1515,7 +1574,7 @@ void ofxSurfingPBR::setLogLevel(ofLogLevel logLevel) {
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetLight() {
 	lightX = 0;
-	lightY = 1.25f * SURFING__SCENE_SIZE_UNIT;
+	lightY = SURFING__SCENE_SIZE_UNIT * 0.5;
 	lightZ = 0;
 	lightAmbientColor.set(ofFloatColor(1.f, 1.f));
 }
@@ -1537,16 +1596,16 @@ void ofxSurfingPBR::doResetPlane() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetPlaneTransform() {
-	planeSize.set(glm::vec2(0.09f, 0.045f));
-	//bPlaneInfinite = false;
-	planeRotation.set(10.f);
-	planePosition.set(-0.1f);
+	planeSize.set(glm::vec2(0.13, 0.05));
+	bPlaneInfinite = false;
+	planePosition.set(0.f);
+	planeRotation.set(0.f);
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetShadow() {
 	bDrawShadow.set(true);
-	shadowBias.set(0.07);
+	shadowBias.set(0.1);
 	shadowNormalBias.set(-4.f);
 	//shadowStrength.set(0.6f);//TODO
 	//shadowSize.set(glm::vec2(0.25f,0.25f));//TODO
@@ -1559,9 +1618,6 @@ void ofxSurfingPBR::doResetCubeMap() {
 	cubeMapMode = 2;
 	//bDrawCubeMap = true;
 	cubeMapprefilterRoughness = 0.25f;
-
-	if (bDrawBgAlt) bDrawBgAlt = false;
-	bgAltColor.set(ofFloatColor(0.3));
 }
 #endif
 
@@ -1570,7 +1626,11 @@ void ofxSurfingPBR::doResetCamera() {
 	ofEasyCam * easyCam = dynamic_cast<ofEasyCam *>(camera);
 	if (easyCam != nullptr) {
 		easyCam->reset();
+
 		camera->setFarClip(SURFING__SCENE_CAMERA_FAR);
+
+		easyCam->setPosition({ 8.35512, 581.536, 696.76 });
+		easyCam->setOrientation({ 0.940131, -0.340762, 0.00563653, 0.00204303 });
 	}
 }
 
@@ -1593,9 +1653,22 @@ void ofxSurfingPBR::doResetAll(bool bExcludeMaterial) {
 
 	if (!bExcludeMaterial) material.doResetMaterial();
 
+	bgAltColor.set(ofFloatColor(0.2f));
+#ifdef SURFING__USE_CUBE_MAP
+	if (bDrawBgAlt) bDrawBgAlt = false;
+#else
+	bDrawBgAlt = true;
+#endif
+
 	resetTestScene.trigger();
 
 	resetCamera.trigger();
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetTestScene() {
+	scaleTestScene = -0.6;
+	positionTestScene = 0;
 }
 
 //--------------------------------------------------------------

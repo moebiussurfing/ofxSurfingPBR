@@ -4,7 +4,6 @@
 //--
 
 /*
-
 	OpenFrameworks addon to easily test, learn, and use the new PBR features from the new OF 0.12+ releases.
 
 	(You should use the GitHub master branch: https://github.com/openframeworks/openFrameworks !
@@ -15,20 +14,19 @@
 	Original authors:  
 	@NickHardeman | https://github.com/NickHardeman
 	and @paolo-scoppola | https://github.com/paolo-scoppola.
-
 */
 
 /*
-
 	TODO
 
-	- fix plane light not working
-		- check pipeline / enable arbTex from the example!
 	- add undo history/browser..
-		store each group on a vector to browse back
-	- customize share plane divisions and img size.
-	- get mesh mods/shader example.
-	- add cubemap file path to settings
+	- add cubemap file path to persistent settings
+
+	- SHADERS AND DISAPLCE
+		- fix plane light not working when shaders enabled..
+		- check pipeline / enable arbTex from the example!
+		- customize share plane divisions and img size/clamp.
+		- get mesh mods/shader example.
 
 	- add ImGui mode.
 	- add presets manager 
@@ -38,9 +36,9 @@
 		to queue many actors/ofNodes, materials 
 		and lights on a std::vector.
 		something like ofxPBR or ofxPBRHelper.
-	- add ofxBgGradient addon ? copy just the gradients
+	- add ofxBgGradient addon ?
+		copy just the gradients
 	- add custom global path to /data/ofxSurfingPBR/
-
 */
 
 //--
@@ -76,7 +74,6 @@ public:
 	void exit();
 	void keyPressed(int key);
 	void windowResized(ofResizeEventArgs & e);
-
 	void setLogLevel(ofLogLevel logLevel);
 
 private:
@@ -89,10 +86,17 @@ private:
 	//--
 
 private:
+	void setupPBRScene();
+	void updatePBRScene();
+	void drawPBRScene();
+	void drawPBRSceneDebug();
+
+private:
 	void ChangedPlane(ofAbstractParameter & e);
 	void ChangedLight(ofAbstractParameter & e);
 	void ChangedShadow(ofAbstractParameter & e);
 	void ChangedInternal(ofAbstractParameter & e);
+	void ChangedTestScene(ofAbstractParameter & e);
 	void ChangedCamera(ofAbstractParameter & e);
 	void ChangedBg(ofAbstractParameter & e);
 
@@ -104,6 +108,41 @@ private:
 	void ChangedDisplacers(ofAbstractParameter & e);
 #endif
 
+	//--
+
+public:
+	SurfingMaterial material;
+
+public:
+	void beginMaterial();
+	void endMaterial();
+
+	void beginMaterialPlane();
+	void endMaterialPlane();
+
+	//--
+
+private:
+	ofCamera * camera;
+
+private:
+	callback_t f_RenderScene = nullptr;
+
+public:
+	//--------------------------------------------------------------
+	void setFunctionRenderScene(callback_t f = nullptr) {
+		f_RenderScene = f;
+	};
+
+private:
+	ofPlanePrimitive plane;
+	void refreshPlane();
+
+	ofMaterial materialPlane;
+
+	vector<shared_ptr<ofLight>> lights;
+
+private:
 	//Some app flow controls
 	//Help fixes some callback crashes at startup
 	//bool bDoneSetup = false;
@@ -115,6 +154,7 @@ private:
 	//--
 
 public:
+	//--------------------------------------------------------------
 	void setCameraPtr(ofCamera * camera_) {
 		camera = camera_;
 
@@ -124,12 +164,14 @@ public:
 
 	// For getting camera from the parent class/ofApp
 	// (TODO: Currently is not required bc the cam is instantiated on there!)
+	//--------------------------------------------------------------
 	ofCamera * getOfCameraPtr() {
 		if (camera != nullptr)
 			return camera;
 		else
 			return nullptr;
 	}
+	//--------------------------------------------------------------
 	ofEasyCam * getOfEasyCamPtr() {
 		ofEasyCam * easyCam = dynamic_cast<ofEasyCam *>(camera);
 		if (easyCam != nullptr)
@@ -144,7 +186,7 @@ private:
 	ofParameter<void> saveCamera;
 	ofParameter<void> loadCamera;
 	ofParameter<void> resetCamera;
-	string pathCamera = "ofxSurfingPBR_CameraSettings.ini";
+	string pathCamera = "ofxSurfingPBR_Camera.ini";
 
 public:
 	void doResetCamera();
@@ -152,6 +194,7 @@ public:
 public:
 	ofParameterGroup parameters; //main container to expose to gui and to handle settings
 
+	//--------------------------------------------------------------
 	ofParameterGroup & getMaterialParameters() { //mainly to expose to external gui's like ImGui
 		return material.parameters;
 	};
@@ -165,15 +208,19 @@ public:
 	ofParameter<float> scaleTestScene;
 	ofParameter<float> positionTestScene;
 	ofParameter<void> resetTestScene;
-
+	void doResetTestScene();
+	
 	ofParameter<bool> bDebug;
 	ofParameter<bool> bKeys;
 
 	ofParameter<bool> bHelp;
+
+private:
 	string sHelp;
 	void buildHelp();
 	int helpLayout = 2; //top-right
 
+public:
 	ofParameter<bool> bDrawPlane;
 
 	ofParameterGroup planeParams;
@@ -221,55 +268,30 @@ private:
 
 public:
 	// helper to improve layout with many gui panels.
-	const ofRectangle getGuiShape() {
+	//--------------------------------------------------------------
+	ofRectangle getGuiShape() const {
 		ofRectangle r1 = gui.getShape();
 		ofRectangle r2 = material.gui.getShape();
 		ofRectangle bb = r1.getUnion(r2);
 		return bb;
-	};
-	const bool isVisibleDebugShader() {
+	}
+
+	//--------------------------------------------------------------
+	bool isVisibleDebugShader() {
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 		if (bDebug && (bShaderToPlane || bDisplaceToMaterial))
 			return true;
 		else
 			return false;
+#else
+		return false;
+#endif
 	}
 
 	//--
 
-private:
-	ofCamera * camera;
-
-private:
-	callback_t f_RenderScene = nullptr;
-
-public:
-	void setFunctionRenderScene(callback_t f = nullptr) {
-		f_RenderScene = f;
-	};
-
-private:
-	ofPlanePrimitive plane;
-	void refreshPlane();
-
-	ofMaterial materialPlane;
-
-	vector<shared_ptr<ofLight>> lights;
-
-	//--
-
-public:
-	SurfingMaterial material;
-
-public:
-	void beginMaterial();
-	void endMaterial();
-
-	void beginMaterialPlane();
-	void endMaterialPlane();
-
-	//--
-
 #ifdef SURFING__USE_CUBE_MAP
+private:
 	ofCubeMap cubeMap;
 
 	void setupCubeMap();
@@ -277,29 +299,32 @@ public:
 	string path_CubemapFilename = "modern_buildings_2_1k.exr"; //TODO: store path on settings
 	bool bLoadedCubeMap = false;
 
+public:
 	ofParameterGroup cubeMapParams;
 	ofParameter<string> cubeMapName;
 	ofParameter<int> cubeMapMode;
 	ofParameter<string> cubeMapModeName;
 	ofParameter<float> cubeMapprefilterRoughness;
 	ofParameter<bool> bDrawCubeMap;
-
-	ofParameterGroup backgroundParams;
-	ofParameter<ofFloatColor> bgAltColor;
-	ofParameter<bool> bDrawBgAlt;
-
-	ofParameter<void> openCubeMap;
-	void processOpenFileSelection(ofFileDialogResult openFileResult);
-
 	ofParameter<void> resetCubeMap;
+	ofParameter<void> openCubeMap;
+
+private:
+	void processOpenFileSelection(ofFileDialogResult openFileResult);
 	void doResetCubeMap();
 
 public:
 	bool loadCubeMap(string path = "");
 #endif
 
+public:
+	ofParameterGroup backgroundParams;
+	ofParameter<bool> bDrawBgAlt;
+	ofParameter<ofFloatColor> bgAltColor;
+
 	//--
 
+public:
 	void doResetPlane();
 	void doResetPlaneTransform();
 	void doResetLight();
@@ -334,7 +359,11 @@ public:
 	bool getSettingsFileFound(); //to check if the app is opened for the first time
 	// that allows to force customize the scene from ofApp at startup!
 
+	bool getSettingsMaterialFileFound();
+	bool getSettingsCameraFileFound();
+
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+private:
 	SurfingAutoSaver autoSaver;
 #endif
 
@@ -371,11 +400,6 @@ private:
 	void setupParamsDisplace();
 	void updateDisplace();
 	void refreshImgShaderPlane();
-
-	void setupPBRScene();
-	void updatePBRScene();
-	void drawPBRScene();
-	void drawPBRSceneDebug();
 
 public:
 	void beginShaderPlane();
