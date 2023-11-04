@@ -50,6 +50,8 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
   <summary>Usage</summary>
   <p>
 
+## EXAMPLE
+
 ### main.cpp
 ```.cpp
 #include "ofApp.h"
@@ -91,7 +93,7 @@ public:
 
     ofxSurfingPBR pbr;
     void renderScene();
-    };
+};
 ```
 
 ### ofApp.cpp
@@ -140,10 +142,15 @@ void ofApp::renderScene()
 
 * Copy the content of `data.zip` to the examples or to your projects into `/bin/data`.
 
+The action of every agent <br />
+  into the world <br />
+starts <br />
+  from their physical selves. <br />
+
 bin  
   └ data  
-        ├ cubemaps / .exr, .hdr, .jpg  
-        ├ models / .obj, .ply, .fbx  
+        ├ cubemaps $~~~~~~~~~~~$ .exr, .hdr, .jpg  
+        ├ models $~~~~~~~~~~~$ .obj, .ply, .fbx  
         ├ shadersGL2 / .frag, .vert  
         └ shadersGL3 / .frag, .vert  
 
