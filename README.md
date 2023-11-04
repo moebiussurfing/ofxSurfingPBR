@@ -118,7 +118,7 @@ void ofApp::renderScene()
     // Other objects
     pbr.beginMaterial();
     {
-        ///*   Draw here!   *///
+        ///*   DRAW HERE !   *///
     }
     pbr.endMaterial();
 }
