@@ -15,7 +15,7 @@
 #pragma once
 #include "ofMain.h"
 
-#include "SurfingHelpersLite.h"
+#include "ofxSurfingHelpersLite.h"
 #include <functional>
 using callback_t = std::function<void()>;
 

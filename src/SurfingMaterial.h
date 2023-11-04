@@ -3,7 +3,7 @@
 
 #include "SurfingConstantsPBR.h"
 
-#include "SurfingHelpersLite.h"
+#include "ofxSurfingHelpersLite.h"
 #include "ofxGui.h"
 
 class SurfingMaterial {

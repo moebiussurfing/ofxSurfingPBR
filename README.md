@@ -59,13 +59,8 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 
 int main() {
 
-#ifdef TARGET_OPENGLES // TODO
-    ofGLESWindowSettings settings;
-    settings.glesVersion = 2;
-#else
     ofGLWindowSettings settings;
     settings.setGLVersion(3, 2);
-#endif
 
     auto window = ofCreateWindow(settings);
 

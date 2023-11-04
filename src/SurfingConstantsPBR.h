@@ -9,7 +9,7 @@
 //#define SURFING__USE_FILE_BROWSER // allow browse model files on the folder.
 
 //--
- 
+
 // DEBUG
 
 //#define SURFING__SHADER_DEBUG // TODO: testing to improve performance.
@@ -29,7 +29,7 @@
 #define SURFING__PLANE_RESOLUTION 10
 #define SURFING__PLANE_RESOLUTION_MAX 100
 
-#define SURFING__SCENE_SIZE_UNIT 1000.f 
+#define SURFING__SCENE_SIZE_UNIT 1000.f
 // size order magnitude for objects, lights and camera position, distances, etc...
 
 #define SURFING__SCENE_CAMERA_FAR 1000000.f
@@ -46,3 +46,4 @@
 // PBR CONSTANTS
 
 #define SURFING__PBR__MAX_SHININESS 100
+#define SURFING__PBR__PLANE_COLORS_NO_ALPHA // bc it seems that is not being used internally..

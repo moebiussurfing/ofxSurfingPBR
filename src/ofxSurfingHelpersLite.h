@@ -9,11 +9,11 @@
 
 #define SURFING__PAD_TO_WINDOW_BORDER 10
 
-#define SURFING__PAD_OFXGUI_PANELS 4
+#define SURFING__PAD_OFXGUI_BETWEEN_PANELS 4
 
-#define SURFING__STRING_BOX__DEFAULT_XPAD 10
-#define SURFING__STRING_BOX__DEFAULT_YPAD 10
-#define SURFING__STRING_BOX__DEFAULT_ROUND 5.f
+#define SURFING__STRING_BOX__DEFAULT_XPAD 20
+#define SURFING__STRING_BOX__DEFAULT_YPAD 20
+#define SURFING__STRING_BOX__DEFAULT_ROUND 5.f // 0.f to not rounded
 
 //------
 
@@ -519,7 +519,7 @@ public:
 	// we will autosave after every param change,
 	// but after waiting some ms. reducing saving overflow.
 	// we will save also when app exit.
-	ofParameter<bool> bEnable { "Autosave", true };
+	ofParameter<bool> bEnable { "Auto Save", true };
 
 	void saveSoon(bool b = true) {
 		if (b) {

@@ -47,7 +47,6 @@
 
 //--
 
-#include "SurfingHelpersLite.h"
 #include "SurfingMaterial.h"
 #include "ofxCameraSaveLoad.h"
 #include "ofxGui.h"
@@ -319,8 +318,8 @@ public:
 
 public:
 	ofParameterGroup backgroundParams;
-	ofParameter<bool> bDrawBgAlt;
-	ofParameter<ofFloatColor> bgAltColor;
+	ofParameter<bool> bDrawBg;
+	ofParameter<ofFloatColor> bgColor;
 
 	//--
 
