@@ -176,6 +176,8 @@ void ofApp::refreshGui() {
 	// Center visible gui panels at the window bottom.
 #ifdef SURFING__USE__FILE_BROWSER
 	if (indexScene == 2) {
+		//TODO: move to ofxSurfingHelpersLite..
+		// fix tiny x offset..
 		auto w = gui.getShape().getWidth();
 		int o = SURFING__PAD_TO_WINDOW_BORDERS;
 		o -= SURFING__PAD_OFXGUI_BETWEEN_PANELS / 2;

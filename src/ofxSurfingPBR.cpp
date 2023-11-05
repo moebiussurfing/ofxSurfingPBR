@@ -54,7 +54,6 @@ void ofxSurfingPBR::buildHelp() {
 	ofLogNotice("ofxSurfingPBR") << "buildHelp()";
 
 	sHelp = "";
-	//sHelp += "\n";
 	sHelp += "HELP\n";
 	sHelp += "ofxSurfingPBR\n";
 	sHelp += "\n";
@@ -67,14 +66,14 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "g  Gui\n";
 		sHelp += "G  ofxGui\n";
 		sHelp += "\n";
-		sHelp += "   DRAW:\n";
+		sHelp += "   DRAW\n";
 		sHelp += "p  Plane\n";
 		sHelp += "s  Shadow \n";
 		sHelp += "c  CubeMap\n";
 		sHelp += "b  BgAlt\n";
 		sHelp += "\n";
 	}
-	sHelp += "   WINDOW:\n";
+	sHelp += "   WINDOW\n";
 	if (bKeys) {
 		sHelp += "f  FullScreen\n";
 		sHelp += "q  Squared\n";
@@ -84,21 +83,21 @@ void ofxSurfingPBR::buildHelp() {
 
 	if (bKeys) {
 		sHelp += "\n";
-		sHelp += "HELPERS:\n";
+		sHelp += "HELPERS\n";
 		sHelp += "\n";
-		sHelp += "   MATERIAL\n   RESET:\n";
+		sHelp += "   MATERIAL\n   RESET\n";
 		sHelp += "F1 Full\n";
 		sHelp += "\n";
-		sHelp += "   MATERIAL\n   RANDOM:\n";
+		sHelp += "   MATERIAL\n   RANDOM\n";
 		sHelp += "F2 Full\n";
 		sHelp += "F3 Settings\n";
-		sHelp += "   COLORS:\n";
+		sHelp += "   COLORS\n";
 		sHelp += "F4 GlobalNoAlpha\n";
 		sHelp += "F5 NoAlpha\n";
 		sHelp += "F6 WithAlpha\n";
 		sHelp += "F7 OnlyAlphas\n";
 		sHelp += "\n";
-		sHelp += "   HISTORY:\n";
+		sHelp += "   HISTORY\n";
 		sHelp += "z  Prev\n";
 		sHelp += "x  Next\n";
 		sHelp += "r  Recall\n";
