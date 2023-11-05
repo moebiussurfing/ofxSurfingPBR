@@ -63,7 +63,10 @@ public:
 		dir.listDir(path);
 		dir.sort();
 
-		if (dir.size() == 0) ofLogError("SurfingModels") << "setupDir() path or files not found!";
+		if (dir.size() == 0) {
+			ofLogError("SurfingModels") << "setupDir() path or files not found!";
+			return;
+		}
 
 		indexFile.setMin(0);
 		indexFile.setMax(dir.size() - 1);
@@ -90,10 +93,10 @@ public:
 		nameFile.setSerializable(false);
 
 		parameters.setName("MODELS");
-		parameters.add(nameFile);
-		parameters.add(indexFile);
 		parameters.add(nextBang);
 		parameters.add(prevBang);
+		parameters.add(indexFile);
+		parameters.add(nameFile);
 
 		transformParams.setName("Transforms");
 		transformParams.add(transform.scale);
@@ -112,6 +115,8 @@ public:
 
 		parameters.add(transformParams);
 		transformParams.setSerializable(false);
+
+		parameters.add(bHelp);
 
 		//--
 
@@ -158,8 +163,10 @@ public:
 			//transform = transforms[i];
 			transform.scale.set(transforms[i].scale);
 			transform.yPos.set(transforms[i].yPos);
-			transform.yRot.set(transforms[i].yRot); 
+			transform.yRot.set(transforms[i].yRot);
 		}
+
+		buildHelp();
 	}
 
 	const string getFilename() {
@@ -260,17 +267,40 @@ public:
 	//	ofParameter<ofNode> node;
 	//	vector<ofParameter<ofNode>> nodes;
 
-//private:
-//	ofNode n;
-//	ofNode nmin;
-//	ofNode nmax;
+	//private:
+	//	ofNode n;
+	//	ofNode nmin;
+	//	ofNode nmax;
+
+private:
+	string sHelp;
+	void buildHelp() {
+		sHelp = "";
+		sHelp += "MODEL\n";
+		sHelp += "\n";
+		sHelp += this->getFilename() + "\n";
+		sHelp += "\n";
+		sHelp += "      BROWSE\n";
+		sHelp += "UP    Prev\n";
+		sHelp += "DOWN  Next\n";
+		sHelp += "\n";
+		sHelp += this->getFilenamesList();
+	}
+
+public:
+	ofParameter<bool> bHelp { "Help", true };
+
+	void drawHelp() {
+		if (!bHelp) return;
+		ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
+	}
 };
 
 SurfingModels::SurfingModels() {
 }
 
 SurfingModels::~SurfingModels() {
-//TODO: fix auto saver!
+	//TODO: fix auto saver!
 	save();
 }
 

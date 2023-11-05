@@ -25,140 +25,13 @@ void ofApp::setup() {
 
 	setupModel();
 
-#ifdef SURFING__USE_FILE_BROWSER
+#ifdef SURFING__USE__FILE_BROWSER
 	setupModelsBrowser();
 #endif
 
 	//--
 
 	setupParams();
-}
-
-//--------------------------------------------------------------
-void ofApp::setupParams() {
-
-	// Parameters
-
-	parameters.setName("ofApp");
-
-	parameters.add(yPos);
-	parameters.add(scale);
-	parameters.add(speed);
-	parameters.add(bRotate);
-
-	parameters.add(nameScene);
-	parameters.add(indexScene);
-	parameters.add(nextIndexScene);
-	parameters.add(prevIndexScene);
-
-	parameters.add(bHelp);
-	parameters.add(reset);
-
-	nameScene.setSerializable(false);
-
-	//--
-
-	// Callbacks
-
-	listenerIndexScene = indexScene.newListener([this](int & i) {
-		switch (indexScene) {
-		case 0:
-			nameScene = "THREE-PRIMS";
-			break;
-		case 1:
-			nameScene = "MESH";
-			break;
-		case 2:
-#ifndef SURFING__USE_FILE_BROWSER
-			nameScene = "MODEL";
-#else
-			nameScene = "MODELS";
-#endif
-			break;
-		}
-
-		buildHelp();
-	});
-
-	listenerNext = nextIndexScene.newListener([this](void) {
-		doNextScene();
-	});
-	listenerPrev = prevIndexScene.newListener([this](void) {
-		doPrevScene();
-	});
-
-	listenerReset = reset.newListener([this](void) {
-		doReset();
-	});
-
-	//--
-
-	// Gui
-
-	gui.setup(parameters);
-
-	refreshGui();
-	buildHelp();
-
-	//--
-
-	// Startup
-
-	reset.trigger(); //before loading settings or in case not settings file / app open for the first time.
-
-	ofxSurfing::loadSettings(parameters, path);
-}
-
-//--------------------------------------------------------------
-void ofApp::buildHelp() {
-
-	sHelp = "";
-	sHelp += "\n";
-	sHelp += "HELP\n";
-	sHelp += "ofApp\n";
-	sHelp += "\n";
-	sHelp += "H Help\n";
-	sHelp += "g Gui\n";
-	sHelp += "G ofxGui\n";
-	sHelp += "R Rotate\n";
-	sHelp += "\n";
-
-	sHelp += "SCENE:\n";
-	switch (indexScene) {
-	case 0:
-		sHelp += sceneNames[0]+ "\n#0";
-		break;
-	case 1:
-		sHelp += sceneNames[1]+ "\n#1";
-		break;
-	case 2:
-		sHelp += sceneNames[2]+ "\n#2";
-		break;
-	}
-	sHelp += "\n";
-	sHelp += "LEFT  Prev\n";
-	sHelp += "RIGHT Next\n";
-	sHelp += "\n";
-
-#ifdef SURFING__USE_FILE_BROWSER
-	if (indexScene == 2) {
-		sHelp += "MODEL:\n";
-		sHelp += surfingModels.getFilename() + "\n";
-		sHelp += "\n";
-		sHelp += "BROWSE\n";
-		sHelp += "UP    Prev\n";
-		sHelp += "DOWN  Next\n";
-		sHelp += "\n";
-		sHelp += surfingModels.getFilenamesList();
-	}
-#endif
-
-	sHelp += " \n"; //fix bb
-}
-
-//--------------------------------------------------------------
-void ofApp::refreshGui() {
-	ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center
 }
 
 //--------------------------------------------------------------
@@ -176,12 +49,12 @@ void ofApp::setupPBR() {
 
 	// Optional
 
-#if USE_OPTIONAL_SETUP
+#if (USE_OPTIONAL_SETUP && 1)
 	// Set log level
 	pbr.setLogLevel(OF_LOG_VERBOSE);
 #endif
 
-#if USE_OPTIONAL_SETUP
+#if (USE_OPTIONAL_SETUP && 1)
 	// Check if it's the first time opening the App.
 	// If not, we will force some settings for the scene:
 	if (!pbr.getSettingsFileFound()) {
@@ -189,8 +62,8 @@ void ofApp::setupPBR() {
 		ofLogWarning() << "Forcing the ofxSurfingPBR initial scene.";
 
 		// Background alt
-		pbr.bDrawBgAlt.set(true);
-		pbr.bgAltColor.set(ofFloatColor(0, 0.03, 0.3, 1));
+		pbr.bDrawBg.set(true);
+		pbr.bgColor.set(ofFloatColor(0, 0.03, 0.3, 1));
 
 		// Plane
 		pbr.planeGlobalColor.set(ofFloatColor(0.25, 0, 0.5, 1));
@@ -204,12 +77,114 @@ void ofApp::setupPBR() {
 	}
 #endif
 
-#if USE_OPTIONAL_SETUP
+#if (USE_OPTIONAL_SETUP && 0)
 	#ifdef SURFING__USE_CUBE_MAP
 	// Force replace the default cubemap
 	pbr.loadCubeMap("cubemaps/kloppenheim_06_puresky_1k.exr");
 	#endif
 #endif
+}
+
+//--------------------------------------------------------------
+void ofApp::setupParams() {
+
+	// Parameters
+
+	parameters.setName("ofApp");
+
+	parameters.add(vNextIndexScene);
+	parameters.add(vPrevIndexScene);
+	parameters.add(indexScene);
+	parameters.add(nameScene);
+
+	parameters.add(yPos);
+	parameters.add(scale);
+	parameters.add(speed);
+	parameters.add(bRotate);
+
+	parameters.add(bHelp);
+	parameters.add(vReset);
+
+	nameScene.setSerializable(false);
+
+	//--
+
+	// Callbacks
+
+	listenerIndexScene = indexScene.newListener([this](int & i) {
+		nameScene = namesScenes[i];
+
+		buildHelp();
+	});
+
+	listenerNext = vNextIndexScene.newListener([this](void) {
+		doNextScene();
+	});
+	listenerPrev = vPrevIndexScene.newListener([this](void) {
+		doPrevScene();
+	});
+
+	listenerReset = vReset.newListener([this](void) {
+		doReset();
+	});
+
+	//--
+
+	// Gui
+
+	gui.setup(parameters);
+
+	refreshGui();
+	buildHelp();
+
+	//--
+
+	// Startup
+
+	vReset.trigger(); //before loading settings or in case not settings file / app open for the first time.
+
+	ofxSurfing::loadSettings(parameters, path);
+}
+
+//--------------------------------------------------------------
+void ofApp::buildHelp() {
+
+	sHelp = "";
+	//sHelp += "\n";
+
+	sHelp += "HELP\n";
+	sHelp += "ofApp\n";
+	sHelp += "\n";
+	sHelp += "H Help\n";
+	sHelp += "g Gui\n";
+	sHelp += "G ofxGui\n";
+	sHelp += "R Rotate\n";
+	sHelp += "\n";
+
+	sHelp += "LEFT  Prev\n";
+	sHelp += "RIGHT Next\n";
+	sHelp += "#";
+	sHelp += ofToString(indexScene);
+	sHelp += "\n";
+
+	sHelp += "SCENE:\n";
+	switch (indexScene) {
+	case 0:
+		sHelp += namesScenes[0];
+		break;
+	case 1:
+		sHelp += namesScenes[1];
+		break;
+	case 2:
+		sHelp += namesScenes[2];
+		break;
+	}
+	//sHelp += " \n"; //fix bb
+}
+
+//--------------------------------------------------------------
+void ofApp::refreshGui() {
+	ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center
 }
 
 //--------------------------------------------------------------
@@ -266,7 +241,7 @@ void ofApp::setupModel() {
 		ofLogError() << "Unable to load model file " << pathModel << ". Maybe not found!";
 }
 
-#ifdef SURFING__USE_FILE_BROWSER
+#ifdef SURFING__USE__FILE_BROWSER
 //--------------------------------------------------------------
 void ofApp::setupModelsBrowser() {
 
@@ -402,25 +377,32 @@ void ofApp::drawGui() {
 
 	//--
 
-	if (bHelp) {
-		// Simple responsive layout
-		if (!pbr.isVisibleDebugShader() && ofGetHeight() > 800)
-			ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
-		else
-			ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
-	}
-
 	if (pbr.bGui_ofxGui) {
 		gui.draw();
 
-#ifdef SURFING__USE_FILE_BROWSER
+#ifdef SURFING__USE__FILE_BROWSER
 		if (indexScene == 2) {
 			auto bb = gui.getShape();
-			guiModels.setPosition(bb.getTopRight() + glm::vec2 { (float)SURFING__PAD_OFXGUI_PANELS, 0.f });
+			guiModels.setPosition(bb.getTopRight() + glm::vec2 { (float)SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0.f });
 			guiModels.draw();
 		}
 #endif
 	}
+
+	//--
+
+	drawHelp();
+}
+
+//--------------------------------------------------------------
+void ofApp::drawHelp() {
+	if (bHelp) ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
+
+#ifdef SURFING__USE__FILE_BROWSER
+	if (indexScene == 2) {
+		surfingModels.drawHelp();
+	}
+#endif
 }
 
 //--------------------------------------------------------------
@@ -501,15 +483,22 @@ void ofApp::drawMyScene() {
 
 //--------------------------------------------------------------
 void ofApp::doReset() {
+	// Scene
+	indexScene = 0;
 	scale = -0.6;
 	yPos = 0;
 	speed = 0.5;
+	bRotate = false;
 
-	// PBR
-	// Reset all, including camera
-	pbr.doResetAll();
-	// Reset camera
-	//pbr.doResetCamera();
+#if 1
+	// More stuff to reset:
+
+	// Reset the camera only.
+	pbr.doResetCamera();
+
+	//// Reset all PBR, including camera.
+	//pbr.doResetAll();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -539,7 +528,7 @@ void ofApp::keyPressed(int key) {
 		doPrevScene();
 	}
 
-#ifdef SURFING__USE_FILE_BROWSER
+#ifdef SURFING__USE__FILE_BROWSER
 	else if (key == OF_KEY_DOWN) {
 		surfingModels.next();
 	} else if (key == OF_KEY_UP) {

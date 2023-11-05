@@ -4,40 +4,43 @@
 //--
 
 /*
-	OpenFrameworks addon to easily test, learn, and use the new PBR features from the new OF 0.12+ releases.
+	OpenFrameworks addon 
+	to easily test, learn, and use 
+	the new PBR features from the new OF 0.12+ releases.
 
-	(You should use the GitHub master branch: https://github.com/openframeworks/openFrameworks !
+	You should use the GitHub master branch: 
+	https://github.com/openframeworks/openFrameworks
 
 	All this code is copied from and hardly based on this OF forum topic:
 	https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
 
 	Original authors:  
-	@NickHardeman | https://github.com/NickHardeman
-	and @paolo-scoppola | https://github.com/paolo-scoppola.
+	@NickHardeman https://github.com/NickHardeman
+	and @paolo-scoppola https://github.com/paolo-scoppola.
 */
+
+//--
 
 /*
 	TODO
 
-	- add undo history/browser..
 	- add cubemap file path to persistent settings
 
-	- SHADERS AND DISAPLCE
+	- SHADERS AND DISPLACE
 		- fix plane light not working when shaders enabled..
-		- check pipeline / enable arbTex from the example!
+		- check pipeline / enable ArbTex from the example!
 		- customize share plane divisions and img size/clamp.
 		- get mesh mods/shader example.
 
 	- add ImGui mode.
 	- add presets manager 
-		and randomizer/undo/redo 
 		to explore and save materials.
 	- make a scene manager allowing
 		to queue many actors/ofNodes, materials 
 		and lights on a std::vector.
 		something like ofxPBR or ofxPBRHelper.
 	- add ofxBgGradient addon ?
-		copy just the gradients
+		copy just the gradients ?
 	- add custom global path to /data/ofxSurfingPBR/
 */
 
@@ -182,13 +185,10 @@ public:
 private:
 	ofParameterGroup cameraParams;
 	ofParameter<bool> bEnableCameraAutosave;
-	ofParameter<void> saveCamera;
-	ofParameter<void> loadCamera;
-	ofParameter<void> resetCamera;
-	string pathCamera = "ofxSurfingPBR_Camera.ini";
-
-public:
-	void doResetCamera();
+	ofParameter<void> vSaveCamera;
+	ofParameter<void> vLoadCamera;
+	ofParameter<void> vResetCamera;
+	string pathCamera = "ofxSurfingPBR_Camera.txt";
 
 public:
 	ofParameterGroup parameters; //main container to expose to gui and to handle settings
@@ -203,11 +203,17 @@ public:
 
 	ofParameterGroup internalParams;
 
+	ofParameterGroup advancedParams;
+	//we would like to hide these params from the gui,
+	//only included to add to settings group!
+	
+	ofParameter<void> vMinimizeAllGui;
+	ofParameter<void> vMaximizeAllGui;
+
 	ofParameterGroup testSceneParams;
 	ofParameter<float> scaleTestScene;
 	ofParameter<float> positionTestScene;
-	ofParameter<void> resetTestScene;
-	void doResetTestScene();
+	ofParameter<void> vResetTestScene;
 	
 	ofParameter<bool> bDebug;
 	ofParameter<bool> bKeys;
@@ -223,6 +229,7 @@ public:
 	ofParameter<bool> bDrawPlane;
 
 	ofParameterGroup planeParams;
+	ofParameterGroup planeMaterialParams;
 	ofParameterGroup planeSettingsParams;
 	ofParameterGroup planeColorsParams;
 	ofParameterGroup planeTransformParams;
@@ -256,11 +263,11 @@ public:
 	//ofParameter<float> shadowStrength;
 	//ofParameter<glm::vec2> shadowSize;
 
-	ofParameter<void> resetPlane;
-	ofParameter<void> resetPlaneTransform;
-	ofParameter<void> resetLight;
-	ofParameter<void> resetShadow;
-	ofParameter<void> resetAll;
+	ofParameter<void> vResetPlane;
+	ofParameter<void> vResetPlaneTransform;
+	ofParameter<void> vResetLight;
+	ofParameter<void> vResetShadow;
+	ofParameter<void> vResetAll;
 
 private:
 	ofxPanel gui;
@@ -305,8 +312,8 @@ public:
 	ofParameter<string> cubeMapModeName;
 	ofParameter<float> cubeMapprefilterRoughness;
 	ofParameter<bool> bDrawCubeMap;
-	ofParameter<void> resetCubeMap;
-	ofParameter<void> openCubeMap;
+	ofParameter<void> vResetCubeMap;
+	ofParameter<void> vOpenCubeMap;
 
 private:
 	void processOpenFileSelection(ofFileDialogResult openFileResult);
@@ -324,11 +331,14 @@ public:
 	//--
 
 public:
+	void doResetAll(bool bExcludeMaterial = false);
+
 	void doResetPlane();
 	void doResetPlaneTransform();
 	void doResetLight();
 	void doResetShadow();
-	void doResetAll(bool bExcludeMaterial = false);
+	void doResetTestScene();
+	void doResetCamera();
 
 	void doResetMaterial();
 	void doRandomMaterial();
@@ -337,14 +347,6 @@ public:
 	void doRandomMaterialColors();
 	void doRandomMaterialColorsAlpha();
 	void doRandomMaterialAlphas();
-
-private:
-	//TODO
-	// History undo/redo
-	ofParameterGroup historyParams;
-	vector<ofParameterGroup> history;
-	ofParameter<void> resetHistory;
-	ofParameter<int> indexHistory;
 
 	//--
 
@@ -391,8 +393,8 @@ private:
 	ofParameter<float> displacementNormalsStrength;
 	ofParameter<float> normalGeomToNormalMapMix;
 
-	ofParameter<void> resetDisplace;
-	ofParameter<void> resetNoise;
+	ofParameter<void> vResetDisplace;
+	ofParameter<void> vResetNoise;
 	void doResetNoise();
 	void doResetDisplace();
 

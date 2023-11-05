@@ -3,7 +3,7 @@
 
 #define USE_OPTIONAL_SETUP 0
 
-#define SURFING__USE_FILE_BROWSER
+#define SURFING__USE__FILE_BROWSER
 
 //--
 
@@ -12,7 +12,7 @@
 #include "ofVboMesh.h"
 #include "ofxAssimpModelLoader.h"
 
-#ifdef SURFING__USE_FILE_BROWSER
+#ifdef SURFING__USE__FILE_BROWSER
 	#include "SurfingModels.h"
 #endif
 
@@ -53,6 +53,7 @@ public:
 	string path = "ofApp.json";
 
 	// Params
+
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
 	ofParameter<float> yPos { "Pos y", 0, -1.f, 1.f };
 	ofParameter<bool> bRotate { "Rotate", false };
@@ -60,15 +61,15 @@ public:
 
 	ofParameter<int> indexScene { "SCENE", 0, 0, 2 };
 	ofParameter<string> nameScene { "Name", "" };
-	vector<string> sceneNames = {
+	vector<string> namesScenes = {
 		"THREE-PRIMS",
 		"MESH",
 		"MODELS"
 	};
 
-	ofParameter<void> reset { "Reset" };
-	ofParameter<void> nextIndexScene { "Next" };
-	ofParameter<void> prevIndexScene { "Prev" };
+	ofParameter<void> vReset { "Reset" };
+	ofParameter<void> vNextIndexScene { "Next" };
+	ofParameter<void> vPrevIndexScene { "Prev" };
 
 	ofEventListener listenerIndexScene;
 	ofEventListener listenerReset;
@@ -81,6 +82,7 @@ public:
 
 	ofParameter<bool> bHelp { "Help", false };
 	void buildHelp(); //refresh help info to display updated
+	void drawHelp();
 	string sHelp;
 
 	// Gui
@@ -88,7 +90,7 @@ public:
 	void refreshGui(); //refresh gui for minimize/collapse workflow
 
 	// Models files browser
-#ifdef SURFING__USE_FILE_BROWSER
+#ifdef SURFING__USE__FILE_BROWSER
 	void setupModelsBrowser();
 	SurfingModels surfingModels;
 	ofxPanel guiModels;

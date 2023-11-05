@@ -7,7 +7,7 @@
 
 // CONSTANTS
 
-#define SURFING__PAD_TO_WINDOW_BORDER 10
+#define SURFING__PAD_TO_WINDOW_BORDERS 8
 
 #define SURFING__PAD_OFXGUI_BETWEEN_PANELS 4
 
@@ -242,7 +242,7 @@ inline glm::vec2 getBitmapStringBoxPosToCenter(string s) {
 	return p;
 }
 //--------------------------------------------------------------
-inline glm::vec2 getBitmapStringBoxPosToTopLeft(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDER, int ypad = SURFING__PAD_TO_WINDOW_BORDER) {
+inline glm::vec2 getBitmapStringBoxPosToTopLeft(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDERS, int ypad = SURFING__PAD_TO_WINDOW_BORDERS) {
 	auto bb = getBBBitmapStringBox(s, 0, 0);
 	int x = xpad;
 	int y = ypad;
@@ -250,7 +250,7 @@ inline glm::vec2 getBitmapStringBoxPosToTopLeft(string s, int xpad = SURFING__PA
 	return p;
 }
 //--------------------------------------------------------------
-inline glm::vec2 getBitmapStringBoxPosToTopRight(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDER, int ypad = SURFING__PAD_TO_WINDOW_BORDER) {
+inline glm::vec2 getBitmapStringBoxPosToTopRight(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDERS, int ypad = SURFING__PAD_TO_WINDOW_BORDERS) {
 	auto bb = getBBBitmapStringBox(s, 0, 0);
 	int x = ofGetWidth() - bb.getWidth() - xpad;
 	int y = ypad;
@@ -258,7 +258,7 @@ inline glm::vec2 getBitmapStringBoxPosToTopRight(string s, int xpad = SURFING__P
 	return p;
 }
 //--------------------------------------------------------------
-inline glm::vec2 getBitmapStringBoxPosToBottomLeft(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDER, int ypad = SURFING__PAD_TO_WINDOW_BORDER) {
+inline glm::vec2 getBitmapStringBoxPosToBottomLeft(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDERS, int ypad = SURFING__PAD_TO_WINDOW_BORDERS) {
 	auto bb = getBBBitmapStringBox(s, 0, 0);
 	int x = xpad;
 	int y = ofGetHeight() - bb.getHeight() - ypad;
@@ -266,7 +266,7 @@ inline glm::vec2 getBitmapStringBoxPosToBottomLeft(string s, int xpad = SURFING_
 	return p;
 }
 //--------------------------------------------------------------
-inline glm::vec2 getBitmapStringBoxPosToBottomRight(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDER, int ypad = SURFING__PAD_TO_WINDOW_BORDER) {
+inline glm::vec2 getBitmapStringBoxPosToBottomRight(string s, int xpad = SURFING__PAD_TO_WINDOW_BORDERS, int ypad = SURFING__PAD_TO_WINDOW_BORDERS) {
 	auto bb = getBBBitmapStringBox(s, 0, 0);
 	int x = ofGetWidth() - bb.getWidth() - xpad;
 	int y = ofGetHeight() - bb.getHeight() - ypad;
@@ -426,7 +426,7 @@ inline void setGuiPositionToLayout(ofxPanel & gui, int layout = 0) {
 
 	// Move gui panel window to:
 	glm::vec2 p;
-	int pad = SURFING__PAD_TO_WINDOW_BORDER; //to borders
+	int pad = SURFING__PAD_TO_WINDOW_BORDERS; //to borders
 
 	// bottom-center
 	if (layout == 0) {
@@ -515,8 +515,8 @@ public:
 	SurfingAutoSaver();
 	~SurfingAutoSaver();
 
-	// autosave workflow
-	// we will autosave after every param change,
+	// auto saver workflow
+	// we will auto save after every param change,
 	// but after waiting some ms. reducing saving overflow.
 	// we will save also when app exit.
 	ofParameter<bool> bEnable { "Auto Save", true };
@@ -532,10 +532,10 @@ public:
 	}
 
 	void pause() {
-		// Pause autosave
-		// disables autosave
+		// Pause auto save
+		// disables auto save
 		// to avoid save after loading the settings,
-		// as the params will change and would trig the autosave!
+		// as the params will change and would trig the auto save!
 		bAutoSave_ = bEnable; //store state
 		if (bEnable) {
 			bEnable.setWithoutEventNotifications(false);
