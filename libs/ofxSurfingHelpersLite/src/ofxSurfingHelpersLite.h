@@ -15,6 +15,24 @@
 #define SURFING__STRING_BOX__DEFAULT_YPAD 20
 #define SURFING__STRING_BOX__DEFAULT_ROUND 5.f // 0.f to not rounded
 
+
+//--
+
+// ofxGui
+
+// Default font and sizes/colors will be used for ofxGui!
+
+#define SURFING__OFXGUI__FONT_DEFAULT_SIZE 9
+#define SURFING__OFXGUI__FONT_DEFAULT_PATH "assets/fonts/NotoSansMono-Regular.ttf"
+
+//#define SURFING__OFXGUI__FONT_DEFAULT_SIZE 10
+//#define SURFING__OFXGUI__FONT_DEFAULT_PATH "assets/fonts/Montserrat-Regular.ttf"
+
+//#define SURFING__OFXGUI__FONT_DEFAULT_PATH "assets/fonts/Inter-Regular.ttf"
+//#define SURFING__OFXGUI__FONT_DEFAULT_PATH "assets/fonts/JetBrainsMonoNL-ExtraBold.ttf"
+//#define SURFING__OFXGUI__FONT_DEFAULT_PATH "assets/fonts/JetBrainsMonoNL-SemiBold.ttf"
+//#define SURFING__OFXGUI__FONT_DEFAULT_PATH "assets/fonts/JetBrainsMono-Bold.ttf"
+
 //------
 
 namespace ofxSurfing {
@@ -474,6 +492,66 @@ TODO
 		//glm::vec2 p { x, y };
 		//ofxSurfing::ofDrawBitmapStringBox(sHelp, p.x, p.y);
 */
+
+//--------------------------------------------------------------
+inline void setOfxGuiTheme(bool bMini = false, std::string pathFont = SURFING__OFXGUI__FONT_DEFAULT_PATH) {
+
+	bool bColors = 0;
+	bool bSizes = 0;
+
+	int size = SURFING__OFXGUI__FONT_DEFAULT_SIZE;
+	if (bMini) {
+		size = 8;
+	}
+
+	ofFile file(pathFont);
+	bool b = file.exists();
+	if (b) {
+		ofxGuiSetFont(pathFont, size);
+	} else {
+		ofLogError(__FUNCTION__) << "Font file " + pathFont + " not found !";
+		ofLogError(__FUNCTION__) << "Unable to customize ofxGui theme";
+		return;
+	}
+
+	//-
+
+	if (bColors) {
+		// Default?
+		//ofxGuiSetDefaultHeight(20);
+		//ofxGuiSetBorderColor(32);
+		//ofxGuiSetFillColor(ofColor(24));
+		//ofxGuiSetTextColor(ofColor::white);
+		//ofxGuiSetHeaderColor(ofColor(12));
+		//ofxGuiSetBackgroundColor(ofColor::black);
+
+		ofFloatColor cHead = ofFloatColor(0.05f, 0.05f, 0.05f, 0.90f);
+		ofFloatColor cBg = ofFloatColor(0.25f, 0.25f, 0.25f, 0.9f);
+		ofFloatColor cBorder = ofFloatColor(0.10f, 0.10f, 0.10f, 0.7f);
+		ofFloatColor cSlider = ofFloatColor(0.03f, 0.03f, 0.03f, 0.8f);
+		ofFloatColor cText = ofFloatColor(0.76f, 0.76f, 0.76f, 0.94f);
+
+		ofxGuiSetHeaderColor(cHead);
+		ofxGuiSetBackgroundColor(cBg);
+		ofxGuiSetBorderColor(cBorder);
+		ofxGuiSetFillColor(cSlider);
+		ofxGuiSetTextColor(cText);
+	}
+
+	if (bSizes) {
+		if (bMini) {
+			ofxGuiSetDefaultHeight(16);
+			ofxGuiSetTextPadding(5);
+		} else {
+			//ofxGuiSetDefaultHeight(18);
+			//ofxGuiSetTextPadding(4);
+
+			//ofxGuiSetDefaultHeight(21);
+			//ofxGuiSetTextPadding(14);
+		}
+	} else {
+	}
+}
 
 };
 

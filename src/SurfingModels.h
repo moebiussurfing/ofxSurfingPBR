@@ -117,6 +117,7 @@ public:
 		transformParams.setSerializable(false);
 
 		parameters.add(bHelp);
+		parameters.add(vReset);
 
 		//--
 
@@ -145,6 +146,10 @@ public:
 		});
 		listenerPrevious = prevBang.newListener([this](void) {
 			previous();
+		});
+
+		listenerReset = vReset.newListener([this](void) {
+			doReset();
 		});
 	}
 
@@ -218,6 +223,14 @@ public:
 	ofParameter<void> nextBang { "Next" };
 	ofParameter<void> prevBang { "Previous" };
 
+	ofParameter<void> vReset { "Reset" };
+
+	void doReset() { 
+	}
+	
+private:
+	ofEventListener listenerReset;
+	
 public:
 	ofParameter<void> loadBang { "LoadBang" };
 	// to be listened from parent the scope!

@@ -3,12 +3,15 @@
 //--------------------------------------------------------------
 void ofApp::setup() {
 
+	// Theme
+	if (1) ofxSurfing::setOfxGuiTheme(0); // Customize ofxGui theme.
+	
 	// App window
 	{
 		ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
 #if 1
 		// Move and shape the window app.
-		// Customize settings: 60fps and vSync off.
+		// Customize settings too: 60fps and vSync off.
 		//ofxSurfing::setWindowAtMonitor(); // Stay at main display (center in my setup) and landscape.
 		ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
 		//ofxSurfing::setWindowAtMonitor(1, true); // Move to right display and set portrait.
@@ -115,6 +118,7 @@ void ofApp::setupParams() {
 		nameScene = namesScenes[i];
 
 		buildHelp();
+		refreshGui();
 	});
 
 	listenerNext = vNextIndexScene.newListener([this](void) {
@@ -148,10 +152,7 @@ void ofApp::setupParams() {
 
 //--------------------------------------------------------------
 void ofApp::buildHelp() {
-
 	sHelp = "";
-	//sHelp += "\n";
-
 	sHelp += "HELP\n";
 	sHelp += "ofApp\n";
 	sHelp += "\n";
@@ -160,32 +161,30 @@ void ofApp::buildHelp() {
 	sHelp += "G ofxGui\n";
 	sHelp += "R Rotate\n";
 	sHelp += "\n";
-
 	sHelp += "LEFT  Prev\n";
 	sHelp += "RIGHT Next\n";
 	sHelp += "#";
 	sHelp += ofToString(indexScene);
 	sHelp += "\n";
 	sHelp += "\n";
-
 	sHelp += "SCENE\n";
-	switch (indexScene) {
-	case 0:
-		sHelp += namesScenes[0];
-		break;
-	case 1:
-		sHelp += namesScenes[1];
-		break;
-	case 2:
-		sHelp += namesScenes[2];
-		break;
-	}
-	//sHelp += " \n"; //fix bb
+	sHelp += namesScenes[indexScene];
 }
 
 //--------------------------------------------------------------
 void ofApp::refreshGui() {
+	// center gui panels at the window bottom
+#ifdef SURFING__USE__FILE_BROWSER
+	if (indexScene == 2) {
+		auto w = gui.getShape().getWidth();
+		auto h = guiModels.getShape().getHeight() + SURFING__PAD_TO_WINDOW_BORDERS;
+		auto po = glm::vec2 { ofGetWidth() / 2 - w, ofGetHeight() - h };
+		gui.setPosition(po.x, po.y);
+	} else
+		ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center
+#else
 	ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center
+#endif
 }
 
 //--------------------------------------------------------------
@@ -493,7 +492,7 @@ void ofApp::doReset() {
 	//indexScene = 0;
 
 #if 1
-	// More stuff to reset:
+	// PBR stuff to reset:
 
 	// Reset the camera only.
 	pbr.doResetCamera();

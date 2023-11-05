@@ -66,12 +66,12 @@ public:
 		"MESH",
 		"MODELS"
 	};
+	ofEventListener listenerIndexScene;
 
 	ofParameter<void> vReset { "Reset" };
 	ofParameter<void> vNextIndexScene { "Next" };
 	ofParameter<void> vPrevIndexScene { "Prev" };
 
-	ofEventListener listenerIndexScene;
 	ofEventListener listenerReset;
 	ofEventListener listenerNext;
 	ofEventListener listenerPrev;

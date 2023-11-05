@@ -37,18 +37,18 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
   - **Objects** material with full specs. 
   - Camera settings.
     - Included [ofxCameraSaveLoad](https://github.com/roymacdonald/ofxCameraSaveLoad) into `/libs`.
-- Material and scene **Randomizers**.
+- Material **Randomizers**.
 - **History** browsing workflow.
-    - **Presets**/**Snapshots** system.
+    - **Presets**/**Snapshots** (Store/Recall) explorer system.
     - Kind of **Undo/Redo**.
 - **3D models** browser/loader class
   - Used into the example `\2_Example_Models\`.
  - Included [ofxSurfingHelpersLite](https://github.com/moebiussurfing/ofxSurfingHelpersLite) into `/libs`.
 
 ### TODO
-  - Add more **Shaders** related stuff. [ _HELP IS WELCOME!_ ]
-    - _Mesh/vertex_ displacements (not just heightmaps). [ _TODO_ ]
-    - Shader **Debugger**. [ _TODO_ ]
+  - Add more **Shaders** related stuff. / _HELP IS WELCOME!_ 
+    - _Mesh/vertex_ displacements (not just heightmaps). / _TODO_ 
+    - Shader **Debugger**. / _TODO_ 
 
 <details>
   <summary>Usage</summary>

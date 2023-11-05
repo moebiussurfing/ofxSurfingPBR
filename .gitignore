@@ -586,3 +586,10 @@ MigrationBackup/
 
 1_Example_Basic/bin/data/cubemaps/WinterForest_8k.jpg
 1_Example_Basic/bin/data/CamSettings
+2_Example_Models/bin/data/assets/fonts/Inter-Regular.ttf
+2_Example_Models/bin/data/assets/fonts/JetBrainsMono-Bold.ttf
+2_Example_Models/bin/data/assets/fonts/JetBrainsMonoNL-ExtraBold.ttf
+2_Example_Models/bin/data/assets/fonts/JetBrainsMonoNL-SemiBold.ttf
+2_Example_Models/bin/data/assets/fonts/Montserrat-Regular.ttf
+2_Example_Models/bin/data/assets/fonts/overpass-mono-bold.otf
+2_Example_Models/bin/data/assets/fonts/telegrama_render.otf
