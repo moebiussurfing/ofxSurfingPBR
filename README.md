@@ -46,9 +46,9 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
  - Included [ofxSurfingHelpersLite](https://github.com/moebiussurfing/ofxSurfingHelpersLite) into `/libs`.
 
 ### TODO
-  - Add more **Shaders** related stuff. [_HELP IS WELCOME_]
-    - _Mesh/vertex_ displacements (not just heightmaps). [_TODO_]
-    - Shader **Debugger**. [_TODO_]
+  - Add more **Shaders** related stuff. [ _HELP IS WELCOME!_ ]
+    - _Mesh/vertex_ displacements (not just heightmaps). [ _TODO_ ]
+    - Shader **Debugger**. [ _TODO_ ]
 
 <details>
   <summary>Usage</summary>
@@ -134,7 +134,7 @@ void ofApp::renderScene()
 ## Dependencies
 
 * [OF 0.12+](https://github.com/openframeworks/openFrameworks).
-* **ofxAssimpModelLoader** [OF core]
+* **ofxAssimpModelLoader** / _OF core_
     * Only for the example `2_Example_Models`. 
 
 ## Requeriments 
@@ -143,10 +143,10 @@ void ofApp::renderScene()
 
 bin  
 $~$ └ data  
-$~~~~~~$ ├ cubemaps exr, hdr, jpg  
-$~~~~~~$ ├ models obj, ply, fbx  
-$~~~~~~$ ├ shadersGL2 frag, vert  
-$~~~~~~$ └ shadersGL3 frag, vert  
+$~~~~~~$ ├ cubemaps $~~~~$ exr, hdr, jpg  
+$~~~~~~$ ├ models $~~~~~~$ obj, ply, fbx  
+$~~~~~~$ ├ shadersGL2 $~~$ frag, vert  
+$~~~~~~$ └ shadersGL3 $~~$ frag, vert  
 
 ## Tested Systems
 * **Windows 11** / **VS 2022** / **OF 0.12+** @[GitHub master branch](https://github.com/openframeworks/openFrameworks)
