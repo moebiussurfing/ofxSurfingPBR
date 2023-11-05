@@ -15,7 +15,6 @@
 #define SURFING__STRING_BOX__DEFAULT_YPAD 20
 #define SURFING__STRING_BOX__DEFAULT_ROUND 5.f // 0.f to not rounded
 
-
 //--
 
 // ofxGui
@@ -23,6 +22,7 @@
 // Default font and sizes/colors will be used for ofxGui!
 
 #define SURFING__OFXGUI__FONT_DEFAULT_SIZE 9
+#define SURFING__OFXGUI__FONT_DEFAULT_SIZE_MINI 7
 #define SURFING__OFXGUI__FONT_DEFAULT_PATH "assets/fonts/NotoSansMono-Regular.ttf"
 
 //#define SURFING__OFXGUI__FONT_DEFAULT_SIZE 10
@@ -477,7 +477,17 @@ inline void setGuiPositionToLayout(ofxPanel & gui, int layout = 0) {
 	gui.setPosition(p.x, p.y);
 }
 
-/*
+// Set position of gui1 (gui2 must be linked to gui1) at the window bottom and centered.
+//TODO: other layouts
+inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2 /*, int layout = 0*/) {
+	int gw = gui1.getShape().getWidth() + gui2.getShape().getWidth() + SURFING__PAD_OFXGUI_BETWEEN_PANELS;
+	int gh = MAX(gui1.getShape().getHeight(), gui2.getShape().getHeight());
+	gh += SURFING__PAD_TO_WINDOW_BORDERS;
+	int x = ofGetWidth() / 2 - gw / 2;
+	int y = ofGetHeight() - gh;
+	gui1.setPosition(x, y);
+}
+	/*
 
 TODO
 
@@ -494,63 +504,100 @@ TODO
 */
 
 //--------------------------------------------------------------
-inline void setOfxGuiTheme(bool bMini = false, std::string pathFont = SURFING__OFXGUI__FONT_DEFAULT_PATH) {
+inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 
-	bool bColors = 0;
-	bool bSizes = 0;
+	bool bDebugDefault = 0;
 
-	int size = SURFING__OFXGUI__FONT_DEFAULT_SIZE;
-	if (bMini) {
-		size = 8;
+	bool bColors = 0;//TODO
+	bool bSizes = 1;
+
+	bool bFont = 1;
+	int size = bMini ? SURFING__OFXGUI__FONT_DEFAULT_SIZE_MINI : SURFING__OFXGUI__FONT_DEFAULT_SIZE;
+
+	if (pathFont == "") pathFont = SURFING__OFXGUI__FONT_DEFAULT_PATH;
+
+	if (bFont) {
+		ofFile file(pathFont);
+		bool b = file.exists();
+		if (b) {
+			ofxGuiSetFont(pathFont, size);
+		} else {
+			ofLogError(__FUNCTION__) << "Font file " + pathFont + " not found!";
+			ofLogError(__FUNCTION__) << "Unable to customize the ofxGui theme font.";
+		}
 	}
-
-	ofFile file(pathFont);
-	bool b = file.exists();
-	if (b) {
-		ofxGuiSetFont(pathFont, size);
-	} else {
-		ofLogError(__FUNCTION__) << "Font file " + pathFont + " not found !";
-		ofLogError(__FUNCTION__) << "Unable to customize ofxGui theme";
-		return;
-	}
-
-	//-
 
 	if (bColors) {
-		// Default?
-		//ofxGuiSetDefaultHeight(20);
-		//ofxGuiSetBorderColor(32);
-		//ofxGuiSetFillColor(ofColor(24));
-		//ofxGuiSetTextColor(ofColor::white);
-		//ofxGuiSetHeaderColor(ofColor(12));
-		//ofxGuiSetBackgroundColor(ofColor::black);
+		ofColor cHeadBg;
+		ofColor cBg;
+		ofColor cBorder;
+		ofColor cText;
+		ofColor cFillSlider;
 
-		ofFloatColor cHead = ofFloatColor(0.05f, 0.05f, 0.05f, 0.90f);
-		ofFloatColor cBg = ofFloatColor(0.25f, 0.25f, 0.25f, 0.9f);
-		ofFloatColor cBorder = ofFloatColor(0.10f, 0.10f, 0.10f, 0.7f);
-		ofFloatColor cSlider = ofFloatColor(0.03f, 0.03f, 0.03f, 0.8f);
-		ofFloatColor cText = ofFloatColor(0.76f, 0.76f, 0.76f, 0.94f);
-
-		ofxGuiSetHeaderColor(cHead);
+#if bDebugDefault
+		//Default
+		/*
+		ofxBaseGui::headerBackgroundColor(80),
+		ofxBaseGui::backgroundColor(0),
+		ofxBaseGui::borderColor(120, 100),
+		ofxBaseGui::textColor(255),
+		ofxBaseGui::fillColor(128);
+		*/
+		cHeadBg = ofColor(80);
+		cBg = ofColor(0);
+		cBorder = ofColor(120, 100);
+		cText = ofColor(255);
+		cFillSlider = ofColor(128);
+#else
+		//TODO
+		cHeadBg = ofColor(80);
+		cBg = ofColor(0);
+		cBorder = ofColor(120, 100);
+		cText = ofColor(255);
+		cFillSlider = ofColor(80);
+		//cHeadBg = ofColor(80);
+		//cBg = ofColor(90);
+		//cBorder = ofColor(120, 100);
+		//cText = ofColor(255);
+		//cFillSlider = ofColor(0);
+#endif
+		ofxGuiSetHeaderColor(cHeadBg);
 		ofxGuiSetBackgroundColor(cBg);
 		ofxGuiSetBorderColor(cBorder);
-		ofxGuiSetFillColor(cSlider);
+		ofxGuiSetFillColor(cFillSlider);
 		ofxGuiSetTextColor(cText);
 	}
 
 	if (bSizes) {
-		if (bMini) {
-			ofxGuiSetDefaultHeight(16);
-			ofxGuiSetTextPadding(5);
-		} else {
-			//ofxGuiSetDefaultHeight(18);
-			//ofxGuiSetTextPadding(4);
+		int textPadding;
+		int defaultWidth;
+		int defaultHeight;
 
-			//ofxGuiSetDefaultHeight(21);
-			//ofxGuiSetTextPadding(14);
+#if bDebugDefault
+		//Default
+		/*
+		int ofxBaseGui::textPadding = 4;
+		int ofxBaseGui::defaultWidth = 200;
+		int ofxBaseGui::defaultHeight = 18;
+		*/
+		textPadding = 4;
+		defaultWidth = 200;
+		defaultHeight = 18;
+#else
+		if (bMini) {
+			textPadding = 6;
+			defaultWidth = 135;
+			defaultHeight = 17;
+		} else {//TODO
+			textPadding = 4;
+			defaultWidth = 200;
+			defaultHeight = 18;
 		}
-	} else {
-	}
+#endif
+		ofxGuiSetTextPadding(textPadding);
+		ofxGuiSetDefaultWidth(defaultWidth);
+		ofxGuiSetDefaultHeight(defaultHeight);
+	} 
 }
 
 };
@@ -558,6 +605,8 @@ inline void setOfxGuiTheme(bool bMini = false, std::string pathFont = SURFING__O
 //------
 
 /*
+* SurfingAutoSaver
+* 
 	A class to auto save an ofParameterGroup.
 	settings are saved one second 
 	after any change to avoid overflow o file savings.

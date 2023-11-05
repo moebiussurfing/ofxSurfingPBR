@@ -102,7 +102,7 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "x  Next\n";
 		sHelp += "r  Recall\n";
 		sHelp += "s  Store\n";
-		sHelp += "u  Update\n";
+		//sHelp += "u  Update\n";
 	}
 	//sHelp += " \n";
 }
