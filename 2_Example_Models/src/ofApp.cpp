@@ -166,8 +166,9 @@ void ofApp::buildHelp() {
 	sHelp += "#";
 	sHelp += ofToString(indexScene);
 	sHelp += "\n";
+	sHelp += "\n";
 
-	sHelp += "SCENE:\n";
+	sHelp += "SCENE\n";
 	switch (indexScene) {
 	case 0:
 		sHelp += namesScenes[0];
@@ -484,11 +485,12 @@ void ofApp::drawMyScene() {
 //--------------------------------------------------------------
 void ofApp::doReset() {
 	// Scene
-	indexScene = 0;
 	scale = -0.6;
 	yPos = 0;
 	speed = 0.5;
 	bRotate = false;
+
+	//indexScene = 0;
 
 #if 1
 	// More stuff to reset:

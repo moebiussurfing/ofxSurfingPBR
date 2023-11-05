@@ -24,27 +24,31 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 ## Features
 
 - Two ready-to-use editable parametric materials:
-  - A. For the **Plane** (floor).
-  - B. For the other **Objects**.
+  - **Material A**. For the **Plane** (floor).
+  - **Material B**. For the **other Objects**.
 - A positionable Ambient **light** with **Shadows**.
-- **Cubemaps** (**HDR**) files with on runtime loader.
+- **Cubemaps** (aka **HDR**) files.
+  - On runtime loader.
   - Alternative background color.
 - Added **Shader** for *testing/code*.
   - **Displacement** applied to the plane and his material/mesh.
 - Persistent settings:
-  - **Plane** colors, transforms, simple material, etc...
+  - **Plane** colors, transforms, simple material, snapshots, etc...
   - **Objects** material with full specs. 
   - Camera settings.
     - Included [ofxCameraSaveLoad](https://github.com/roymacdonald/ofxCameraSaveLoad) into `/libs`.
 - Material and scene **Randomizers**.
-  - History browsing **Undo/Redo** workflow. [TODO] 
+- **History** browsing workflow.
+    - **Presets**/**Snapshots** system.
+    - Kind of **Undo/Redo**.
 - **3D models** browser/loader class
-  - Used into `\2_Example_Models\`.
+  - Used into the example `\2_Example_Models\`.
+ - Included [ofxSurfingHelpersLite](https://github.com/moebiussurfing/ofxSurfingHelpersLite) into `/libs`.
 
 ### TODO
-  - Add more Shaders related stuff. 
-  - Mesh/vertex displacements (not just heightmaps). [TODO]
-  - Shader **Debugger**. [TODO]
+  - Add more **Shaders** related stuff. [_HELP IS WELCOME_]
+    - _Mesh/vertex_ displacements (not just heightmaps). [_TODO_]
+    - Shader **Debugger**. [_TODO_]
 
 <details>
   <summary>Usage</summary>
