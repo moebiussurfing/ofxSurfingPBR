@@ -5,7 +5,7 @@ void ofApp::setup() {
 
 	// Theme
 	if (1) ofxSurfing::setOfxGuiTheme(0); // Customize ofxGui theme.
-	
+
 	// App window
 	{
 		ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
@@ -173,17 +173,19 @@ void ofApp::buildHelp() {
 
 //--------------------------------------------------------------
 void ofApp::refreshGui() {
-	// center gui panels at the window bottom
+	// Center visible gui panels at the window bottom.
 #ifdef SURFING__USE__FILE_BROWSER
 	if (indexScene == 2) {
 		auto w = gui.getShape().getWidth();
+		int o = SURFING__PAD_TO_WINDOW_BORDERS;
+		o -= SURFING__PAD_OFXGUI_BETWEEN_PANELS / 2;
 		auto h = guiModels.getShape().getHeight() + SURFING__PAD_TO_WINDOW_BORDERS;
-		auto po = glm::vec2 { ofGetWidth() / 2 - w, ofGetHeight() - h };
+		auto po = glm::vec2 { ofGetWidth() / 2 - w - o/2, ofGetHeight() - h };
 		gui.setPosition(po.x, po.y);
 	} else
-		ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center
+		ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center.
 #else
-	ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center
+	ofxSurfing::setGuiPositionToLayout(gui); //move gui to bottom-center.
 #endif
 }
 
