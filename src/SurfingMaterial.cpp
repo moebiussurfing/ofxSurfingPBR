@@ -487,8 +487,8 @@ void SurfingMaterial::setupHistoryManager() {
 	//indexHistory.setSerializable(false);
 
 	historyParams.setName("History Browser");
-	historyParams.add(vPrevHistory);
 	historyParams.add(vNextHistory);
+	historyParams.add(vPrevHistory);
 	historyParams.add(indexHistory);
 	historyParams.add(vRecallState);
 	historyParams.add(vStoreNewState);

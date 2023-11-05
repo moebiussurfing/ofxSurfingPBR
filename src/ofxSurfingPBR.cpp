@@ -513,6 +513,8 @@ void ofxSurfingPBR::endShaderPlane() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::setup() {
 	ofLogNotice("ofxSurfingPBR") << "setup()";
+	
+	ofSetLogLevel("ofxSurfing", OF_LOG_WARNING);
 
 	// for using on any objects
 	material.setup();
