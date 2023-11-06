@@ -54,7 +54,7 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
   <summary>Usage</summary>
   <p>
 
-## EXAMPLE
+## SIMPLE EXAMPLE
 
 ### main.cpp
 ```.cpp
