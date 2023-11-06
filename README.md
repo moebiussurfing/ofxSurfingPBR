@@ -1,6 +1,6 @@
-## Overview
-
 # WIP 
+
+## Overview
 
 **openFrameworks** addon to easily test, learn, and use the new **PBR features** from the new **OF 0.12+** releases.  
 
@@ -42,7 +42,7 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
     - **Presets**/**Snapshots** (Store/Recall) explorer system.
     - Kind of **Undo/Redo**.
 - **3D models** browser/loader class
-  - Used into the example `\2_Example_Models\`.
+  - Used in the example `\2_Example_Models\`.
  - Included [ofxSurfingHelpersLite](https://github.com/moebiussurfing/ofxSurfingHelpersLite) into `/libs`.
 
 ### TODO
@@ -144,7 +144,7 @@ void ofApp::renderScene()
 bin  
 $~$ └ data  
 $~~~~~~$ ├ cubemaps $~~~~~~$ exr, hdr, jpg  
-$~~~~~~$ ├ models $~~~~~~~~~$ obj, ply, fbx  
+$~~~~~~$ ├ models $~~~~~~~~$ obj, ply, fbx  
 $~~~~~~$ ├ shadersGL2 $~~~~$ frag, vert  
 $~~~~~~$ └ shadersGL3 $~~~~$ frag, vert  
 
