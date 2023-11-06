@@ -53,7 +53,8 @@ inline bool loadSettings(ofParameterGroup & parameters, string path) {
 	if (b)
 		ofLogNotice("ofxSurfing") << "Found file: " << path;
 	else
-		ofLogError("ofxSurfing") << "File " << path << " not found!";
+		ofLogError("ofxSurfing") << "File " << path
+								 << " for ofParameterGroup " << parameters.getName() << "not found!";
 	//load if exist
 	if (b) {
 		ofJson settings;
@@ -79,7 +80,7 @@ inline bool saveSettings(ofParameterGroup & parameters, string path) {
 	ofSerialize(settings, parameters);
 	bool b = ofSavePrettyJson(path, settings);
 	if (b)
-		ofLogNotice("ofxSurfing") << "Saved: " << parameters.getName() << " to " << path;
+		ofLogNotice("ofxSurfing") << "Saved ofParameterGroup: " << parameters.getName() << " to " << path;
 	else
 		ofLogError("ofxSurfing") << "Error saving: " << parameters.getName() << " to " << path;
 
@@ -519,13 +520,20 @@ inline void setGuiPositionToLayout(ofxPanel & gui, int layout = 0) {
 // Set position of gui1 at the window bottom and centered
 // (gui2 must be externally linked to gui1 with the correct padding).
 //TODO: other layouts
-inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2 /*, int layout = 0*/) {
-	int gw = gui1.getShape().getWidth() + gui2.getShape().getWidth() + SURFING__PAD_OFXGUI_BETWEEN_PANELS;
-	int gh = MAX(gui1.getShape().getHeight(), gui2.getShape().getHeight());
-	gh += SURFING__PAD_TO_WINDOW_BORDERS;
-	int x = ofGetWidth() / 2 - gw / 2;
-	int y = ofGetHeight() - gh;
-	gui1.setPosition(x, y);
+inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2, int layout = 1) {
+	if (layout == 0) { //bottom-center
+		int gw = gui1.getShape().getWidth() + gui2.getShape().getWidth() + SURFING__PAD_OFXGUI_BETWEEN_PANELS;
+		int gh = MAX(gui1.getShape().getHeight(), gui2.getShape().getHeight());
+		gh += SURFING__PAD_TO_WINDOW_BORDERS;
+		int x = ofGetWidth() / 2 - gw / 2;
+		int y = ofGetHeight() - gh;
+		gui1.setPosition(x, y);
+	} else if (layout == 1) { //top center
+		int gw = gui1.getShape().getWidth() + gui2.getShape().getWidth() + SURFING__PAD_OFXGUI_BETWEEN_PANELS;
+		int x = ofGetWidth() / 2 - gw / 2;
+		int y = SURFING__PAD_TO_WINDOW_BORDERS;
+		gui1.setPosition(x, y);
+	}
 }
 /*
 
@@ -599,10 +607,10 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 		cFill = ofColor(128);
 	#else
 		cHeadBg = ofColor(80);
-		cBg = ofColor(50,210);
+		cBg = ofColor(50, 210);
 		cBorder = ofColor(120, 100);
 		cText = ofColor(255);
-		cFill = ofColor(120,200);
+		cFill = ofColor(120, 210);
 	#endif
 #endif
 		ofxGuiSetHeaderColor(cHeadBg);
@@ -631,8 +639,8 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 		if (bMini) {
 			textPadding = 6;
 			defaultWidth = 135;
-			defaultHeight = 17;
-		} else { 
+			defaultHeight = 15;
+		} else {
 			textPadding = 6;
 			defaultWidth = 200;
 			defaultHeight = 18;
@@ -695,10 +703,25 @@ public:
 		if (b) {
 			// flag to save delayed
 			if (bEnable) {
+				//only log once/first call
+				if (!bFlagSave) ofLogVerbose("SurfingAutoSaver") << "saveSoon() " << name;
+
 				bFlagSave = true;
 				timeLastChange = ofGetElapsedTimeMillis();
 			}
 		}
+	}
+
+	const string getName() {
+		return name;
+	}
+
+	/// <summary>
+	/// not mandatory but for debug
+	/// </summary>
+	/// <param name="n"></param>
+	void setName(string n) {
+		name = n;
 	}
 
 	void pause() {
@@ -724,6 +747,7 @@ private:
 	bool bFlagSave = false;
 
 	bool bAutoSave_ = false;
+	string name = "";
 
 private:
 	callback_t f_Saver = nullptr;
@@ -739,6 +763,9 @@ private:
 	}
 
 public:
+	/// <summary>
+	///  Warning. Should be private! Expected to be called automaticaly as a listener to ofEvents().update() is registered..
+	/// </summary>
 	void update() {
 		if (bEnable) {
 			auto t = ofGetElapsedTimeMillis() - timeLastChange;
@@ -753,6 +780,8 @@ public:
 public:
 	void save() {
 		if (f_Saver != nullptr) f_Saver();
+
+		ofLogVerbose("SurfingAutoSaver") << "Save() " << name;
 	}
 };
 

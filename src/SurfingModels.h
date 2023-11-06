@@ -53,15 +53,17 @@ public:
 
 		setupParams();
 
+		// Gui
 		gui.setup(parameters);
+		gui.getGroup(transformParams.getName()).minimize();
 
 		//--
 
-		// autoSaver
-		//register the local save function to be called when saving is required.
+		// Auto saver
+		// Register the local save function to be called when saving is required.
 		callback_t f = std::bind(&SurfingModels::save, this);
 		autoSaver.setFunctionSaver(f);
-		//parameters.add(autoSaver.bEnable);
+		autoSaver.setName("SurfingModels");
 
 		load();
 	}
@@ -148,6 +150,8 @@ public:
 		listenerReset = vReset.newListener([this](void) {
 			doReset();
 		});
+
+		ofAddListener(parameters.parameterChangedE(), this, &SurfingModels::Changed);
 	}
 
 	void doProcessIndex(int i) {
@@ -260,6 +264,10 @@ private:
 	ofEventListener listenerNext;
 	ofEventListener listenerPrevious;
 
+	void Changed(ofAbstractParameter & e) {
+		autoSaver.saveSoon();
+	}
+
 public:
 	const string getPathModels() {
 		string s = pathModels;
@@ -279,11 +287,13 @@ public:
 	string pathSettings = "SurfingModels.json";
 
 	void save() {
+		ofLogNotice("ofSurfingModelsApp") << "save()";
 		ofxSurfing::saveSettings(parameters, pathSettings);
 
 		saveTransforms();
 	}
 	void load() {
+		ofLogNotice("SurfingModels") << "load()";
 		autoSaver.pause();
 		ofxSurfing::loadSettings(parameters, pathSettings);
 		autoSaver.start();
@@ -291,6 +301,7 @@ public:
 		loadTransforms();
 	}
 	void saveTransforms() {
+		ofLogNotice("SurfingModels") << "saveTransforms()";
 		for (size_t i = 0; i < transforms.size(); i++) {
 			ofJson j;
 			string p = pathModels + "\\" + getName(i) + extSuffixTransform;
@@ -338,13 +349,14 @@ private:
 	string sHelp;
 	void buildHelp() {
 		sHelp = "";
-		sHelp += "MODEL\n";
+		sHelp += "MODELS\n";
 		sHelp += "\n";
 		sHelp += " " + this->getFilename() + "\n";
 		sHelp += "\n";
 		sHelp += "BROWSE\n";
-		sHelp += " UP   Prev\n";
-		sHelp += " DOWN Next\n";
+		sHelp += "\n";
+		sHelp += "UP   Prev\n";
+		sHelp += "DOWN Next\n";
 		sHelp += "\n";
 		sHelp += this->getFilenamesList();
 	}
@@ -411,8 +423,10 @@ SurfingModels::SurfingModels() {
 }
 
 SurfingModels::~SurfingModels() {
+	ofRemoveListener(parameters.parameterChangedE(), this, &SurfingModels::Changed);
+
 	//TODO: fix auto saver!
-	save();
+	//save();
 }
 
 //------

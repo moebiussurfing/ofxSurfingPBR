@@ -207,7 +207,7 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 	} else if (name == vNextHistory.getName()) {
 		doNextHistory();
 	} else if (name == vSaveState.getName()) {
-		doUpdateState();
+		doSaveState();
 	} else if (name == vStoreNewState.getName()) {
 		doStoreNewState();
 	} else if (name == vRecallState.getName()) {
@@ -235,17 +235,12 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 
 			if (indexHistory >= 0 && indexHistory < sizeHistory) {
 				//workflow
-				///update save current before load another
+				///update/save current before load another.
 				if (bAutoSaveBeforeChangeIndex && indexHistory_ != -1) {
-					doUpdateState(indexHistory_);
+					doSaveState(indexHistory_);
 				}
 
-				//load file
-				string p = getFilepathHistoryState(indexHistory);
-
-				//bAttendingCallback = true;
-				ofxSurfing::loadSettings(parameters, p);
-				//bAttendingCallback = false;
+				doRecallState();
 			}
 
 			indexHistory_ = indexHistory;
@@ -649,8 +644,8 @@ void SurfingMaterial::doNextHistory() {
 }
 
 //--------------------------------------------------------------
-void SurfingMaterial::doUpdateState(int i) {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doUpdateState(" << i << ")";
+void SurfingMaterial::doSaveState(int i) {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doSaveState(" << i << ")";
 	//save over loaded or passed state
 
 	string p;
@@ -756,7 +751,7 @@ void SurfingMaterial::save() {
 
 		//workflow
 		if (bAutoSaveBeforeChangeIndex) {
-			doUpdateState(indexHistory);
+			doSaveState(indexHistory);
 		}
 	}
 }

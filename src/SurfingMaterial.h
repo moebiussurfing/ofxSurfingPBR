@@ -75,7 +75,7 @@ public:
 	void doNextHistory();
 	void doStoreNewState();
 	void doRecallState();
-	void doUpdateState(int i=-1);
+	void doSaveState(int i=-1);
 
 private:
 	ofMaterial material;

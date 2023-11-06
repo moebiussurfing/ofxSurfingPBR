@@ -49,7 +49,7 @@ void ofApp::renderScene() {
 
 //--------------------------------------------------------------
 void ofApp::drawYourScene() {
-	pbr.drawTestScene(); //use an internal bundled testing scene
+	pbr.drawTestScene(); // Draws an internal bundled testing scene
 }
 
 //--------------------------------------------------------------

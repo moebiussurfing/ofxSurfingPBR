@@ -4,7 +4,7 @@
 void ofApp::setup() {
 
 	// Theme
-	if (1) ofxSurfing::setOfxGuiTheme(1); // Customize ofxGui theme.
+	if (1) ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
 
 	// App window
 	{
@@ -38,6 +38,8 @@ void ofApp::setup() {
 
 	setupParams();
 
+	setupGui();
+
 	//--
 
 	startup();
@@ -63,7 +65,7 @@ void ofApp::setupPBR() {
 	pbr.setLogLevel(OF_LOG_VERBOSE);
 	#endif
 
-	#if 1
+	#if 0 //TODO fix
 	// Check if it's the first time opening the App.
 	// If not, we will force some settings for the scene:
 	if (!pbr.getSettingsFileFound()) {
@@ -107,24 +109,25 @@ void ofApp::setupParams() {
 	parameters.add(indexScene);
 	parameters.add(nameScene);
 
-	parameters.add(yPos);
-	parameters.add(scale);
-	parameters.add(speed);
-	parameters.add(bRotate);
+	transformsParams.setName("Transforms");
+	transformsParams.add(yPos);
+	transformsParams.add(scale);
+	parameters.add(transformsParams);
+
+	animateParams.setName("Animate");
+	animateParams.add(bRotate);
+	animateParams.add(rotateSpeed);
+	animateParams.add(bZoomAnim);
+	animateParams.add(animSpeed);
+	animateParams.add(powAnim);
+	parameters.add(animateParams);
+
+	parameters.add(vReset);
+	parameters.add(pbr.vResetCamera);
 
 	parameters.add(bHelp);
-	parameters.add(vReset);
 
 	nameScene.setSerializable(false);
-
-	//--
-
-	// Gui
-
-	gui.setup(parameters);
-
-	refreshGui();
-	buildHelp();
 
 	//--
 
@@ -147,17 +150,43 @@ void ofApp::setupParams() {
 	listenerReset = vReset.newListener([this](void) {
 		doReset();
 	});
+
+	ofAddListener(parameters.parameterChangedE(), this, &ofApp::Changed);
+}
+
+//--------------------------------------------------------------
+void ofApp::setupGui() {
+
+	gui.setup(parameters);
+
+	gui.getGroup(animateParams.getName()).minimize();
+
+	refreshGui();
+	buildHelp();
+}
+
+//--------------------------------------------------------------
+void ofApp::Changed(ofAbstractParameter & e) {
+	autoSaver.saveSoon();
 }
 
 //--------------------------------------------------------------
 void ofApp::startup() {
 
 	vReset.trigger();
-	//before loading settings or in the case that not settings file located 
+	//before loading settings or in the case that not settings file located
 	// aka app is opening for the first time.
 
+	//--
+
+	// Auto saver
+	// Register the local save function to be called when saving is required.
+	callback_t f = std::bind(&ofApp::save, this);
+	autoSaver.setFunctionSaver(f);
+	//autoSaver.setName("ofApp");//for debug
+
 	// Load settings
-	ofxSurfing::loadSettings(parameters, pathSettings);
+	load();
 }
 
 //--------------------------------------------------------------
@@ -181,7 +210,7 @@ void ofApp::setupMesh() {
 //--------------------------------------------------------------
 void ofApp::drawMesh() {
 	// Transforms
-	// for the ofLogoHollow.ply mesh.
+	// Hardcoded for the ofLogoHollow.ply mesh.
 	ofPushMatrix();
 	ofTranslate(0, 60, 0);
 	ofScale(40.f);
@@ -202,13 +231,17 @@ void ofApp::setupModel() {
 
 	//--
 
-	pathModel = "models/head25k.obj"; // This file model have problems with normals...
+	pathModel = "models/head25k.obj";
+	scaled = 1.5;
+	// Note that this file model have problems with normals...
+	// We will need:
+	// glFrontFace(GL_CCW);
 
 	//pathModel = "models/basic_form.ply";
 	//scaled = 2.0;
 
-	//pathModel = "models/ultraviolence.fbx";
-	//scaled = 0.01;
+	//pathModel = "models/Fox_05.fbx";
+	//scaled = 0.05;
 
 	//--
 
@@ -216,7 +249,27 @@ void ofApp::setupModel() {
 	if (b)
 		ofLogNotice() << "Successfully loaded model file: " << pathModel;
 	else
-		ofLogError() << "Unable to load model file " << pathModel << ". Maybe not found!";
+
+		//--------------------------------------------------------------
+		bool ofApp::loadModel(string path, float scaled) {
+
+			bool b = model.load(path, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
+
+			// we can apply transforms to models
+			if (scaled != 1) model.setScale(scaled, scaled, scaled);
+
+			// hardcoded
+			model.setPosition(0, 2, 0); //TODO
+
+			meshesModel.clear();
+			size_t sz = model.getMeshCount();
+			for (int j = 0; j < sz; j++) {
+				ofVboMesh vm = model.getMesh(j);
+				meshesModel.push_back(vm);
+			}
+			return b;
+		}
+	ofLogError() << "Unable to load model file " << pathModel << ". Maybe not found!";
 }
 #endif
 
@@ -265,7 +318,7 @@ void ofApp::loadModels() {
 			ofLogError() << "Model path not settled properly or unknown!";
 			continue;
 		}
-		
+
 		std::unique_ptr<ofxAssimpModelLoader> m = std::make_unique<ofxAssimpModelLoader>();
 		bool b = m->load(path, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
 		models.push_back(std::move(m));
@@ -291,51 +344,21 @@ void ofApp::loadModels() {
 
 //--------------------------------------------------------------
 void ofApp::update() {
-#if 0
-	// Shows how to access the internal camera.
-	// Make some animation to the distance.
-	float t = ofGetElapsedTimef();
-	float v = glm::sin(2.0f * glm::pi<float>() * t);
-	v = ofMap(v, -1, 1, 700, 4000, true);
-	pbr.getOfEasyCamPtr()->setDistance(v);
-	//camera.setDistance(v);//will does the same than above line.
-#endif
-}
 
-#ifndef SURFING__USE__FILE_BROWSER
-//--------------------------------------------------------------
-void ofApp::drawModel() {
-	glFrontFace(GL_CCW); //fix for "transparent" for model head25k.obj with normals problems..
+	if (bZoomAnim) {
+		// Shows how to access the internal camera.
+		// Make some animation to the distance/zoom.
+		float t = ofGetElapsedTimef();
+		float f = ofMap(animSpeed, 0.f, 1.f, 0.1, 2, true);
+		float v = glm::sin(2.f * glm::pi<float>() * t * f);
+		float a = ofMap(powAnim, 0.f, 1.f, 1.05, 10, true);
+		int unit = 600;
+		v = ofMap(v, -1, 1, unit, unit * a, true);
 
-	#define USE_MODEL_TRANSFORMS 0
-
-	#if (USE_MODEL_TRANSFORMS)
-	// Scene transforms
-	ofPushMatrix();
-	ofTranslate(0, 100, 0);
-	ofScale(50.f);
-
-	// Model transforms
-	// Settled when loading the model,
-	// but requires apply here before draw!
-	ofScale(model.getScale().x, model.getScale().y, model.getScale().z);
-		//ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);//TODO
-	#endif
-
-	// Draw all the model queued meshes
-	{
-		if (meshesModel.size() > 0) {
-			for (int i = 0; i < meshesModel.size(); i++) {
-				meshesModel[i].drawFaces();
-			}
-		}
+		pbr.getOfEasyCamPtr()->setDistance(v);
+		//camera.setDistance(v);// Note that will does the same than the above line.
 	}
-
-	#if (USE_MODEL_TRANSFORMS)
-	ofPopMatrix();
-	#endif
 }
-#endif
 
 #ifdef SURFING__USE__FILE_BROWSER
 //--------------------------------------------------------------
@@ -352,6 +375,45 @@ void ofApp::drawModel() {
 			meshesModels[i][j].drawFaces();
 		}
 	}
+}
+#endif
+
+#ifndef SURFING__USE__FILE_BROWSER
+//--------------------------------------------------------------
+void ofApp::drawModel() {
+	glFrontFace(GL_CCW);
+	// fix for "transparent" for model head25k.obj with normals problems..
+
+	#define USE_MODEL_TRANSFORMS 1
+
+	#if (USE_MODEL_TRANSFORMS)
+	// Scene previous hardcoded transforms
+	ofPushMatrix();
+	ofTranslate(0, 50, 0);
+	ofScale(40.f);
+	ofRotateYDeg(-3 * 45.f);
+
+	// Model transforms
+	// Settled when loading the model,
+	// but requires apply here before draw!
+	ofScale(model.getScale().x, model.getScale().y, model.getScale().z);
+
+	//TODO:  would need to pass as argument like the above scale..
+	ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);
+	#endif
+
+	// Draw all the model queued meshes
+	{
+		if (meshesModel.size() > 0) {
+			for (int i = 0; i < meshesModel.size(); i++) {
+				meshesModel[i].drawFaces();
+			}
+		}
+	}
+
+	#if (USE_MODEL_TRANSFORMS)
+	ofPopMatrix();
+	#endif
 }
 #endif
 
@@ -376,8 +438,16 @@ void ofApp::renderScene() {
 	pbr.endMaterial();
 }
 
+//------
+
 //--------------------------------------------------------------
 void ofApp::drawMyScene() {
+
+	/*
+	
+		WE DRAW OUR SCENE HERE !
+	
+	*/
 
 	// Scene transforms
 	{
@@ -397,7 +467,7 @@ void ofApp::drawMyScene() {
 		// 30 seconds to complete 360deg
 		// at 60 fps, for the slower speed.
 		// faster speed is one second per 360deg.
-		int f = ofMap(speed, 0.f, 1.f, 60 * tmax, 60, true);
+		int f = ofMap(rotateSpeed, 0.f, 1.f, 60 * tmax, 60, true);
 		float d = ofMap(ofGetFrameNum() % f, 0, f, 0.f, 360.f);
 
 		ofTranslate(0, y, 0);
@@ -465,6 +535,8 @@ void ofApp::drawMyScene() {
 	ofPopMatrix();
 }
 
+//------
+
 //--------------------------------------------------------------
 void ofApp::drawGui() {
 	if (!pbr.bGui) return; //used as global show ui.
@@ -478,7 +550,7 @@ void ofApp::drawGui() {
 
 #ifdef SURFING__USE__FILE_BROWSER
 		if (indexScene == 2) {
-			
+
 			// Attach/link both panels positions
 			auto bb = gui.getShape();
 			auto p = bb.getTopRight() + glm::vec2 { (float)SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0.f };
@@ -504,14 +576,20 @@ void ofApp::drawHelp() {
 #endif
 }
 
+//--
+
 //--------------------------------------------------------------
 void ofApp::doReset() {
 
 	// Scene
 	scale = -0.6;
 	yPos = 0;
-	speed = 0.5;
+
+	rotateSpeed = 0.5;
 	bRotate = false;
+	bZoomAnim = false;
+	powAnim = 0.5;
+	animSpeed = 0.5;
 
 #if 1
 	// Some PBR stuff to Reset:
@@ -553,11 +631,11 @@ void ofApp::buildHelp() {
 	sHelp += "g Gui\n";
 	sHelp += "G ofxGui\n";
 	sHelp += "R Rotate\n";
+	sHelp += "A Zoom Anim\n";
 	sHelp += "\n";
-	sHelp += " LEFT  Prev\n";
-	sHelp += " RIGHT Next\n";
+	sHelp += "LEFT  Prev\n";
+	sHelp += "RIGHT Next\n";
 	sHelp += "\n";
-	sHelp += " ";
 	sHelp += "#" + ofToString(indexScene) + "\n";
 	sHelp += "SCENE\n";
 	sHelp += namesScenes[indexScene] + "\n";
@@ -566,14 +644,18 @@ void ofApp::buildHelp() {
 //--------------------------------------------------------------
 void ofApp::refreshGui() {
 
-	// Center visible gui panels at the window bottom.
+	// Center visible gui panels at the window top/bottom:
+	int layout = pbr.getGuiLayout();
+	// Move gui to:
+	// 0: bottom-center.
+	// 1: top-center.
 #ifdef SURFING__USE__FILE_BROWSER
 	if (indexScene == 2) {
-		ofxSurfing::setGuiPositionToLayoutBoth(gui, surfingModels.gui);
+		ofxSurfing::setGuiPositionToLayoutBoth(gui, surfingModels.gui, layout);
 	} else
-		ofxSurfing::setGuiPositionToLayout(gui); // Move gui to bottom-center.
+		ofxSurfing::setGuiPositionToLayout(gui, layout);
 #else
-	ofxSurfing::setGuiPositionToLayout(gui); // Move gui to bottom-center.
+	ofxSurfing::setGuiPositionToLayout(gui, layout);
 #endif
 }
 
@@ -582,6 +664,9 @@ void ofApp::keyPressed(int key) {
 	pbr.keyPressed(key);
 
 	//--
+
+	if (key == 'A')
+		bZoomAnim = !bZoomAnim;
 
 	if (key == 'R')
 		bRotate = !bRotate;
@@ -617,9 +702,24 @@ void ofApp::windowResized(ofResizeEventArgs & resize) {
 }
 
 //--------------------------------------------------------------
+void ofApp::load() {
+	ofLogNotice("ofApp") << "load()";
+	autoSaver.pause();
+	ofxSurfing::loadSettings(parameters, pathSettings);
+	autoSaver.start();
+}
+
+//--------------------------------------------------------------
+void ofApp::save() {
+	ofLogNotice("ofApp") << "save()";
+	ofxSurfing::saveSettings(parameters, pathSettings);
+}
+
+//--------------------------------------------------------------
 void ofApp::exit() {
+	ofLogNotice("ofApp") << "exit()";
+
 	pbr.exit();
 
-	// Save settings
-	ofxSurfing::saveSettings(parameters, pathSettings);
+	ofRemoveListener(parameters.parameterChangedE(), this, &ofApp::Changed);
 }

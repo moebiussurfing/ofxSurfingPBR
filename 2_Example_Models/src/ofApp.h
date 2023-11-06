@@ -19,6 +19,7 @@
 class ofApp : public ofBaseApp {
 public:
 	void setup();
+	void setupGui();
 	void startup();
 	void update();
 	void draw();
@@ -49,25 +50,29 @@ public:
 	// Model
 	void drawModel();
 
-#ifndef SURFING__USE__FILE_BROWSER
-	void setupModel();
-	ofxAssimpModelLoader model;
-	vector<ofVboMesh> meshesModel;
-	string pathModel;
-#endif
-
 	//--
 
 	// Params
 
 	// For the Gui and settings
 	ofParameterGroup parameters;
+	void Changed(ofAbstractParameter & e);
 	string pathSettings = "ofApp.json";
+	SurfingAutoSaver autoSaver;
+	void save();
+	void load();
 
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
 	ofParameter<float> yPos { "Pos y", 0, -1.f, 1.f };
+	
+	ofParameterGroup animateParams;
+	ofParameterGroup transformsParams;
+
 	ofParameter<bool> bRotate { "Rotate", false };
-	ofParameter<float> speed { "Speed", 0.5f, 0, 1 };
+	ofParameter<float> rotateSpeed { "Speed", 0.5f, 0, 1 };
+	ofParameter<float> powAnim{ "Anim Pow", 0.5f, 0, 1 };
+	ofParameter<float> animSpeed { "Anim Speed", 0.5f, 0, 1 };
+	ofParameter<bool> bZoomAnim { "Anim Zoom", false };
 
 	ofParameter<int> indexScene { "SCENE", 0, 0, 2 };
 	ofParameter<string> nameScene { "Name", "" };
@@ -78,7 +83,7 @@ public:
 	};
 	ofEventListener listenerIndexScene;
 
-	ofParameter<void> vReset { "Reset" };
+	ofParameter<void> vReset { "Reset Scene" };
 	ofParameter<void> vNextIndexScene { "Next" };
 	ofParameter<void> vPrevIndexScene { "Prev" };
 
@@ -103,8 +108,8 @@ public:
 	ofxPanel gui;
 
 	void refreshGui(); 
-	//refresh gui for minimize/collapse workflow
-	// at to layout the gui panels on the app window
+	// Refresh gui for minimize/collapse workflow
+	// and to layout the gui panels on the app window.
 	 
 	//--
 	
@@ -118,7 +123,16 @@ public:
 	ofEventListener listenerLoadModel;
 	ofEventListener listenerIndexModel;
 
-	std::vector<std::unique_ptr<ofxAssimpModelLoader>> models;
+	vector<std::unique_ptr<ofxAssimpModelLoader>> models;
 	vector<vector<ofVboMesh>> meshesModels;
+#endif
+
+	// One single model
+#ifndef SURFING__USE__FILE_BROWSER
+	void setupModel();
+	ofxAssimpModelLoader model;
+	vector<ofVboMesh> meshesModel;
+	string pathModel;
+	bool loadModel(string path, float scaled=1);
 #endif
 };

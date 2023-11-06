@@ -118,6 +118,9 @@ void ofxSurfingPBR::setupParams() {
 
 	vMinimizeAllGui.set("Gui Minimize");
 	vMaximizeAllGui.set("Gui Maximize");
+	guiLayout.set("Gui Layout", 0, 0, 1);
+	nameGuiLayout.set("Layout", "");
+	nameGuiLayout.setSerializable(false);
 
 	//--
 
@@ -282,7 +285,7 @@ void ofxSurfingPBR::setupParams() {
 	vLoadCamera.set("Load");
 	vSaveCamera.set("Save");
 	bEnableCameraAutosave.set("Auto Save", true);
-	vResetCamera.set("Reset");
+	vResetCamera.set("Reset Camera");
 	cameraParams.add(vLoadCamera);
 	cameraParams.add(vSaveCamera);
 	cameraParams.add(bEnableCameraAutosave);
@@ -298,8 +301,6 @@ void ofxSurfingPBR::setupParams() {
 	//--
 
 	advancedParams.add(bGui); //workflow: added to add to settings. could hide the toggle..
-	advancedParams.add(material.getIndexStateParam());
-	//advancedParams.add(material.bGuiHelpers);
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	// auto saver
@@ -309,15 +310,23 @@ void ofxSurfingPBR::setupParams() {
 	advancedParams.add(autoSaver.bEnable);
 #endif
 
-	advancedParams.add(vMinimizeAllGui);
-	advancedParams.add(vMaximizeAllGui);
+	advancedParams.add(material.getIndexStateParam());
+	//advancedParams.add(material.bGuiHelpers);
+
+	guiParams.setName("Gui");
+	guiParams.add(vMinimizeAllGui);
+	guiParams.add(vMaximizeAllGui);
+	guiParams.add(guiLayout);
+	guiParams.add(nameGuiLayout);
+	advancedParams.add(guiParams);
+
 	internalParams.add(advancedParams);
 
 	internalParams.add(bKeys);
-	internalParams.add(bHelp);
 	parameters.add(internalParams);
 
 	parameters.add(vResetAll);
+	parameters.add(bHelp);
 
 	//--
 
@@ -510,8 +519,8 @@ void ofxSurfingPBR::endShaderPlane() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::setup() {
 	ofLogNotice("ofxSurfingPBR") << "setup()";
-	
-	ofSetLogLevel("ofxSurfing", OF_LOG_WARNING);
+
+	//ofSetLogLevel("ofxSurfing", OF_LOG_WARNING);
 
 	// for using on any objects
 	material.setup();
@@ -1072,8 +1081,11 @@ void ofxSurfingPBR::ChangedPlane(ofAbstractParameter & e) {
 	}
 
 	else if (name == planeGlobalColor.getName()) {
-		planeDiffuseColor = planeGlobalColor.get();
-		planeSpecularColor = planeGlobalColor.get();
+		//fix crash
+		if (!bDoneStartup) return;
+
+		planeDiffuseColor.set(planeGlobalColor.get());
+		planeSpecularColor.set(planeGlobalColor.get());
 	}
 
 	else if (name == planeDiffuseColor.getName()) {
@@ -1150,6 +1162,21 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 
 	if (name == bKeys.getName()) {
 		buildHelp();
+	}
+
+	else if (name == guiLayout.getName()) {
+		//fix crash
+		if (!bDoneStartup) return;
+
+		//if (guiLayout.get() == 0)
+		//	nameGuiLayout.setWithoutEventNotifications("BOTTOM CENTER");
+		//else if (guiLayout.get() == 1)
+		//	nameGuiLayout.setWithoutEventNotifications("TOP CENTER");
+
+		if (guiLayout.get() == 0)
+			nameGuiLayout.set("BOTTOM CENTER");
+		else if (guiLayout.get() == 1)
+			nameGuiLayout.set("TOP CENTER");
 	}
 
 	else if (name == vMinimizeAllGui.getName()) {
@@ -1653,7 +1680,7 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 'x') material.doNextHistory();
 	if (key == 'r') material.doRecallState();
 	if (key == 's') material.doStoreNewState();
-	if (key == 'u') material.doUpdateState();
+	if (key == 'u') material.doSaveState();
 }
 
 void ofxSurfingPBR::setLogLevel(ofLogLevel logLevel) {
@@ -1688,7 +1715,7 @@ void ofxSurfingPBR::doResetPlaneTransform() {
 	planeSize.set(glm::vec2(0.12, 0.05));
 	bPlaneInfinite = false;
 	planePosition.set(0.f);
-	planeRotation.set(0.f);
+	planeRotation.set(10.f);
 }
 
 //--------------------------------------------------------------
@@ -1720,6 +1747,9 @@ void ofxSurfingPBR::doResetCamera() {
 
 		easyCam->setPosition({ 8.35512, 581.536, 696.76 });
 		easyCam->setOrientation({ 0.940131, -0.340762, 0.00563653, 0.00204303 });
+
+		//save
+		vSaveCamera.trigger();
 	}
 }
 

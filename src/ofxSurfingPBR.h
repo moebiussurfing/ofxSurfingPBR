@@ -187,8 +187,10 @@ private:
 	ofParameter<bool> bEnableCameraAutosave;
 	ofParameter<void> vSaveCamera;
 	ofParameter<void> vLoadCamera;
-	ofParameter<void> vResetCamera;
 	string pathCamera = "ofxSurfingPBR_Camera.txt";
+
+public:
+	ofParameter<void> vResetCamera;
 
 public:
 	ofParameterGroup parameters; //main container to expose to gui and to handle settings
@@ -202,6 +204,7 @@ public:
 	ofParameter<bool> bGui_ofxGui; //for ofxGui
 
 	ofParameterGroup internalParams;
+	ofParameterGroup guiParams;
 
 	ofParameterGroup advancedParams;
 	//we would like to hide these params from the gui,
@@ -209,6 +212,8 @@ public:
 	
 	ofParameter<void> vMinimizeAllGui;
 	ofParameter<void> vMaximizeAllGui;
+	ofParameter<int> guiLayout;//TODO notify
+	ofParameter<string> nameGuiLayout;//TODO notify
 
 	ofParameterGroup testSceneParams;
 	ofParameter<float> scaleTestScene;
@@ -280,6 +285,11 @@ public:
 		ofRectangle r2 = material.gui.getShape();
 		ofRectangle bb = r1.getUnion(r2);
 		return bb;
+	}
+
+	//--------------------------------------------------------------
+	const int getGuiLayout() {
+		return guiLayout.get();
 	}
 
 	//--------------------------------------------------------------
