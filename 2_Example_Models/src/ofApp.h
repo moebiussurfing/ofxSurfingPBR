@@ -19,6 +19,7 @@
 class ofApp : public ofBaseApp {
 public:
 	void setup();
+	void startup();
 	void update();
 	void draw();
 	void exit();
@@ -28,12 +29,14 @@ public:
 	void setupParams();
 	void drawGui();
 
+	ofEasyCam camera;
+
 	ofxSurfingPBR pbr;
 	void setupPBR();
 	void renderScene();
-	void drawMyScene();
+	void drawMyScene(); // Our scene is drawn here!
 
-	ofEasyCam camera;
+	//--
 
 	// Mesh
 	string pathMesh;
@@ -41,18 +44,25 @@ public:
 	void setupMesh();
 	void drawMesh();
 
+	//--
+
 	// Model
-	string pathModel;
-	void setupModel();
 	void drawModel();
-	bool loadModel(string path, float scaled = 1.0f);
+
+#ifndef SURFING__USE__FILE_BROWSER
+	void setupModel();
 	ofxAssimpModelLoader model;
 	vector<ofVboMesh> meshesModel;
-	
-	ofParameterGroup parameters;
-	string path = "ofApp.json";
+	string pathModel;
+#endif
+
+	//--
 
 	// Params
+
+	// For the Gui and settings
+	ofParameterGroup parameters;
+	string pathSettings = "ofApp.json";
 
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
 	ofParameter<float> yPos { "Pos y", 0, -1.f, 1.f };
@@ -76,26 +86,39 @@ public:
 	ofEventListener listenerNext;
 	ofEventListener listenerPrev;
 
+	//--
+
 	void doPrevScene();
 	void doNextScene();
 	void doReset();
 
-	ofParameter<bool> bHelp { "Help", false };
-	void buildHelp(); //refresh help info to display updated
 	void drawHelp();
+	void buildHelp(); //refresh help info to display updated
+	ofParameter<bool> bHelp { "Help", false };
 	string sHelp;
+
+	//--
 
 	// Gui
 	ofxPanel gui;
-	void refreshGui(); //refresh gui for minimize/collapse workflow
 
+	void refreshGui(); 
+	//refresh gui for minimize/collapse workflow
+	// at to layout the gui panels on the app window
+	 
+	//--
+	
 	// Models files browser
 #ifdef SURFING__USE__FILE_BROWSER
-	void setupModelsBrowser();
 	SurfingModels surfingModels;
-	ofxPanel guiModels;
+
+	void setupModels();
+	void loadModels();
 
 	ofEventListener listenerLoadModel;
 	ofEventListener listenerIndexModel;
+
+	std::vector<std::unique_ptr<ofxAssimpModelLoader>> models;
+	vector<vector<ofVboMesh>> meshesModels;
 #endif
 };

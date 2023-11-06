@@ -14,6 +14,7 @@
 #define SURFING__STRING_BOX__DEFAULT_XPAD 20
 #define SURFING__STRING_BOX__DEFAULT_YPAD 20
 #define SURFING__STRING_BOX__DEFAULT_ROUND 5.f // 0.f to not rounded
+//#define SURFING__STRING_BOX___USE_TTF_INSTEAD_OF_BITMAP_FONT___WIP//TODO
 
 //--
 
@@ -167,10 +168,20 @@ inline void setWindowSquared(int sz = 800) {
 /*
 	A text box widget with layout management.
 */
-
 //--------------------------------------------------------------
 inline void ofDrawBitmapStringBox(string s, int x, int y, float round = SURFING__STRING_BOX__DEFAULT_ROUND) {
 	bool bdebug = 0;
+
+#ifdef SURFING__STRING_BOX___USE_TTF_INSTEAD_OF_BITMAP_FONT___WIP
+	static bool bDone = 0;
+	static ofTrueTypeFont font;
+	if (!bDone) {
+		bDone = 1;
+		string path = SURFING__OFXGUI__FONT_DEFAULT_PATH;
+		int sz = SURFING__OFXGUI__FONT_DEFAULT_SIZE;
+		font.loadFont(path, sz);
+	}
+#endif
 
 	int a1 = 255;
 	int a2 = 200;
@@ -211,23 +222,32 @@ inline void ofDrawBitmapStringBox(string s, int x, int y, float round = SURFING_
 		ofPopStyle();
 	}
 
-	if (bdebug) {
-		ofPushStyle();
-		ofNoFill();
-		ofSetLineWidth(2);
-		ofSetColor(ofColor::yellow);
+#if (bdebug)
+	ofPushStyle();
+	ofNoFill();
+	ofSetLineWidth(2);
+	ofSetColor(ofColor::yellow);
 
-		ofDrawRectangle(bb1);
+	ofDrawRectangle(bb1);
 
-		ofSetColor(ofColor::red);
-		ofDrawRectangle(bb2);
+	ofSetColor(ofColor::red);
+	ofDrawRectangle(bb2);
 
-		ofPopStyle();
-	}
+	ofPopStyle();
+#endif
 
 	ofPushStyle();
 	ofSetColor(c1);
+
+#ifdef SURFING__STRING_BOX___USE_TTF_INSTEAD_OF_BITMAP_FONT___WIP
+	if (font.isLoaded())
+		font.drawString(s, x + xoffset, y + yoffset);
+	else
+		ofDrawBitmapString(s, x + xoffset, y + yoffset);
+#else
 	ofDrawBitmapString(s, x + xoffset, y + yoffset);
+#endif
+
 	ofPopStyle();
 }
 
@@ -239,8 +259,27 @@ inline ofRectangle getBBBitmapStringBox(string s, int x = 0, int y = 0) {
 	x += xpad;
 	y += ypad;
 
+	ofRectangle bb;
+
+#ifdef SURFING__STRING_BOX___USE_TTF_INSTEAD_OF_BITMAP_FONT___WIP
+	static bool bDone = 0;
+	static ofTrueTypeFont font;
+	if (!bDone) {
+		bDone = 1;
+		string path = SURFING__OFXGUI__FONT_DEFAULT_PATH;
+		int sz = SURFING__OFXGUI__FONT_DEFAULT_SIZE;
+		font.loadFont(path, sz);
+	}
+	if (font.isLoaded())
+		bb = font.getStringBoundingBox(s, 0, 0);
+	else {
+		ofBitmapFont bf;
+		bb = bf.getBoundingBox(s, 0, 0);
+	}
+#else
 	ofBitmapFont bf;
-	auto bb = bf.getBoundingBox(s, 0, 0);
+	bb = bf.getBoundingBox(s, 0, 0);
+#endif
 
 	ofRectangle bb1;
 	bb1 = { (float)x, (float)y, bb.width, bb.height };
@@ -477,7 +516,8 @@ inline void setGuiPositionToLayout(ofxPanel & gui, int layout = 0) {
 	gui.setPosition(p.x, p.y);
 }
 
-// Set position of gui1 (gui2 must be linked to gui1) at the window bottom and centered.
+// Set position of gui1 at the window bottom and centered
+// (gui2 must be externally linked to gui1 with the correct padding).
 //TODO: other layouts
 inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2 /*, int layout = 0*/) {
 	int gw = gui1.getShape().getWidth() + gui2.getShape().getWidth() + SURFING__PAD_OFXGUI_BETWEEN_PANELS;
@@ -487,7 +527,7 @@ inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2 /*, int 
 	int y = ofGetHeight() - gh;
 	gui1.setPosition(x, y);
 }
-	/*
+/*
 
 TODO
 
@@ -508,7 +548,7 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 
 	bool bDebugDefault = 0;
 
-	bool bColors = 0;//TODO
+	bool bColors = 1;
 	bool bSizes = 1;
 
 	bool bFont = 1;
@@ -532,7 +572,7 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 		ofColor cBg;
 		ofColor cBorder;
 		ofColor cText;
-		ofColor cFillSlider;
+		ofColor cFill;
 
 #if bDebugDefault
 		//Default
@@ -547,24 +587,28 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 		cBg = ofColor(0);
 		cBorder = ofColor(120, 100);
 		cText = ofColor(255);
-		cFillSlider = ofColor(128);
+		cFill = ofColor(128);
 #else
-		//TODO
+	//TODO
+	#if 0
+		//Default
 		cHeadBg = ofColor(80);
 		cBg = ofColor(0);
 		cBorder = ofColor(120, 100);
 		cText = ofColor(255);
-		cFillSlider = ofColor(80);
-		//cHeadBg = ofColor(80);
-		//cBg = ofColor(90);
-		//cBorder = ofColor(120, 100);
-		//cText = ofColor(255);
-		//cFillSlider = ofColor(0);
+		cFill = ofColor(128);
+	#else
+		cHeadBg = ofColor(80);
+		cBg = ofColor(50,210);
+		cBorder = ofColor(120, 100);
+		cText = ofColor(255);
+		cFill = ofColor(120,200);
+	#endif
 #endif
 		ofxGuiSetHeaderColor(cHeadBg);
 		ofxGuiSetBackgroundColor(cBg);
 		ofxGuiSetBorderColor(cBorder);
-		ofxGuiSetFillColor(cFillSlider);
+		ofxGuiSetFillColor(cFill);
 		ofxGuiSetTextColor(cText);
 	}
 
@@ -588,8 +632,8 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 			textPadding = 6;
 			defaultWidth = 135;
 			defaultHeight = 17;
-		} else {//TODO
-			textPadding = 4;
+		} else { 
+			textPadding = 6;
 			defaultWidth = 200;
 			defaultHeight = 18;
 		}
@@ -597,9 +641,8 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 		ofxGuiSetTextPadding(textPadding);
 		ofxGuiSetDefaultWidth(defaultWidth);
 		ofxGuiSetDefaultHeight(defaultHeight);
-	} 
+	}
 }
-
 };
 
 //------

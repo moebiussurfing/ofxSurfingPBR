@@ -35,13 +35,11 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::windowResized(ofResizeEventArgs & resize) {
-	int h = resize.height;
-	int w = resize.width;
-	glm::vec2 sz { w, h };
+	glm::vec2 sz { resize.width, resize.height };
 	static glm::vec2 sz_ { -1, -1 };
 	if (sz != sz_) {
 		sz_ = sz;
-		ofLogNotice("ofxSurfingPBR") << "windowResized() Size: " << w << "," << h;
+		ofLogNotice("ofxSurfingPBR") << "windowResized() Size: " << sz_.x << "," << sz_.y;
 
 		buildHelp();
 		refreshGui();

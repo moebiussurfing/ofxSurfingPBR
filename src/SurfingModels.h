@@ -1,12 +1,7 @@
 /*
+* SurfingModels.h
 
-	TODO
-
-	store a scale/rot/pos on each model 
-		on a vector
-		this allows browse models 
-		maintaining transforms
-		add gizmo
+	Example at the bottom of this file.
 
 */
 
@@ -20,9 +15,30 @@
 using callback_t = std::function<void()>;
 
 // Optional
-// requires to check previously
+// Requires to check previously
 // the sanity of the files you pretend to load!
 // bc some could freeze the app or too big!
+
+//--
+
+class Transform {
+public:
+	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
+	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
+	ofParameter<float> yPos { "y Pos", 0, -1.f, 1.f };
+	ofParameter<float> yRot { "y Rot", 0, -1.f, 1.f };
+
+	ofParameterGroup parameters {
+		"Transform",
+		scalePow, scale, yPos, yRot
+	};
+
+	Transform() {};
+
+	~Transform() {};
+};
+
+//--
 
 class SurfingModels {
 public:
@@ -37,6 +53,8 @@ public:
 
 		setupParams();
 
+		gui.setup(parameters);
+
 		//--
 
 		// autoSaver
@@ -50,7 +68,8 @@ public:
 
 	void setupDir(string path = "") {
 
-		if (path == "") path = "models/";
+		if (path == "") path = "models";
+
 		// bin/data/models/
 
 		pathModels = path;
@@ -60,7 +79,7 @@ public:
 		dir.allowExt("fbx");
 		dir.allowExt("obj");
 
-		dir.listDir(path);
+		dir.listDir(pathModels);
 		dir.sort();
 
 		if (dir.size() == 0) {
@@ -71,80 +90,58 @@ public:
 		indexFile.setMin(0);
 		indexFile.setMax(dir.size() - 1);
 		indexFile.set(0);
-
-		//--
-
-		//nodes.clear();
-		//for (size_t i = 0; i < dir.size(); i++) {
-		//	ofParameter<ofNode> node_;
-		//	string name = dir.getName(i);
-		//	node_.set(name, n, nmin, nmax);
-		//	nodes.emplace_back(node_);
-		//}
-
-		transforms.clear();
-		for (size_t i = 0; i < dir.size(); i++) {
-
-			transforms.emplace_back(transform);
-		}
 	}
 
 	void setupParams() {
 		nameFile.setSerializable(false);
 
 		parameters.setName("MODELS");
-		parameters.add(nextBang);
-		parameters.add(prevBang);
+		parameters.add(vNext);
+		parameters.add(vPrev);
 		parameters.add(indexFile);
 		parameters.add(nameFile);
 
+		//--
+
 		transformParams.setName("Transforms");
-		transformParams.add(transform.scale);
-		transformParams.add(transform.yPos);
-		transformParams.add(transform.yRot);
+		transformParams.add(vReset);
+
+		transforms.clear();
+		for (size_t i = 0; i < dir.size(); i++) {
+			Transform t = Transform();
+			t.parameters.setName(getFilename(i));
+			transforms.emplace_back(t);
+
+			transformParams.add(t.parameters);
+		}
 
 		//--
 
-		// there's not implemented ofParams for ofNodes !
-		//n.setPosition(0, 0, 0);
-		//float u = SURFING__SCENE_SIZE_UNIT;
-		//nmin.setPosition(-u, -u, -u);
-		//nmax.setPosition(u, u, u);
-		//node.set("Actor", n, nmin, nmax);
-		//transformParams.add(node);
-
 		parameters.add(transformParams);
+
 		transformParams.setSerializable(false);
 
 		parameters.add(bHelp);
-		parameters.add(vReset);
 
 		//--
 
 		listenerIndexFile = indexFile.newListener([this](int & i) {
 			static int i_ = -1;
 			if (i != i_) { //check that changed
-				//store prev index before change
-				if (i_ >= 0 && i_ < dir.size()) {
-					//transforms[i_] = transform;
-					transforms[i_].scale.set(transform.scale);
-					transforms[i_].yPos.set(transform.yPos);
-					transforms[i_].yRot.set(transform.yRot);
-				}
-
-				i_ = i;
 
 				//load new index
 				if (i < dir.size()) {
 					doProcessIndex(i);
 				}
+
+				i_ = i;
 			}
 		});
 
-		listenerNext = nextBang.newListener([this](void) {
+		listenerNext = vNext.newListener([this](void) {
 			next();
 		});
-		listenerPrevious = prevBang.newListener([this](void) {
+		listenerPrevious = vPrev.newListener([this](void) {
 			previous();
 		});
 
@@ -158,29 +155,49 @@ public:
 		nameFile = dir.getName(i);
 
 		pathModel = dir.getPath(i);
-		loadBang.trigger();
+		vLoad.trigger();
 
-		//if (i < nodes.size()) {
-		//	node = nodes[i];
-		//}
-
-		if (i < transforms.size()) {
-			//transform = transforms[i];
-			transform.scale.set(transforms[i].scale);
-			transform.yPos.set(transforms[i].yPos);
-			transform.yRot.set(transforms[i].yRot);
-		}
+		refreshGui();
 
 		buildHelp();
 	}
 
-	const string getFilename() {
+	size_t getAmountFiles() {
+		return dir.size();
+	}
+
+	const size_t getIndexFile() {
+		return indexFile.get();
+	}
+
+	string getFilename(int i) {
 		string s = "NONE";
-		if (indexFile < dir.size()) s = dir.getName(indexFile.get());
+		if (i < dir.size()) s = dir.getName(i);
 		return s;
 	}
 
-	const string getFilenamesList() {
+	string getName(int i) {
+		string s = "NONE";
+		if (i < dir.size()) {
+
+			ofFile file(dir.getPath(i));
+			s = file.getBaseName();
+		}
+		return s;
+	}
+
+	string getFilename() {
+		return getFilename(indexFile);
+	}
+
+	string getPathModel(int i) {
+		string p = "";
+		if (i == -1) i = indexFile;
+		p = dir.getPath(i);
+		return p;
+	}
+
+	string getFilenamesList() {
 		string s = "";
 		for (size_t i = 0; i < dir.size(); i++) {
 			bool b = (i == indexFile);
@@ -220,19 +237,20 @@ public:
 
 	ofParameter<string> nameFile { "Name", "" };
 	ofParameter<int> indexFile { "File", -1, -1, -1 };
-	ofParameter<void> nextBang { "Next" };
-	ofParameter<void> prevBang { "Previous" };
+	ofParameter<void> vNext { "Next" };
+	ofParameter<void> vPrev { "Previous" };
 
 	ofParameter<void> vReset { "Reset" };
 
-	void doReset() { 
+	void doReset() {
+		resetTransform();
 	}
-	
+
 private:
 	ofEventListener listenerReset;
-	
+
 public:
-	ofParameter<void> loadBang { "LoadBang" };
+	ofParameter<void> vLoad { "LoadBang" };
 	// to be listened from parent the scope!
 	// then will load the model getting the path:
 	// pathModel
@@ -243,47 +261,78 @@ private:
 	ofEventListener listenerPrevious;
 
 public:
-	string pathModel = ""; //to get the path for the model. ready to load!
+	const string getPathModels() {
+		string s = pathModels;
+		if (s == "") {
+			ofLogError() << "Models path not settled properly or unknown!";
+			return s;
+		}
+		return s;
+	}
+
+	string pathModel
+		= ""; //to get the path for the model. ready to load!
 	string pathModels = ""; //for display only
+	string extSuffixTransform = "__Transform.json";
 
 	SurfingAutoSaver autoSaver;
-	string path = "SurfingModels.json";
+	string pathSettings = "SurfingModels.json";
 
 	void save() {
-		ofxSurfing::saveSettings(parameters, path);
+		ofxSurfing::saveSettings(parameters, pathSettings);
+
+		saveTransforms();
 	}
 	void load() {
 		autoSaver.pause();
-		ofxSurfing::loadSettings(parameters, path);
+		ofxSurfing::loadSettings(parameters, pathSettings);
 		autoSaver.start();
+
+		loadTransforms();
+	}
+	void saveTransforms() {
+		for (size_t i = 0; i < transforms.size(); i++) {
+			ofJson j;
+			string p = pathModels + "\\" + getName(i) + extSuffixTransform;
+
+			ofJson settings;
+			ofSerialize(settings, transforms[i].parameters);
+			bool b = ofSavePrettyJson(p, settings);
+		}
+	}
+
+	void loadTransforms() {
+		for (size_t i = 0; i < transforms.size(); i++) {
+			string p = pathModels + "\\" + getName(i) + extSuffixTransform;
+
+			ofJson settings;
+			settings = ofLoadJson(p);
+			ofDeserialize(settings, transforms[i].parameters);
+		}
 	}
 
 	//--
 
-	//TODO.
-	// store each model ofNode/transforms/gizmo
-
-private:
-	struct Transform {
-		ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
-		ofParameter<float> yPos { "y Pos", 0, -1.f, 1.f };
-		ofParameter<float> yRot { "y Rot", 0, -1.f, 1.f };
-	};
-	Transform transform;
-	vector<Transform> transforms;
-
 public:
-	ofParameterGroup transformParams;
+	ofxPanel gui;
 
-	//public:
-	//	//TODO
-	//	ofParameter<ofNode> node;
-	//	vector<ofParameter<ofNode>> nodes;
+	void drawGui() {
+		gui.draw();
+	}
 
-	//private:
-	//	ofNode n;
-	//	ofNode nmin;
-	//	ofNode nmax;
+	void setGuiPosition(glm::vec2 pos) {
+		gui.setPosition(pos.x, pos.y);
+	}
+
+	void refreshGui() {
+		for (size_t i = 0; i < transforms.size(); i++) {
+			Transform t = transforms[i];
+			string n = getFilename(i);
+			bool b = (i == indexFile); //selected
+			auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
+			b ? g.maximize() : g.minimize();
+		}
+	}
 
 private:
 	string sHelp;
@@ -291,11 +340,11 @@ private:
 		sHelp = "";
 		sHelp += "MODEL\n";
 		sHelp += "\n";
-		sHelp += this->getFilename() + "\n";
+		sHelp += " " + this->getFilename() + "\n";
 		sHelp += "\n";
-		sHelp += "      BROWSE\n";
-		sHelp += "UP    Prev\n";
-		sHelp += "DOWN  Next\n";
+		sHelp += "BROWSE\n";
+		sHelp += " UP   Prev\n";
+		sHelp += " DOWN Next\n";
 		sHelp += "\n";
 		sHelp += this->getFilenamesList();
 	}
@@ -307,6 +356,55 @@ public:
 		if (!bHelp) return;
 		ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
 	}
+
+	//--
+
+	// Store each model transforms for gizmo
+
+private:
+	vector<Transform> transforms;
+
+public:
+	float getTransformScale(int i = -1) {
+		float v = 0;
+		if (i == -1) i = indexFile;
+		if (i < transforms.size())
+			v = transforms[i].scale;
+		return v;
+	}
+	float getTransformScalePow(int i = -1) {
+		int v = 0;
+		if (i == -1) i = indexFile;
+		if (i < transforms.size())
+			v = transforms[i].scalePow;
+		return v;
+	}
+	float getTransformPos(int i = -1) {
+		float v = 0;
+		if (i == -1) i = indexFile;
+		if (i < transforms.size())
+			v = transforms[i].yPos;
+		return v;
+	}
+	float getTransformRot(int i = -1) {
+		float v = 0;
+		if (i == -1) i = indexFile;
+		if (i < transforms.size())
+			v = transforms[i].yRot;
+		return v;
+	}
+
+	void resetTransform(int i = -1) {
+		if (i == -1) i = indexFile;
+		if (i < transforms.size()) {
+			transforms[i].scalePow = 0;
+			transforms[i].yPos = 0;
+			transforms[i].yRot = 0;
+			transforms[i].scale = 0;
+		}
+	}
+
+	ofParameterGroup transformParams;
 };
 
 SurfingModels::SurfingModels() {
@@ -320,38 +418,73 @@ SurfingModels::~SurfingModels() {
 //------
 
 /*
-
 	EXAMPLE
 
 	// .h
+	{
+		#include "SurfingModels.h"
 
-	#include "SurfingModels.h"
-
-	SurfingModels surfingModels;
-	ofEventListener listenerLoadModel;
-	
+		SurfingModels surfingModels;
+		ofEventListener listenerLoadModel;
+		ofEventListener listenerIndexModel;
+	}
 
 	// .cpp
-	
 	// setup
+	{
+		surfingModels.setup();
 
-	surfingModels.setup();
+		// Callback to trig the model file loading.
+		// The model path is ready on surfingModels.pathModel!
+		listenerLoadModel = surfingModels.vLoad.newListener([this](void) {
+			string path = surfingModels.pathModel;
+			this->loadModel(path);
+		});
 
-	// callback to trig loading.
-	// model path is ready on surfingModels.pathModel!
-	listenerLoadModel = surfingModels.loadBang.newListener([this](void) {
-		string path = surfingModels.pathModel;
-		this->loadModel(path);
-	});
+		listenerIndexModel = surfingModels.indexFile.newListener([this](int & i) {
+			//index changed
+		});
 	
-	gui.add(surfingModels.parameters);
-	
+		gui.add(surfingModels.parameters);
+	}
+	// draw
+	{
+		// example of transforms applier
+		{
+			float yUnit = 500;
+			float scaleUnit = 1000;
+			float scalePow = surfingModels.getTransformScalePow();
+			if (scalePow == 0) {
+			} else if (scalePow < 1) {
+				scaleUnit = scaleUnit / (float)abs(scalePow - 1);
+			} else if (scalePow > 1) {
+				scaleUnit = scaleUnit * (float)abs(scalePow + 1);
+			}
+
+			float y = ofMap(surfingModels.getTransformPos(), -1, 1, -yUnit, yUnit, true);
+			float s = ofMap(surfingModels.getTransformScale(), -1, 1, 1.f / scaleUnit, scaleUnit, true);
+			float r = ofMap(surfingModels.getTransformRot(), -1, 1, -180, 180, true);
+
+			ofPushMatrix();
+			ofTranslate(0, y, 0);
+			ofScale(s, s, s);
+			ofRotateYDeg(r);
+			{
+				// DRAW MODEL OBJECT
+			}
+			ofPopMatrix();
+		}
+
+		surfingModels.drawGui();
+		surfingModels.drawHelp();
+	}
 	// keyPressed
-	if (key == OF_KEY_RIGHT) {
-		surfingModels.next();
+	{
+		if (key == OF_KEY_RIGHT) {
+			surfingModels.next();
+		}
+		if (key == OF_KEY_LEFT) {
+			surfingModels.previous();
+		}
 	}
-	if (key == OF_KEY_LEFT) {
-		surfingModels.previous();
-	}
-	
 */
