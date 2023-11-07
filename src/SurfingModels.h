@@ -1,7 +1,13 @@
 /*
 * SurfingModels.h
+* 
+	A class to help loading the 3 model files from a path (default bin/data/models/)
+	Then allows browsing them and apply some basic transforms that are stored.
+	Another parent (scope) class would be able to load files easily.
+	It has help and info displays to debug selected browser,
+	get the path to be passed to the model/mesh loaders..etc
 
-	Example at the bottom of this file.
+	See EXAMPLE at the bottom of this file.
 
 */
 

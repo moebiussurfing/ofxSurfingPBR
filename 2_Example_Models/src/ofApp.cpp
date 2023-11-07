@@ -116,7 +116,7 @@ void ofApp::setupParams() {
 	animateParams.setName("Animate");
 	animateParams.add(bRotate);
 	animateParams.add(rotateSpeed);
-	animateParams.add(bZoomAnim);
+	animateParams.add(bAnimZoom);
 	animateParams.add(animSpeed);
 	animateParams.add(powAnim);
 	parameters.add(animateParams);
@@ -348,13 +348,13 @@ void ofApp::loadModels() {
 //--------------------------------------------------------------
 void ofApp::update() {
 
-	if (bZoomAnim) {
+	if (bAnimZoom) {
 		// Shows how to access the internal camera.
 		// Make some animation to the distance/zoom.
 		float t = ofGetElapsedTimef();
 		float f = ofMap(animSpeed, 0.f, 1.f, 0.1, 2, true);
 		float v = glm::sin(2.f * glm::pi<float>() * t * f);
-		float a = ofMap(powAnim, 0.f, 1.f, 1.05, 10, true);
+		float a = ofMap(powAnim, 0.f, 1.f, 1.1, 10, true);
 		int unit = 600;
 		v = ofMap(v, -1, 1, unit, unit * a, true);
 
@@ -598,7 +598,7 @@ void ofApp::doReset() {
 
 	rotateSpeed = 0.5;
 	bRotate = false;
-	bZoomAnim = false;
+	bAnimZoom = false;
 	powAnim = 0.5;
 	animSpeed = 0.5;
 
@@ -677,7 +677,7 @@ void ofApp::keyPressed(int key) {
 	//--
 
 	if (key == 'A')
-		bZoomAnim = !bZoomAnim;
+		bAnimZoom = !bAnimZoom;
 
 	if (key == 'R')
 		bRotate = !bRotate;

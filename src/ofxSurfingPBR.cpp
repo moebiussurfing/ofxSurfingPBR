@@ -172,6 +172,8 @@ void ofxSurfingPBR::setupParams() {
 #endif
 	parameters.add(bDrawBg);
 
+	parameters.add(material.bGui);
+
 	//--
 
 	planeParams.setName("Plane");
@@ -589,6 +591,83 @@ void ofxSurfingPBR::setup() {
 	startup();
 }
 
+
+// Camera
+//--------------------------------------------------------------
+void ofxSurfingPBR::setup(ofCamera & camera_) {
+	this->setup();
+
+	setCameraPtr(dynamic_cast<ofCamera *>(&camera_));
+}
+//--------------------------------------------------------------
+void ofxSurfingPBR::setCameraPtr(ofCamera & camera_) {
+	setCameraPtr(dynamic_cast<ofCamera *>(&camera_));
+}
+//--------------------------------------------------------------
+void ofxSurfingPBR::setCameraPtr(ofCamera * camera_) {
+	camera = camera_;
+
+	//FORCED
+	camera->setFarClip(SURFING__SCENE_CAMERA_FAR);
+}
+//--------------------------------------------------------------
+ofCamera * ofxSurfingPBR::getOfCameraPtr() {
+	if (camera != nullptr)
+		return camera;
+	else
+		return nullptr;
+}
+//--------------------------------------------------------------
+ofEasyCam * ofxSurfingPBR::getOfEasyCamPtr() {
+	ofEasyCam * easyCam = dynamic_cast<ofEasyCam *>(camera);
+	if (easyCam != nullptr)
+		return easyCam;
+	else
+		return nullptr;
+}
+//--------------------------------------------------------------
+ofRectangle ofxSurfingPBR::getGuiShape() const {
+	ofRectangle r1 = gui.getShape();
+	ofRectangle r2 = material.gui.getShape();
+	ofRectangle bb = r1.getUnion(r2);
+	return bb;
+}
+//--------------------------------------------------------------
+const int ofxSurfingPBR::getGuiLayout() {
+	return guiLayout.get();
+}
+//--------------------------------------------------------------
+const ofxSurfing::SURFING_LAYOUT ofxSurfingPBR::getLayoutHelp()
+{
+	return ofxSurfing::SURFING_LAYOUT(helpLayout.get());
+}
+//--------------------------------------------------------------
+bool ofxSurfingPBR::isVisibleDebugShader() {
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
+	if (bDebug && (bShaderToPlane || bDisplaceToMaterial))
+		return true;
+	else
+		return false;
+#else
+	return false;
+#endif
+}
+
+//--------------------------------------------------------------
+bool ofxSurfingPBR::isWindowPortrait() {
+	return ofGetHeight() > ofGetWidth();
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::setFunctionRenderScene(callback_t f) {
+	f_RenderScene = f;
+};
+
+//--------------------------------------------------------------
+ofParameterGroup & ofxSurfingPBR::getMaterialParameters() { //mainly to expose to external gui's like ImGui
+	return material.parameters;
+};
+
 //--------------------------------------------------------------
 void ofxSurfingPBR::startup() {
 	ofLogNotice("ofxSurfingPBR") << "startup() Start";
@@ -871,16 +950,18 @@ void ofxSurfingPBR::drawGui() {
 	if (bGui_ofxGui) {
 		gui.draw();
 
-		// Force position for material gui
-		glm::vec3 p;
-		if (isWindowPortrait()) {
-			p = gui.getShape().getBottomLeft() + glm::vec2(0, SURFING__PAD_OFXGUI_BETWEEN_PANELS);
-		} else {
-			p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0);
-		}
-		material.gui.setPosition(p);
+		if (material.bGui) {
+			// Force position for material gui
+			glm::vec3 p;
+			if (isWindowPortrait()) {
+				p = gui.getShape().getBottomLeft() + glm::vec2(0, SURFING__PAD_OFXGUI_BETWEEN_PANELS);
+			} else {
+				p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0);
+			}
+			material.gui.setPosition(p);
 
-		material.drawGui();
+			material.drawGui();
+		}
 	}
 
 	if (bDebug) drawDebug();
@@ -1568,8 +1649,9 @@ void ofxSurfingPBR::drawPlane() {
 void ofxSurfingPBR::exit() {
 	ofLogNotice("ofxSurfingPBR") << "exit()";
 
-	save();
-	material.exit();
+	// Not required to be called bc it's using the auto saver!
+	//save();
+	//material.exit();
 
 	if (bEnableCameraAutosave) ofxSaveCamera(*camera, pathCamera);
 }

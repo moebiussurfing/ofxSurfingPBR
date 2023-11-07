@@ -69,10 +69,10 @@ public:
 	ofParameterGroup transformsParams;
 
 	ofParameter<bool> bRotate { "Rotate", false };
-	ofParameter<float> rotateSpeed { "Speed", 0.5f, 0, 1 };
-	ofParameter<float> powAnim{ "Anim Pow", 0.5f, 0, 1 };
+	ofParameter<float> rotateSpeed { "Rotate Speed", 0.5f, 0, 1 };
+	ofParameter<bool> bAnimZoom { "Anim", false };
 	ofParameter<float> animSpeed { "Anim Speed", 0.5f, 0, 1 };
-	ofParameter<bool> bZoomAnim { "Anim Zoom", false };
+	ofParameter<float> powAnim{ "Anim Pow", 0.5f, 0, 1 };
 
 	ofParameter<int> indexScene { "SCENE", 0, 0, 2 };
 	ofParameter<string> nameScene { "Name", "" };

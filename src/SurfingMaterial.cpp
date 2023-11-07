@@ -105,6 +105,7 @@ void SurfingMaterial::setupParams() {
 	//workflow
 	//parameters.add(indexHistory);
 
+	bGui.set("Material", true);
 	bGuiHelpers.set("Helpers", true);
 
 	bGuiHelpers.setSerializable(false);
@@ -777,6 +778,7 @@ void SurfingMaterial::load() {
 //--------------------------------------------------------------
 void SurfingMaterial::exit() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:exit()";
+	// Not required to be called bc it's using the auto saver!
 
 	save();
 }

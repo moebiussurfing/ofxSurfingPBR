@@ -128,10 +128,7 @@ private:
 	callback_t f_RenderScene = nullptr;
 
 public:
-	//--------------------------------------------------------------
-	void setFunctionRenderScene(callback_t f = nullptr) {
-		f_RenderScene = f;
-	};
+	void setFunctionRenderScene(callback_t f = nullptr);
 
 private:
 	ofPlanePrimitive plane;
@@ -160,41 +157,14 @@ private:
 
 public:
 	// Camera
-	//--------------------------------------------------------------
-	void setup(ofCamera & camera_) {
-		this->setup();
-
-		setCameraPtr(dynamic_cast<ofCamera *>(&camera_));
-	}
-	//--------------------------------------------------------------
-	void setCameraPtr(ofCamera & camera_) {
-		setCameraPtr(dynamic_cast<ofCamera *>(&camera_));
-	}
-	//--------------------------------------------------------------
-	void setCameraPtr(ofCamera * camera_) {
-		camera = camera_;
-
-		//FORCED
-		camera->setFarClip(SURFING__SCENE_CAMERA_FAR);
-	}
+	void setup(ofCamera & camera_);
+	void setCameraPtr(ofCamera & camera_);
+	void setCameraPtr(ofCamera * camera_);
 
 	// For getting camera from the parent class/ofApp
 	// (TODO: Currently is not required bc the cam is instantiated on there!)
-	//--------------------------------------------------------------
-	ofCamera * getOfCameraPtr() {
-		if (camera != nullptr)
-			return camera;
-		else
-			return nullptr;
-	}
-	//--------------------------------------------------------------
-	ofEasyCam * getOfEasyCamPtr() {
-		ofEasyCam * easyCam = dynamic_cast<ofEasyCam *>(camera);
-		if (easyCam != nullptr)
-			return easyCam;
-		else
-			return nullptr;
-	}
+	ofCamera * getOfCameraPtr();
+	ofEasyCam * getOfEasyCamPtr();
 
 private:
 	ofParameterGroup cameraParams;
@@ -214,10 +184,8 @@ public:
 
 	//--
 
-	//--------------------------------------------------------------
-	ofParameterGroup & getMaterialParameters() { //mainly to expose to external gui's like ImGui
-		return material.parameters;
-	};
+	//mainly to expose to external gui's like ImGui
+	ofParameterGroup & getMaterialParameters();
 
 	ofParameter<bool> bGui; //for global ui
 	ofParameter<bool> bGui_ofxGui; //for ofxGui
@@ -305,45 +273,21 @@ private:
 
 public:
 	// helper to improve layout with many gui panels.
-	//--------------------------------------------------------------
-	ofRectangle getGuiShape() const {
-		ofRectangle r1 = gui.getShape();
-		ofRectangle r2 = material.gui.getShape();
-		ofRectangle bb = r1.getUnion(r2);
-		return bb;
-	}
+	ofRectangle getGuiShape() const;
 
 	// returns layout index
-	//--------------------------------------------------------------
-	const int getGuiLayout() {
-		return guiLayout.get();
-	}
+	// each index would have different positions for help and debug windows
+	const int getGuiLayout();
 
-	//--------------------------------------------------------------
-	bool isVisibleDebugShader() {
-#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
-		if (bDebug && (bShaderToPlane || bDisplaceToMaterial))
-			return true;
-		else
-			return false;
-#else
-		return false;
-#endif
-	}
+	bool isVisibleDebugShader();
 
 	void doNextLayoutHelp();
 	void doNextLayouGui();
 
 	// For helping on responsive layouts
-	//--------------------------------------------------------------
-	const ofxSurfing::SURFING_LAYOUT getLayoutHelp() {
-		return ofxSurfing::SURFING_LAYOUT(helpLayout.get());
-	}
+	const ofxSurfing::SURFING_LAYOUT getLayoutHelp();
 
-	//--------------------------------------------------------------
-	bool isWindowPortrait() {
-		return ofGetHeight() > ofGetWidth();
-	}
+	bool isWindowPortrait();
 
 	//--
 

@@ -68,6 +68,7 @@ public:
 	ofxPanel gui;
 
 	ofxPanel guiHelpers;
+	ofParameter<bool> bGui;
 	ofParameter<bool> bGuiHelpers;
 
 	ofParameter<int> & getIndexStateParam();
