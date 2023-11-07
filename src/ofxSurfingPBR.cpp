@@ -2019,6 +2019,18 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 'q') ofxSurfing::setWindowSquared(800);
 	if (key == 'Q') ofxSurfing::setWindowSquared(ofGetWidth());
 
+	if (key == '1') ofSetWindowShape(1080,566);
+	if (key == '2') ofSetWindowShape(1080,1350);
+	if (key == '3') ofSetWindowShape(1080,1920);
+	/*
+	* Instagram sizes
+	Social media image type	Dimensions in pixels
+	Instagram Landscape Photo	1080 X 566 (1.91:1 ratio)
+	Instagram Portrait	1080 x 1350 (4:5 ratio)
+	Instagram Story	1080 x 1920 (9:16 ratio)
+	IGTV Cover Photo	420 x 654 (1:1.55 ratio)
+	*/
+
 	// Rajndomizers
 	if (key == OF_KEY_F1) doResetMaterial();
 	if (key == OF_KEY_F2) doRandomMaterial();
