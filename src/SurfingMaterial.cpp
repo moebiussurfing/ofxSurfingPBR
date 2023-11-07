@@ -168,7 +168,7 @@ void SurfingMaterial::drawGui() {
 
 //--------------------------------------------------------------
 void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
-	//if (bAttendingCallback) return;
+	//if (bDisableCallbacks) return;
 
 	std::string name = e.getName();
 
@@ -201,9 +201,9 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 
 	// History
 	else if (name == vPrevHistory.getName()) {
-		//bAttendingCallback = true;
+		//bDisableCallbacks = true;
 		doPrevHistory();
-		//bAttendingCallback = false;
+		//bDisableCallbacks = false;
 	} else if (name == vNextHistory.getName()) {
 		doNextHistory();
 	} else if (name == vSaveState.getName()) {
@@ -250,7 +250,7 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 
 //--------------------------------------------------------------
 void SurfingMaterial::Changed(ofAbstractParameter & e) {
-	//if (bAttendingCallback) return;
+	//if (bDisableCallbacks) return;
 
 	std::string name = e.getName();
 

@@ -46,10 +46,6 @@
 
 //--
 
-#include "SurfingConstantsPBR.h"
-
-//--
-
 #include "SurfingMaterial.h"
 #include "ofxCameraSaveLoad.h"
 #include "ofxGui.h"
@@ -67,6 +63,7 @@ public:
 public:
 	void setup();
 	void startup();
+	void startupDelayed();
 	void draw();
 	void drawPlane();
 	void drawTestScene(); //a simple scene for easy testing
@@ -144,18 +141,31 @@ private:
 
 	vector<shared_ptr<ofLight>> lights;
 
+	//--
+
 private:
-	//Some app flow controls
-	//Help fixes some callback crashes at startup
-	//bool bDoneSetup = false;
+	//TODO fix crash callbacks
+	// To fix some settings
+	// that are not updated/refreshed correctly
+	// and/or app startup crashes!
+	// App flow controls
+	bool bDisableCallbacks = false;
+	bool bDoneSetup = false;
 	bool bDoneSetupParams = false;
 	bool bDoneStartup = false;
-
-	ofEventListener listenerResetAll;
+	bool bDoneDelayed = false;
+	bool bAppRunning = false;
 
 	//--
 
 public:
+	// Camera
+	//--------------------------------------------------------------
+	void setup(ofCamera & camera_) {
+		this->setup();
+
+		setCameraPtr(dynamic_cast<ofCamera *>(&camera_));
+	}
 	//--------------------------------------------------------------
 	void setCameraPtr(ofCamera * camera_) {
 		camera = camera_;
@@ -209,17 +219,24 @@ public:
 	ofParameterGroup advancedParams;
 	//we would like to hide these params from the gui,
 	//only included to add to settings group!
-	
+
 	ofParameter<void> vMinimizeAllGui;
 	ofParameter<void> vMaximizeAllGui;
-	ofParameter<int> guiLayout;//TODO notify
-	ofParameter<string> nameGuiLayout;//TODO notify
+	ofParameter<int> guiLayout; //TODO notify
+	ofParameter<string> nameGuiLayout; //TODO notify
+	vector<string> namesGuiLayouts = {
+		"LAYOUT 0",
+		"LAYOUT 1"
+	};
+
+	ofParameter<int> helpLayout;
+	ofParameter<string> nameHelpLayout;
 
 	ofParameterGroup testSceneParams;
 	ofParameter<float> scaleTestScene;
 	ofParameter<float> positionTestScene;
 	ofParameter<void> vResetTestScene;
-	
+
 	ofParameter<bool> bDebug;
 	ofParameter<bool> bKeys;
 
@@ -228,7 +245,7 @@ public:
 private:
 	string sHelp;
 	void buildHelp();
-	int helpLayout = 2; //top-right
+	//ofxSurfing::SURFING_LAYOUT helpLayout = ofxSurfing::SURFING_LAYOUT_TOP_RIGHT; //top-right
 
 public:
 	ofParameter<bool> bDrawPlane;
@@ -287,6 +304,7 @@ public:
 		return bb;
 	}
 
+	// returns layout index
 	//--------------------------------------------------------------
 	const int getGuiLayout() {
 		return guiLayout.get();
@@ -302,6 +320,20 @@ public:
 #else
 		return false;
 #endif
+	}
+
+	void doNextLayoutHelp();
+	void doNextLayouGui();
+
+	// For helping on responsive layouts
+	//--------------------------------------------------------------
+	const ofxSurfing::SURFING_LAYOUT getLayoutHelp() {
+		return ofxSurfing::SURFING_LAYOUT(helpLayout.get());
+	}
+
+	//--------------------------------------------------------------
+	bool isWindowPortrait() {
+		return ofGetHeight() > ofGetWidth();
 	}
 
 	//--
@@ -342,6 +374,7 @@ public:
 
 public:
 	void doResetAll(bool bExcludeMaterial = false);
+	ofEventListener listenerResetAll;
 
 	void doResetPlane();
 	void doResetPlaneTransform();
@@ -368,10 +401,10 @@ public:
 	void save();
 
 	bool getSettingsFileFound(); //to check if the app is opened for the first time
-	// that allows to force customize the scene from ofApp at startup!
-
-	bool getSettingsMaterialFileFound();
-	bool getSettingsCameraFileFound();
+	// this allows to force customize the scene from ofApp at startup!
+	bool getSettingsFileFoundForScene();
+	bool getSettingsFileFoundForMaterial();
+	bool getSettingsFileFoundForCamera();
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 private:

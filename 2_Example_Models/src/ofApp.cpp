@@ -47,10 +47,9 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::setupPBR() {
-	pbr.setup();
 
-	// Pass the camera pointer
-	pbr.setCameraPtr(&camera);
+	// Setup passing the camera object
+	pbr.setup(camera);
 
 	// Pass the render scene
 	callback_t f = std::bind(&ofApp::renderScene, this);
@@ -161,7 +160,12 @@ void ofApp::setupGui() {
 
 	gui.getGroup(animateParams.getName()).minimize();
 
+	// Refresh ui layout modes
+	listenerGuiRefresh = pbr.guiLayout.newListener([this](int & i) {
+		refreshGui();
+	});
 	refreshGui();
+
 	buildHelp();
 }
 
@@ -183,7 +187,6 @@ void ofApp::startup() {
 	// Register the local save function to be called when saving is required.
 	callback_t f = std::bind(&ofApp::save, this);
 	autoSaver.setFunctionSaver(f);
-	//autoSaver.setName("ofApp");//for debug
 
 	// Load settings
 	load();
@@ -568,7 +571,15 @@ void ofApp::drawGui() {
 
 //--------------------------------------------------------------
 void ofApp::drawHelp() {
-	if (bHelp) ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
+
+	// Responsive layout
+	if (bHelp) {
+		auto l = pbr.getLayoutHelp();
+		if (l == ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT || l == ofxSurfing::SURFING_LAYOUT_CENTER_LEFT)
+			ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
+		else
+			ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
+	}
 
 #ifdef SURFING__USE__FILE_BROWSER
 	if (indexScene == 2)

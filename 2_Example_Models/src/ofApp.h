@@ -110,6 +110,8 @@ public:
 	void refreshGui(); 
 	// Refresh gui for minimize/collapse workflow
 	// and to layout the gui panels on the app window.
+	
+	ofEventListener listenerGuiRefresh;
 	 
 	//--
 	

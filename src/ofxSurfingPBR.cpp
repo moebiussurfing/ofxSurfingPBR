@@ -58,51 +58,76 @@ void ofxSurfingPBR::buildHelp() {
 	sHelp += "KEYS " + string(bKeys ? "ON" : "OFF") + "\n";
 	sHelp += "\n";
 	if (bKeys) {
-		sHelp += "h  Help\n";
-		sHelp += "l  Help Layout\n";
-		sHelp += "d  Debug\n";
-		sHelp += "g  Gui\n";
-		sHelp += "G  ofxGui\n";
+		sHelp += "h   Help\n";
+		sHelp += "d   Debug\n";
+		sHelp += "i   Infinite Plane\n";
+		sHelp += "g   Gui\n";
+		sHelp += "G   ofxGui\n";
+		sHelp += "TAB Layout Gui\n";
+		sHelp += "l   Layout Help\n";
 		sHelp += "\n";
-		sHelp += "   DRAW\n";
-		sHelp += "p  Plane\n";
-		sHelp += "s  Shadow \n";
-		sHelp += "c  CubeMap\n";
-		sHelp += "b  BgAlt\n";
+		sHelp += "    DRAW\n";
+		sHelp += "p   Plane\n";
+		sHelp += "s   Shadow \n";
+		sHelp += "c   CubeMap\n";
+		sHelp += "b   BgAlt\n";
 		sHelp += "\n";
 	}
-	sHelp += "   WINDOW\n";
+	sHelp += "    WINDOW\n";
 	if (bKeys) {
-		sHelp += "f  FullScreen\n";
-		sHelp += "q  Squared\n";
+		sHelp += "f   FullScreen\n";
+		sHelp += "q   Squared\n";
 	}
-	sHelp += "   " + ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
-	sHelp += "   " + ofToString(ofGetFrameRate(), 1) + " FPS\n";
-
+	sHelp += "    " + ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
+	sHelp += "    " + ofToString(ofGetFrameRate(), 1) + " FPS\n";
 	if (bKeys) {
 		sHelp += "\n";
 		sHelp += "HELPERS\n";
 		sHelp += "\n";
-		sHelp += "   MATERIAL\n   RESET\n";
-		sHelp += "F1 Full\n";
+		sHelp += "    MATERIAL\n    RESET\n";
+		sHelp += "F1  Full\n";
 		sHelp += "\n";
-		sHelp += "   MATERIAL\n   RANDOM\n";
-		sHelp += "F2 Full\n";
-		sHelp += "F3 Settings\n";
-		sHelp += "   COLORS\n";
-		sHelp += "F4 GlobalNoAlpha\n";
-		sHelp += "F5 NoAlpha\n";
-		sHelp += "F6 WithAlpha\n";
-		sHelp += "F7 OnlyAlphas\n";
+		sHelp += "    MATERIAL\n    RANDOM\n";
+		sHelp += "F2  Full\n";
+		sHelp += "F3  Settings\n";
+		sHelp += "    COLORS\n";
+		sHelp += "F4  GlobalNoAlpha\n";
+		sHelp += "F5  NoAlpha\n";
+		sHelp += "F6  WithAlpha\n";
+		sHelp += "F7  OnlyAlphas\n";
 		sHelp += "\n";
-		sHelp += "   HISTORY\n";
-		sHelp += "z  Prev\n";
-		sHelp += "x  Next\n";
-		sHelp += "r  Recall\n";
-		sHelp += "s  Store\n";
-		//sHelp += "u  Update\n";
+		sHelp += "    HISTORY\n";
+		sHelp += "z   Prev\n";
+		sHelp += "x   Next\n";
+		sHelp += "r   Recall\n";
+		sHelp += "s   Store\n";
 	}
-	//sHelp += " \n";
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doNextLayoutHelp() {
+	ofLogNotice("ofxSurfingPBR") << "doNextLayoutHelp()";
+
+	int i = (int)helpLayout.get();
+	i++;
+	i = i % (int)helpLayout.getMax();
+	helpLayout.set(i);
+
+	buildHelp();
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doNextLayouGui() {
+	ofLogNotice("ofxSurfingPBR") << "doNextLayouGui()";
+
+	int i = guiLayout.get();
+	i = ofClamp(i, guiLayout.getMin(), guiLayout.getMax());
+	i++;
+	//i = i % guiLayout.getMax();
+	if (i > guiLayout.getMax()) i = 0;
+	guiLayout.set(i);
+
+	buildHelp();
 }
 
 //--------------------------------------------------------------
@@ -110,7 +135,7 @@ void ofxSurfingPBR::setupParams() {
 	ofLogNotice("ofxSurfingPBR") << "setupParams()";
 
 	bGui.set("PBR", true);
-	bGui_ofxGui.set("PBR", true);
+	bGui_ofxGui.set("PBR ofxGui", true);
 
 	bDebug.set("Debug", false);
 	bKeys.set("Keys", true);
@@ -119,8 +144,14 @@ void ofxSurfingPBR::setupParams() {
 	vMinimizeAllGui.set("Gui Minimize");
 	vMaximizeAllGui.set("Gui Maximize");
 	guiLayout.set("Gui Layout", 0, 0, 1);
-	nameGuiLayout.set("Layout", "");
+	nameGuiLayout.set("Gui LyNm ", "NONE");
 	nameGuiLayout.setSerializable(false);
+
+	//int imax =(int)ofxSurfing::SURFING_LAYOUT_AMOUNT;
+	int imax =(int)ofxSurfing::SURFING_LAYOUT_AMOUNT - 2;
+	helpLayout.set("Help Layout", 0, 0, imax);
+	nameHelpLayout.set("Help LyNm", "NONE");
+	nameHelpLayout.setSerializable(false);
 
 	//--
 
@@ -300,7 +331,7 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	advancedParams.add(bGui); //workflow: added to add to settings. could hide the toggle..
+	//advancedParams.add(bGui); //workflow: added to add to settings. could hide the toggle..
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	// auto saver
@@ -314,10 +345,14 @@ void ofxSurfingPBR::setupParams() {
 	//advancedParams.add(material.bGuiHelpers);
 
 	guiParams.setName("Gui");
-	guiParams.add(vMinimizeAllGui);
-	guiParams.add(vMaximizeAllGui);
 	guiParams.add(guiLayout);
 	guiParams.add(nameGuiLayout);
+	guiParams.add(helpLayout);
+	guiParams.add(nameHelpLayout);
+	guiParams.add(bGui);
+	guiParams.add(bGui_ofxGui);
+	guiParams.add(vMinimizeAllGui);
+	guiParams.add(vMaximizeAllGui);
 	advancedParams.add(guiParams);
 
 	internalParams.add(advancedParams);
@@ -518,7 +553,7 @@ void ofxSurfingPBR::endShaderPlane() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::setup() {
-	ofLogNotice("ofxSurfingPBR") << "setup()";
+	ofLogNotice("ofxSurfingPBR") << "setup() Start";
 
 	//ofSetLogLevel("ofxSurfing", OF_LOG_WARNING);
 
@@ -546,18 +581,25 @@ void ofxSurfingPBR::setup() {
 
 	buildHelp();
 
+	bDoneSetup = true;
+	ofLogNotice("ofxSurfingPBR") << "setup() Done!";
+
+	//--
+
 	startup();
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::startup() {
-	ofLogNotice("ofxSurfingPBR") << "startup()";
+	ofLogNotice("ofxSurfingPBR") << "startup() Start";
 
 	if (!this->getSettingsFileFound()) {
-		ofLogWarning("ofxSurfingPBR") << "Settings file not found!";
+		ofLogWarning("ofxSurfingPBR") << "Initialize settings for the first time!";
 		ofLogWarning("ofxSurfingPBR") << "Potential Newbie User Found!";
-		ofLogWarning("ofxSurfingPBR") << "Forcing states and some default stuff visible. (help, debug, etc...)";
+		ofLogWarning("ofxSurfingPBR") << "Forcing states and some default stuff visible:";
+		ofLogWarning("ofxSurfingPBR") << "Enabled help, debug, reset camera and settings, etc...";
 
+		//--
 #if 0
 		// Initialize a Default Startup Scene!
 		{
@@ -588,16 +630,44 @@ void ofxSurfingPBR::startup() {
 		}
 	}
 
-	if (!this->getSettingsCameraFileFound()) {
+	//--
+
+	if (!this->getSettingsFileFoundForCamera()) {
 		doResetCamera();
-	}
+	} else if (camera != nullptr)
+		ofxLoadCamera(*camera, pathCamera);
+
+	//if (!this->getSettingsFileFoundForCamera()) {
+	//	doResetCamera();
+	//}
 
 	//--
 
 	load();
 
 	bDoneStartup = true;
-	ofLogNotice("ofxSurfingPBR") << "startup() Done!";
+	ofLogNotice("ofxSurfingPBR") << "startup() Done! at frame number: " << ofGetFrameNum();
+}
+
+//// Will be called on the first update frame.
+///	Use this pattern carefully, as could be a bad practice in some scenarios!
+//--------------------------------------------------------------
+void ofxSurfingPBR::startupDelayed() {
+	ofLogNotice("ofxSurfingPBR") << "startupDelayed() Start";
+
+//TODO fix crash callbacks
+// some bypassed callbacks that makes the app crash...
+#if 0
+	guiLayout = guiLayout.get(); //trig crashes..
+#else
+	if (guiLayout.get() == 0)
+		nameGuiLayout.set(namesGuiLayouts[0]);
+	else if (guiLayout.get() == 1)
+		nameGuiLayout.set(namesGuiLayouts[1]);
+#endif
+
+	bDoneDelayed = true;
+	ofLogNotice("ofxSurfingPBR") << "startupDelayed() Done! at frame number: " << ofGetFrameNum();
 }
 
 //--------------------------------------------------------------
@@ -718,11 +788,23 @@ void ofxSurfingPBR::update(ofEventArgs & args) {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::update() {
-	if (ofGetFrameNum() == 0) {
-		if (!this->getSettingsCameraFileFound()) {
-			doResetCamera();
-		} else if (camera != nullptr)
-			ofxLoadCamera(*camera, pathCamera);
+
+	// App flow controls
+	{
+		// On the 1st frame
+		int f = (int)(ofGetFrameNum());
+		if (f == 0) {
+			if (!bAppRunning) {
+				bAppRunning = true;
+				ofLogNotice("ofxSurfingPBR") << "Starting app at frame number: " << ofGetFrameNum();
+			}
+		}
+
+		// After the 1st frame
+		if (f > 0 && bAppRunning && !bDoneDelayed) {
+			//TODO fix crash callbacks
+			startupDelayed();
+		}
 	}
 
 	//--
@@ -784,11 +866,17 @@ void ofxSurfingPBR::drawGui() {
 	ofDisableDepthTest();
 
 	if (bGui_ofxGui) {
-		//force position
-		auto p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0);
+		gui.draw();
+
+		// Force position for material gui
+		glm::vec3 p;
+		if (isWindowPortrait()) {
+			p = gui.getShape().getBottomLeft() + glm::vec2(0, SURFING__PAD_OFXGUI_BETWEEN_PANELS);
+		} else {
+			p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0);
+		}
 		material.gui.setPosition(p);
 
-		gui.draw();
 		material.drawGui();
 	}
 
@@ -798,7 +886,12 @@ void ofxSurfingPBR::drawGui() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawHelp() {
-	ofxSurfing::ofDrawBitmapStringBox(sHelp, helpLayout);
+	ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT(helpLayout.get()));
+
+	//ofxSurfing::SURFING_LAYOUT l;
+	//if (helpLayout.get() == 0) l= ofxSurfing::SURFING_LAYOUT_TOP_RIGHT;
+	//else if (helpLayout.get() == 1) l= ofxSurfing::SURFING_LAYOUT_TOP_LEFT;
+	//ofxSurfing::ofDrawBitmapStringBox(sHelp, l);
 }
 
 //--------------------------------------------------------------
@@ -827,13 +920,15 @@ void ofxSurfingPBR::drawDebug() {
 		s += ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
 		s += ofToString(ofGetFrameRate(), 1) + " FPS";
 
-		ofxSurfing::SURFING_LAYOUT layout;
-		bool bflip = helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
-		if (!bflip)
-			layout = ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
-		else //flip to avoid overlap
-			layout = ofxSurfing::SURFING_LAYOUT_TOP_RIGHT;
-		ofxSurfing::ofDrawBitmapStringBox(s, layout);
+		ofxSurfing::SURFING_LAYOUT l;
+		l = ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
+		//TODO
+		//bool bflip = helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
+		//if (!bflip)
+		//	l= ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
+		//else //flip to avoid overlap
+		//	l= ofxSurfing::SURFING_LAYOUT_TOP_RIGHT;
+		ofxSurfing::ofDrawBitmapStringBox(s, l);
 
 		auto bb = ofxSurfing::getBBBitmapStringBoxToLayout(s, layout);
 
@@ -869,6 +964,7 @@ void ofxSurfingPBR::drawDebug() {
 
 	//--
 
+	// Fps and window size
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	if (!bShaderToPlane && !bDisplaceToMaterial)
 #endif
@@ -879,11 +975,15 @@ void ofxSurfingPBR::drawDebug() {
 		s += ofToString(fps, 1);
 		s += " FPS\n";
 
-		bool bFlipPos = (helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
-		if (bFlipPos)
-			ofxSurfing::ofDrawBitmapStringBox(s, ofxSurfing::SURFING_LAYOUT_TOP_RIGHT);
+		ofxSurfing::SURFING_LAYOUT layout;
+		if (guiLayout.get() == 0)
+			layout = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
+		else if (guiLayout.get() == 1)
+			layout = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
 		else
-			ofxSurfing::ofDrawBitmapStringBox(s, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
+			layout = ofxSurfing::SURFING_LAYOUT_CENTER;
+
+		ofxSurfing::ofDrawBitmapStringBox(s, layout);
 	}
 }
 
@@ -1149,10 +1249,17 @@ void ofxSurfingPBR::ChangedShadow(ofAbstractParameter & e) {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
+	if (bDisableCallbacks) return;
 
 	std::string name = e.getName();
 
+	//TODO fix crash callbacks
+	//// Exclude to avoid crashes..
+	//if (name == nameGuiLayout.getName()) return;
+
 	ofLogNotice("ofxSurfingPBR") << "ChangedInternal " << name << ": " << e;
+
+	//--
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
@@ -1164,19 +1271,37 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 		buildHelp();
 	}
 
+	else if (name == helpLayout.getName()) {
+		string s = ofxSurfing::getLayoutName(helpLayout.get());
+		nameHelpLayout.set(s);
+		//nameHelpLayout.setWithoutEventNotifications(s);
+	}
+
 	else if (name == guiLayout.getName()) {
-		//fix crash
+		//bDisableCallbacks = true;
+
+		//do not updates the gui!
+		if (guiLayout.get() == 0)
+			nameGuiLayout.setWithoutEventNotifications(namesGuiLayouts[0]);
+		else if (guiLayout.get() == 1)
+			nameGuiLayout.setWithoutEventNotifications(namesGuiLayouts[1]);
+
+		//--
+
+		//TODO fix crash callbacks
+		//Exception thrown : read access violation.std::shared_ptr<of::priv::BaseEvent<of::priv::Function<ofAbstractParameter, std::recursive_mutex>, std::recursive_mutex>::Data>::operator->**<of::priv::BaseEvent<of::priv::Function<ofAbstractParameter, std::recursive_mutex>, std::recursive_mutex>::Data, 0> **(...) returned nullptr.
+
+		//if (!bDoneSetup) return;
 		if (!bDoneStartup) return;
 
-		//if (guiLayout.get() == 0)
-		//	nameGuiLayout.setWithoutEventNotifications("BOTTOM CENTER");
-		//else if (guiLayout.get() == 1)
-		//	nameGuiLayout.setWithoutEventNotifications("TOP CENTER");
+		//--
 
 		if (guiLayout.get() == 0)
-			nameGuiLayout.set("BOTTOM CENTER");
+			nameGuiLayout.set(namesGuiLayouts[0]);
 		else if (guiLayout.get() == 1)
-			nameGuiLayout.set("TOP CENTER");
+			nameGuiLayout.set(namesGuiLayouts[1]);
+
+		//bDisableCallbacks = false;
 	}
 
 	else if (name == vMinimizeAllGui.getName()) {
@@ -1475,39 +1600,47 @@ void ofxSurfingPBR::load() {
 }
 
 //--------------------------------------------------------------
-bool ofxSurfingPBR::getSettingsFileFound() {
-	/*
-		We will search for the settings files:
-		ofxSurfingPBR_Scene.json -> mandatory!
-		ofxSurfingPBR_Material.json -> optional
-		ofxSurfingPBR_Camera.json -> optional
-	*/
+bool ofxSurfingPBR::getSettingsFileFoundForScene() {
 
 	// search for the mandatory settings file to consider if the app is opened for the first time.
 	ofFile f;
-	bool bFileSettingsFound = f.doesFileExist(path);
-	if (bFileSettingsFound) {
+	bool b = f.doesFileExist(path);
+	if (b) {
 		ofLogNotice("ofxSurfingPBR") << "getSettingsFileFound(): Found file settings!";
-		ofLogNotice("ofxSurfingPBR") << "Found SCENE settings file: " << path;
+		ofLogNotice("ofxSurfingPBR") << "Found PBR SCENE settings file: " << path;
 	} else {
-		ofLogWarning("ofxSurfingPBR") << "SCENE settings file: " << path << " not found!";
+		ofLogWarning("ofxSurfingPBR") << "PBR SCENE settings file: " << path << " not found!";
 	}
-
-	//not required, but we log if it's located or not.
-	getSettingsMaterialFileFound();
-
-	//not required, but we log if it's located or not.
-	getSettingsCameraFileFound();
-
-	//--
-
-	if (!bFileSettingsFound) ofLogWarning("ofxSurfingPBR") << "Probably opening the App for the first time!";
-
-	return bFileSettingsFound;
+	return b;
 }
 
 //--------------------------------------------------------------
-bool ofxSurfingPBR::getSettingsMaterialFileFound() {
+bool ofxSurfingPBR::getSettingsFileFound() {
+	/*
+		We will search for the settings files:
+		ofxSurfingPBR_Scene.json -> mandatory to consider that the app open for the first time!
+		ofxSurfingPBR_Material.json -> optional
+		ofxSurfingPBR_Camera.json -> optional
+	*/
+	bool b = getSettingsFileFoundForScene();
+
+	//--
+
+	//not required, but we log if it's located or not.
+	getSettingsFileFoundForMaterial();
+
+	//not required, but we log if it's located or not.
+	getSettingsFileFoundForCamera();
+
+	//--
+
+	if (!b) ofLogWarning("ofxSurfingPBR") << "Probably opening the App for the first time!";
+
+	return b;
+}
+
+//--------------------------------------------------------------
+bool ofxSurfingPBR::getSettingsFileFoundForMaterial() {
 	ofFile f2;
 	bool b2 = f2.doesFileExist(material.path);
 	if (b2) {
@@ -1519,7 +1652,7 @@ bool ofxSurfingPBR::getSettingsMaterialFileFound() {
 }
 
 //--------------------------------------------------------------
-bool ofxSurfingPBR::getSettingsCameraFileFound() {
+bool ofxSurfingPBR::getSettingsFileFoundForCamera() {
 	ofFile f3;
 	bool b3 = f3.doesFileExist(pathCamera);
 	if (b3) {
@@ -1646,15 +1779,9 @@ void ofxSurfingPBR::processOpenFileSelection(ofFileDialogResult openFileResult) 
 void ofxSurfingPBR::keyPressed(int key) {
 	if (!bKeys) return;
 
-	if (key == 'h') bHelp = !bHelp;
-	if (key == 'l') {
-		helpLayout++;
-		helpLayout = helpLayout % ((int)ofxSurfing::SURFING_LAYOUT_AMOUNT);
-		buildHelp();
-	}
-	if (key == 'd') bDebug = !bDebug;
 	if (key == 'g') bGui = !bGui;
 	if (key == 'G') bGui_ofxGui = !bGui_ofxGui;
+
 	if (key == 'p') bDrawPlane = !bDrawPlane;
 	if (key == 's') bDrawShadow = !bDrawShadow;
 	if (key == 'b') bDrawBg = !bDrawBg;
@@ -1662,6 +1789,13 @@ void ofxSurfingPBR::keyPressed(int key) {
 #ifdef SURFING__USE_CUBE_MAP
 	if (key == 'c') bDrawCubeMap = !bDrawCubeMap;
 #endif
+
+	if (key == 'h') bHelp = !bHelp;
+	if (key == 'd') bDebug = !bDebug;
+	if (key == 'i') bPlaneInfinite = !bPlaneInfinite;
+
+	if (key == 'l') doNextLayoutHelp(); //next layout help
+	if (key == OF_KEY_TAB) doNextLayouGui(); //next layout gui
 
 	if (key == 'f') ofToggleFullscreen();
 	if (key == 'q') ofxSurfing::setWindowSquared(800);
