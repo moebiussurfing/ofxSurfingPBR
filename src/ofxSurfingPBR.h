@@ -4,28 +4,26 @@
 //--
 
 /*
-	OpenFrameworks addon 
+	An OpenFrameworks addon 
 	to easily test, learn, and use 
-	the new PBR features from the new OF 0.12+ releases.
+	the new PBR CORE features from the new OF 0.12+ releases.
 
 	You should use the GitHub master branch: 
-	https://github.com/openframeworks/openFrameworks
+		https://github.com/openframeworks/openFrameworks
 
-	All this code is copied from and hardly based on this OF forum topic:
-	https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
+	All this code is copied from or/and hardly based on this OF forum topic:
+		https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
 
 	Original authors:  
-	@NickHardeman https://github.com/NickHardeman
-	and @paolo-scoppola https://github.com/paolo-scoppola.
+		@NickHardeman https://github.com/NickHardeman
+		and @paolo-scoppola https://github.com/paolo-scoppola.
 */
 
 //--
 
 /*
-	TODO
-
-	- add cubemap file path to persistent settings
-
+* TODO
+* 
 	- SHADERS AND DISPLACE
 		- fix plane light not working when shaders enabled..
 		- check pipeline / enable ArbTex from the example!
@@ -39,6 +37,8 @@
 		to queue many actors/ofNodes, materials 
 		and lights on a std::vector.
 		something like ofxPBR or ofxPBRHelper.
+		- create a new example 
+			with two instantiated materials.
 	- add ofxBgGradient addon ?
 		copy just the gradients ?
 	- add custom global path to /data/ofxSurfingPBR/
@@ -61,18 +61,31 @@ public:
 	~ofxSurfingPBR();
 
 public:
-	void setup();
+	void setup(); //use only one setup method! don't call two setup methods!
+	void setup(ofCamera & camera_); //use only one setup method! don't call two setup methods!
+
+private:
 	void startup();
 	void startupDelayed();
-	void draw();
+
+public:
+	void draw(); //main draw
 	void drawPlane();
-	void drawTestScene(); //a simple scene for easy testing
+	void drawTestScene(); //a simple scene with 3 prims for easy testing
 	void drawGui();
+
+private:
 	void drawDebug();
 	void drawHelp();
+
+public:
 	void exit();
 	void keyPressed(int key);
+
+private:
 	void windowResized(ofResizeEventArgs & e);
+
+public:
 	void setLogLevel(ofLogLevel logLevel);
 
 private:
@@ -109,6 +122,7 @@ private:
 
 	//--
 
+	//material for other objects
 public:
 	SurfingMaterial material;
 
@@ -116,13 +130,51 @@ public:
 	void beginMaterial();
 	void endMaterial();
 
+	//--
+
+	//material for the plane floor
+private:
+	ofMaterial materialPlane;
+
+public:
 	void beginMaterialPlane();
 	void endMaterialPlane();
 
+private:
+	//lights
+	vector<shared_ptr<ofLight>> lights;
+
 	//--
+
+	// Camera
+public:
+	void setCameraPtr(ofCamera & camera_); //don't need use when camera is passed to setup function!
+	void setCameraPtr(ofCamera * camera_); //don't need use when camera is passed to setup function!
+
+	// For getting camera from the parent class/ofApp
+	// (TODO: Currently is not required bc the cam is instantiated on there!)
+	ofCamera * getOfCameraPtr();
+	ofEasyCam * getOfEasyCamPtr();
+
+private:
+	ofParameterGroup cameraParams;
+	ofParameter<bool> bEnableCameraAutosave;
+	ofParameter<void> vSaveCamera;
+	ofParameter<void> vLoadCamera;
+	string pathCamera = "ofxSurfingPBR_Camera.txt";
+
+public:
+	ofParameter<void> vResetCamera;
 
 private:
 	ofCamera * camera;
+
+public:
+	void doResetCamera();
+	void doLoadCamera();
+	void doSaveCamera();
+
+	//--
 
 private:
 	callback_t f_RenderScene = nullptr;
@@ -130,13 +182,11 @@ private:
 public:
 	void setFunctionRenderScene(callback_t f = nullptr);
 
+	//--
+
 private:
-	ofPlanePrimitive plane;
+	ofPlanePrimitive plane; //floor
 	void refreshPlane();
-
-	ofMaterial materialPlane;
-
-	vector<shared_ptr<ofLight>> lights;
 
 	//--
 
@@ -156,35 +206,15 @@ private:
 	//--
 
 public:
-	// Camera
-	void setup(ofCamera & camera_);
-	void setCameraPtr(ofCamera & camera_);
-	void setCameraPtr(ofCamera * camera_);
-
-	// For getting camera from the parent class/ofApp
-	// (TODO: Currently is not required bc the cam is instantiated on there!)
-	ofCamera * getOfCameraPtr();
-	ofEasyCam * getOfEasyCamPtr();
-
-private:
-	ofParameterGroup cameraParams;
-	ofParameter<bool> bEnableCameraAutosave;
-	ofParameter<void> vSaveCamera;
-	ofParameter<void> vLoadCamera;
-	string pathCamera = "ofxSurfingPBR_Camera.txt";
-
-public:
-	ofParameter<void> vResetCamera;
-
-	//--
-
-public:
-	// Main container to expose to gui and to handle persistent settings.
+	// Main container to expose to ui and to handle persistent settings.
 	ofParameterGroup parameters;
 
+	ofParameterGroup showDrawParams;
+	ofParameterGroup showGuiParams;
+
 	//--
 
-	//mainly to expose to external gui's like ImGui
+	//mainly to expose to external ui's like ImGui
 	ofParameterGroup & getMaterialParameters();
 
 	ofParameter<bool> bGui; //for global ui
@@ -194,36 +224,40 @@ public:
 	ofParameterGroup guiParams;
 
 	ofParameterGroup advancedParams;
-	//we would like to hide these params from the gui,
-	//only included to add to settings group!
+	//we would like to hide these params from the ui,
+	//bc they are only included to add to settings group!
 
 	ofParameter<void> vMinimizeAllGui;
 	ofParameter<void> vMaximizeAllGui;
+
 	ofParameter<int> guiLayout; //TODO notify
 	ofParameter<string> nameGuiLayout; //TODO notify
+
+private:
 	vector<string> namesGuiLayouts = {
 		"LAYOUT 0",
 		"LAYOUT 1"
 	};
 
+public:
 	ofParameter<int> helpLayout;
 	ofParameter<string> nameHelpLayout;
+
+private:
+	void buildHelp();
+	string sHelp;
+
+public:
+	ofParameter<bool> bHelp;
+
+	ofParameter<bool> bDebug;
+	ofParameter<bool> bKeys;
 
 	ofParameterGroup testSceneParams;
 	ofParameter<float> scaleTestScene;
 	ofParameter<float> positionTestScene;
 	ofParameter<void> vResetTestScene;
 
-	ofParameter<bool> bDebug;
-	ofParameter<bool> bKeys;
-
-	ofParameter<bool> bHelp;
-
-private:
-	string sHelp;
-	void buildHelp();
-
-public:
 	ofParameter<bool> bDrawPlane;
 
 	ofParameterGroup planeParams;
@@ -235,14 +269,15 @@ public:
 	ofParameterGroup shadowParams;
 
 	ofParameter<bool> bPlaneWireframe;
-	ofParameter<bool> bPlaneInfinite; //will ignore planeSize
-	//make the plane huge size to better "fit a full horizon line"
 	ofParameter<glm::vec2> planeSize; //normalized
 	ofParameter<glm::ivec2> planeResolution;
+	ofParameter<bool> bPlaneInfinite;
+	//will ignore planeSize
+	//make the plane huge size to better "fit a full horizon line"
 	ofParameter<float> planeRotation; //x axis
 	ofParameter<float> planePosition; //y pos
 
-	ofParameter<ofFloatColor> planeGlobalColor; //linked to the other colors
+	ofParameter<ofFloatColor> planeGlobalColor; //linked (as master not target) to the other colors
 	ofParameter<ofFloatColor> planeDiffuseColor;
 	ofParameter<ofFloatColor> planeSpecularColor;
 
@@ -282,6 +317,7 @@ public:
 	bool isVisibleDebugShader();
 
 	void doNextLayoutHelp();
+	void doPrevLayoutHelp();
 	void doNextLayouGui();
 
 	// For helping on responsive layouts
@@ -296,9 +332,12 @@ private:
 	ofCubeMap cubeMap;
 
 	void setupCubeMap();
-	string path_Cubemaps = "cubemaps"; //bin/data/cubemaps/
-	string path_CubemapFilename = "modern_buildings_2_1k.exr"; //TODO: store path on settings
+	string path_CubemapsFolder = "cubemaps"; //bin/data/cubemaps/
+	string path_CubemapFilenameDefaultData = "modern_buildings_2_1k.exr"; //TODO: store path on settings
 	bool bLoadedCubeMap = false;
+
+public:
+	ofParameter<string> path_CubemapFileAbsPath;
 
 public:
 	ofParameterGroup cubeMapParams;
@@ -318,6 +357,8 @@ public:
 	bool loadCubeMap(string path = "");
 #endif
 
+	//--
+
 public:
 	ofParameterGroup backgroundParams;
 	ofParameter<bool> bDrawBg;
@@ -334,7 +375,6 @@ public:
 	void doResetLight();
 	void doResetShadow();
 	void doResetTestScene();
-	void doResetCamera();
 
 	void doResetMaterial();
 	void doRandomMaterial();
@@ -353,7 +393,7 @@ public:
 	void load();
 	void save();
 
-	bool getSettingsFileFound(); 
+	bool getSettingsFileFound();
 	// To check if the app is opened for the first time
 	// this allows to force customize the scene from ofApp at startup!
 	bool getSettingsFileFoundForScene();
