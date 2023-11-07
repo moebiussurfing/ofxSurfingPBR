@@ -63,17 +63,21 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "i   Infinite Plane\n";
 		sHelp += "g   Gui\n";
 		sHelp += "G   ofxGui\n";
-		sHelp += "TAB Layout Gui\n";
-		sHelp += "l   Layout Help\n";
 		sHelp += "\n";
-		sHelp += "    DRAW\n";
+		sHelp += "TAB Layout Gui\n";
+		sHelp += "    " + nameGuiLayout.get() + "\n";
+		sHelp += "l   Layout Help\n";
+		sHelp += "    " + nameHelpLayout.get() + "\n";
+		sHelp += "\n";
+
+		sHelp += "  DRAW\n";
 		sHelp += "p   Plane\n";
 		sHelp += "s   Shadow \n";
 		sHelp += "c   CubeMap\n";
 		sHelp += "b   BgAlt\n";
 		sHelp += "\n";
 	}
-	sHelp += "    WINDOW\n";
+	sHelp += "  WINDOW\n";
 	if (bKeys) {
 		sHelp += "f   FullScreen\n";
 		sHelp += "q   Squared\n";
@@ -82,21 +86,25 @@ void ofxSurfingPBR::buildHelp() {
 	sHelp += "    " + ofToString(ofGetFrameRate(), 1) + " FPS\n";
 	if (bKeys) {
 		sHelp += "\n";
-		sHelp += "HELPERS\n";
+		sHelp += "  HELPERS\n";
 		sHelp += "\n";
-		sHelp += "    MATERIAL\n    RESET\n";
+		sHelp += "  MATERIAL\n";
+		sHelp += "  RESET\n";
 		sHelp += "F1  Full\n";
 		sHelp += "\n";
-		sHelp += "    MATERIAL\n    RANDOM\n";
+		sHelp += "  MATERIAL\n";
+		sHelp += "  RANDOM\n";
 		sHelp += "F2  Full\n";
 		sHelp += "F3  Settings\n";
-		sHelp += "    COLORS\n";
+		sHelp += "\n";
+		sHelp += "  COLORS\n";
 		sHelp += "F4  GlobalNoAlpha\n";
 		sHelp += "F5  NoAlpha\n";
 		sHelp += "F6  WithAlpha\n";
 		sHelp += "F7  OnlyAlphas\n";
 		sHelp += "\n";
-		sHelp += "    HISTORY\n";
+		sHelp += "  HISTORY\n";
+		sHelp += "  BROWSER\n";
 		sHelp += "z   Prev\n";
 		sHelp += "x   Next\n";
 		sHelp += "r   Recall\n";
@@ -110,7 +118,7 @@ void ofxSurfingPBR::doNextLayoutHelp() {
 
 	int i = (int)helpLayout.get();
 	i++;
-	i = i % (int)(helpLayout.getMax()+1);
+	i = i % (int)(helpLayout.getMax() + 1);
 	helpLayout.set(i);
 
 	buildHelp();
@@ -147,8 +155,8 @@ void ofxSurfingPBR::setupParams() {
 	nameGuiLayout.set("Gui LN ", "NONE");
 	nameGuiLayout.setSerializable(false);
 
-	int imax =(int)ofxSurfing::SURFING_LAYOUT_AMOUNT-1;
-	int idef =(int)ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
+	int imax = (int)ofxSurfing::SURFING_LAYOUT_AMOUNT - 1;
+	int idef = (int)ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
 	helpLayout.set("Help Layout", idef, 0, imax);
 	nameHelpLayout.set("Help LN", "NONE");
 	nameHelpLayout.setSerializable(false);
@@ -355,6 +363,7 @@ void ofxSurfingPBR::setupParams() {
 	guiParams.add(nameHelpLayout);
 	guiParams.add(bGui);
 	guiParams.add(bGui_ofxGui);
+	guiParams.add(material.bGui);
 	advancedParams.add(guiParams);
 
 	internalParams.add(advancedParams);
@@ -591,7 +600,6 @@ void ofxSurfingPBR::setup() {
 	startup();
 }
 
-
 // Camera
 //--------------------------------------------------------------
 void ofxSurfingPBR::setup(ofCamera & camera_) {
@@ -637,8 +645,7 @@ const int ofxSurfingPBR::getGuiLayout() {
 	return guiLayout.get();
 }
 //--------------------------------------------------------------
-const ofxSurfing::SURFING_LAYOUT ofxSurfingPBR::getLayoutHelp()
-{
+const ofxSurfing::SURFING_LAYOUT ofxSurfingPBR::getLayoutHelp() {
 	return ofxSurfing::SURFING_LAYOUT(helpLayout.get());
 }
 //--------------------------------------------------------------
