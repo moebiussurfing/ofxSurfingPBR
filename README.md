@@ -42,6 +42,7 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
     - **Presets**/**Snapshots** (Store/Recall) explorer system.
 - Included **3D models** browser/loader class.
 - Included [ofxSurfingHelpersLite](https://github.com/moebiussurfing/ofxSurfingHelpersLite) into `/libs`.
+    - **Helper classes** for settings serializers, auto saver, ofxGui customizer, leyout helpers, ofDrawBitmapStringBox..etc  
 
 ### TODO
   - Add more **Shaders** related stuff. / HELP IS WELCOME! 
