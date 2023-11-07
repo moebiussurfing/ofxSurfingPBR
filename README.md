@@ -27,14 +27,14 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
   - **Material A**. For the **Plane** (floor).
   - **Material B**. For the **other Objects**.
 - A positionable Ambient **light** with **Shadows**.
-- **Cubemaps** (aka **HDR**) files loader.
+- **Cubemaps** (**HDR**) files loader.
   - Alternative background color.
 - Added **Shader** for *testing/code*.
   - **Displacement** applied to the plane and his material/mesh.
 - Persistent settings:
   - Optimized **auto save** on any change.
-  - **Plane** colors, transforms, simple material, snapshots, etc...
-  - **Objects** material with full specs. 
+  - **Plane** simple material, colors, transforms, snapshots, etc...
+  - **Objects** material with full **PBR** specs. 
   - Camera settings.
     - Included [ofxCameraSaveLoad](https://github.com/roymacdonald/ofxCameraSaveLoad) into `/libs`.
 - Material **Randomizers**.
@@ -42,7 +42,7 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
     - **Presets**/**Snapshots** (Store/Recall) explorer system.
 - Included **3D models** browser/loader class.
 - Included [ofxSurfingHelpersLite](https://github.com/moebiussurfing/ofxSurfingHelpersLite) into `/libs`.
-    - **Helper classes** for settings serializers, auto saver, ofxGui customizer, leyout helpers, ofDrawBitmapStringBox..etc  
+    - **Helper classes** for settings serializers, auto saver, ofxGui customizer, layout helpers, ofDrawBitmapStringBox..etc  
 
 ### TODO
   - Add more **Shaders** related stuff. / HELP IS WELCOME! 
@@ -50,7 +50,7 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
     - Shader **Debugger**. / TODO 
 
 <details>
-  <summary>Usage</summary>
+  <summary>USAGE</summary>
   <p>
 
 ## EXAMPLE
