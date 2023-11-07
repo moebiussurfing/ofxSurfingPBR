@@ -181,11 +181,11 @@ inline string setWindowShapeForInstagram(size_t i = 0, bool bForcePos = false) {
 	* Dimensions in pixels
 	*/
 	vector<string> names = {
-		"IGTV Cover Photo: \n420x654 | 1:1.55",
-		"IG Landscape Photo: \n1080x566 | 1.91:1",
-		"IG Portrait: \n1080x1350 | 4:5",
-		"IG Story: \n1080x1920 | 9:16",
-		"IG Square: \n1080x1080 | 1:1",
+		"IGTV Cover Photo: \n420x654 (1:1.55)",
+		"IG Landscape Photo: \n1080x566 (1.91:1)",
+		"IG Portrait: \n1080x1350 (4:5)",
+		"IG Story: \n1080x1920 (9:16)",
+		"IG Square: \n1080x1080 (1:1)",
 	};
 
 	i = ofClamp(i, 0, names.size() - 1);

@@ -78,12 +78,14 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "\n";
 	}
 	sHelp += " WINDOW\n";
+	sHelp += "     " + ofToString(ofGetFrameRate(), 1) + " FPS\n";
+	sHelp += "     " + ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
 	if (bKeys) {
 		sHelp += "f    FullScreen\n";
-		sHelp += "q    Squared\n";
+		sHelp += "q-Q  Squared\n";
+		sHelp += "1-5  Instagram Dimension\n";
+		sHelp += sWindowDimensions + "\n";
 	}
-	sHelp += "     " + ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
-	sHelp += "     " + ofToString(ofGetFrameRate(), 1) + " FPS\n";
 	if (bKeys) {
 		sHelp += "\n";
 		sHelp += "  HELPERS\n";
@@ -1024,9 +1026,7 @@ void ofxSurfingPBR::drawHelp() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::drawDebug() {
-
-	// Fps and window size
+void ofxSurfingPBR::drawDebugFPS() {
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	if (!bShaderToPlane && !bDisplaceToMaterial)
 #endif
@@ -1035,19 +1035,27 @@ void ofxSurfingPBR::drawDebug() {
 		s += ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
 		float fps = ofGetFrameRate();
 		s += ofToString(fps, 1);
-		s += " FPS";
+		s += " FPS\n";
+		s += sWindowDimensions;
 		//s += "\n";
 
-		ofxSurfing::SURFING_LAYOUT layout;
+		ofxSurfing::SURFING_LAYOUT l;
 		if (guiLayout.get() == 0)
-			layout = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
+			l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
 		else if (guiLayout.get() == 1)
-			layout = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
+			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
 		else
-			layout = ofxSurfing::SURFING_LAYOUT_CENTER;
+			l = ofxSurfing::SURFING_LAYOUT_CENTER;
 
-		ofxSurfing::ofDrawBitmapStringBox(s, layout);
+		ofxSurfing::ofDrawBitmapStringBox(s, l);
 	}
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::drawDebug() {
+
+	// Fps and window size
+	drawDebugFPS();
 
 	//--
 
@@ -2016,22 +2024,15 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == OF_KEY_TAB) doNextLayouGui(); //next layout gui
 
 	if (key == 'f') ofToggleFullscreen();
-	if (key == 'q') ofxSurfing::setWindowSquared(800);
-	if (key == 'Q') ofxSurfing::setWindowSquared(ofGetWidth());
+	if (key == 'q') sWindowDimensions = ofxSurfing::setWindowShapeSquared(); // 800
+	if (key == 'Q') sWindowDimensions = ofxSurfing::setWindowShapeSquared(ofGetWidth());
+	if (key == '1') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(0); // IGTV Cover Photo
+	if (key == '2') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(1); // IG Landscape Photo
+	if (key == '3') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(2); // IG Portrait
+	if (key == '4') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(3); // IG Story
+	if (key == '5') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(4); // IG Square
 
-	if (key == '1') ofSetWindowShape(1080,566);
-	if (key == '2') ofSetWindowShape(1080,1350);
-	if (key == '3') ofSetWindowShape(1080,1920);
-	/*
-	* Instagram sizes
-	Social media image type	Dimensions in pixels
-	Instagram Landscape Photo	1080 X 566 (1.91:1 ratio)
-	Instagram Portrait	1080 x 1350 (4:5 ratio)
-	Instagram Story	1080 x 1920 (9:16 ratio)
-	IGTV Cover Photo	420 x 654 (1:1.55 ratio)
-	*/
-
-	// Rajndomizers
+	// Randomizers
 	if (key == OF_KEY_F1) doResetMaterial();
 	if (key == OF_KEY_F2) doRandomMaterial();
 	if (key == OF_KEY_F3) doRandomMaterialSettings();

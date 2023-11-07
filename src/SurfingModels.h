@@ -1,13 +1,17 @@
 /*
 * SurfingModels.h
 * 
-	A class to help loading the 3 model files from a path (default bin/data/models/)
-	Then allows browsing them and apply some basic transforms that are stored.
+	A class to help loading the many model files
+	from a path directory (default bin/data/models/)
+	Then allows browsing them and apply some basic transforms
+	that are persistent.
+	Transforms are stored as JSON paired to the model file.
+	So we can add and remove more files to the path without breaking persistent settings!
 	Another parent (scope) class would be able to load files easily.
-	It has help and info displays to debug selected browser,
+	It has help info and displays to debug selected browser,
 	get the path to be passed to the model/mesh loaders..etc
 
-	See EXAMPLE at the bottom of this file.
+	See the EXAMPLE at the bottom of this file.
 
 */
 
@@ -39,9 +43,11 @@ public:
 		scalePow, scale, yPos, yRot
 	};
 
-	Transform() {};
+	Transform() {
+	}
 
-	~Transform() {};
+	~Transform() {
+	}
 };
 
 //--
@@ -284,8 +290,7 @@ public:
 		return s;
 	}
 
-	string pathModel
-		= ""; //to get the path for the model. ready to load!
+	string pathModel = ""; //to get the path for the model. ready to load!
 	string pathModels = ""; //for display only
 	string extSuffixTransform = "__Transform.json";
 

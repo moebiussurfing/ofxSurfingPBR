@@ -76,6 +76,7 @@ public:
 
 private:
 	void drawDebug();
+	void drawDebugFPS();
 	void drawHelp();
 
 public:
@@ -239,6 +240,7 @@ private:
 		"LAYOUT 0",
 		"LAYOUT 1"
 	};
+	string sWindowDimensions = "";
 
 public:
 	ofParameter<int> helpLayout;
