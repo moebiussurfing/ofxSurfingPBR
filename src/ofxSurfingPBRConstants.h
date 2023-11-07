@@ -24,23 +24,23 @@
 
 // CONSTANTS
 
+#define SURFING__SCENE_SIZE_UNIT 1000.f
+// size order magnitude for objects, lights and camera position, distances, etc...
+
 #define SURFING__PLANE_SIZE_MULTIPLIER 10.f
 #define SURFING__PLANE_SIZE_INFINITE_MODE 200000.f
 
 #define SURFING__PLANE_RESOLUTION_MIN 2
 #define SURFING__PLANE_RESOLUTION_MAX 1024
 
-#define SURFING__SCENE_SIZE_UNIT 1000.f
-// size order magnitude for objects, lights and camera position, distances, etc...
+#define SURFING__SHADER_LIMIT_IMAGE_MIN 128
+#define SURFING__SHADER_LIMIT_IMAGE_MAX 1024
 
 #define SURFING__SCENE_CAMERA_FAR 1000000.f
 
 #define SURFING__SCENE_TEST_UNIT_SCALE 5.f
 
 #define SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
-
-#define SURFING__SHADER_LIMIT_IMAGE_MIN 128
-#define SURFING__SHADER_LIMIT_IMAGE_MAX 1024
 
 //--
 

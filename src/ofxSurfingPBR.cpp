@@ -61,13 +61,13 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "h    Help\n";
 		sHelp += "d    Debug\n";
 		sHelp += "i    Infinite Plane\n";
-		sHelp += "gG   Gui | ofxGui\n";
+		sHelp += "g-G  Gui | ofxGui\n";
 		//sHelp += "g    Gui\n";
 		//sHelp += "G    ofxGui\n";
 		//sHelp += "\n";
 		sHelp += "Tab  Layout UI\n";
 		//sHelp += "     " + nameGuiLayout.get() + "\n";
-		sHelp += "Ll   Layout Help\n";
+		sHelp += "L-l  Layout Help\n";
 		//sHelp += "     " + nameHelpLayout.get() + "\n";
 		sHelp += "\n";
 		sHelp += " DRAW\n";
@@ -101,7 +101,7 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "F7   OnlyAlphas\n";
 		sHelp += "\n";
 		sHelp += " HISTORY BROWSER\n";
-		sHelp += "zx   Prev | Next\n";
+		sHelp += "z-x  Prev | Next\n";
 		//sHelp += "z    Prev\n";
 		//sHelp += "x    Next\n";
 		sHelp += "r    Recall\n";
@@ -1270,16 +1270,14 @@ void ofxSurfingPBR::refreshPlane() {
 
 	//--
 
-	int xResolution = SURFING__PLANE_RESOLUTION_MIN;
-	int yResolution = SURFING__PLANE_RESOLUTION_MIN;
-	if (1)
-	{
-		xResolution = (int)ofMap(planeResolution.get().x, 0.f, 1.f,
-			(int)SURFING__PLANE_RESOLUTION_MIN, (int)SURFING__PLANE_RESOLUTION_MAX, true);
+	int xResolution;
+	int yResolution;
 
-		yResolution = (int)ofMap(planeResolution.get().y, 0.f, 1.f,
-			(int)SURFING__PLANE_RESOLUTION_MIN, (int)SURFING__PLANE_RESOLUTION_MAX, true);
-	}
+	xResolution = (int)ofMap(planeResolution.get().x, 0.f, 1.f,
+		(int)SURFING__PLANE_RESOLUTION_MIN, (int)SURFING__PLANE_RESOLUTION_MAX, true);
+
+	yResolution = (int)ofMap(planeResolution.get().y, 0.f, 1.f,
+		(int)SURFING__PLANE_RESOLUTION_MIN, (int)SURFING__PLANE_RESOLUTION_MAX, true);
 
 	plane.set(w, h, xResolution, yResolution);
 
@@ -2019,6 +2017,7 @@ void ofxSurfingPBR::keyPressed(int key) {
 
 	if (key == 'f') ofToggleFullscreen();
 	if (key == 'q') ofxSurfing::setWindowSquared(800);
+	if (key == 'Q') ofxSurfing::setWindowSquared(ofGetWidth());
 
 	// Rajndomizers
 	if (key == OF_KEY_F1) doResetMaterial();
@@ -2057,11 +2056,17 @@ void ofxSurfingPBR::doResetPlane() {
 
 	ofFloatColor c = ofFloatColor(0.5f, 1.f);
 	planeGlobalColor.set(c);
-
 	//planeDiffuseColor.set(ofFloatColor(0.6));
 	//planeSpecularColor.set(ofFloatColor(1));
 
 	bPlaneWireframe = false;
+
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
+	//displacers
+	if (!bLimitImage) bLimitImage.set(true);
+	if (bShaderToPlane) bShaderToPlane.set(false);
+	if (bDisplaceToMaterial) bDisplaceToMaterial.set(false);
+#endif
 }
 
 //--------------------------------------------------------------
