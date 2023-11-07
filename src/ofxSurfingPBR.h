@@ -187,6 +187,7 @@ public:
 private:
 	ofPlanePrimitive plane; //floor
 	void refreshPlane();
+	bool bFlagRefreshPlane = false;
 
 	//--
 
@@ -270,7 +271,8 @@ public:
 
 	ofParameter<bool> bPlaneWireframe;
 	ofParameter<glm::vec2> planeSize; //normalized
-	ofParameter<glm::ivec2> planeResolution;
+	ofParameter<glm::vec2> planeResolution;
+	//ofParameter<glm::ivec2> planeResolution;
 	ofParameter<bool> bPlaneInfinite;
 	//will ignore planeSize
 	//make the plane huge size to better "fit a full horizon line"

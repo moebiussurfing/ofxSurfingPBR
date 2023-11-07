@@ -61,15 +61,15 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "h    Help\n";
 		sHelp += "d    Debug\n";
 		sHelp += "i    Infinite Plane\n";
-		sHelp += "g    Gui\n";
-		sHelp += "G    ofxGui\n";
-		sHelp += "\n";
-		sHelp += "Tab Layout Gui\n";
-		sHelp += "     " + nameGuiLayout.get() + "\n";
+		sHelp += "gG   Gui | ofxGui\n";
+		//sHelp += "g    Gui\n";
+		//sHelp += "G    ofxGui\n";
+		//sHelp += "\n";
+		sHelp += "Tab  Layout UI\n";
+		//sHelp += "     " + nameGuiLayout.get() + "\n";
 		sHelp += "Ll   Layout Help\n";
-		sHelp += "     " + nameHelpLayout.get() + "\n";
+		//sHelp += "     " + nameHelpLayout.get() + "\n";
 		sHelp += "\n";
-
 		sHelp += " DRAW\n";
 		sHelp += "p    Plane\n";
 		sHelp += "s    Shadow \n";
@@ -87,14 +87,9 @@ void ofxSurfingPBR::buildHelp() {
 	if (bKeys) {
 		sHelp += "\n";
 		sHelp += "  HELPERS\n";
-		sHelp += "\n";
-		//sHelp += "  MATERIAL\n";
-		//sHelp += "  RESET\n";
 		sHelp += "  MATERIAL RESET\n";
 		sHelp += "F1   Full\n";
 		sHelp += "\n";
-		//sHelp += "  MATERIAL\n";
-		//sHelp += "  RANDOM\n";
 		sHelp += "  MATERIAL RANDOM\n";
 		sHelp += "F2   Full\n";
 		sHelp += "F3   Settings\n";
@@ -105,13 +100,10 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "F6   WithAlpha\n";
 		sHelp += "F7   OnlyAlphas\n";
 		sHelp += "\n";
-
-		/*		sHelp += " HISTORY\n";
-		sHelp += " BROWSER\n"*/
-		;
 		sHelp += " HISTORY BROWSER\n";
-		sHelp += "z    Prev\n";
-		sHelp += "x    Next\n";
+		sHelp += "zx   Prev | Next\n";
+		//sHelp += "z    Prev\n";
+		//sHelp += "x    Next\n";
 		sHelp += "r    Recall\n";
 		sHelp += "s    Store\n";
 	}
@@ -227,11 +219,8 @@ void ofxSurfingPBR::setupParams() {
 
 	bPlaneWireframe.set("Draw Wireframe", false);
 	bPlaneInfinite.set("Infinite", true);
-	planeSize.set("Size", glm::vec2(0.8f, 0.8f), glm::vec2(0, 0), glm::vec2(1.f, 1.f));
-	planeResolution.set("Resolution",
-		glm::ivec2(SURFING__PLANE_RESOLUTION, SURFING__PLANE_RESOLUTION),
-		glm::ivec2(1, 1),
-		glm::ivec2(SURFING__PLANE_RESOLUTION_MAX, SURFING__PLANE_RESOLUTION_MAX));
+	planeSize.set("Size", glm::vec2(0.5f, 0.5f), glm::vec2(0, 0), glm::vec2(1.f, 1.f));
+	planeResolution.set("Resolution", glm::vec2(0.5f, 0.5f), glm::vec2(0, 0), glm::vec2(1.f, 1.f));
 	planeRotation.set("x Rotation", 0, -45, 135);
 	planePosition.set("y Position", 0, -1, 1);
 	planeShiness.set("Shiness", 0.85, 0, 1);
@@ -434,38 +423,31 @@ void ofxSurfingPBR::refreshImgShaderPlane() {
 	int h = plane.getHeight();
 
 	if (bLimitImage) {
-		w = ofClamp(w, 0, SURFING__SHADER_LIMIT_IMAGE);
-		h = ofClamp(h, 0, SURFING__SHADER_LIMIT_IMAGE);
-	} else { //ma
+		w = ofClamp(w, 0, SURFING__SHADER_LIMIT_IMAGE_MIN);
+		h = ofClamp(h, 0, SURFING__SHADER_LIMIT_IMAGE_MIN);
+	} else {
 		w = ofClamp(w, 0, SURFING__SHADER_LIMIT_IMAGE_MAX);
 		h = ofClamp(h, 0, SURFING__SHADER_LIMIT_IMAGE_MAX);
 	}
 
-	//reduce a bit image re allocations calls when not required
-	//bc sizes not changed..
-	static int w_ = -1;
-	static int h_ = -1;
-	if (w != w_ || h != h_) { //if changed
-		w_ = w;
-		h_ = h;
+	{
 
 	#ifdef TARGET_OPENGLES
 		OPENGL ES supports GL_RGBA32F but not GL_R32F
 			img.allocate(80, 60, OF_IMAGE_COLOR_ALPHA);
 	#else
 		//img.clear();
+
 		img.allocate(w, h, OF_IMAGE_GRAYSCALE);
-		ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane() Allocated img: " << w << "," << h;
+
+		ofLogNotice("ofxSurfingPBR") << "Allocated img: " << w << "," << h;
 	#endif
 
+		//TODO: seems breaking some plane colors/materials props..
 		//apply to plane
 		plane.mapTexCoordsFromTexture(img.getTexture());
 
-		ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane() w,h: " << w << "," << h;
-	}
-
-	else {
-		ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane() Skipped img.allocate (" << w << "," << h << ")";
+		ofLogNotice("ofxSurfingPBR") << "mapTexCoordsFromTexture(img.getTexture()";
 	}
 }
 
@@ -520,7 +502,7 @@ void ofxSurfingPBR::setupParamsDisplace() {
 void ofxSurfingPBR::doResetNoise() {
 	ofLogNotice("ofxSurfingPBR") << "doResetNoise()";
 
-	noiseAmplitude.set(1.5f);
+	noiseAmplitude.set(1.f);
 	noiseScale.set(0.05f);
 	noiseSpeed.set(0.5f);
 }
@@ -529,9 +511,10 @@ void ofxSurfingPBR::doResetNoise() {
 void ofxSurfingPBR::doResetDisplace() {
 	ofLogNotice("ofxSurfingPBR") << "doResetDisplace()";
 
-	// reduce callbakcs amount a bit not updating params if not required..
+	// reduce callbacks amount a bit not updating params if not required..
 
-	float displacementStrength_ = displacementStrength.getMax() * 0.75;
+	float displacementStrength_ = 100;
+	//float displacementStrength_ = displacementStrength.getMax() * 0.75;
 	float displacementNormalsStrength_ = displacementNormalsStrength.getMax() / 2;
 	float normalGeomToNormalMapMix_ = normalGeomToNormalMapMix.getMax() / 2;
 
@@ -544,9 +527,9 @@ void ofxSurfingPBR::doResetDisplace() {
 	if (normalGeomToNormalMapMix.get() != normalGeomToNormalMapMix_)
 		normalGeomToNormalMapMix.set(normalGeomToNormalMapMix_);
 
-	if (bShaderToPlane) bShaderToPlane.set(false);
-	if (bDisplaceToMaterial) bDisplaceToMaterial.set(false);
-	if (!bLimitImage) bLimitImage.set(true);
+	//if (!bLimitImage) bLimitImage.set(true);
+	//if (bShaderToPlane) bShaderToPlane.set(false);
+	//if (bDisplaceToMaterial) bDisplaceToMaterial.set(false);
 }
 
 //--------------------------------------------------------------
@@ -866,9 +849,20 @@ void ofxSurfingPBR::refreshGui() {
 		.minimize();
 
 	gui.getGroup(planeParams.getName())
+		.getGroup(planeTransformParams.getName())
+		.getGroup(planeSize.getName())
+		.minimize();
+
+	gui.getGroup(planeParams.getName())
+		.getGroup(planeTransformParams.getName())
+		.getGroup(planeResolution.getName())
+		.minimize();
+
+	gui.getGroup(planeParams.getName())
 		.getGroup(planeMaterialParams.getName())
 		.getGroup(planeSettingsParams.getName())
 		.minimize();
+
 	gui.getGroup(planeParams.getName())
 		.getGroup(planeMaterialParams.getName())
 		.getGroup(planeColorsParams.getName())
@@ -880,6 +874,7 @@ void ofxSurfingPBR::refreshGui() {
 	gui.getGroup(testSceneParams.getName()).minimize();
 	gui.getGroup(cameraParams.getName()).minimize();
 	gui.getGroup(internalParams.getName()).minimize();
+
 	gui.getGroup(internalParams.getName())
 		.getGroup(advancedParams.getName())
 		.minimize();
@@ -892,10 +887,12 @@ void ofxSurfingPBR::refreshGui() {
 	gui.getGroup(planeParams.getName())
 		.getGroup(displacersParams.getName())
 		.minimize();
+
 	gui.getGroup(planeParams.getName())
 		.getGroup(displacersParams.getName())
 		.getGroup(displaceMaterialParams.getName())
 		.minimize();
+
 	gui.getGroup(planeParams.getName())
 		.getGroup(displacersParams.getName())
 		.getGroup(noiseParams.getName())
@@ -927,6 +924,14 @@ void ofxSurfingPBR::update() {
 			//TODO fix crash callbacks
 			startupDelayed();
 		}
+	}
+
+	//--
+
+	if (bFlagRefreshPlane) {
+		bFlagRefreshPlane = false;
+
+		refreshPlane();
 	}
 
 	//--
@@ -1074,7 +1079,8 @@ void ofxSurfingPBR::drawDebug() {
 		l = ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
 
 		//TODO
-		// Set the preview box position related to help box
+		// Set the preview box position related to help box layouot.
+
 		if (helpLayout == ofxSurfing::SURFING_LAYOUT_TOP_LEFT)
 			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT;
 		else if (helpLayout == ofxSurfing::SURFING_LAYOUT_TOP_CENTER)
@@ -1100,7 +1106,7 @@ void ofxSurfingPBR::drawDebug() {
 
 		auto bb = ofxSurfing::getBBBitmapStringBoxToLayout(s, l);
 
-		// image preview
+		//image preview
 		w = bb.getWidth();
 		h = w * r;
 		x = bb.getTopLeft().x;
@@ -1122,7 +1128,7 @@ void ofxSurfingPBR::drawDebug() {
 
 		img.draw(x, y, w, h);
 
-		// border rect
+		// border rect line
 		x += 1;
 		w -= 2;
 		ofRectangle rbb = ofRectangle(x, y, w, h);
@@ -1264,18 +1270,18 @@ void ofxSurfingPBR::refreshPlane() {
 
 	//--
 
-	//TODO
-	//use params to allow customize
-	int resX, resY;
-#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
-	resX = MIN(1024, w / 10.f);
-	resY = MIN(1024, h / 10.f);
-#else
-	resX = (int)SURFING__PLANE_RESOLUTION;
-	resY = (int)SURFING__PLANE_RESOLUTION;
-#endif
+	int xResolution = SURFING__PLANE_RESOLUTION_MIN;
+	int yResolution = SURFING__PLANE_RESOLUTION_MIN;
+	if (1)
+	{
+		xResolution = (int)ofMap(planeResolution.get().x, 0.f, 1.f,
+			(int)SURFING__PLANE_RESOLUTION_MIN, (int)SURFING__PLANE_RESOLUTION_MAX, true);
 
-	plane.set(w, h, resX, resY);
+		yResolution = (int)ofMap(planeResolution.get().y, 0.f, 1.f,
+			(int)SURFING__PLANE_RESOLUTION_MIN, (int)SURFING__PLANE_RESOLUTION_MAX, true);
+	}
+
+	plane.set(w, h, xResolution, yResolution);
 
 	//--
 
@@ -1303,14 +1309,21 @@ void ofxSurfingPBR::ChangedPlane(ofAbstractParameter & e) {
 		if (planeSize.get() != planeSize_) { // if changed
 			planeSize_ = planeSize.get();
 
-			refreshPlane();
+			//refreshPlane();
+			bFlagRefreshPlane = true;
 		} else {
 			ofLogVerbose("ofxSurfingPBR") << "Plane size not Changed. Skipped refresh!";
 		}
 	}
 
+	else if (name == planeResolution.getName()) {
+		//refreshPlane();
+		bFlagRefreshPlane = true;
+	}
+
 	else if (name == bPlaneInfinite.getName()) {
-		refreshPlane();
+		//refreshPlane();
+		bFlagRefreshPlane = true;
 	}
 
 	else if (name == planeRotation.getName()) {
@@ -1579,7 +1592,8 @@ void ofxSurfingPBR::ChangedDisplacers(ofAbstractParameter & e) {
 	}
 
 	else if (name == bLimitImage.getName()) {
-		refreshPlane();
+		//refreshPlane();
+		bFlagRefreshPlane = true;
 	}
 }
 #endif
@@ -1598,7 +1612,7 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 	//--
 
 	if (name == vOpenCubeMap.getName()) {
-		ofFileDialogResult openFileResult = ofSystemLoadDialog("Select a exr or EXR file.");
+		ofFileDialogResult openFileResult = ofSystemLoadDialog("Select a EXR, HDR or JPG (limited mode) files.");
 		if (openFileResult.bSuccess) {
 			ofLogNotice("ofxSurfingPBR") << ("User selected a file");
 			processOpenFileSelection(openFileResult);
@@ -1989,6 +2003,7 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 'p') bDrawPlane = !bDrawPlane;
 	if (key == 's') bDrawShadow = !bDrawShadow;
 	if (key == 'b') bDrawBg = !bDrawBg;
+	if (key == 'w') bPlaneWireframe = !bPlaneWireframe;
 
 #ifdef SURFING__USE_CUBE_MAP
 	if (key == 'c') bDrawCubeMap = !bDrawCubeMap;
@@ -2052,9 +2067,10 @@ void ofxSurfingPBR::doResetPlane() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetPlaneTransform() {
 	planeSize.set(glm::vec2(0.12, 0.05));
-	bPlaneInfinite = false;
+	planeResolution.set(glm::vec2(0.f, 0.f));
 	planePosition.set(0.f);
 	planeRotation.set(10.f);
+	bPlaneInfinite = false;
 }
 
 //--------------------------------------------------------------
