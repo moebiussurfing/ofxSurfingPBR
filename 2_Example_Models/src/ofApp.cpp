@@ -58,7 +58,7 @@ void ofApp::setupPBR() {
 	//--
 
 	// Optional
-#if USE_OPTIONAL_SETUP
+#if OFAPP__USE__OPTIONAL_SETUP
 	#if 1
 	// Set log level
 	pbr.setLogLevel(OF_LOG_VERBOSE);

@@ -167,6 +167,10 @@ public:
 		setCameraPtr(dynamic_cast<ofCamera *>(&camera_));
 	}
 	//--------------------------------------------------------------
+	void setCameraPtr(ofCamera & camera_) {
+		setCameraPtr(dynamic_cast<ofCamera *>(&camera_));
+	}
+	//--------------------------------------------------------------
 	void setCameraPtr(ofCamera * camera_) {
 		camera = camera_;
 
@@ -202,8 +206,13 @@ private:
 public:
 	ofParameter<void> vResetCamera;
 
+	//--
+
 public:
-	ofParameterGroup parameters; //main container to expose to gui and to handle settings
+	// Main container to expose to gui and to handle persistent settings.
+	ofParameterGroup parameters;
+
+	//--
 
 	//--------------------------------------------------------------
 	ofParameterGroup & getMaterialParameters() { //mainly to expose to external gui's like ImGui
@@ -245,7 +254,6 @@ public:
 private:
 	string sHelp;
 	void buildHelp();
-	//ofxSurfing::SURFING_LAYOUT helpLayout = ofxSurfing::SURFING_LAYOUT_TOP_RIGHT; //top-right
 
 public:
 	ofParameter<bool> bDrawPlane;
@@ -281,7 +289,8 @@ public:
 	ofParameter<float> shadowBias;
 	ofParameter<float> shadowNormalBias;
 
-	//TODO: add other internal PBR params
+	//TODO: OF PBR
+	// add other internal OF params
 	//ofParameter<float> shadowStrength;
 	//ofParameter<glm::vec2> shadowSize;
 
@@ -400,7 +409,8 @@ public:
 	void load();
 	void save();
 
-	bool getSettingsFileFound(); //to check if the app is opened for the first time
+	bool getSettingsFileFound(); 
+	// To check if the app is opened for the first time
 	// this allows to force customize the scene from ofApp at startup!
 	bool getSettingsFileFoundForScene();
 	bool getSettingsFileFoundForMaterial();

@@ -110,7 +110,7 @@ void ofxSurfingPBR::doNextLayoutHelp() {
 
 	int i = (int)helpLayout.get();
 	i++;
-	i = i % (int)helpLayout.getMax();
+	i = i % (int)(helpLayout.getMax()+1);
 	helpLayout.set(i);
 
 	buildHelp();
@@ -144,13 +144,13 @@ void ofxSurfingPBR::setupParams() {
 	vMinimizeAllGui.set("Gui Minimize");
 	vMaximizeAllGui.set("Gui Maximize");
 	guiLayout.set("Gui Layout", 0, 0, 1);
-	nameGuiLayout.set("Gui LyNm ", "NONE");
+	nameGuiLayout.set("Gui LN ", "NONE");
 	nameGuiLayout.setSerializable(false);
 
-	//int imax =(int)ofxSurfing::SURFING_LAYOUT_AMOUNT;
-	int imax =(int)ofxSurfing::SURFING_LAYOUT_AMOUNT - 2;
-	helpLayout.set("Help Layout", 0, 0, imax);
-	nameHelpLayout.set("Help LyNm", "NONE");
+	int imax =(int)ofxSurfing::SURFING_LAYOUT_AMOUNT-1;
+	int idef =(int)ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
+	helpLayout.set("Help Layout", idef, 0, imax);
+	nameHelpLayout.set("Help LN", "NONE");
 	nameHelpLayout.setSerializable(false);
 
 	//--
@@ -345,14 +345,14 @@ void ofxSurfingPBR::setupParams() {
 	//advancedParams.add(material.bGuiHelpers);
 
 	guiParams.setName("Gui");
+	guiParams.add(vMinimizeAllGui);
+	guiParams.add(vMaximizeAllGui);
 	guiParams.add(guiLayout);
 	guiParams.add(nameGuiLayout);
 	guiParams.add(helpLayout);
 	guiParams.add(nameHelpLayout);
 	guiParams.add(bGui);
 	guiParams.add(bGui_ofxGui);
-	guiParams.add(vMinimizeAllGui);
-	guiParams.add(vMaximizeAllGui);
 	advancedParams.add(guiParams);
 
 	internalParams.add(advancedParams);
@@ -666,6 +666,9 @@ void ofxSurfingPBR::startupDelayed() {
 		nameGuiLayout.set(namesGuiLayouts[1]);
 #endif
 
+	string s = ofxSurfing::getLayoutName(helpLayout.get());
+	nameHelpLayout.set(s);
+
 	bDoneDelayed = true;
 	ofLogNotice("ofxSurfingPBR") << "startupDelayed() Done! at frame number: " << ofGetFrameNum();
 }
@@ -897,7 +900,33 @@ void ofxSurfingPBR::drawHelp() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawDebug() {
 
+	// Fps and window size
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
+	if (!bShaderToPlane && !bDisplaceToMaterial)
+#endif
+	{
+		string s = "";
+		s += ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
+		float fps = ofGetFrameRate();
+		s += ofToString(fps, 1);
+		s += " FPS";
+		//s += "\n";
+
+		ofxSurfing::SURFING_LAYOUT layout;
+		if (guiLayout.get() == 0)
+			layout = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
+		else if (guiLayout.get() == 1)
+			layout = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
+		else
+			layout = ofxSurfing::SURFING_LAYOUT_CENTER;
+
+		ofxSurfing::ofDrawBitmapStringBox(s, layout);
+	}
+
+	//--
+
+#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
+	// Shader and displacer info
 	if (bShaderToPlane || bDisplaceToMaterial) {
 		// layout is responsive
 
@@ -961,30 +990,6 @@ void ofxSurfingPBR::drawDebug() {
 		ofPopStyle();
 	}
 #endif
-
-	//--
-
-	// Fps and window size
-#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
-	if (!bShaderToPlane && !bDisplaceToMaterial)
-#endif
-	{
-		string s = "";
-		s += ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
-		float fps = ofGetFrameRate();
-		s += ofToString(fps, 1);
-		s += " FPS\n";
-
-		ofxSurfing::SURFING_LAYOUT layout;
-		if (guiLayout.get() == 0)
-			layout = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
-		else if (guiLayout.get() == 1)
-			layout = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
-		else
-			layout = ofxSurfing::SURFING_LAYOUT_CENTER;
-
-		ofxSurfing::ofDrawBitmapStringBox(s, layout);
-	}
 }
 
 //--------------------------------------------------------------

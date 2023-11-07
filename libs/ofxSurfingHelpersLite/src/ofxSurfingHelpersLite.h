@@ -14,6 +14,9 @@
 #define SURFING__STRING_BOX__DEFAULT_XPAD 20
 #define SURFING__STRING_BOX__DEFAULT_YPAD 20
 #define SURFING__STRING_BOX__DEFAULT_ROUND 5.f // 0.f to not rounded
+
+//#define SURFING__STRING_BOX__INCLUDE_EXTRA_LAYOUTS // include mouse pos
+
 //#define SURFING__STRING_BOX___USE_TTF_INSTEAD_OF_BITMAP_FONT___WIP//TODO
 
 //--
@@ -40,6 +43,8 @@ namespace ofxSurfing {
 //------
 
 /*
+* Settings Management
+* 
 	Settings de/serializers for ofParameterGroup.
 */
 
@@ -89,6 +94,8 @@ inline bool saveSettings(ofParameterGroup & parameters, string path) {
 //------
 
 /*
+* App Window
+* 
 	App window tools to handle position, settings or name.
 */
 
@@ -166,8 +173,11 @@ inline void setWindowSquared(int sz = 800) {
 //------
 
 /*
-	A text box widget with layout management.
+*  ofDrawBitmapStringBox
+* 
+	A text box widget with 12 layout positions management.
 */
+
 //--------------------------------------------------------------
 inline void ofDrawBitmapStringBox(string s, int x, int y, float round = SURFING__STRING_BOX__DEFAULT_ROUND) {
 	bool bdebug = 0;
@@ -200,7 +210,8 @@ inline void ofDrawBitmapStringBox(string s, int x, int y, float round = SURFING_
 	//fix
 	int xoffset = 0;
 	int yoffset = 0;
-	//xoffset = 0;
+
+	//xoffset = 0; //TODO
 	yoffset = 11; //TODO
 
 	ofRectangle bb1;
@@ -372,7 +383,7 @@ inline glm::vec2 getBitmapStringBoxPosToBottomRight(string s, int xpad = SURFING
 }
 
 enum SURFING_LAYOUT {
-	SURFING_LAYOUT_TOP_LEFT=0,
+	SURFING_LAYOUT_TOP_LEFT = 0,
 	SURFING_LAYOUT_TOP_CENTER,
 	SURFING_LAYOUT_TOP_RIGHT,
 
@@ -384,10 +395,12 @@ enum SURFING_LAYOUT {
 	SURFING_LAYOUT_BOTTOM_CENTER,
 	SURFING_LAYOUT_BOTTOM_RIGHT,
 
-	//--
+//--
 
+#ifdef SURFING__STRING_BOX__INCLUDE_EXTRA_LAYOUTS
 	SURFING_LAYOUT_MOUSE_POS,
 	SURFING_LAYOUT_MOUSE_POS_CENTER,
+#endif
 
 	SURFING_LAYOUT_AMOUNT,
 };
@@ -429,12 +442,14 @@ inline string getLayoutName(SURFING_LAYOUT layout) {
 
 		//--
 
+#ifdef SURFING__STRING_BOX__INCLUDE_EXTRA_LAYOUTS
 	case SURFING_LAYOUT_MOUSE_POS:
 		s = "MOUSE POS";
 		break;
 	case SURFING_LAYOUT_MOUSE_POS_CENTER:
 		s = "MOUSE POS C";
 		break;
+#endif
 
 	default:
 		s = "NONE";
@@ -486,6 +501,7 @@ inline glm::vec2 getBitmapStringBoxPosToLayout(string s, SURFING_LAYOUT layout) 
 
 	//--
 
+#ifdef SURFING__STRING_BOX__INCLUDE_EXTRA_LAYOUTS
 	else if (layout == SURFING_LAYOUT_MOUSE_POS) {
 		// mouse pos clamped inside the window
 		auto bb = getBBBitmapStringBox(s);
@@ -503,6 +519,7 @@ inline glm::vec2 getBitmapStringBoxPosToLayout(string s, SURFING_LAYOUT layout) 
 		int y = ofClamp(ym, 0, ofGetHeight() - bb.height);
 		p = { x, y };
 	}
+#endif
 
 	return p;
 }
@@ -562,9 +579,12 @@ inline void ofDrawBitmapStringBox(string s, int layout /* = 0*/) {
 //------
 
 /*
+* ofxGui
+* 
 	ofxGui Helpers
 */
 
+//--------------------------------------------------------------
 inline void setGuiPositionToLayout(ofxPanel & gui, int layout = 0) {
 	//TODO: Could add other layout positions and use above enum..
 
@@ -606,6 +626,7 @@ inline void setGuiPositionToLayout(ofxPanel & gui, int layout = 0) {
 // Set position of gui1 at the window bottom and centered
 // (gui2 must be externally linked to gui1 with the correct padding).
 //TODO: other layouts
+//--------------------------------------------------------------
 inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2, int layout = 1) {
 	//TODO: ADD OTHER LAYOUTS
 	if (layout == 0) { //bottom-center

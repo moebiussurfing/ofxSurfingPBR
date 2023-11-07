@@ -1,7 +1,7 @@
 #pragma once
 #include "ofMain.h"
 
-#define USE_OPTIONAL_SETUP 0
+#define OFAPP__USE__OPTIONAL_SETUP 0
 
 #define SURFING__USE__FILE_BROWSER
 
@@ -110,7 +110,6 @@ public:
 	void refreshGui(); 
 	// Refresh gui for minimize/collapse workflow
 	// and to layout the gui panels on the app window.
-	
 	ofEventListener listenerGuiRefresh;
 	 
 	//--
