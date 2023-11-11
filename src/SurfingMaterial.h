@@ -2,7 +2,6 @@
 #include "ofMain.h"
 
 #include "ofxSurfingPBRConstants.h"
-
 #include "ofxGui.h"
 #include "ofxSurfingHelpersLite.h"
 
@@ -66,7 +65,8 @@ public:
 	ofParameter<void> vRandomSettings;
 
 	ofxPanel gui;
-
+	void setGuiPosition(glm::vec2 pos);
+	
 	ofxPanel guiHelpers;
 	ofParameter<bool> bGui;
 	ofParameter<bool> bGuiHelpers;

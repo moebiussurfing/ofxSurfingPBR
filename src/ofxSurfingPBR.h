@@ -47,6 +47,9 @@
 //--
 
 #include "SurfingMaterial.h"
+#include "SurfingLights.h"
+#include "SurfingBg.h"
+
 #include "ofxCameraSaveLoad.h"
 #include "ofxGui.h"
 
@@ -60,6 +63,14 @@ public:
 	ofxSurfingPBR();
 	~ofxSurfingPBR();
 
+	//SurfingLights surfingLights;
+	//void setupLights();
+	//void beginLights();
+	//void endLights();
+
+	void setupBg();
+	SurfingBg surfingBg;
+
 public:
 	void setup(); //use only one setup method! don't call two setup methods!
 	void setup(ofCamera & camera_); //use only one setup method! don't call two setup methods!
@@ -71,6 +82,7 @@ private:
 public:
 	void draw(); //main draw
 	void drawPlane();
+	void drawBg();
 	void drawTestScene(); //a simple scene with 3 prims for easy testing
 	void drawGui();
 
@@ -274,10 +286,10 @@ public:
 	ofParameter<bool> bPlaneWireframe;
 	ofParameter<glm::vec2> planeSize; //normalized
 	ofParameter<glm::vec2> planeResolution;
-	//ofParameter<glm::ivec2> planeResolution;
 	ofParameter<bool> bPlaneInfinite;
 	//will ignore planeSize
 	//make the plane huge size to better "fit a full horizon line"
+
 	ofParameter<float> planeRotation; //x axis
 	ofParameter<float> planePosition; //y pos
 
@@ -364,14 +376,7 @@ public:
 	//--
 
 public:
-	ofParameterGroup backgroundParams;
-	ofParameter<bool> bDrawBg;
-	ofParameter<ofFloatColor> bgColor;
-
-	//--
-
-public:
-	void doResetAll(bool bExcludeMaterial = false);
+	void doResetAll(bool bExcludeExtras = false);
 	ofEventListener listenerResetAll;
 
 	void doResetPlane();

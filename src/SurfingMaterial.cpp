@@ -89,10 +89,10 @@ void SurfingMaterial::setupParams() {
 
 	parameters.add(globalColor.set("Global Color", ofFloatColor::white));
 	parameters.add(globalAlpha.set("Global Alpha", 1.0f, 0.0f, 1.0f));
+	parameters.add(colorParams);
 
 	parameters.add(settingsParams);
 
-	parameters.add(colorParams);
 	parameters.add(coatParams);
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
@@ -105,8 +105,8 @@ void SurfingMaterial::setupParams() {
 	//workflow
 	//parameters.add(indexHistory);
 
-	bGui.set("Material", true);
-	bGuiHelpers.set("Helpers", true);
+	bGui.set("UI Material", true);
+	bGuiHelpers.set("UI Helpers", true);
 
 	bGuiHelpers.setSerializable(false);
 	//workflow: to exclude from states. trouble bc we would like to save & include into gui..
@@ -124,6 +124,15 @@ void SurfingMaterial::setupGui() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setupGui()";
 
 	gui.setup(parameters);
+
+	static ofEventListener listenerSave;
+	static ofEventListener listenerLoad;
+	listenerSave = gui.savePressedE.newListener([this] {
+		save();
+	});
+	listenerLoad = gui.loadPressedE.newListener([this] {
+		load();
+	});
 	
 	guiHelpers.setup(helpersParams);
 
@@ -136,6 +145,11 @@ void SurfingMaterial::setupGui() {
 
 	//guiHelpers.minimizeAll();
 	guiHelpers.getGroup(randomizersParams.getName()).minimize();
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::setGuiPosition(glm::vec2 pos) {
+	gui.setPosition(pos.x, pos.y);
 }
 
 //--------------------------------------------------------------
@@ -780,7 +794,9 @@ void SurfingMaterial::exit() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:exit()";
 	// Not required to be called bc it's using the auto saver!
 
+#ifndef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	save();
+#endif
 }
 
 //--------------------------------------------------------------

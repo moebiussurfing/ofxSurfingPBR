@@ -6,7 +6,8 @@
 	Then allows browsing them and apply some basic transforms
 	that are persistent.
 	Transforms are stored as JSON paired to the model file.
-	So we can add and remove more files to the path without breaking persistent settings!
+	So we can add and remove more files to the path 
+	without breaking persistent settings!
 	Another parent (scope) class would be able to load files easily.
 	It has help info and displays to debug selected browser,
 	get the path to be passed to the model/mesh loaders..etc

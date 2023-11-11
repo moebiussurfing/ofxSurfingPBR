@@ -91,6 +91,26 @@ inline bool saveSettings(ofParameterGroup & parameters, string path) {
 	return b;
 }
 
+// Create if folder not found
+//--------------------------------------------------------------
+inline void checkFolderOrCreate(string path) {
+	if (!ofDirectory::doesDirectoryExist(ofFilePath::getEnclosingDirectory(path))) {
+		if (ofFilePath::createEnclosingDirectory(path))
+			ofLogWarning("ofxSurfing") << "Created enclosing folder for: " << path;
+		else
+			ofLogError("ofxSurfing") << "Unable to create enclosing folder for: " << path;
+	}
+}
+
+// LEGACY
+// for ofxSurfingHelpers
+inline bool loadGroup(ofParameterGroup & parameters, string path) {
+	return loadSettings(parameters, path);
+}
+inline bool saveGroup(ofParameterGroup & parameters, string path) {
+	return saveSettings(parameters, path);
+}
+
 //------
 
 /*
@@ -180,12 +200,13 @@ inline string setWindowShapeForInstagram(size_t i = 0, bool bForcePos = false) {
 	* Image type sizes
 	* Dimensions in pixels
 	*/
+
 	vector<string> names = {
-		"IGTV Cover Photo: \n420x654 | 1:1.55",
-		"IG Landscape Photo: \n1080x566 | 1.91:1",
-		"IG Portrait: \n1080x1350 | 4:5",
-		"IG Story: \n1080x1920 | 9:16",
-		"IG Square: \n1080x1080 | 1:1",
+		"IGTV Cover Photo: \n420x654 1:1.55",
+		"IG Landscape Photo: \n1080x566 1.91:1",
+		"IG Portrait: \n1080x1350 4:5",
+		"IG Story: \n1080x1920 9:16",
+		"IG Square: \n1080x1080 1:1",
 	};
 
 	i = ofClamp(i, 0, names.size() - 1);
@@ -201,6 +222,20 @@ inline string setWindowShapeForInstagram(size_t i = 0, bool bForcePos = false) {
 	if (bForcePos) ofSetWindowPosition(0, 0); //fix force
 
 	return names[i];
+
+	//// TODO:
+	//// allow resize on runtime
+	//// set instagram size
+	//case OF_KEY_F6: {
+	//	int w, h;
+	//	w = 864;
+	//	h = 1080 + 19;
+	//	ofSetWindowShape(w, h);
+	//	windowResized(w, h);
+	//	cap_w = w;
+	//	cap_h = h;
+	//	buildAllocateFbo();
+	//} break;
 }
 
 //------
@@ -679,8 +714,7 @@ inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2, int lay
 /*
 
 TODO
-
-		//TODO: put bb above gui panel
+		// put bb above gui panel
 		// not sure if there is some bug on OF getBoundingBox..
 		//auto bbG = gui.getShape();
 		//auto bbH = ofxSurfing::getBBBitmapStringBox(sHelp);
@@ -936,3 +970,53 @@ SurfingAutoSaver::~SurfingAutoSaver() {
 }
 
 //------
+
+namespace ofxSurfing {
+
+//---
+/*
+* String helpers
+*/
+
+// original code copied from: ofxFilikaUtils.h
+#define SECS_PER_MIN 60
+#define SECS_PER_HOUR 3600
+//--------------------------------------------------------------
+inline std::string calculateTime(float _time) {
+
+	int seconds;
+	int minutes;
+	int mins_left;
+	int secs_left;
+
+	seconds = (/*gameTimeSeconds - */ int(_time));
+	minutes = (/*gameTimeSeconds - */ int(_time)) / SECS_PER_MIN;
+	mins_left = minutes % SECS_PER_MIN;
+	secs_left = seconds % SECS_PER_MIN;
+
+	std::string mins;
+	std::string secs;
+
+	if (mins_left < 10) {
+		mins = "0" + ofToString(mins_left);
+	} else {
+		mins = ofToString(mins_left);
+	}
+
+	if (secs_left < 10) {
+		secs = "0" + ofToString(secs_left);
+	} else {
+		secs = ofToString(secs_left);
+	}
+
+	//cout << ofGetElapsedTimeMillis() / 1000 << endl;
+	//cout << "remaining time : " << mins_left << " : " <<  secs_left << endl;
+	//cout << "remaining time : " << mins << " : " <<  secs << endl;
+
+	if (mins_left < 0 || secs_left < 0)
+		return "00:00";
+	else
+		return (mins + ":" + secs);
+}
+
+}

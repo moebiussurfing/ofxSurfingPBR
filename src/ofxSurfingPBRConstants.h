@@ -42,9 +42,14 @@
 
 #define SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 
+#define SURFING__PBR__MAX_BRIGHT_LIMIT 0.75f
+
 //--
 
 // PBR CONSTANTS
 
 #define SURFING__PBR__MAX_SHININESS 100
 #define SURFING__PBR__PLANE_COLORS_NO_ALPHA // bc it seems that is not being used internally..
+
+#define SURFING__PBR__BG_COLORS_NO_ALPHA 
+
