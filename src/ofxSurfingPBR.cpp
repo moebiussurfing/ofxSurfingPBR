@@ -22,7 +22,7 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 	ofRemoveListener(internalParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
 	ofRemoveListener(testSceneParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
 	ofRemoveListener(cameraParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
-	//ofRemoveListener(backgroundColorPlainParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedBg);
+	//ofRemoveListener(bgColorPlainParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedBg);
 
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	ofRemoveListener(displacersParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDisplacers);
@@ -40,6 +40,8 @@ void ofxSurfingPBR::windowResized(ofResizeEventArgs & resize) {
 	if (sz != sz_) {
 		sz_ = sz;
 		ofLogNotice("ofxSurfingPBR") << "windowResized() Size: " << sz_.x << "," << sz_.y;
+
+		sWindowDimensions = "";
 
 		buildHelp();
 		refreshGui();
@@ -389,7 +391,7 @@ void ofxSurfingPBR::setupParams() {
 	ofAddListener(internalParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
 	ofAddListener(testSceneParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
 	ofAddListener(cameraParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
-	//ofAddListener(backgroundColorPlainParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedBg);4
+	//ofAddListener(bgColorPlainParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedBg);4
 
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	ofAddListener(displacersParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDisplacers);
@@ -930,7 +932,7 @@ void ofxSurfingPBR::refreshGui() {
 
 	gui.getGroup(lightParams.getName()).minimize();
 	gui.getGroup(shadowParams.getName()).minimize();
-	//gui.getGroup(backgroundColorPlainParams.getName()).minimize();
+	//gui.getGroup(bgColorPlainParams.getName()).minimize();
 	gui.getGroup(testSceneParams.getName()).minimize();
 	gui.getGroup(cameraParams.getName()).minimize();
 	gui.getGroup(internalParams.getName()).minimize();
@@ -1116,12 +1118,16 @@ void ofxSurfingPBR::drawDebugFPS() {
 #endif
 	{
 		string s = "";
-		s += ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
+
 		float fps = ofGetFrameRate();
 		s += ofToString(fps, 1);
-		s += " FPS\n";
-		s += sWindowDimensions;
-		//s += "\n";
+		s += " FPS";
+		s += "\n";
+
+		if (sWindowDimensions == "")
+			s += ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
+		else
+			s += sWindowDimensions + "\n";
 
 		ofxSurfing::SURFING_LAYOUT l;
 		if (guiLayout.get() == 0)
@@ -1235,7 +1241,6 @@ void ofxSurfingPBR::drawDebug() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawBg() {
-
 	surfingBg.draw();
 }
 
@@ -1247,11 +1252,13 @@ void ofxSurfingPBR::draw() {
 
 	//--
 
-	//ofEnableDepthTest();
+	ofEnableDepthTest();
 
 	// camera
 	camera->begin();
 	{
+		//TODO fix
+		// think how to apply the material..
 		drawBg();
 
 		//----
@@ -1815,7 +1822,7 @@ void ofxSurfingPBR::drawTestScene() {
 
 	//----
 
-	// do once
+	// Do once
 	{
 		static bool b = false;
 		if (!b) {

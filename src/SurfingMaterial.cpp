@@ -108,7 +108,7 @@ void SurfingMaterial::setupParams() {
 	bGui.set("UI Material", true);
 	bGuiHelpers.set("UI Helpers", true);
 
-	bGuiHelpers.setSerializable(false);
+	//bGuiHelpers.setSerializable(false);
 	//workflow: to exclude from states. trouble bc we would like to save & include into gui..
 
 	parameters.add(bGuiHelpers);

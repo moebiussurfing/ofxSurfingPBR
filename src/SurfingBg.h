@@ -1,7 +1,6 @@
 #pragma once
 #include "ofMain.h"
 
-
 #include "ofxGui.h"
 #include "ofxSurfingHelpersLite.h"
 #include "ofxSurfingPBRConstants.h"
@@ -29,25 +28,23 @@ private:
 	void setupGui();
 	void setupParameters();
 
-	//flow
+public:
+	void exit();
+
+	//app flow
 	bool bDoneStartup = false;
 	bool bAppRunning = false;
 
 public:
-	void exit();
+	void draw();
 
 private:
 	void drawScene();
 	void drawObject(float r);
 
 public:
-	void draw();
-
-public:
 	void drawGui();
 	void setGuiPosition(glm::vec2 pos);
-
-private:
 	void refreshGui();
 
 public:
@@ -66,14 +63,14 @@ private:
 public:
 	ofParameter<bool> bGui;
 
-private:
 	ofParameter<bool> bRotate;
 	ofParameter<float> speedRotate;
 	ofParameter<bool> bSmoothLights;
-	glm::vec3 center;
 
-public:
 	ofParameterGroup parameters;
+
+private:
+	glm::vec3 center;
 
 private:
 	void Changed(ofAbstractParameter & e);
@@ -90,7 +87,7 @@ private:
 
 	// Bg color plain
 public:
-	ofParameterGroup backgroundColorPlainParams;
+	ofParameterGroup bgColorPlainParams;
 	ofParameter<bool> bDrawBgColorPlain;
 	ofParameter<ofFloatColor> bgColorPlain;
 
@@ -105,11 +102,14 @@ public:
 
 	ofParameter<bool> bUseTexture;
 	ofParameter<void> vOpenTexture;
-	ofImage img;
 	ofParameter<string> pathTexture;
+
+private:
+	ofImage img;
 	void processOpenFileSelection(ofFileDialogResult openFileResult);
 	void loadTexture(string path);
 
+public:
 	ofParameterGroup paramsObject;
 	ofParameterGroup paramsExtra;
 
@@ -128,32 +128,32 @@ public:
 	ofParameterGroup paramsColorizers;
 	ofParameterGroup paramsColorsGlobal;
 
-	ofParameter<ofFloatColor> globalColor; 
+	ofParameter<ofFloatColor> globalColor;
 
+private:
 	ofParameter<ofFloatColor> colorGroup;
 	ofFloatColor colorGroup_;
 
+public:
 	ofParameter<ofFloatColor> diffuse;
 	ofParameter<ofFloatColor> ambient;
 	ofParameter<ofFloatColor> specular;
 	ofParameter<ofFloatColor> emissive;
 
 	ofParameter<float> shininess;
-	
+
 	ofParameter<float> brightGlobal;
+
 private:
-	float brightGlobal_=-1;
+	float brightGlobal_ = -1;
 
 public:
 	void setColorBgGroup(ofFloatColor color);
 	void setBrightToColorGroup(float brg);
-	
+
 private:
 	bool bFlagSetColorBgGroup = false;
 	bool bFlagSetBrightToColorGroup = false;
-
-//private:
-//	bool bAttendingRefreshColor = false;
 
 public:
 	void doResetAll();
@@ -164,4 +164,7 @@ public:
 	//ofParameter<bool> bAutoSetColor;
 	//ofParameter<bool> Bg_AutoSetColorPick;
 	//ofParameter<bool> bInCam;
+
+	//private:
+	//	bool bAttendingRefreshColor = false;
 };

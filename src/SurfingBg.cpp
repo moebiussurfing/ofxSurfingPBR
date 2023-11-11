@@ -146,6 +146,7 @@ void SurfingBg::setupParameters() {
 	paramsScene.add(bDrawBgColorPlain);
 
 	paramsObject.setName("Object");
+	paramsObject.add(sizeScene);
 	paramsObject.add(bModeBox);
 	paramsObject.add(bModeSphere);
 
@@ -154,7 +155,6 @@ void SurfingBg::setupParameters() {
 	paramsObject.add(vOpenTexture);
 
 	paramsObject.add(bDrawWireframe);
-	paramsObject.add(sizeScene);
 	paramsScene.add(paramsObject);
 	//paramsScene.add(bDrawBgColorPlain);
 
@@ -193,10 +193,10 @@ void SurfingBg::setupParameters() {
 	// Bg
 	bDrawBgColorPlain.set("Draw Bg Plain Color", false);
 	bgColorPlain.set("Bg Plain Color", ofFloatColor::darkGrey, ofFloatColor(0.f), ofFloatColor(1.f));
-	backgroundColorPlainParams.setName("BG Plain Color");
-	backgroundColorPlainParams.add(bDrawBgColorPlain);
-	backgroundColorPlainParams.add(bgColorPlain);
-	paramsColorizers.add(backgroundColorPlainParams);
+	bgColorPlainParams.setName("BG Plain Color");
+	bgColorPlainParams.add(bDrawBgColorPlain);
+	bgColorPlainParams.add(bgColorPlain);
+	paramsColorizers.add(bgColorPlainParams);
 
 	//parameters.add(bMini_Scene);
 
@@ -280,7 +280,7 @@ void SurfingBg::refreshGui() {
 		.minimize();
 
 	gui.getGroup(paramsColorizers.getName())
-		.getGroup(backgroundColorPlainParams.getName())
+		.getGroup(bgColorPlainParams.getName())
 		.minimize();
 }
 
@@ -299,11 +299,7 @@ void SurfingBg::drawGui() {
 //--------------------------------------------------------------
 void SurfingBg::draw() {
 
-	if (!bAppRunning && ofGetFrameNum() > 60) {
-		bAppRunning = true;
-	}
-
-	// Alternative Bg
+	// Plain color Bg
 	if (bDrawBgColorPlain) {
 		ofClear(bgColorPlain);
 	}
@@ -313,6 +309,10 @@ void SurfingBg::draw() {
 
 //--------------------------------------------------------------
 void SurfingBg::update(ofEventArgs & args) {
+
+	if (!bAppRunning && ofGetFrameNum() > 1) {
+		bAppRunning = true;
+	}
 
 	if (bFlagSetColorBgGroup) {
 		bFlagSetColorBgGroup = false;
@@ -422,7 +422,8 @@ void SurfingBg::drawScene() {
 		ofPushMatrix();
 		ofPushStyle();
 		ofNoFill();
-		ofSetColor(255, 255, 255, 200);
+		//ofSetColor(128, 220);
+		ofSetColor(255, 220);
 		ofScale(0.99f);
 
 		drawObject(r);
@@ -639,6 +640,10 @@ void SurfingBg::ChangedColors(ofAbstractParameter & e) {
 
 	//--
 
+	else if (name == shininess.getName()) {
+		material.setShininess(shininess);
+	}
+
 	else if (name == diffuse.getName()) {
 		material.setDiffuseColor(diffuse.get());
 	} else if (name == ambient.getName()) {
@@ -747,10 +752,6 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 		} else {
 			if (!bModeBox.get()) bModeBox.setWithoutEventNotifications(true); //fix crash
 		}
-	}
-
-	else if (name == shininess.getName()) {
-		material.setShininess(shininess);
 	}
 
 	//--

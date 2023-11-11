@@ -187,9 +187,9 @@ inline void setWindowAtMonitor(int pos = 0, bool bPortrait = false, int fps = 60
 
 //--------------------------------------------------------------
 inline string setWindowShapeSquared(int sz = 800) {
-	string s = "Squared " + ofToString(sz) + "x" + ofToString(sz) + " (1:1)";
 	ofSetWindowShape(sz, sz);
 
+	string s = "Squared " + ofToString(sz) + "x" + ofToString(sz) + " (1:1)";
 	return s;
 }
 
@@ -202,22 +202,22 @@ inline string setWindowShapeForInstagram(size_t i = 0, bool bForcePos = false) {
 	*/
 
 	vector<string> names = {
-		"IGTV Cover Photo: \n420x654 1:1.55",
-		"IG Landscape Photo: \n1080x566 1.91:1",
-		"IG Portrait: \n1080x1350 4:5",
-		"IG Story: \n1080x1920 9:16",
-		"IG Square: \n1080x1080 1:1",
+		"1080x1920 9:16\nIG Story",
+		"1080x1080 1:1\nIG Square",
+		"1080x1350 4:5\nIG Portrait",
+		"1080x566 1.91:1\nIG Landscape",
+		"420x654 1:1.55\nIGTV Cover",
 	};
 
 	i = ofClamp(i, 0, names.size() - 1);
 
 	//if (bForcePos) ofSetWindowPosition(0, 0);
 
-	if (i == 0) ofSetWindowShape(420, 654); // IGTV Cover
-	if (i == 1) ofSetWindowShape(1080, 566); // IGLandscape
+	if (i == 0) ofSetWindowShape(1080, 1920); // IG Story
+	if (i == 1) ofSetWindowShape(1080, 1080); // IG Square
 	if (i == 2) ofSetWindowShape(1080, 1350); // IG Portrait
-	if (i == 3) ofSetWindowShape(1080, 1920); // IG Story
-	if (i == 4) ofSetWindowShape(1080, 1080); // IG Square
+	if (i == 3) ofSetWindowShape(1080, 566); // IG Landscape
+	if (i == 4) ofSetWindowShape(420, 654); // IGTV Cover
 
 	if (bForcePos) ofSetWindowPosition(0, 0); //fix force
 
@@ -1041,7 +1041,6 @@ inline bool pushSetArbTex(bool bEnable) {
 }
 //--------------------------------------------------------------
 inline void popSetArbTex(bool bPrePush) {
-
 	if (bPrePush != ofGetUsingArbTex()) {
 		if (bPrePush)
 			ofEnableArbTex();

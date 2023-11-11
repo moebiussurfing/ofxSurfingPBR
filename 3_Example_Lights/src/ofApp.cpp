@@ -34,6 +34,16 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
+
+	////TODO fix
+	//// think how to apply the material.. 
+	//// Bg
+	//ofPushMatrix();
+	//camera.begin();
+	//pbr.drawBg();
+	//camera.end();
+	//ofPopMatrix();
+
 	// Plane floor
 	pbr.drawPlane();
 

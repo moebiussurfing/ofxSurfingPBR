@@ -40,7 +40,7 @@
 
 #define SURFING__SCENE_TEST_UNIT_SCALE 5.f
 
-#define SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#define SURFING__USE_AUTOSAVE_SETTINGS_ENGINE // saving happens when each param/s change/s but delayed a second.
 #define SURFING__USE_AUTOSAVE_FORCE_ON_EXIT // TODO: fix to remove. to fix some unsaved settings bc calling order..
 
 #define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 0.75f
