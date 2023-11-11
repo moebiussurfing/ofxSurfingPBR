@@ -1047,7 +1047,10 @@ void ofxSurfingPBR::endMaterialPlane() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::drawOfxGui() {
+void ofxSurfingPBR::drawGui() {
+	if (!bGui) return;
+
+	ofDisableDepthTest();
 
 	if (bGui_ofxGui) {
 		gui.draw();
@@ -1063,37 +1066,18 @@ void ofxSurfingPBR::drawOfxGui() {
 				p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0);
 			}
 			material.setGuiPosition(p);
-
 			material.drawGui();
 		}
 
 		//--
 
 		if (surfingBg.bGui) {
-			glm::vec2 p;
-			if (material.bGui)
-				p = material.gui.getShape().getTopRight();
-			else
-				p = gui.getShape().getTopRight();
+			glm::vec2 p = material.gui.getShape().getTopRight();
 			p += glm::vec2 { (float)SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0.f };
 			surfingBg.setGuiPosition(p);
-
 			surfingBg.drawGui();
 		}
 	}
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::drawGui() {
-	if (!bGui) return;
-
-	ofDisableDepthTest();
-
-	//--
-	
-	drawOfxGui();
-
-	//--
 
 	if (bDebug) drawDebug();
 	if (bHelp) drawHelp();

@@ -39,6 +39,8 @@
 		something like ofxPBR or ofxPBRHelper.
 		- create a new example 
 			with two instantiated materials.
+	- add ofxBgGradient addon ?
+		copy just the gradients ?
 	- add custom global path to /data/ofxSurfingPBR/
 */
 
@@ -83,7 +85,6 @@ public:
 	void drawBg();
 	void drawTestScene(); //a simple scene with 3 prims for easy testing
 	void drawGui();
-	void drawOfxGui();
 
 private:
 	void drawDebug();
