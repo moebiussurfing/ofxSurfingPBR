@@ -1,24 +1,28 @@
-
-#include "SurfingLights.h"
-
-//--------------------------------------------------------------
-SurfingLights::SurfingLights() {
-	ofLogNotice("SurfingLights") << "SurfingLights()";
-}
-
-//--------------------------------------------------------------
-SurfingLights::~SurfingLights() {
-	ofLogNotice("SurfingLights") << "~SurfingLights()";
-
-	//ofRemoveListener(params_Lights.parameterChangedE(), this, &SurfingLights::ChangedLights);
-	//ofRemoveListener(paramsColors.parameterChangedE(), this, &SurfingLights::ChangedBg);
-	//ofRemoveListener(paramsScene.parameterChangedE(), this, &SurfingLights::ChangedBg);
-	//ofRemoveListener(params_Brights.parameterChangedE(), this, &SurfingLights::ChangedBrights);
-
-	//ofxSurfing::saveGroup(params_Lights, pathSettings_Lights);
-	//ofxSurfing::saveGroup(paramsScene, pathSettings_Bg);
-}
-
+////
+////  SurfingLights.cpp
+////  practiceEtc
+////
+//
+//#include "SurfingLights.h"
+//
+////--------------------------------------------------------------
+//SurfingLights::SurfingLights() {
+//	ofLogNotice("SurfingLights") << "SurfingLights()";
+//}
+//
+////--------------------------------------------------------------
+//SurfingLights::~SurfingLights() {
+//	ofLogNotice("SurfingLights") << "~SurfingLights()";
+//
+//	ofRemoveListener(params_Lights.parameterChangedE(), this, &SurfingLights::ChangedLights);
+//	ofRemoveListener(paramsColors.parameterChangedE(), this, &SurfingLights::ChangedBg);
+//	ofRemoveListener(paramsScene.parameterChangedE(), this, &SurfingLights::ChangedBg);
+//	ofRemoveListener(params_Brights.parameterChangedE(), this, &SurfingLights::ChangedBrights);
+//
+//	ofxSurfing::saveGroup(params_Lights, pathSettings_Lights);
+//	ofxSurfing::saveGroup(paramsScene, pathSettings_Bg);
+//}
+//
 ////--------------------------------------------------------------
 //void SurfingLights::setGuiPosition(glm::vec2 pos) {
 //	gui.setPosition(pos.x,pos.y);
