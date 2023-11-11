@@ -586,3 +586,5 @@ MigrationBackup/
 1_Example_Basic/bin/data/cubemaps/WinterForest_8k.jpg
 3_Example_Lights/bin/data/cubemaps/WinterForest_8k.jpg
 2_Example_Models/enc_temp_folder/a1978f2f926aef2242f125f5e5a9f1d/ofxSurfingHelpersLite.h
+3_Example_Lights/enc_temp_folder/1eb4bfa7e461364a544a70b345ca7741/ofxSurfingPBR.h
+3_Example_Lights/enc_temp_folder/7d2699affe3956fcb05a49c8ce67ccd9/ofxSurfingPBR.cpp

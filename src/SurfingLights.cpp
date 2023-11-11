@@ -88,7 +88,7 @@
 //
 ////--------------------------------------------------------------
 //void SurfingLights::setupParameters() {
-//#define SURFING__PBR__MAX_BRIGHT_LIMIT 0.75f
+//#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 0.75f
 //
 //	params.setName("SurfingLights");
 //
@@ -103,7 +103,7 @@
 //	// Point
 //	bPoint.set("Point", false);
 //	bPointReset.set("Reset Point", false);
-//	pointBright.set("Bright Point", 0.5, 0, SURFING__PBR__MAX_BRIGHT_LIMIT);
+//	pointBright.set("Bright Point", 0.5, 0, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX);
 //	pointLightAmbientColor.set("p Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 //	pointLightDiffuseColor.set("p Diffuse", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 //	pointLightSpecularColor.set("p Specular", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
@@ -112,7 +112,7 @@
 //	// Spot
 //	bSpot.set("Spot", false);
 //	bSpotReset.set("Reset Spot", false);
-//	spotBright.set("Bright Spot", 0.5, 0, SURFING__PBR__MAX_BRIGHT_LIMIT);
+//	spotBright.set("Bright Spot", 0.5, 0, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX);
 //	spotLightAmbientColor.set("s Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 //	spotLightDiffuseColor.set("s Diffuse", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 //	spotLightSpecularColor.set("s Specular", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
@@ -124,7 +124,7 @@
 //	// Directional
 //	bDirectional.set("Direct", false);
 //	bDirectionalReset.set("Reset Direct", false);
-//	directionalBright.set("Bright Dir", 0.5, 0, SURFING__PBR__MAX_BRIGHT_LIMIT);
+//	directionalBright.set("Bright Dir", 0.5, 0, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX);
 //	directionalLightAmbientColor.set("d Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 //	directionalLightDiffuseColor.set("d Diffuse", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 //	directionalLightSpecularColor.set("d Specular", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
@@ -140,7 +140,7 @@
 //	//Bg_ambient.set("Bg_Ambient", ofFloatColor(0.2f, 0.2f, 0.2f), ofFloatColor(0), ofFloatColor(1));
 //	//Bg_specular.set("Bg_Specular", ofFloatColor(0.f, 0.f, 0.f), ofFloatColor(0), ofFloatColor(1));
 //	//Bg_emissive.set("Bg_Emissive", ofFloatColor(0.f, 0.f, 0.f), ofFloatColor(0), ofFloatColor(1));
-//	//Bg_Bright.set("Bg_Bright", 0.5f, 0.05f, SURFING__PBR__MAX_BRIGHT_LIMIT); //avoid reset at black..
+//	//Bg_Bright.set("Bg_Bright", 0.5f, 0.05f, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX); //avoid reset at black..
 //
 //	// Bright Power
 //	params_Brights.add(directionalBright);
@@ -154,7 +154,7 @@
 ////	bAutoSetColor.set("Bg AutoColor", false);
 ////	//Bg_AutoSetColorPick.set("Bg AutoPick", false);
 ////	vReset.set("Reset Bg", false);
-////	bDrawTex.set("Use Tex", false);
+////	bUseTexture.set("Use Tex", false);
 ////	bDrawBox.set("Box", false);
 ////	bDrawSphere.set("Sphere", false);
 ////
@@ -231,7 +231,7 @@
 //	//paramsScene.add(bDrawSphere);
 //	//paramsScene.add(bDrawBox);
 //	//paramsScene.add(sizeScene);
-//	//paramsScene.add(bDrawTex);
+//	//paramsScene.add(bUseTexture);
 //	//paramsScene.add(bRotate);
 //	//paramsScene.add(speedRotate);
 //	//paramsScene.add(bInCam);
@@ -407,7 +407,7 @@
 //	ofPushStyle();
 //	ofPushMatrix();
 //	{
-//		if (bDrawTex) img.getTexture().bind();
+//		if (bUseTexture) img.getTexture().bind();
 //		{
 //			ofSetColor(255, 255, 255, 255);
 //
@@ -435,7 +435,7 @@
 //				ofPopMatrix();
 //			}
 //		}
-//		if (bDrawTex) img.getTexture().unbind();
+//		if (bUseTexture) img.getTexture().unbind();
 //	}
 //	ofPopMatrix();
 //	ofPopStyle();
@@ -458,7 +458,7 @@
 //	ofSetSmoothLighting(bSmoothLights);
 //
 //	bDrawSphere = true;
-//	bDrawTex = false;
+//	bUseTexture = false;
 //	sizeScene = 0.5f;
 //	bRotate = false;
 //	speedRotate = 0.5;
@@ -701,7 +701,7 @@
 //
 //		ui.AddStyle(bDrawSphere, OFX_IM_HIDDEN);
 //		ui.AddStyle(bDrawBox, OFX_IM_HIDDEN);
-//		ui.AddStyle(bDrawTex, OFX_IM_HIDDEN);
+//		ui.AddStyle(bUseTexture, OFX_IM_HIDDEN);
 //		ui.AddStyle(bRotate, OFX_IM_HIDDEN);
 //		ui.AddStyle(bInCam, OFX_IM_HIDDEN);
 //		ui.AddStyle(bAnimLights, OFX_IM_HIDDEN);
@@ -726,7 +726,7 @@
 //
 //		ui.AddStyle(bDrawSphere, OFX_IM_TOGGLE_SMALL);
 //		ui.AddStyle(bDrawBox, OFX_IM_TOGGLE_SMALL);
-//		ui.AddStyle(bDrawTex, OFX_IM_TOGGLE_BUTTON_ROUNDED_SMALL);
+//		ui.AddStyle(bUseTexture, OFX_IM_TOGGLE_BUTTON_ROUNDED_SMALL);
 //		ui.AddStyle(bRotate, OFX_IM_TOGGLE_BUTTON_ROUNDED_SMALL);
 //		ui.AddStyle(bInCam, OFX_IM_TOGGLE_BUTTON_ROUNDED_SMALL);
 //		ui.AddStyle(bAnimLights, OFX_IM_TOGGLE_BUTTON_ROUNDED_SMALL);

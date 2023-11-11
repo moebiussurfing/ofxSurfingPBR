@@ -41,15 +41,16 @@
 #define SURFING__SCENE_TEST_UNIT_SCALE 5.f
 
 #define SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#define SURFING__USE_AUTOSAVE_FORCE_ON_EXIT // TODO: fix to remove. to fix some unsaved settings bc calling order..
 
-#define SURFING__PBR__MAX_BRIGHT_LIMIT 0.75f
+#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 0.75f
 
 //--
 
 // PBR CONSTANTS
 
 #define SURFING__PBR__MAX_SHININESS 100
-#define SURFING__PBR__PLANE_COLORS_NO_ALPHA // bc it seems that is not being used internally..
 
-#define SURFING__PBR__BG_COLORS_NO_ALPHA 
+#define SURFING__PBR__PLANE_COLORS_NO_ALPHA // bc it seems that is not being used internally..
+#define SURFING__PBR__BG_COLORS_NO_ALPHA // bc it seems that is not being used internally..
 

@@ -1019,4 +1019,35 @@ inline std::string calculateTime(float _time) {
 		return (mins + ":" + secs);
 }
 
+//------
+
+/*
+* Push/Pop ArbTex state
+*/
+
+//--------------------------------------------------------------
+inline bool pushSetArbTex(bool bEnable) {
+	bool b = ofGetUsingArbTex(); //return pre state
+
+	if (bEnable) {
+		if (!ofGetUsingArbTex())
+			ofEnableArbTex();
+	} else {
+		if (ofGetUsingArbTex())
+			ofDisableArbTex();
+	}
+
+	return b;
+}
+//--------------------------------------------------------------
+inline void popSetArbTex(bool bPrePush) {
+
+	if (bPrePush != ofGetUsingArbTex()) {
+		if (bPrePush)
+			ofEnableArbTex();
+		else
+			ofDisableArbTex();
+	}
+}
+
 }

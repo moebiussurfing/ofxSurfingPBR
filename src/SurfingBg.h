@@ -76,6 +76,7 @@ public:
 	ofParameterGroup parameters;
 
 private:
+	void Changed(ofAbstractParameter & e);
 	void ChangedScene(ofAbstractParameter & e);
 	void ChangedColors(ofAbstractParameter & e);
 
@@ -84,7 +85,6 @@ private:
 private:
 	// Bg Box/Sphere
 	ofMaterial material;
-	ofImage img;
 
 	//--
 
@@ -102,21 +102,30 @@ public:
 public:
 	ofParameterGroup paramsScene;
 	ofParameter<float> sizeScene;
-	ofParameter<bool> bDrawTex;
+
+	ofParameter<bool> bUseTexture;
+	ofParameter<void> vOpenTexture;
+	ofImage img;
+	ofParameter<string> pathTexture;
+	void processOpenFileSelection(ofFileDialogResult openFileResult);
+	void loadTexture(string path);
 
 	ofParameterGroup paramsObject;
 	ofParameterGroup paramsExtra;
 
 	ofParameter<bool> bDrawObject;
 	ofParameter<bool> bDrawWireframe;
-	ofParameter<bool> bDrawBox;
-	ofParameter<bool> bDrawSphere;
+	ofParameter<bool> bModeBox;
+	ofParameter<bool> bModeSphere;
 
 	ofParameter<void> vResetAll;
+	ofEventListener listenerResetAll;
+
 	ofParameter<void> vResetScene;
 	ofParameter<void> vResetColors;
 
-	ofParameterGroup paramsColors;
+	ofParameterGroup paramsColor;
+	ofParameterGroup paramsColorizers;
 	ofParameterGroup paramsColorsGlobal;
 
 	ofParameter<ofFloatColor> globalColor; 

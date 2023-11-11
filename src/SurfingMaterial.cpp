@@ -794,7 +794,7 @@ void SurfingMaterial::exit() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:exit()";
 	// Not required to be called bc it's using the auto saver!
 
-#ifndef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#if defined(SURFING__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__USE_AUTOSAVE_SETTINGS_ENGINE)
 	save();
 #endif
 }

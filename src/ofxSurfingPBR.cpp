@@ -1090,7 +1090,7 @@ void ofxSurfingPBR::drawGui() {
 	ofDisableDepthTest();
 
 	//--
-	
+
 	drawOfxGui();
 
 	//--
@@ -1752,15 +1752,31 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 		}
 	}
 
+	//--
+
 	else if (name == bDrawCubeMap.getName()) {
 		if (!bLoadedCubeMap) return; //skip
 
-		////workflow
-		//if (bDrawCubeMap) {
-		//	if (surfingBg.bDrawBgColorPlain) surfingBg.bDrawBgColorPlain = false;
-		//	if (surfingBg.bDrawObject) surfingBg.bDrawObject = false;
-		//}
+	//workflow
+	#if 1
+		if (bDrawCubeMap) {
+			if (surfingBg.bDrawBgColorPlain) surfingBg.bDrawBgColorPlain.set(false);
+			if (surfingBg.bDrawObject) surfingBg.bDrawObject.set(false);
+		}
+	#endif
 	}
+
+	//workflow
+	#if 1
+	else if (name == surfingBg.bDrawBgColorPlain.getName() && surfingBg.bDrawBgColorPlain.get()) {
+		if (bDrawCubeMap) bDrawCubeMap.set(false);
+	}
+
+	else if (name == surfingBg.bDrawObject.getName() && surfingBg.bDrawObject.get()) {
+		if (bDrawCubeMap) bDrawCubeMap.set(false);
+	}
+	#endif
+
 	////#ifdef SURFING__USE_CUBE_MAP
 	////	if (name == surfingBg.bDrawBgColorPlain.getName()) {
 	////		if (!bLoadedCubeMap) return; //skip
@@ -1892,7 +1908,7 @@ void ofxSurfingPBR::exit() {
 	ofLogNotice("ofxSurfingPBR") << "exit()";
 
 // Not required to be called bc it's using the auto saver!
-#ifndef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#if defined(SURFING__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__USE_AUTOSAVE_SETTINGS_ENGINE)
 	save();
 
 	material.exit();

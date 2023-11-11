@@ -14,14 +14,15 @@ SurfingBg::~SurfingBg() {
 	ofRemoveListener(ofEvents().update, this, &SurfingBg::update);
 
 	ofRemoveListener(paramsScene.parameterChangedE(), this, &SurfingBg::ChangedScene);
-	ofRemoveListener(paramsColors.parameterChangedE(), this, &SurfingBg::ChangedColors);
+	ofRemoveListener(paramsColorizers.parameterChangedE(), this, &SurfingBg::ChangedColors);
+	ofRemoveListener(parameters.parameterChangedE(), this, &SurfingBg::Changed);
 }
 
 //--------------------------------------------------------------
 void SurfingBg::exit() {
 	ofLogNotice("ofxSurfingPBR") << " SurfingBg: exit()";
 
-#ifndef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#if defined(SURFING__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__USE_AUTOSAVE_SETTINGS_ENGINE)
 	save();
 #endif
 }
@@ -30,7 +31,7 @@ void SurfingBg::exit() {
 void SurfingBg::save() {
 	ofLogNotice("ofxSurfingPBR") << " SurfingBg: save()";
 
-	ofxSurfing::saveGroup(parameters, pathSettings);
+	ofxSurfing::saveSettings(parameters, pathSettings);
 }
 
 //--------------------------------------------------------------
@@ -43,7 +44,7 @@ bool SurfingBg::load() {
 	autoSaver.pause();
 #endif
 
-	b = ofxSurfing::loadGroup(parameters, pathSettings);
+	b = ofxSurfing::loadSettings(parameters, pathSettings);
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.start();
@@ -54,27 +55,6 @@ bool SurfingBg::load() {
 
 //--------------------------------------------------------------
 void SurfingBg::setup() {
-
-	// Bg Tex
-	{
-		// Push arb
-		bool b = ofGetUsingArbTex();
-		{
-			if (ofGetUsingArbTex())
-				ofDisableArbTex();
-		}
-
-		img.load("images/001.jpg");
-
-		// Pop arb
-		{
-			if (b != ofGetUsingArbTex())
-				if (b)
-					ofEnableArbTex();
-				else
-					ofDisableArbTex();
-		}
-	}
 
 	center = glm::vec3(0, 0, 0);
 
@@ -93,7 +73,7 @@ void SurfingBg::setup() {
 //--------------------------------------------------------------
 void SurfingBg::setupParameters() {
 
-	parameters.setName("SCENE_BG");
+	parameters.setName("PBR_BG");
 
 	//bInCam.set("InCam", false);
 	// Background Scene
@@ -123,8 +103,10 @@ void SurfingBg::setupParameters() {
 	specular.set("Specular", ofFloatColor(0, 1), ofFloatColor(0, 0), ofFloatColor(1, 1));
 	emissive.set("Emissive", ofFloatColor(0, 1), ofFloatColor(0, 0), ofFloatColor(1, 1));
 #endif
+	//TODO: could be removed. We use main global only.
+	colorGroup.setSerializable(false);
 
-	brightGlobal.set("Bright", 0.5f, 0.05f, SURFING__PBR__MAX_BRIGHT_LIMIT); //avoid reset at black..
+	brightGlobal.set("Bright", 0.5f, 0.05f, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX); //avoid reset at black..
 
 	shininess.set("Shininess", 120, 0, 120);
 
@@ -137,12 +119,14 @@ void SurfingBg::setupParameters() {
 
 	bDrawObject.set("Draw Bg Object", true);
 	bDrawWireframe.set("Draw Wireframe", false);
-	bDrawBox.set("Mode Box", false);
-	bDrawSphere.set("Mode Sphere", false);
+	bModeBox.set("Mode Box", false);
+	bModeSphere.set("Mode Sphere", false);
 
 	sizeScene.set("Size", 0.5, 0, 1.f);
 
-	bDrawTex.set("Use Tex", false);
+	bUseTexture.set("Use Texture", false);
+	pathTexture.set("File Texture", "NONE");
+	vOpenTexture.set("Open Texture");
 
 	bSmoothLights.set("Smooth Lights", false);
 	// Default Low Poly
@@ -158,11 +142,17 @@ void SurfingBg::setupParameters() {
 
 	paramsScene.setName("Scene");
 
+	paramsScene.add(bDrawObject);
+	paramsScene.add(bDrawBgColorPlain);
+
 	paramsObject.setName("Object");
-	paramsObject.add(bDrawObject);
-	paramsObject.add(bDrawBox);
-	paramsObject.add(bDrawSphere);
-	paramsObject.add(bDrawTex);
+	paramsObject.add(bModeBox);
+	paramsObject.add(bModeSphere);
+
+	paramsObject.add(bUseTexture);
+	paramsObject.add(pathTexture);
+	paramsObject.add(vOpenTexture);
+
 	paramsObject.add(bDrawWireframe);
 	paramsObject.add(sizeScene);
 	paramsScene.add(paramsObject);
@@ -182,20 +172,23 @@ void SurfingBg::setupParameters() {
 	//paramsScene.add(Bg_AutoSetColorPick);//disabled bc break brightGlobal..
 	//paramsScene.add(bAnimLights);
 
-	paramsColors.setName("Colors");
+	paramsColorizers.setName("Colorizers");
+	paramsColorizers.add(shininess);
 
 	paramsColorsGlobal.setName("Global");
-	paramsColorsGlobal.add(shininess);
+	paramsColorsGlobal.add(brightGlobal);
 	paramsColorsGlobal.add(globalColor);
-	paramsColorsGlobal.add(colorGroup);
-	paramsColors.add(paramsColorsGlobal);
+	//paramsColorsGlobal.add(colorGroup);
+	paramsColorizers.add(paramsColorsGlobal);
 
-	paramsColors.add(brightGlobal);
-	paramsColors.add(diffuse);
-	paramsColors.add(ambient);
-	paramsColors.add(specular);
-	paramsColors.add(emissive);
-	paramsColors.add(vResetColors);
+	paramsColor.setName("Colors");
+	paramsColor.add(diffuse);
+	paramsColor.add(ambient);
+	paramsColor.add(specular);
+	paramsColor.add(emissive);
+	paramsColorizers.add(paramsColor);
+
+	paramsColorizers.add(vResetColors);
 
 	// Bg
 	bDrawBgColorPlain.set("Draw Bg Plain Color", false);
@@ -203,17 +196,22 @@ void SurfingBg::setupParameters() {
 	backgroundColorPlainParams.setName("BG Plain Color");
 	backgroundColorPlainParams.add(bDrawBgColorPlain);
 	backgroundColorPlainParams.add(bgColorPlain);
-	paramsColors.add(backgroundColorPlainParams);
+	paramsColorizers.add(backgroundColorPlainParams);
 
 	//parameters.add(bMini_Scene);
 
 	parameters.add(paramsScene);
-	parameters.add(paramsColors);
+	parameters.add(paramsColorizers);
 	parameters.add(vResetAll);
+
+	listenerResetAll = vResetAll.newListener([this](void) {
+		doResetAll();
+	});
 
 	// Callbacks
 	ofAddListener(paramsScene.parameterChangedE(), this, &SurfingBg::ChangedScene);
-	ofAddListener(paramsColors.parameterChangedE(), this, &SurfingBg::ChangedColors);
+	ofAddListener(paramsColorizers.parameterChangedE(), this, &SurfingBg::ChangedColors);
+	ofAddListener(parameters.parameterChangedE(), this, &SurfingBg::Changed);
 
 	//--
 
@@ -275,9 +273,13 @@ void SurfingBg::refreshGui() {
 		.getGroup(paramsExtra.getName())
 		.minimize();
 
-	gui.getGroup(paramsColors.getName()).minimize();
+	gui.getGroup(paramsColorizers.getName()).minimize();
 
-	gui.getGroup(paramsColors.getName())
+	gui.getGroup(paramsColorizers.getName())
+		.getGroup(paramsColor.getName())
+		.minimize();
+
+	gui.getGroup(paramsColorizers.getName())
 		.getGroup(backgroundColorPlainParams.getName())
 		.minimize();
 }
@@ -334,15 +336,17 @@ void SurfingBg::update(ofEventArgs & args) {
 
 //--------------------------------------------------------------
 void SurfingBg::drawObject(float r) {
-	bool bInCam = true;
-
 	ofPushMatrix();
 	{
-		if (bInCam) { // scene center
-			ofTranslate(center.x, center.y, center.z);
-		} else { // app window center
-			ofTranslate(ofGetWidth() / 2.f, ofGetHeight() / 2.f, 0);
-		}
+		// scene center
+		ofTranslate(center.x, center.y, center.z);
+
+		//bool bInCam = true;
+		//if (bInCam) { // scene center
+		//	ofTranslate(center.x, center.y, center.z);
+		//} else { // app window center
+		//	ofTranslate(ofGetWidth() / 2.f, ofGetHeight() / 2.f, 0);
+		//}
 
 		if (bRotate) {
 			float rmul = 2.f;
@@ -354,23 +358,23 @@ void SurfingBg::drawObject(float r) {
 		//--
 
 		// sphere
-		if (bDrawSphere) {
-			if (bDrawSphere) ofDrawSphere(0, 0, 0, r);
+		if (bModeSphere) {
+			ofDrawSphere(0, 0, 0, r);
 		}
 
 		// box
-		if (bDrawBox) {
-			if (bDrawBox) ofDrawBox(0, 0, 0, 2.f * r);
+		if (bModeBox) {
+			ofDrawBox(0, 0, 0, 2.f * r);
 		}
 	}
 	ofPopMatrix();
 }
 //--------------------------------------------------------------
-void SurfingBg::drawScene(/*bool bInCam*/) {
+void SurfingBg::drawScene() {
 #define SURFING_BG_MIN 1.f
 #define SURFING_BG_MAX 5.f
 
-	bool bInCam = true;
+	//bool bInCam = true;
 	//if (bInCam)
 	//	r = ofMap(sizeScene, sizeScene.getMin(), sizeScene.getMax(),
 	//		SURFING__SCENE_SIZE_UNIT * SURFING_BG_MIN,
@@ -382,13 +386,13 @@ void SurfingBg::drawScene(/*bool bInCam*/) {
 	material.begin();
 	{
 
-		if (bDrawSphere) {
+		if (bModeSphere) {
 			r = ofMap(sizeScene, sizeScene.getMin(), sizeScene.getMax(),
 				SURFING__SCENE_SIZE_UNIT * SURFING_BG_MIN,
 				SURFING__SCENE_SIZE_UNIT * SURFING_BG_MAX, true);
 		}
 
-		else if (bDrawBox) {
+		else if (bModeBox) {
 			r = ofMap(sizeScene, sizeScene.getMin(), sizeScene.getMax(),
 				SURFING__SCENE_SIZE_UNIT * SURFING_BG_MIN,
 				SURFING__SCENE_SIZE_UNIT * SURFING_BG_MAX, true);
@@ -399,13 +403,13 @@ void SurfingBg::drawScene(/*bool bInCam*/) {
 		ofPushMatrix();
 		ofPushStyle();
 		{
-			if (bDrawTex) img.getTexture().bind();
+			if (bUseTexture && img.isAllocated()) img.getTexture().bind();
 
 			ofSetColor(255, 255, 255, 255);
 
 			drawObject(r);
 
-			if (bDrawTex) img.getTexture().unbind();
+			if (bUseTexture && img.isAllocated()) img.getTexture().unbind();
 		}
 		ofPopStyle();
 		ofPopMatrix();
@@ -469,15 +473,20 @@ void SurfingBg::doResetScene() {
 
 	ofSetSmoothLighting(bSmoothLights);
 
-	if (bDrawBox) bDrawBox = false;
-	if (!bDrawSphere) bDrawSphere = true;
+	//force
+	if (pathTexture.get() == "" || pathTexture.get() == "NONE" || !img.isAllocated()) {
+		pathTexture.setWithoutEventNotifications("images/001.jpg");
+	}
+
+	if (bModeBox) bModeBox = false;
+	if (!bModeSphere) bModeSphere = true;
 
 	if (sizeScene != 0.5f) sizeScene = 0.5f;
 	if (speedRotate != 0.01) speedRotate = 0.01;
 
 	//if (bRotate) bRotate = false;
 	//if (!bAutoSetColor) bAutoSetColor = true;
-	//if (bDrawTex) bDrawTex = false;
+	//if (bUseTexture) bUseTexture = false;
 	//bAnimLights = false;
 }
 
@@ -578,6 +587,13 @@ void SurfingBg::setBrightToColorGroup(float brg) {
 }
 
 //--------------------------------------------------------------
+void SurfingBg::Changed(ofAbstractParameter & e) {
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+	autoSaver.saveSoon();
+#endif
+}
+
+//--------------------------------------------------------------
 void SurfingBg::ChangedColors(ofAbstractParameter & e) {
 	string name = e.getName();
 
@@ -594,9 +610,9 @@ void SurfingBg::ChangedColors(ofAbstractParameter & e) {
 
 	//--
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
-	autoSaver.saveSoon();
-#endif
+	//#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+	//	autoSaver.saveSoon();
+	//#endif
 
 	//--
 
@@ -607,30 +623,19 @@ void SurfingBg::ChangedColors(ofAbstractParameter & e) {
 
 	else if (name == globalColor.getName()) {
 		colorGroup.set(globalColor.get());
-	}
-
-	else if (name == colorGroup.getName()) {
-		////TODO fix
-		//if (!bDoneStartup) return;
-		//if (!bAppRunning) return;
 
 		bFlagSetColorBgGroup = true;
 	}
+	//else if (name == colorGroup.getName()) {
+	//	////TODO fix
+	//	//if (!bDoneStartup) return;
+	//	//if (!bAppRunning) return;
+	//	bFlagSetColorBgGroup = true;
+	//}
 
 	else if (name == brightGlobal.getName()) {
 		bFlagSetBrightToColorGroup = true;
 	}
-
-//workflow
-#if 0
-	else if (name == bDrawBgColorPlain.getName()) {
-		if (bDrawBgColorPlain) {
-			if (bDrawObject) bDrawObject.set(false);
-		} else {
-			if (!bDrawObject) bDrawObject.set(true);
-		}
-	}
-#endif
 
 	//--
 
@@ -668,9 +673,9 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 
 	//--
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
-	autoSaver.saveSoon();
-#endif
+	//#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+	//	autoSaver.saveSoon();
+	//#endif
 
 	//--
 
@@ -680,6 +685,13 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 //--
 
 //workflow
+#if 1
+	else if (name == bDrawObject.getName()) {
+		if (bDrawObject) {
+			if (bDrawBgColorPlain) bDrawBgColorPlain.set(false);
+		}
+	}
+#endif
 #if 0
 	else if (name == bDrawObject.getName()) {
 		if (bDrawObject) {
@@ -690,18 +702,50 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 	}
 #endif
 
-	//force one of both enabled
-	else if (name == bDrawBox.getName()) {
-		if (bDrawBox) {
-			if (bDrawSphere) bDrawSphere.set(false);
+//workflow
+#if 0
+	else if (name == bDrawBgColorPlain.getName()) {
+		if (bDrawBgColorPlain) {
+			if (bDrawObject) bDrawObject.set(false);
 		} else {
-			if (!bDrawSphere) bDrawSphere.set(true);
+			if (!bDrawObject) bDrawObject.set(true);
 		}
-	} else if (name == bDrawSphere.getName()) {
-		if (bDrawSphere) {
-			if (bDrawBox) bDrawBox.set(false);
+	}
+#endif
+#if 1
+	else if (name == bDrawBgColorPlain.getName()) {
+		if (bDrawBgColorPlain) {
+			if (bDrawObject) bDrawObject.set(false);
+		}
+	}
+#endif
+
+	//force one of both enabled
+	//else if (name == bModeBox.getName()) {
+	//	if (bModeBox.get()) {
+	//		if (bModeSphere.get()) bModeSphere.set(false);
+	//	} else {
+	//		if (!bModeSphere.get()) bModeSphere.set(true);
+	//	}
+	//} else if (name == bModeSphere.getName()) {
+	//	if (bModeSphere.get()) {
+	//		if (bModeBox.get()) bModeBox.set(false);
+	//	} else {
+	//		if (!bModeBox.get()) bModeBox.set(true);
+	//	}
+	//}
+
+	else if (name == bModeBox.getName()) {
+		if (bModeBox.get()) {
+			if (bModeSphere.get()) bModeSphere.setWithoutEventNotifications(false); //fix crash
 		} else {
-			if (!bDrawBox) bDrawBox.set(true);
+			if (!bModeSphere.get()) bModeSphere.setWithoutEventNotifications(true); //fix crash
+		}
+	} else if (name == bModeSphere.getName()) {
+		if (bModeSphere.get()) {
+			if (bModeBox.get()) bModeBox.setWithoutEventNotifications(false); //fix crash
+		} else {
+			if (!bModeBox.get()) bModeBox.setWithoutEventNotifications(true); //fix crash
 		}
 	}
 
@@ -710,6 +754,26 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 	}
 
 	//--
+
+	else if (name == vOpenTexture.getName()) {
+		ofFileDialogResult openFileResult = ofSystemLoadDialog("Select a PNG or JPG.");
+		if (openFileResult.bSuccess) {
+			ofLogNotice("SurfingBg") << ("User selected a file");
+			processOpenFileSelection(openFileResult);
+		} else {
+			ofLogNotice("SurfingBg") << ("User hit cancel");
+		}
+	}
+
+	else if (name == pathTexture.getName()) {
+
+		//force
+		if (pathTexture.get() == "" || pathTexture.get() == "NONE") {
+			pathTexture.setWithoutEventNotifications("images/001.jpg");
+		}
+
+		loadTexture(pathTexture.get());
+	}
 
 	else if (name == vResetAll.getName()) {
 		doResetAll();
@@ -743,4 +807,38 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 	////			if (bDrawCubeMap) bDrawCubeMap = false;
 	////	}
 	////#endif
+}
+
+void SurfingBg::processOpenFileSelection(ofFileDialogResult openFileResult) {
+
+	ofLogNotice("SurfingBg") << "Name: " + openFileResult.getName();
+	ofLogNotice("SurfingBg") << "Path: " + openFileResult.getPath();
+
+	ofFile file(openFileResult.getPath());
+
+	if (file.exists()) {
+		ofLogVerbose("SurfingBg") << "The file exists - now checking the type via file extension";
+		string fileExtension = ofToUpper(file.getExtension());
+
+		if (fileExtension == "png" || fileExtension == "PNG" || fileExtension == "jpg" || fileExtension == "JPG") {
+			pathTexture = openFileResult.getPath();
+			img.load(pathTexture.get());
+		} else {
+			ofLogError("SurfingBg") << "Wrong file extension/format: " + fileExtension;
+		}
+	}
+}
+
+void SurfingBg::loadTexture(string path) {
+	ofLogNotice("SurfingBg") << "loadTexture(" + path + ")";
+
+	// Push arb
+	bool b = ofxSurfing::pushSetArbTex(false);
+	{
+		//ofDisableArbTex();
+		//img.load("images/001.jpg");
+		img.load(path);
+	}
+	// Pop arb
+	ofxSurfing::popSetArbTex(b);
 }
