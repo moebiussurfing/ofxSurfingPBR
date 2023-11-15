@@ -1,3 +1,16 @@
+/*
+
+	move shadow here
+	add global color
+	fix rotate glm
+	resets
+	simple mode
+	fix debug
+
+*/
+
+//--
+
 #pragma once
 #include "ofMain.h"
 
@@ -118,8 +131,10 @@ public:
 
 
 public:
-	bool bDebugLights = 0;
+	ofParameter<bool> bDebugLights ;
 	ofParameter<bool> bAnimLights;
+	void updateAnims();
+	void drawDebug();
 
 private:
 	ofParameter<bool> bSmoothLights;

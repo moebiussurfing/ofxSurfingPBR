@@ -50,6 +50,10 @@
 // PBR CONSTANTS
 
 #define SURFING__PBR__MAX_SHININESS 100
+#define SURFING__PBR__SHADOW_STRENGTH 0.6f
+
+static const float SURFING__PBR__LIGHTS_FAR = (float)SURFING__SCENE_SIZE_UNIT * 2.0f;
+static const float SURFING__PBR__LIGHTS_NEAR = SURFING__PBR__LIGHTS_FAR * 0.2f;
 
 #define SURFING__PBR__PLANE_COLORS_NO_ALPHA // bc it seems that is not being used internally..
 #define SURFING__PBR__BG_COLORS_NO_ALPHA // bc it seems that is not being used internally..

@@ -625,8 +625,14 @@ void ofxSurfingPBR::setup() {
 	// for using on any objects
 	material.setup();
 
+	//--
+
 	surfingLights.setup();
 	//setupLights();
+
+	setupPBRScene();
+
+	//--
 
 	setupBg();
 
@@ -637,10 +643,6 @@ void ofxSurfingPBR::setup() {
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	setupShaderPlane();
 #endif
-
-	//--
-
-	setupPBRScene();
 
 	//--
 

@@ -25,13 +25,94 @@ void SurfingLights::setFunctionRenderScene(callback_t f) {
 void SurfingLights::setupPBRlights() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:setupPBRlights()";
 
-	// lights and shadows
+	lights.clear();
 
-	int amountLights = 1; //currently limited to 1 light!
+	/*
+	OF_LIGHT_POINT=0,
+	OF_LIGHT_DIRECTIONAL=1,
+	OF_LIGHT_SPOT=2,
+	OF_LIGHT_AREA=3 
+	*/
 
-	for (int i = 0; i < amountLights; i++) {
+	// POINT
+	{
 		auto light = make_shared<ofLight>();
 		light->enable();
+
+		light->setPointLight();
+
+		light->getShadow().setNearClip(SURFING__PBR__LIGHTS_NEAR);
+		light->getShadow().setFarClip(SURFING__PBR__LIGHTS_FAR);
+
+		light->getShadow().setStrength(SURFING__PBR__SHADOW_STRENGTH);
+
+		light->getShadow().setGlCullingEnabled(false);
+
+		lights.push_back(light);
+	}
+
+	// DIRECTIONAL
+	{
+		auto light = make_shared<ofLight>();
+		light->enable();
+
+		light->setDirectional();
+
+		light->getShadow().setNearClip(SURFING__PBR__LIGHTS_NEAR);
+		light->getShadow().setFarClip(SURFING__PBR__LIGHTS_FAR);
+
+		//light->setPosition(210, 330.0, 750);
+		//light->setAmbientColor(ofFloatColor(0.4));
+
+		light->getShadow().setStrength(SURFING__PBR__SHADOW_STRENGTH);
+
+		//TODO
+		glm::quat xq = glm::angleAxis(glm::radians(-30.0f), glm::vec3(1, 0, 0));
+		glm::quat yq = glm::angleAxis(glm::radians(20.0f), glm::vec3(0, 1, 0));
+		light->setOrientation(yq * xq);
+
+		light->getShadow().setGlCullingEnabled(false);
+
+		lights.push_back(light);
+	}
+
+	// SPOT
+	{
+		auto light = make_shared<ofLight>();
+		light->enable();
+
+		light->setSpotlight();
+
+		light->getShadow().setNearClip(SURFING__PBR__LIGHTS_NEAR);
+		light->getShadow().setFarClip(SURFING__PBR__LIGHTS_FAR);
+
+		//light->setPosition(210, 330.0, 750);
+		//light->setAmbientColor(ofFloatColor(0.4));
+
+		light->getShadow().setStrength(SURFING__PBR__SHADOW_STRENGTH);
+
+		//TODO
+		glm::quat xq = glm::angleAxis(glm::radians(-30.0f), glm::vec3(1, 0, 0));
+		glm::quat yq = glm::angleAxis(glm::radians(20.0f), glm::vec3(0, 1, 0));
+		light->setOrientation(yq * xq);
+
+		light->getShadow().setGlCullingEnabled(false);
+
+		lights.push_back(light);
+	}
+
+	ofShadow::enableAllShadows();
+	ofShadow::setAllShadowTypes(OF_SHADOW_TYPE_PCF_LOW);
+
+	//----
+
+	/*
+	const int numLights = 1; 
+
+	for (int i = 0; i < numLights; i++) {
+		auto light = make_shared<ofLight>();
+		light->enable();
+
 		if (i == 0) {
 			light->setPointLight();
 			light->getShadow().setNearClip(20);
@@ -54,7 +135,7 @@ void SurfingLights::setupPBRlights() {
 
 		//TODO: not working..
 		//light->getShadow().setStrength(shadowStrength);
-		light->getShadow().setStrength(0.6);
+		light->getShadow().setStrength(SURFING__PBR__SHADOW_STRENGTH);
 
 		if (light->getType() != OF_LIGHT_POINT) {
 			glm::quat xq = glm::angleAxis(glm::radians(-30.0f), glm::vec3(1, 0, 0));
@@ -68,24 +149,84 @@ void SurfingLights::setupPBRlights() {
 
 	ofShadow::enableAllShadows();
 	ofShadow::setAllShadowTypes(OF_SHADOW_TYPE_PCF_LOW);
+	*/
 }
 
 //--------------------------------------------------------------
 void SurfingLights::updatePBRlights() {
+
+	// POINT
+	{
+		if (bPoint) {
+			if (!lights[0]->getIsEnabled()) lights[0]->enable();
+		} else {
+			if (lights[0]->getIsEnabled()) lights[0]->disable();
+		}
+
+		lights[0]->setPosition(pointLightPosition);
+
+		lights[0]->setAmbientColor(pointLightAmbientColor);
+		lights[0]->setDiffuseColor(pointLightDiffuseColor);
+		lights[0]->setSpecularColor(pointLightSpecularColor);
+	}
+
+	// DIRECTIONAL
+	{
+		if (bDirectional) {
+			if (!lights[1]->getIsEnabled()) lights[1]->enable();
+		} else {
+			if (lights[1]->getIsEnabled()) lights[1]->disable();
+		}
+
+		lights[1]->setPosition(directionalLightPosition);
+
+		lights[1]->setAmbientColor(directionalLightAmbientColor);
+		lights[1]->setDiffuseColor(directionalLightDiffuseColor);
+		lights[1]->setSpecularColor(directionalLightSpecularColor);
+
+		//TODO
+		//glm::quat xq = glm::angleAxis((directionalLightOrientation.get()));
+		//lights[1]->setOrientation(directionalLightOrientation.get());
+
+		//glm::quat xq = glm::angleAxis(glm::radians(-30.0f), glm::vec3(1, 0, 0));
+		//glm::quat yq = glm::angleAxis(glm::radians(20.0f), glm::vec3(0, 1, 0));
+		//light->setOrientation(yq * xq);
+	}
+
+	// SPOT
+	{
+		if (bSpot) {
+			if (!lights[2]->getIsEnabled()) lights[2]->enable();
+		} else {
+			if (lights[2]->getIsEnabled()) lights[2]->disable();
+		}
+
+		lights[2]->setPosition(spotLightPosition);
+
+		lights[2]->setAmbientColor(spotLightAmbientColor);
+		lights[2]->setDiffuseColor(spotLightDiffuseColor);
+		lights[2]->setSpecularColor(spotLightSpecularColor);
+	}
+
+	//ofShadow::setAllShadowBias(shadowBias.get());
+	//ofShadow::setAllShadowNormalBias(shadowNormalBias.get());
+
+	//------
+
 	//// shadow
 	//for (auto & light : lights) {
 	//	light->getShadow().setEnabled(bDrawShadow);
 	//}
 
-	// lights
-	//TODO: not used bc limited to 1 single light!
-	if (lights.size() > 0) {
-		if (lights[0]->getType() == OF_LIGHT_POINT) {
-			float tangle = ofGetElapsedTimef() * 1.05;
-			lights[0]->setPosition(lightX, lightY, lightZ);
-			lights[0]->setAmbientColor(lightAmbientColor);
-		}
-	}
+	//// lights
+	////TODO: not used bc limited to 1 single light!
+	//if (lights.size() > 0) {
+	//	if (lights[0]->getType() == OF_LIGHT_POINT) {
+	//		float tangle = ofGetElapsedTimef() * 1.05;
+	//		lights[0]->setPosition(lightX, lightY, lightZ);
+	//		lights[0]->setAmbientColor(lightAmbientColor);
+	//	}
+	//}
 
 	//ofShadow::setAllShadowBias(shadowBias.get());
 	//ofShadow::setAllShadowNormalBias(shadowNormalBias.get());
@@ -119,13 +260,23 @@ void SurfingLights::drawPBRlights() {
 //--------------------------------------------------------------
 void SurfingLights::drawDebugPBRlights() {
 	for (int i = 0; i < lights.size(); i++) {
+
+		if (i == 0 && !bPoint)
+			continue;
+		else if (i == 1 && !bDirectional)
+			continue;
+		else if (i == 2 && !bSpot)
+			continue;
+
+		//--
+
 		auto & light = lights[i];
 
 		ofSetColor(light->getDiffuseColor());
 		if (light->getType() == OF_LIGHT_POINT) {
 			if (bDebug) ofDrawSphere(light->getPosition(), 12);
 		} else {
-			light->draw();
+			if (bDebug) light->draw();
 		}
 		if (light->getShadow().getIsEnabled()) {
 			if (bDebug && bDebugShadow) light->getShadow().drawFrustum();
@@ -160,7 +311,7 @@ void SurfingLights::drawGui() {
 void SurfingLights::refreshGui() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:refreshGui()";
 
-	gui.getGroup(lightParams.getName()).minimize();
+	//gui.getGroup(lightParams.getName()).minimize();
 	//gui.getGroup(params_Lights.getName()).minimize();
 
 	gui.getGroup(params_Lights.getName())
@@ -222,22 +373,28 @@ void SurfingLights::setup() {
 void SurfingLights::setupParameters() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:setupParameters()";
 
-	bGui.set("PBR_LIGHTS", true);
+	bGui.set("UI LIGHTS", true);
 
 	bAnimLights.set("Anim Lights", false);
 
+	bDebug.set("Debug", true);
+	bDebugShadow.set("Debug Shadow", true);
+	bDebugLights.set("Debug Lights", true);
+
 	//--
 
-	lightParams.setName("LightPBR");
-	lightAmbientColor.set("Light Ambient Color",
-		ofFloatColor(1.f, 1.f),
-		ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
 	float u = 1.5 * SURFING__SCENE_SIZE_UNIT;
-	lightParams.add(lightX.set("X", 0.0f, -u, u));
-	lightParams.add(lightY.set("Y", 0.0f, -u, u));
-	lightParams.add(lightZ.set("Z", 0.0f, -u, u));
-	lightParams.add(lightAmbientColor);
-	lightParams.add(vResetLight);
+
+	//vResetLight.set("Reset Light");
+	//lightParams.setName("LightPBR");
+	//lightAmbientColor.set("Light Ambient Color",
+	//	ofFloatColor(1.f, 1.f),
+	//	ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
+	//lightParams.add(lightX.set("X", 0.0f, -u, u));
+	//lightParams.add(lightY.set("Y", 0.0f, -u, u));
+	//lightParams.add(lightZ.set("Z", 0.0f, -u, u));
+	//lightParams.add(lightAmbientColor);
+	//lightParams.add(vResetLight);
 
 	//------
 
@@ -258,6 +415,8 @@ void SurfingLights::setupParameters() {
 	params_directionalLight.setName("Direct Light");
 	params_Brights.setName("Brights Power");
 
+	//--
+
 	// Point
 	bPoint.set("Point", false);
 	bPointReset.set("Reset Point", false);
@@ -265,21 +424,7 @@ void SurfingLights::setupParameters() {
 	pointLightAmbientColor.set("p Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 	pointLightDiffuseColor.set("p Diffuse", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 	pointLightSpecularColor.set("p Specular", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
-	pointLightPosition.set("p Pos", glm::vec3(),
-		glm::vec3(-SURFING__SCENE_SIZE_UNIT), glm::vec3(SURFING__SCENE_SIZE_UNIT));
-
-	// Spot
-	bSpot.set("Spot", false);
-	bSpotReset.set("Reset Spot", false);
-	spotBright.set("Bright Spot", 0.5, 0, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX);
-	spotLightAmbientColor.set("s Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
-	spotLightDiffuseColor.set("s Diffuse", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
-	spotLightSpecularColor.set("s Specular", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
-	spotLightPosition.set("s Pos", glm::vec3(),
-		glm::vec3(-SURFING__SCENE_SIZE_UNIT), glm::vec3(SURFING__SCENE_SIZE_UNIT));
-	spotLightOrientation.set("s Orientation", glm::vec3(0), glm::vec3(-180), glm::vec3(180));
-	spotLightCutOff.set("s CutOff", 1, 0, 90);
-	spotLightConcetration.set("s Conc", 1, 0, 128);
+	pointLightPosition.set("p Pos", glm::vec3(), glm::vec3(-u), glm::vec3(u));
 
 	// Directional
 	bDirectional.set("Direct", false);
@@ -290,13 +435,23 @@ void SurfingLights::setupParameters() {
 	directionalLightSpecularColor.set("d Specular", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 	directionalLightOrientation.set("d Orientation", glm::vec3(0), glm::vec3(-180), glm::vec3(180));
 	directionalLightPosition.set("d Position", glm::vec3(0),
-		glm::vec3(-SURFING__SCENE_SIZE_UNIT), glm::vec3(SURFING__SCENE_SIZE_UNIT));
+		glm::vec3(-u), glm::vec3(u));
+
+	// Spot
+	bSpot.set("Spot", false);
+	bSpotReset.set("Reset Spot", false);
+	spotBright.set("Bright Spot", 0.5, 0, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX);
+	spotLightAmbientColor.set("s Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
+	spotLightDiffuseColor.set("s Diffuse", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
+	spotLightSpecularColor.set("s Specular", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
+	spotLightPosition.set("s Pos", glm::vec3(), glm::vec3(-u), glm::vec3(u));
+	spotLightOrientation.set("s Orientation", glm::vec3(0), glm::vec3(-180), glm::vec3(180));
+	spotLightCutOff.set("s CutOff", 1, 0, 90);
+	spotLightConcetration.set("s Conc", 1, 0, 128);
 
 	//--
 
 	bSmoothLights.set("Smooth Lights", false); // Default Low Poly
-
-	//bMini_Scene.set("Minimize", false);
 
 	//-
 
@@ -308,6 +463,13 @@ void SurfingLights::setupParameters() {
 	params_pointLight.add(pointLightPosition);
 	params_pointLight.add(bPointReset);
 
+	params_directionalLight.add(directionalLightAmbientColor);
+	params_directionalLight.add(directionalLightDiffuseColor);
+	params_directionalLight.add(directionalLightSpecularColor);
+	params_directionalLight.add(directionalLightPosition);
+	params_directionalLight.add(directionalLightOrientation);
+	params_directionalLight.add(bDirectionalReset);
+
 	params_spotLight.add(spotLightAmbientColor);
 	params_spotLight.add(spotLightDiffuseColor);
 	params_spotLight.add(spotLightSpecularColor);
@@ -317,31 +479,32 @@ void SurfingLights::setupParameters() {
 	params_spotLight.add(spotLightConcetration);
 	params_spotLight.add(bSpotReset);
 
-	params_directionalLight.add(directionalLightAmbientColor);
-	params_directionalLight.add(directionalLightDiffuseColor);
-	params_directionalLight.add(directionalLightSpecularColor);
-	params_directionalLight.add(directionalLightPosition);
-	params_directionalLight.add(directionalLightOrientation);
-	params_directionalLight.add(bDirectionalReset);
-
 	params_Brights.add(bPoint);
 	params_Brights.add(pointBright);
-	params_Brights.add(bSpot);
-	params_Brights.add(spotBright);
 	params_Brights.add(bDirectional);
 	params_Brights.add(directionalBright);
+	params_Brights.add(bSpot);
+	params_Brights.add(spotBright);
+
+	params_Lights.add(bPoint);
+	params_Lights.add(bDirectional);
+	params_Lights.add(bSpot);
 
 	params_Lights.add(params_pointLight);
-	params_Lights.add(params_spotLight);
 	params_Lights.add(params_directionalLight);
+	params_Lights.add(params_spotLight);
+
 	params_Lights.add(params_Brights);
 
 	params_Lights.add(bSmoothLights);
+	params_Lights.add(bDebug);
+	params_Lights.add(bDebugShadow);
+	params_Lights.add(bDebugLights);
 
 	//-
 
 	// Group all
-	parameters.add(lightParams);
+	//parameters.add(lightParams);
 	parameters.add(params_Lights);
 
 	//-
@@ -356,7 +519,6 @@ void SurfingLights::setupParameters() {
 	bSpotReset.setSerializable(false);
 	bDirectionalReset.setSerializable(false);
 	bPointReset.setSerializable(false);
-	//vReset.setSerializable(false);
 
 	//--
 
@@ -397,7 +559,7 @@ void SurfingLights::startup() {
 }
 
 //--------------------------------------------------------------
-void SurfingLights::begin() {
+void SurfingLights::updateAnims() {
 	//mouseX = ofGetMouseX();
 	//mouseY = ofGetMouseY();
 
@@ -428,6 +590,31 @@ void SurfingLights::begin() {
 	//	spotLight.setPosition(spotLightPosition.get().z, mouseX, mouseY);
 	//	//spotLight.setPosition(mouseX, mouseY, spotLightPosition.get().z);
 	//}
+}
+
+//TODO
+//--------------------------------------------------------------
+void SurfingLights::drawDebug() {
+	// draw debug
+	if (bDebugLights) {
+		ofPushStyle();
+
+		if (bPoint) {
+			ofSetColor(pointLight.getDiffuseColor());
+			pointLight.draw();
+		}
+
+		if (bSpot) {
+			ofSetColor(spotLight.getDiffuseColor());
+			spotLight.draw();
+		}
+
+		ofPopStyle();
+	}
+}
+//--------------------------------------------------------------
+void SurfingLights::begin() {
+	//updateAnims();
 
 	ofEnableLighting();
 
@@ -451,16 +638,7 @@ void SurfingLights::end() {
 
 	//-
 
-	if (bDebugLights) {
-
-		// debug
-		ofSetColor(pointLight.getDiffuseColor());
-		if (bPoint) {
-			pointLight.draw();
-		}
-		ofSetColor(spotLight.getDiffuseColor());
-		if (bSpot) spotLight.draw();
-	}
+	//drawDebug();
 }
 
 // All Lights
@@ -731,72 +909,3 @@ void SurfingLights::exit() {
 
 	//ofxSurfing::saveGroup(params_Lights, pathSettings);
 }
-
-////--------------------------------------------------------------
-//void SurfingLights::drawScene(bool bInCam) {
-//	Bg_material.begin();
-//
-//	float r;
-//
-//	if (bDrawSphere) {
-//#ifndef SURFING_CALIBRATE
-//		if (bInCam)
-//			r = ofMap(sizeScene, 0, 1, 11, 115, true); // 11, 115
-//		else
-//			r = ofMap(sizeScene, 0, 1, 900, 2 * 1200, true); // 900, 1200
-//#endif
-//#ifdef SURFING_CALIBRATE
-//		r = sizeScene;
-//#endif
-//	} else if (bDrawBox) {
-//#ifndef SURFING_CALIBRATE
-//		if (bInCam)
-//			r = ofMap(sizeScene, 0, 1, 11, 70, true); // 11, 50?
-//		else
-//			r = ofMap(sizeScene, 0, 1, 900, 2 * 1200, true); // 900, 1200
-//#endif
-//#ifdef SURFING_CALIBRATE
-//		r = sizeScene;
-//#endif
-//	}
-//
-//	//-
-//
-//	ofPushStyle();
-//	ofPushMatrix();
-//	{
-//		if (bUseTexture) img.getTexture().bind();
-//		{
-//			ofSetColor(255, 255, 255, 255);
-//
-//			if (bDrawSphere) {
-//				ofPushMatrix();
-//				if (bInCam) {
-//					ofTranslate(center.x, center.y, center.z);
-//				} else {
-//					ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2, 0);
-//				}
-//				if (bRotate) ofRotate(-ofGetElapsedTimef() * speedRotate * .2 * RAD_TO_DEG, 0, 1, 0);
-//				if (bDrawSphere) ofDrawSphere(0, 0, 0, r); //TODO:offset
-//				ofPopMatrix();
-//			}
-//
-//			if (bDrawBox) {
-//				ofPushMatrix();
-//				if (bInCam) {
-//					ofTranslate(center.x, center.y, 0);
-//				} else {
-//					ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2, 0);
-//				}
-//				if (bRotate) ofRotate(-ofGetElapsedTimef() * speedRotate * .2 * RAD_TO_DEG, 0, 1, 0);
-//				if (bDrawBox) ofDrawBox(0, 0, 0, 2 * r); //TODO:offset
-//				ofPopMatrix();
-//			}
-//		}
-//		if (bUseTexture) img.getTexture().unbind();
-//	}
-//	ofPopMatrix();
-//	ofPopStyle();
-//
-//	Bg_material.end();
-//}
