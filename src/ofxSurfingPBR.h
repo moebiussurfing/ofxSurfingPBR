@@ -61,11 +61,12 @@ public:
 	ofxSurfingPBR();
 	~ofxSurfingPBR();
 
-	//SurfingLights surfingLights;
+	SurfingLights surfingLights;
 	//void setupLights();
 	//void beginLights();
 	//void endLights();
 
+private:
 	void setupBg();
 	SurfingBg surfingBg;
 
@@ -122,7 +123,7 @@ private:
 	void ChangedInternal(ofAbstractParameter & e);
 	void ChangedTestScene(ofAbstractParameter & e);
 	void ChangedCamera(ofAbstractParameter & e);
-	void ChangedBg(ofAbstractParameter & e);
+	//void ChangedBg(ofAbstractParameter & e);
 
 #ifdef SURFING__USE_CUBE_MAP
 	void ChangedCubeMaps(ofAbstractParameter & e);
@@ -151,10 +152,6 @@ private:
 public:
 	void beginMaterialPlane();
 	void endMaterialPlane();
-
-private:
-	//lights
-	vector<shared_ptr<ofLight>> lights;
 
 	//--
 
@@ -279,7 +276,6 @@ public:
 	ofParameterGroup planeSettingsParams;
 	ofParameterGroup planeColorsParams;
 	ofParameterGroup planeTransformParams;
-	ofParameterGroup lightParams;
 	ofParameterGroup shadowParams;
 
 	ofParameter<bool> bPlaneWireframe;
@@ -297,10 +293,6 @@ public:
 	ofParameter<ofFloatColor> planeSpecularColor;
 
 	ofParameter<float> planeShiness;
-	ofParameter<float> lightX;
-	ofParameter<float> lightY;
-	ofParameter<float> lightZ;
-	ofParameter<ofFloatColor> lightAmbientColor;
 
 	ofParameter<bool> bDrawShadow;
 	ofParameter<bool> bDebugShadow;
@@ -314,7 +306,6 @@ public:
 
 	ofParameter<void> vResetPlane;
 	ofParameter<void> vResetPlaneTransform;
-	ofParameter<void> vResetLight;
 	ofParameter<void> vResetShadow;
 	ofParameter<void> vResetAll;
 
@@ -380,7 +371,6 @@ public:
 
 	void doResetPlane();
 	void doResetPlaneTransform();
-	void doResetLight();
 	void doResetShadow();
 	void doResetTestScene();
 

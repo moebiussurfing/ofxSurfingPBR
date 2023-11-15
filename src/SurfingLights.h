@@ -5,9 +5,9 @@
 //  Originally Created by Hiromitsu Iwanaka on 2018/05/26.
 //  Hardly modified and updated by moebiusSufing, 2021.
 
-#include "ofxSurfingPBRConstants.h"
-#include "ofxSurfingHelpersLite.h"
 #include "ofxGui.h"
+#include "ofxSurfingHelpersLite.h"
+#include "ofxSurfingPBRConstants.h"
 
 //--
 
@@ -16,30 +16,27 @@ public:
 	SurfingLights();
 	~SurfingLights();
 
-public:
-	void setup();
-	void draw();
-	void drawScene(bool bInCam = true);
-
 private:
-	void setupParameters();
-	void startup();
-
-private:
-	void setupGui();
-	void setGuiPosition(glm::vec2 pos);
-	void drawGui();
+public:
+	// lights
+	vector<shared_ptr<ofLight>> lights;
+	ofParameter<float> lightX;
+	ofParameter<float> lightY;
+	ofParameter<float> lightZ;
+	ofParameter<ofFloatColor> lightAmbientColor;
+	void doResetLight();
+	ofParameter<bool> bDebug;
+	ofParameter<bool> bDebugShadow;
+	callback_t f_RenderScene = nullptr;
+	void setFunctionRenderScene(callback_t f = nullptr);
+	ofParameter<void> vResetLight;
+	ofParameterGroup lightParams;
 
 public:
-	void begin();
-	void end();
-
-public:
-	ofxPanel gui;
-	ofxPanel guiUser;
-
-public:
-	ofParameter<bool> bGui;
+	void setupPBRlights();
+	void updatePBRlights();
+	void drawPBRlights();
+	void drawDebugPBRlights();
 
 private:
 	ofLight pointLight;
@@ -47,12 +44,40 @@ private:
 	ofLight directionalLight;
 
 public:
+	void setup();
+	void exit();
+
+	//void draw();
+	//void drawScene(bool bInCam = true);
+
+private:
+	void setupParameters();
+	void startup();
+
+private:
+	void setupGui();
+	void refreshGui();
+
+public:
+	void begin();
+	void end();
+
+public:
+	ofxPanel gui;
+	void setGuiPosition(glm::vec2 pos);
+	void drawGui();
+	ofParameter<bool> bGui;
+
+public:
 	int mouseX, mouseY;
 
 	//-
 
-	ofParameterGroup params;
+	ofParameterGroup parameters;
+
+	void Changed(ofAbstractParameter & e);
 	void ChangedLights(ofAbstractParameter & e);
+	void ChangedBrights(ofAbstractParameter & e);
 
 	ofParameterGroup params_User;
 	ofParameterGroup params_Lights;
@@ -91,19 +116,16 @@ public:
 	ofParameter<glm::vec3> directionalLightOrientation;
 	ofParameter<glm::vec3> directionalLightPosition;
 
-public:
-	ofParameter<bool> bMini_Scene;
-	ofParameter<bool> bGui_SubLights { "Lights", false };
 
 public:
 	bool bDebugLights = 0;
-	ofParameter<bool> bAnimLights { "Anim Lights", false };
+	ofParameter<bool> bAnimLights;
 
 private:
 	ofParameter<bool> bSmoothLights;
 
 	ofVec3f center;
-	
+
 public:
 	//--------------------------------------------------------------
 	void beginLights() {
@@ -113,7 +135,7 @@ public:
 	}
 	//--------------------------------------------------------------
 	void endLights() {
-		if (!bPoint) pointLight.disable();
+		if (bPoint) pointLight.disable();
 		if (bSpot) spotLight.disable();
 		if (bDirectional) directionalLight.disable();
 	}
@@ -133,70 +155,34 @@ public:
 	}
 	*/
 
-	/*
 	// Resets
-private:
+public:
 	void doResetAll();
+private:
 	void doResetLights();
 	void doResetPoint();
 	void doResetSpot();
 	void doResetDirectional();
 
-	std::string pathSettings_Lights = "SceneLights.json";
+	string pathSettings = "ofxSurfingPBR_Lights.json";
+
+public:
+	void load();
+	void save();
 
 	//--
 
-	//--------------------------------------------------------------
-	void refreshBrights() {
-		refreshBrightPoint();
-		refreshBrightDirect();
-		refreshBrightSpot();
-	}
-
-	//--------------------------------------------------------------
-	void refreshBrightPoint() {
-		auto ca = pointLightAmbientColor.get();
-		auto cd = pointLightDiffuseColor.get();
-		auto cs = pointLightSpecularColor.get();
-		ca.setBrightness(pointBright);
-		cd.setBrightness(pointBright);
-		cs.setBrightness(pointBright);
-		pointLightAmbientColor.set(ca);
-		pointLightDiffuseColor.set(cd);
-		pointLightSpecularColor.set(cs);
-	}
-
-	//--------------------------------------------------------------
-	void refreshBrightDirect() {
-		auto ca = directionalLightAmbientColor.get();
-		auto cd = directionalLightDiffuseColor.get();
-		auto cs = directionalLightSpecularColor.get();
-		ca.setBrightness(directionalBright);
-		cd.setBrightness(directionalBright);
-		cs.setBrightness(directionalBright);
-		directionalLightAmbientColor.set(ca);
-		directionalLightDiffuseColor.set(cd);
-		directionalLightSpecularColor.set(cs);
-	}
-
-	//--------------------------------------------------------------
-	void refreshBrightSpot() {
-		auto ca = spotLightAmbientColor.get();
-		auto cd = spotLightDiffuseColor.get();
-		auto cs = spotLightSpecularColor.get();
-		ca.setBrightness(spotBright);
-		cd.setBrightness(spotBright);
-		cs.setBrightness(spotBright);
-		spotLightAmbientColor.set(ca);
-		spotLightDiffuseColor.set(cd);
-		spotLightSpecularColor.set(cs);
-	}
-	*/
-
-	/*
 private:
+	void refreshBrights();
+	void refreshBrightPoint();
+	void refreshBrightDirect();
+	void refreshBrightSpot();
 
 	//----
+
+	/*
+	* 
+private:
 
 	/*
 	// A material will be used for each added material/3D object
