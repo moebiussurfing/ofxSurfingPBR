@@ -88,13 +88,11 @@ public:
 
 	void Changed(ofAbstractParameter & e);
 	void ChangedLights(ofAbstractParameter & e);
-	void ChangedBrights(ofAbstractParameter & e);
 
 	ofParameterGroup params_User;
 	ofParameterGroup params_Enablers;
 	ofParameterGroup params_Extra;
 	ofParameterGroup params_Lights;
-	ofParameterGroup params_Brights;
 
 	//--
 
@@ -102,7 +100,7 @@ public:
 	ofParameterGroup pointColorsParams;
 	ofParameter<bool> bPoint;
 	ofParameter<void> vPointReset;
-	ofParameter<float> pointBright;
+	//ofParameter<float> pointBright;
 	ofParameter<ofFloatColor> pointLightAmbientColor;
 	ofParameter<ofFloatColor> pointLightDiffuseColor;
 	ofParameter<ofFloatColor> pointLightSpecularColor;
@@ -113,7 +111,7 @@ public:
 	ofParameterGroup spotLightColorsParams;
 	ofParameter<bool> bSpot;
 	ofParameter<void> vSpotReset;
-	ofParameter<float> spotBright;
+	//ofParameter<float> spotBright;
 	ofParameter<ofFloatColor> spotLightAmbientColor;
 	ofParameter<ofFloatColor> spotLightDiffuseColor;
 	ofParameter<ofFloatColor> spotLightSpecularColor;
@@ -128,7 +126,7 @@ public:
 	ofParameterGroup directionalColorsParams;
 	ofParameter<bool> bDirectional;
 	ofParameter<void> vDirectionalReset;
-	ofParameter<float> directionalBright;
+	//ofParameter<float> directionalBright;
 	ofParameter<ofFloatColor> directionalLightAmbientColor;
 	ofParameter<ofFloatColor> directionalLightDiffuseColor;
 	ofParameter<ofFloatColor> directionalLightSpecularColor;
@@ -174,12 +172,15 @@ private:
 #endif
 
 	//--
-
+	/*
 private:
 	void refreshBrights();
 	void refreshBrightPoint();
 	void refreshBrightDirect();
 	void refreshBrightSpot();
+	void ChangedBrights(ofAbstractParameter & e);
+	ofParameterGroup params_Brights;
+	*/
 
 	//----
 

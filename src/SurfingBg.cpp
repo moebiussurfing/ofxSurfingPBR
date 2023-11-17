@@ -112,7 +112,7 @@ void SurfingBg::setupParameters() {
 
 	//--
 
-	bGui.set("UI Bg", true);
+	bGui.set("UI BG", true);
 
 	bRotate.set("Rotate", true);
 	speedRotate.set("Speed", 0, -1, 1);

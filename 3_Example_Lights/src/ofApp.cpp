@@ -3,6 +3,8 @@
 //--------------------------------------------------------------
 void ofApp::setup() {
 
+	ofxSurfing::setOfxGuiTheme();
+
 	// App window
 	{
 		ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.

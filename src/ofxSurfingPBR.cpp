@@ -624,6 +624,12 @@ void ofxSurfingPBR::setup() {
 
 	//--
 
+	//TODO
+	//link
+	//bDebug.makeReferenceTo(surfingLights.bDebug);
+
+	//--
+
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	setupShaderPlane();
 #endif
@@ -979,11 +985,15 @@ void ofxSurfingPBR::drawOfxGui() {
 		if (material.bGui) {
 			// Force position for material gui
 			glm::vec3 p;
+#if 1
+			p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0);
+#else
 			if (isWindowPortrait()) {
 				p = gui.getShape().getBottomLeft() + glm::vec2(0, SURFING__PAD_OFXGUI_BETWEEN_PANELS);
 			} else {
 				p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0);
 			}
+#endif
 			material.setGuiPosition(p);
 
 			material.drawGui();
@@ -2104,16 +2114,16 @@ void ofxSurfingPBR::doResetAll(bool bExcludeExtras) {
 	// plane
 	doResetPlane();
 
-	// lights
-	surfingLights.doResetLights();
-
-	// shadows
-	surfingLights.doResetShadow();
-
 	// cubemap
 #ifdef SURFING__USE_CUBE_MAP
 	doResetCubeMap();
 #endif
+
+	// lights
+	if (!bExcludeExtras) surfingLights.doResetLights();
+
+	// shadows
+	if (!bExcludeExtras) surfingLights.doResetShadow();
 
 	// shader displacer
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
