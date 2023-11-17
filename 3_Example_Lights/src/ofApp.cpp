@@ -9,8 +9,8 @@ void ofApp::setup() {
 #if 1
 		// Move and shape the window app.
 		// Customize settings: 60fps and vSync off.
-		ofxSurfing::setWindowAtMonitor(); // Stay at main display (center in my setup) and landscape.
-		//ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
+		ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
+		//ofxSurfing::setWindowAtMonitor(); // Stay at main display (center in my setup) and landscape.
 		//ofxSurfing::setWindowAtMonitor(1, true); // Move to right display and set portrait.
 #endif
 	}

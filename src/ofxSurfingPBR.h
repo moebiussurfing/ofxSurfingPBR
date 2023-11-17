@@ -30,6 +30,7 @@
 		- customize share plane divisions and img size/clamp.
 		- get mesh mods/shader example.
 
+	- queue cubemaps into a vector to browse easily
 	- add ImGui mode.
 	- add presets manager 
 		to explore and save materials.
@@ -118,8 +119,7 @@ private:
 
 private:
 	void ChangedPlane(ofAbstractParameter & e);
-	void ChangedLight(ofAbstractParameter & e);
-	void ChangedShadow(ofAbstractParameter & e);
+	//void ChangedLight(ofAbstractParameter & e);
 	void ChangedInternal(ofAbstractParameter & e);
 	void ChangedTestScene(ofAbstractParameter & e);
 	void ChangedCamera(ofAbstractParameter & e);
@@ -276,7 +276,6 @@ public:
 	ofParameterGroup planeSettingsParams;
 	ofParameterGroup planeColorsParams;
 	ofParameterGroup planeTransformParams;
-	ofParameterGroup shadowParams;
 
 	ofParameter<bool> bPlaneWireframe;
 	ofParameter<glm::vec2> planeSize; //normalized
@@ -294,19 +293,8 @@ public:
 
 	ofParameter<float> planeShiness;
 
-	ofParameter<bool> bDrawShadow;
-	ofParameter<bool> bDebugShadow;
-	ofParameter<float> shadowBias;
-	ofParameter<float> shadowNormalBias;
-
-	//TODO: OF PBR
-	// add other internal OF params
-	//ofParameter<float> shadowStrength;
-	//ofParameter<glm::vec2> shadowSize;
-
 	ofParameter<void> vResetPlane;
 	ofParameter<void> vResetPlaneTransform;
-	ofParameter<void> vResetShadow;
 	ofParameter<void> vResetAll;
 
 private:
@@ -371,7 +359,6 @@ public:
 
 	void doResetPlane();
 	void doResetPlaneTransform();
-	void doResetShadow();
 	void doResetTestScene();
 
 	void doResetMaterial();

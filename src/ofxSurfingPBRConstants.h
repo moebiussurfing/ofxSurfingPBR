@@ -43,7 +43,8 @@
 #define SURFING__USE_AUTOSAVE_SETTINGS_ENGINE // saving happens when each param/s change/s but delayed a second.
 #define SURFING__USE_AUTOSAVE_FORCE_ON_EXIT // TODO: fix to remove. to fix some unsaved settings bc calling order..
 
-#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 0.75f
+#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 1.f
+//#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 0.75f
 
 //--
 
@@ -52,8 +53,8 @@
 #define SURFING__PBR__MAX_SHININESS 100
 #define SURFING__PBR__SHADOW_STRENGTH 0.6f
 
-static const float SURFING__PBR__LIGHTS_FAR = (float)SURFING__SCENE_SIZE_UNIT * 2.0f;
-static const float SURFING__PBR__LIGHTS_NEAR = SURFING__PBR__LIGHTS_FAR * 0.2f;
+static const float SURFING__PBR__LIGHTS_FAR = (float)SURFING__SCENE_SIZE_UNIT * 1.0f;
+static const float SURFING__PBR__LIGHTS_NEAR = SURFING__PBR__LIGHTS_FAR * 0.1f;
 
 #define SURFING__PBR__PLANE_COLORS_NO_ALPHA // bc it seems that is not being used internally..
 #define SURFING__PBR__BG_COLORS_NO_ALPHA // bc it seems that is not being used internally..
