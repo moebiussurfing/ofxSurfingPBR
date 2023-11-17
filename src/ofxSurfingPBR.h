@@ -63,9 +63,6 @@ public:
 	~ofxSurfingPBR();
 
 	SurfingLights surfingLights;
-	//void setupLights();
-	//void beginLights();
-	//void endLights();
 
 private:
 	void setupBg();
@@ -119,11 +116,9 @@ private:
 
 private:
 	void ChangedPlane(ofAbstractParameter & e);
-	//void ChangedLight(ofAbstractParameter & e);
 	void ChangedInternal(ofAbstractParameter & e);
 	void ChangedTestScene(ofAbstractParameter & e);
 	void ChangedCamera(ofAbstractParameter & e);
-	//void ChangedBg(ofAbstractParameter & e);
 
 #ifdef SURFING__USE_CUBE_MAP
 	void ChangedCubeMaps(ofAbstractParameter & e);
@@ -135,7 +130,7 @@ private:
 
 	//--
 
-	//material for other objects
+	// material for other objects
 public:
 	SurfingMaterial material;
 

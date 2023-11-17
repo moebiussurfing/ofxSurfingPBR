@@ -17,7 +17,6 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 	//--
 
 	ofRemoveListener(planeParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedPlane);
-	//ofRemoveListener(lightParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedLight);
 	ofRemoveListener(internalParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
 	ofRemoveListener(testSceneParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
 	ofRemoveListener(cameraParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
@@ -202,7 +201,6 @@ void ofxSurfingPBR::setupParams() {
 	planeSettingsParams.setName("Settings");
 	planeColorsParams.setName("Colors");
 	planeTransformParams.setName("Transform");
-	//lightParams.setName("Light");
 	internalParams.setName("Internal");
 	advancedParams.setName("Advanced");
 
@@ -210,7 +208,6 @@ void ofxSurfingPBR::setupParams() {
 
 	vResetPlane.set("Reset Plane");
 	vResetPlaneTransform.set("Reset Transform");
-	//vResetLights.set("Reset Light");
 	vResetAll.set("Reset All");
 
 	//--
@@ -279,7 +276,6 @@ void ofxSurfingPBR::setupParams() {
 	//--
 
 	parameters.add(planeParams);
-	//parameters.add(lightParams);
 
 	//--
 
