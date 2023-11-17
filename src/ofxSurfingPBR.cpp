@@ -321,7 +321,7 @@ void ofxSurfingPBR::setupParams() {
 	callback_t f = std::bind(&ofxSurfingPBR::save, this);
 	//register the local save function to be called when saving is required.
 	autoSaver.setFunctionSaver(f);
-	advancedParams.add(autoSaver.bEnable);
+	//advancedParams.add(autoSaver.bEnable);
 #endif
 
 	advancedParams.add(material.getIndexStateParam());
