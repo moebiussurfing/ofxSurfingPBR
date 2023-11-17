@@ -937,13 +937,15 @@ void ofxSurfingPBR::update() {
 
 	//--
 
-	updatePBRScene();
+	//updatePBRScene();
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::updatePBRScene() {
 
 	surfingLights.updateLights();
+	
+	//surfingLights.updateAnims();
 
 	//--
 
@@ -962,6 +964,7 @@ void ofxSurfingPBR::beginMaterial() {
 void ofxSurfingPBR::endMaterial() {
 	material.end();
 }
+
 //--------------------------------------------------------------
 void ofxSurfingPBR::beginMaterialPlane() {
 	materialPlane.begin();
@@ -1191,7 +1194,8 @@ void ofxSurfingPBR::drawBg() {
 void ofxSurfingPBR::draw() {
 	if (f_RenderScene == nullptr) return;
 
-	drawPBRScene();
+	////TODO fix
+	//drawPBRScene();
 
 	//--
 
@@ -1200,6 +1204,13 @@ void ofxSurfingPBR::draw() {
 	// camera
 	camera->begin();
 	{
+		//TODO fix
+		drawPBRScene();
+
+		//TODO fix
+		//surfingLights.begin();
+		//surfingLights.beginLights();
+
 		//TODO fix
 		// think how to apply the material..
 		drawBg();
@@ -1222,13 +1233,22 @@ void ofxSurfingPBR::draw() {
 
 		//----
 
+		//TODO fix
+		//surfingLights.end();
+		//surfingLights.endLights();
+
 		drawPBRSceneDebug();
 	}
 	camera->end();
+
+	//TODO fix
+	//drawPBRScene();
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawPBRScene() {
+
+	updatePBRScene();
 
 	surfingLights.drawLights();
 }

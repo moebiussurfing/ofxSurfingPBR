@@ -13,9 +13,10 @@ SurfingLights::~SurfingLights() {
 
 	ofRemoveListener(ofEvents().update, this, &SurfingLights::update);
 
-	ofRemoveListener(parameters.parameterChangedE(), this, &SurfingLights::Changed);
 	ofRemoveListener(params_Lights.parameterChangedE(), this, &SurfingLights::ChangedLights);
 	//ofRemoveListener(params_Brights.parameterChangedE(), this, &SurfingLights::ChangedBrights);
+	//ofRemoveListener(parameters.parameterChangedE(), this, &SurfingLights::Changed);
+
 	ofRemoveListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
 }
 
@@ -215,7 +216,7 @@ void SurfingLights::updateLights() {
 
 //--------------------------------------------------------------
 void SurfingLights::drawLights() {
-	if (f_RenderScene == nullptr) return;
+	//if (f_RenderScene == nullptr) return;
 
 	ofPushStyle();
 	ofSetColor(ofColor::white);
@@ -662,9 +663,9 @@ void SurfingLights::setupParameters() {
 	//-
 
 	// Callbacks
-	ofAddListener(parameters.parameterChangedE(), this, &SurfingLights::Changed);
 	ofAddListener(params_Lights.parameterChangedE(), this, &SurfingLights::ChangedLights);
 	//ofAddListener(params_Brights.parameterChangedE(), this, &SurfingLights::ChangedBrights);
+	//ofAddListener(parameters.parameterChangedE(), this, &SurfingLights::Changed);
 
 	ofAddListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
 
@@ -716,6 +717,9 @@ void SurfingLights::startup() {
 		bDebugLights = true;
 		bDebugShadow = false;
 	}
+
+	//fix startup callbacks?
+	//bFlagUpdateLights = true;
 }
 //--------------------------------------------------------------
 void SurfingLights::update(ofEventArgs & args) {
@@ -728,16 +732,18 @@ void SurfingLights::update() {
 		bFlagUpdateLights = false;
 	}
 
-	updateAnims();
+	//TODO:
+	//updateAnims();
 }
 //--------------------------------------------------------------
 void SurfingLights::updateAnims() {
 
-	const float ratio = 3.f;
-	float sizeScene = 1.f;
-
 	// Anim by time
 	if (bAnimLights) {
+
+		const float ratio = 3.f;
+		float sizeScene = 1.f;
+
 		pointLight.setPosition(
 			cos(ofGetElapsedTimef() * .6f) * ratio * SURFING__SCENE_SIZE_UNIT * sizeScene + pointLightPosition.get().x,
 			sin(ofGetElapsedTimef() * .8f) * SURFING__SCENE_SIZE_UNIT * sizeScene + pointLightPosition.get().y,
@@ -754,6 +760,7 @@ void SurfingLights::updateAnims() {
 			-cos(ofGetElapsedTimef() * .8f) * ratio * SURFING__SCENE_SIZE_UNIT * sizeScene + directionalLightPosition.get().z);
 	}
 
+	// Move by mouse
 	if (bMouseLights) {
 		mouseX = ofGetMouseX();
 		mouseY = ofGetMouseY();
@@ -855,20 +862,20 @@ void SurfingLights::doResetSpot() {
 
 //--
 
-//--------------------------------------------------------------
-void SurfingLights::Changed(ofAbstractParameter & e) {
-	string name = e.getName();
-
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Changed" << name << " : " << e;
-
-	if (0) {
-	}
-
-	//// Minimize
-	//else if (name == bMini_Scene.getName()) {
-	//	//setupImGuiStyles();
-	//}
-}
+////--------------------------------------------------------------
+//void SurfingLights::Changed(ofAbstractParameter & e) {
+//	string name = e.getName();
+//
+//	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Changed" << name << " : " << e;
+//
+//	if (0) {
+//	}
+//
+//	//// Minimize
+//	//else if (name == bMini_Scene.getName()) {
+//	//	//setupImGuiStyles();
+//	//}
+//}
 
 //--------------------------------------------------------------
 void SurfingLights::ChangedLights(ofAbstractParameter & e) {

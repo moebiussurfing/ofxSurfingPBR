@@ -88,7 +88,7 @@ public:
 
 	ofParameterGroup parameters;
 
-	void Changed(ofAbstractParameter & e);
+	//void Changed(ofAbstractParameter & e);
 	void ChangedLights(ofAbstractParameter & e);
 
 	ofParameterGroup params_User;

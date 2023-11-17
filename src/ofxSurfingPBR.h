@@ -25,9 +25,16 @@
 * TODO
 * 
 
-	- add instance name to allow multiple json settings
-		for many materials
-		- or add custom global path to /data/ofxSurfingPBR/MAT_NAME/
+	- fix shadows/lights
+		move code to same place/order than examples
+	
+	- add alternate top camera
+
+	- fix some callbacks
+
+	- fix?
+
+	- add custom global path to /data/ofxSurfingPBR/MAT_NAME/
 
 	- SHADERS AND DISPLACE
 		- fix plane light not working when shaders enabled..
@@ -43,8 +50,7 @@
 		to queue many actors/ofNodes, materials 
 		and lights on a std::vector.
 		something like ofxPBR or ofxPBRHelper.
-		- create a new example 
-			with two instantiated materials.
+		
 */
 
 //--

@@ -503,6 +503,7 @@ void ofApp::drawMyScene() {
 
 		else if (indexScene == 2) {
 
+			//TODO: make internal function..
 #ifdef SURFING__USE__FILE_BROWSER
 			const float yUnit = 500;
 			const float scalePow = surfingModels.getTransformScalePow();
