@@ -11,6 +11,7 @@ public:
 	~SurfingMaterial();
 
 	void setup();
+	void setup(string name);
 	void drawGui();
 	void exit();
 
@@ -74,7 +75,10 @@ public:
 	ofParameter<int> & getIndexStateParam();
 
 public:
-	string path = "ofxSurfingPBR_Material.json";
+	string path = "ofxSurfingPBR_Material";
+	string name = "";
+	string ext= ".json";
+	void setName(const string &n);//call before setup
 
 public:
 	void load();

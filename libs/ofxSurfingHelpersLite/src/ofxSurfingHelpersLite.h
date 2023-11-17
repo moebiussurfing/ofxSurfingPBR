@@ -660,13 +660,12 @@ inline void setGuiPositionToLayout(ofxPanel & gui, int layout = 0) {
 	glm::vec2 p;
 	int pad = SURFING__PAD_TO_WINDOW_BORDERS; //to borders
 
-	// bottom-center
+	// top-left
 	if (layout == 0) {
-		int x = ofGetWindowWidth() / 2 - gui.getShape().getWidth() / 2;
-		int y = ofGetWindowHeight() - gui.getShape().getHeight() - pad;
+		int x = pad;
+		int y = pad;
 		p = glm::vec2(x, y);
 	}
-
 	// top-center
 	else if (layout == 1) {
 		int x = ofGetWindowWidth() / 2 - gui.getShape().getWidth() / 2;
@@ -674,18 +673,31 @@ inline void setGuiPositionToLayout(ofxPanel & gui, int layout = 0) {
 		p = glm::vec2(x, y);
 	}
 
-	else if (layout == 2)
+	// top-right
+	else if (layout == 2) {
+		int x = ofGetWindowWidth() - gui.getShape().getWidth() - pad;
+		int y = pad;
+		p = glm::vec2(x, y);
+	}
+
+	// bottom-left
+	else if (layout == 3) {
+		p = glm::vec2(pad, ofGetHeight() - gui.getShape().getHeight() - pad);
+		p = glm::vec2(p.x, p.y);
+	}
+
+	// bottom-center
+	if (layout == 4) {
+		int x = ofGetWindowWidth() / 2 - gui.getShape().getWidth() / 2;
+		int y = ofGetWindowHeight() - gui.getShape().getHeight() - pad;
+		p = glm::vec2(x, y);
+	}
+
 	// bottom-right
-	{
+	else if (layout == 5) {
 		glm::vec2 p1 = glm::vec2(ofGetWindowWidth(), ofGetHeight());
 		glm::vec2 p2 = glm::vec2(gui.getShape().getWidth() + pad, gui.getShape().getHeight() + pad);
 		p = p1 - p2;
-	}
-
-	else if (layout == 3)
-	// bottom-left
-	{
-		p = glm::vec2(pad, ofGetHeight() - gui.getShape().getHeight() - pad);
 	}
 
 	gui.setPosition(p.x, p.y);

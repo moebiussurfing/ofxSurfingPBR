@@ -1655,24 +1655,7 @@ void ofxSurfingPBR::drawTestScene() {
 
 	//--
 
-#define DO_SCENE_TEST_TRANSFORMS 1
-
-#if (DO_SCENE_TEST_TRANSFORMS)
-	// Scene transforms
-	ofPushMatrix();
-
-	// Position
-	float yUnit = SURFING__SCENE_SIZE_UNIT / 2.f;
-	float y = ofMap(positionTestScene, -1.f, 1.f,
-		-yUnit, yUnit, true);
-
-	// Scale
-	float s = ofMap(scaleTestScene, -1.f, 1.f,
-		1.f / SURFING__SCENE_TEST_UNIT_SCALE, SURFING__SCENE_TEST_UNIT_SCALE, true);
-
-	ofTranslate(0, y, 0);
-	ofScale(s);
-#endif
+	pushTestSceneTRansform();
 
 	{
 		float u = SURFING__SCENE_SIZE_UNIT / 10.f;
@@ -1695,9 +1678,34 @@ void ofxSurfingPBR::drawTestScene() {
 		ofDrawSphere(2 * u, u, 0, u / 2.f);
 	}
 
+	popTestSceneTRansform();
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::pushTestSceneTRansform() {
+#if (DO_SCENE_TEST_TRANSFORMS)
+	// Scene transforms
+	ofPushMatrix();
+
+	// Position
+	float yUnit = SURFING__SCENE_SIZE_UNIT / 2.f;
+	float y = ofMap(positionTestScene, -1.f, 1.f,
+		-yUnit, yUnit, true);
+
+	// Scale
+	float s = ofMap(scaleTestScene, -1.f, 1.f,
+		1.f / SURFING__SCENE_TEST_UNIT_SCALE, SURFING__SCENE_TEST_UNIT_SCALE, true);
+
+	ofTranslate(0, y, 0);
+	ofScale(s);
+#endif
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::popTestSceneTRansform() {
 #if DO_SCENE_TEST_TRANSFORMS
 	ofPopMatrix();
-#endif
+#endif 
 }
 
 //--------------------------------------------------------------
@@ -1913,9 +1921,9 @@ void ofxSurfingPBR::setupCubeMap() {
 	cubeMapName.setSerializable(false);
 	cubeMapModeName.setSerializable(false);
 
-	cubeMapModeName.set("Type CM", "NONE");
-	cubeMapMode.set("Mode CM", 2, 1, 3);
-	cubeMapName.set("Name CM", "NONE");
+	cubeMapModeName.set("TypeC", "NONE");
+	cubeMapMode.set("ModeC", 2, 1, 3);
+	cubeMapName.set("NameC", "NONE");
 	path_CubemapFileAbsPath.set("Path CubeMap", "NONE");
 	cubeMapprefilterRoughness.set("Roughness CubeMap", 0.25f, 0, 1.f);
 	vOpenCubeMap.set("Open File");

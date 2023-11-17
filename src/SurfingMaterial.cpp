@@ -16,6 +16,13 @@ SurfingMaterial::~SurfingMaterial() {
 }
 
 //--------------------------------------------------------------
+void SurfingMaterial::setup(string name) {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setup() name: " << name;
+	this->setName(name);
+	setup();
+}
+
+//--------------------------------------------------------------
 void SurfingMaterial::setup() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setup()";
 
@@ -34,7 +41,9 @@ void SurfingMaterial::setupParams() {
 
 	//--
 
-	parameters.setName("PBR_Material");
+	string n = "PBR_MATERIAL";
+	if (name != "") n += name;
+	parameters.setName(n);
 
 	colorParams.setName("Colors");
 	settingsParams.setName("Settings");
@@ -133,7 +142,7 @@ void SurfingMaterial::setupGui() {
 	listenerLoad = gui.loadPressedE.newListener([this] {
 		load();
 	});
-	
+
 	guiHelpers.setup(helpersParams);
 
 	//--
@@ -176,7 +185,7 @@ void SurfingMaterial::drawGui() {
 
 	if (bGuiHelpers) {
 		auto p = gui.getShape().getBottomLeft();
-		guiHelpers.setPosition(p + glm::vec2(0, SURFING__PAD_OFXGUI_BETWEEN_PANELS));
+		guiHelpers.setPosition(p + glm::vec2(0, SURFING__PAD_OFXGUI_BETWEEN_PANELS * 2));
 		guiHelpers.draw();
 	}
 }
@@ -194,7 +203,7 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 	// Randomizers
 	if (name == vRandomMaterial.getName()) {
 		doRandomMaterial();
-		if(bAutoStoreAfterRandoms) doStoreNewState();
+		if (bAutoStoreAfterRandoms) doStoreNewState();
 	} else if (name == vRandomColors.getName()) {
 		doRandomColors();
 		if (bAutoStoreAfterRandoms) doStoreNewState();
@@ -639,7 +648,7 @@ void SurfingMaterial::doPrevHistory() {
 		indexHistory = indexHistory - 1;
 	else
 		indexHistory = indexHistory.getMax();
-		//indexHistory = indexHistory.getMin();
+	//indexHistory = indexHistory.getMin();
 }
 
 //--------------------------------------------------------------
@@ -655,7 +664,7 @@ void SurfingMaterial::doNextHistory() {
 		indexHistory = indexHistory + 1;
 	else
 		indexHistory = indexHistory.getMin();
-		//indexHistory = indexHistory.getMax();
+	//indexHistory = indexHistory.getMax();
 }
 
 //--------------------------------------------------------------
@@ -758,11 +767,11 @@ void SurfingMaterial::doRemoveState(int i) {
 
 //--------------------------------------------------------------
 void SurfingMaterial::save() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Save: " << path;
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Save: " << path + name + ext;
 
 	// Save
 	{
-		ofxSurfing::saveSettings(parameters, path);
+		ofxSurfing::saveSettings(parameters, path + name + ext);
 
 		//workflow
 		if (bAutoSaveBeforeChangeIndex) {
@@ -772,8 +781,14 @@ void SurfingMaterial::save() {
 }
 
 //--------------------------------------------------------------
+void SurfingMaterial::setName(const string & n) {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setName: " << n;
+	name = n;
+}
+
+//--------------------------------------------------------------
 void SurfingMaterial::load() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Load: " << path;
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Load: " << path + name + ext;
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.pause();
@@ -781,7 +796,7 @@ void SurfingMaterial::load() {
 
 	// Load
 	{
-		ofxSurfing::loadSettings(parameters, path);
+		ofxSurfing::loadSettings(parameters, path + name + ext);
 	}
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE

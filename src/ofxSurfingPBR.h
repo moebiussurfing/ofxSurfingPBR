@@ -24,6 +24,11 @@
 /*
 * TODO
 * 
+
+	- add instance name to allow multiple json settings
+		for many materials
+		- or add custom global path to /data/ofxSurfingPBR/MAT_NAME/
+
 	- SHADERS AND DISPLACE
 		- fix plane light not working when shaders enabled..
 		- check pipeline / enable ArbTex from the example!
@@ -40,7 +45,6 @@
 		something like ofxPBR or ofxPBRHelper.
 		- create a new example 
 			with two instantiated materials.
-	- add custom global path to /data/ofxSurfingPBR/
 */
 
 //--
@@ -80,7 +84,12 @@ public:
 	void draw(); //main draw
 	void drawPlane();
 	void drawBg();
+
+#define DO_SCENE_TEST_TRANSFORMS 1
 	void drawTestScene(); //a simple scene with 3 prims for easy testing
+	void pushTestSceneTRansform();
+	void popTestSceneTRansform();
+	
 	void drawGui();
 	void drawOfxGui();
 
