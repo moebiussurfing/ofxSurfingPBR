@@ -158,12 +158,13 @@ void ofxSurfingPBR::setupParams() {
 	vMaximizeAllGui.set("Gui Maximize");
 	guiLayout.set("Gui Layout", 0, 0, 1);
 	nameGuiLayout.set("Gui LN ", "NONE");
-	nameGuiLayout.setSerializable(false);
 
 	int imax = (int)ofxSurfing::SURFING_LAYOUT_AMOUNT - 1;
 	int idef = (int)ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
 	helpLayout.set("Help Layout", idef, 0, imax);
 	nameHelpLayout.set("Help LN", "NONE");
+
+	nameGuiLayout.setSerializable(false);
 	nameHelpLayout.setSerializable(false);
 
 	//--
@@ -1237,7 +1238,7 @@ void ofxSurfingPBR::drawPBRSceneDebug() {
 
 	// Debug lights and shadows
 	if (bGui) {
-		surfingLights.drawDebugPBRlights();
+		surfingLights.drawDebugLights();
 	}
 
 	//--
@@ -1918,9 +1919,6 @@ bool ofxSurfingPBR::loadCubeMap(string path) {
 void ofxSurfingPBR::setupCubeMap() {
 	ofLogNotice("ofxSurfingPBR") << "setupCubeMap()";
 
-	cubeMapName.setSerializable(false);
-	cubeMapModeName.setSerializable(false);
-
 	cubeMapModeName.set("TypeC", "NONE");
 	cubeMapMode.set("ModeC", 2, 1, 3);
 	cubeMapName.set("NameC", "NONE");
@@ -1928,6 +1926,9 @@ void ofxSurfingPBR::setupCubeMap() {
 	cubeMapprefilterRoughness.set("Roughness CubeMap", 0.25f, 0, 1.f);
 	vOpenCubeMap.set("Open File");
 	vResetCubeMap.set("Reset CubeMap");
+
+	cubeMapName.setSerializable(false);
+	cubeMapModeName.setSerializable(false);
 
 	//--
 

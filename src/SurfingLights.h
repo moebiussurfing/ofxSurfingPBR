@@ -30,25 +30,32 @@ public:
 	~SurfingLights();
 
 private:
-public:
-	// lights
 	vector<shared_ptr<ofLight>> lights;
+
+	callback_t f_RenderScene = nullptr;
+
+public:
+	void setFunctionRenderScene(callback_t f = nullptr);
+
 	ofParameter<bool> bDebug;
 	ofParameter<bool> bDebugShadow;
-	callback_t f_RenderScene = nullptr;
-	void setFunctionRenderScene(callback_t f = nullptr);
 	ofParameter<void> vResetLights;
 
 public:
 	void setupLights();
 	void updateLights();
 	void drawLights();
-	void drawDebugPBRlights();
+	void drawDebugLights();
 
 private:
+	bool bFlagUpdateLights = false;
+
 	ofLight pointLight;
 	ofLight spotLight;
 	ofLight directionalLight;
+
+	void update();
+	void update(ofEventArgs & args);
 
 public:
 	void setup();
@@ -66,18 +73,13 @@ private:
 	void refreshGui();
 
 public:
-	void begin();
-	void end();
-
-public:
 	ofxPanel gui;
 	void setGuiPosition(glm::vec2 pos);
 	void drawGui();
 	ofParameter<bool> bGui;
-	
+
 	ofxPanel guiShadows;
 	ofParameter<bool> bGui_Shadows;
-
 
 public:
 	int mouseX, mouseY;
@@ -134,11 +136,11 @@ public:
 	ofParameter<glm::vec3> directionalLightOrientation;
 	ofParameter<glm::vec3> directionalLightPosition;
 
-
 public:
 	ofParameter<bool> bAnimLights;
+	ofParameter<bool> bMouseLights;
 	void updateAnims();
-	ofParameter<bool> bDebugLights ;
+	ofParameter<bool> bDebugLights;
 	//void drawDebug();
 
 private:
@@ -147,13 +149,17 @@ private:
 	ofVec3f center;
 
 public:
-	void beginLights();
+	void beginLights();//?
 	void endLights();
 
-	// Resets
 public:
+	void begin();
+	void end();
+
+public:
+	// Resets
 	void doResetLights();
-//	void doResetAll();
+
 private:
 	void doResetPoint();
 	void doResetSpot();
@@ -189,7 +195,7 @@ private:
 public:
 	ofParameter<bool> bDrawShadow;
 	//ofParameter<bool> bDebugShadow;
-	
+
 private:
 	ofParameter<float> shadowBias;
 	ofParameter<float> shadowNormalBias;
@@ -202,6 +208,7 @@ private:
 
 public:
 	void doResetShadow();
+
 private:
 	void ChangedShadow(ofAbstractParameter & e);
 };

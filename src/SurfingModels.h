@@ -253,7 +253,7 @@ public:
 	ofParameterGroup parameters;
 
 	ofParameter<string> nameFile { "Name", "" };
-	ofParameter<int> indexFile { "File", -1, -1, -1 };
+	ofParameter<int> indexFile { "FILE", -1, -1, -1 };
 	ofParameter<void> vNext { "Next" };
 	ofParameter<void> vPrev { "Previous" };
 

@@ -558,7 +558,6 @@ void ofApp::drawGui() {
 			auto bb = gui.getShape();
 			auto p = bb.getTopRight() + glm::vec2 { (float)SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0.f };
 			surfingModels.setGuiPosition(p);
-
 			surfingModels.drawGui();
 		}
 #endif
@@ -664,9 +663,9 @@ void ofApp::refreshGui() {
 	if (indexScene == 2) {
 		ofxSurfing::setGuiPositionToLayoutBoth(gui, surfingModels.gui, layout);
 	} else
-		ofxSurfing::setGuiPositionToLayout(gui, layout);
+		ofxSurfing::setGuiPositionToLayout(gui, (layout == 0) ? 4 : 1);
 #else
-	ofxSurfing::setGuiPositionToLayout(gui, layout);
+	ofxSurfing::setGuiPositionToLayout(gui, 4);
 #endif
 }
 
