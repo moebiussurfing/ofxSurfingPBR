@@ -1,24 +1,26 @@
 /*
-* SurfingModels.h
+* SurfingModelsFilesBrowser.h
 * 
 	A class to help loading the many model files
 	from a path directory (default bin/data/models/)
 	Then allows browsing them and apply some basic transforms
 	that are persistent.
-	Transforms are stored as JSON paired to the model file.
+
+	Transforms are stored as JSON paired to the model file name with a suffix.
 	So we can add and remove more files to the path 
 	without breaking persistent settings!
+
 	Another parent (scope) class would be able to load files easily.
 	It has help info and displays to debug selected browser,
 	get the path to be passed to the model/mesh loaders..etc
 
 	See the EXAMPLE at the bottom of this file.
-
 */
 
 //--
 
 #pragma once
+
 #include "ofMain.h"
 
 #include "ofxSurfingHelpersLite.h"
@@ -53,10 +55,10 @@ public:
 
 //--
 
-class SurfingModels {
+class SurfingModelsFilesBrowser {
 public:
-	SurfingModels();
-	~SurfingModels();
+	SurfingModelsFilesBrowser();
+	~SurfingModelsFilesBrowser();
 
 public:
 	void setup(string path = "") {
@@ -74,9 +76,9 @@ public:
 
 		// Auto saver
 		// Register the local save function to be called when saving is required.
-		callback_t f = std::bind(&SurfingModels::save, this);
+		callback_t f = std::bind(&SurfingModelsFilesBrowser::save, this);
 		autoSaver.setFunctionSaver(f);
-		autoSaver.setName("SurfingModels");
+		autoSaver.setName("SurfingModelsFilesBrowser");
 
 		load();
 	}
@@ -98,7 +100,7 @@ public:
 		dir.sort();
 
 		if (dir.size() == 0) {
-			ofLogError("SurfingModels") << "setupDir() path or files not found!";
+			ofLogError("SurfingModelsFilesBrowser") << "setupDir() path or files not found!";
 			return;
 		}
 
@@ -164,7 +166,7 @@ public:
 			doReset();
 		});
 
-		ofAddListener(parameters.parameterChangedE(), this, &SurfingModels::Changed);
+		ofAddListener(parameters.parameterChangedE(), this, &SurfingModelsFilesBrowser::Changed);
 	}
 
 	void doProcessIndex(int i) {
@@ -296,7 +298,7 @@ public:
 	string extSuffixTransform = "__Transform.json";
 
 	SurfingAutoSaver autoSaver;
-	string pathSettings = "SurfingModels.json";
+	string pathSettings = "SurfingModelsFilesBrowser.json";
 
 	void save() {
 		ofLogNotice("ofSurfingModelsApp") << "save()";
@@ -305,7 +307,7 @@ public:
 		saveTransforms();
 	}
 	void load() {
-		ofLogNotice("SurfingModels") << "load()";
+		ofLogNotice("SurfingModelsFilesBrowser") << "load()";
 		autoSaver.pause();
 		ofxSurfing::loadSettings(parameters, pathSettings);
 		autoSaver.start();
@@ -313,7 +315,7 @@ public:
 		loadTransforms();
 	}
 	void saveTransforms() {
-		ofLogNotice("SurfingModels") << "saveTransforms()";
+		ofLogNotice("SurfingModelsFilesBrowser") << "saveTransforms()";
 		for (size_t i = 0; i < transforms.size(); i++) {
 			ofJson j;
 			string p = pathModels + "\\" + getName(i) + extSuffixTransform;
@@ -431,11 +433,11 @@ public:
 	ofParameterGroup transformParams;
 };
 
-SurfingModels::SurfingModels() {
+SurfingModelsFilesBrowser::SurfingModelsFilesBrowser() {
 }
 
-SurfingModels::~SurfingModels() {
-	ofRemoveListener(parameters.parameterChangedE(), this, &SurfingModels::Changed);
+SurfingModelsFilesBrowser::~SurfingModelsFilesBrowser() {
+	ofRemoveListener(parameters.parameterChangedE(), this, &SurfingModelsFilesBrowser::Changed);
 
 	//TODO: fix auto saver!
 	//save();
@@ -448,9 +450,9 @@ SurfingModels::~SurfingModels() {
 
 	// .h
 	{
-		#include "SurfingModels.h"
+		#include "SurfingModelsFilesBrowser.h"
 
-		SurfingModels surfingModels;
+		SurfingModelsFilesBrowser filesBrowser;
 		ofEventListener listenerLoadModel;
 		ofEventListener listenerIndexModel;
 	}
@@ -458,20 +460,20 @@ SurfingModels::~SurfingModels() {
 	// .cpp
 	// setup
 	{
-		surfingModels.setup();
+		filesBrowser.setup();
 
 		// Callback to trig the model file loading.
-		// The model path is ready on surfingModels.pathModel!
-		listenerLoadModel = surfingModels.vLoad.newListener([this](void) {
-			string path = surfingModels.pathModel;
+		// The model path is ready on filesBrowser.pathModel!
+		listenerLoadModel = filesBrowser.vLoad.newListener([this](void) {
+			string path = filesBrowser.pathModel;
 			this->loadModel(path);
 		});
 
-		listenerIndexModel = surfingModels.indexFile.newListener([this](int & i) {
+		listenerIndexModel = filesBrowser.indexFile.newListener([this](int & i) {
 			//index changed
 		});
 	
-		gui.add(surfingModels.parameters);
+		gui.add(filesBrowser.parameters);
 	}
 	// draw
 	{
@@ -479,7 +481,7 @@ SurfingModels::~SurfingModels() {
 		{
 			float yUnit = 500;
 			float scaleUnit = 1000;
-			float scalePow = surfingModels.getTransformScalePow();
+			float scalePow = filesBrowser.getTransformScalePow();
 			if (scalePow == 0) {
 			} else if (scalePow < 1) {
 				scaleUnit = scaleUnit / (float)abs(scalePow - 1);
@@ -487,9 +489,9 @@ SurfingModels::~SurfingModels() {
 				scaleUnit = scaleUnit * (float)abs(scalePow + 1);
 			}
 
-			float y = ofMap(surfingModels.getTransformPos(), -1, 1, -yUnit, yUnit, true);
-			float s = ofMap(surfingModels.getTransformScale(), -1, 1, 1.f / scaleUnit, scaleUnit, true);
-			float r = ofMap(surfingModels.getTransformRot(), -1, 1, -180, 180, true);
+			float y = ofMap(filesBrowser.getTransformPos(), -1, 1, -yUnit, yUnit, true);
+			float s = ofMap(filesBrowser.getTransformScale(), -1, 1, 1.f / scaleUnit, scaleUnit, true);
+			float r = ofMap(filesBrowser.getTransformRot(), -1, 1, -180, 180, true);
 
 			ofPushMatrix();
 			ofTranslate(0, y, 0);
@@ -501,16 +503,16 @@ SurfingModels::~SurfingModels() {
 			ofPopMatrix();
 		}
 
-		surfingModels.drawGui();
-		surfingModels.drawHelp();
+		filesBrowser.drawGui();
+		filesBrowser.drawHelp();
 	}
 	// keyPressed
 	{
 		if (key == OF_KEY_RIGHT) {
-			surfingModels.next();
+			filesBrowser.next();
 		}
 		if (key == OF_KEY_LEFT) {
-			surfingModels.previous();
+			filesBrowser.previous();
 		}
 	}
 */

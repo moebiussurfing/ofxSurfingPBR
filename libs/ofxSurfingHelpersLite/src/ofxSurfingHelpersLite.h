@@ -751,13 +751,13 @@ inline void setGuiPositionToLayout(ofxPanel & gui, SURFING_LAYOUT layout) {
 // (gui2 must be externally linked to gui1 with the correct padding).
 //TODO: other layouts
 //--------------------------------------------------------------
-inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2, int layout = 1, bool bDoubleSpace = false) {
+inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2, SURFING_LAYOUT layout = SURFING_LAYOUT_BOTTOM_CENTER, bool bDoubleSpace = false) {
 	//TODO: ADD OTHER LAYOUTS
 
 	float d = float(SURFING__PAD_OFXGUI_BETWEEN_PANELS);
 	if (bDoubleSpace) d *= 2;
 
-	if (layout == 0) { // both bottom-center
+	if (layout == SURFING_LAYOUT_BOTTOM_CENTER) { // both bottom-center
 		int gw = gui1.getShape().getWidth() + gui2.getShape().getWidth() + d;
 		int gh = MAX(gui1.getShape().getHeight(), gui2.getShape().getHeight());
 		gh += SURFING__PAD_TO_WINDOW_BORDERS;
@@ -766,11 +766,15 @@ inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2, int lay
 		gui1.setPosition(x, y);
 	}
 
-	else if (layout == 1) { // both top-center
+	else if (layout == SURFING_LAYOUT_TOP_CENTER) { // both top-center
 		int gw = gui1.getShape().getWidth() + gui2.getShape().getWidth() + d;
 		int x = ofGetWidth() / 2 - gw / 2;
 		int y = SURFING__PAD_TO_WINDOW_BORDERS;
 		gui1.setPosition(x, y);
+	}
+
+	else {
+		ofLogWarning("ofxSurfing") << "Layout not implemented for setGuiPositionToLayoutBoth(" + ofToString(layout) + ")";
 	}
 }
 
@@ -803,7 +807,7 @@ inline void setGuiPositionToLayoutPanelsCentered(ofxPanel & gui1, size_t amount,
 	}
 
 	else {
-		ofLogWarning("ofxSurfing") << "Layout not implemented to be used by setGuiPositionToLayoutPanelsCentered()";
+		ofLogWarning("ofxSurfing") << "Layout not implemented for setGuiPositionToLayoutPanelsCentered(" + ofToString(layout) + ")";
 
 		x = SURFING__PAD_TO_WINDOW_BORDERS;
 		y = SURFING__PAD_TO_WINDOW_BORDERS;

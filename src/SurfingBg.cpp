@@ -112,12 +112,12 @@ void SurfingBg::setupParameters() {
 
 	//--
 
-	bGui.set("UI BG", true);
+	bGui.set("UI BG", false);
 
 	bRotate.set("Rotate", true);
 	speedRotate.set("Speed", 0, -1, 1);
 
-	bDrawObject.set("Draw Bg Object", true);
+	bDrawObject.set("Draw Bg Object", false);
 	bDrawWireframe.set("Draw Wireframe", false);
 	bModeBox.set("Mode Box", false);
 	bModeSphere.set("Mode Sphere", false);

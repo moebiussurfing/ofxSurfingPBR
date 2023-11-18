@@ -2,8 +2,7 @@
 #include "ofMain.h"
 
 #define OFAPP__USE__OPTIONAL_SETUP 0
-
-#define SURFING__USE__FILE_BROWSER
+#define SURFING__USE__MODELS_MANAGER
 
 //--
 
@@ -12,8 +11,8 @@
 #include "ofVboMesh.h"
 #include "ofxAssimpModelLoader.h"
 
-#ifdef SURFING__USE__FILE_BROWSER
-	#include "SurfingModels.h"
+#ifdef SURFING__USE__MODELS_MANAGER
+	#include "SurfingModelsManager.h"
 #endif
 
 class ofApp : public ofBaseApp {
@@ -64,15 +63,15 @@ public:
 
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
 	ofParameter<float> yPos { "Pos y", 0, -1.f, 1.f };
-	
+
 	ofParameterGroup animateParams;
 	ofParameterGroup transformsParams;
 
-	ofParameter<bool> bRotate { "Rotate", false };
+	ofParameter<bool> bAnimRotate { "Rotate Anim", false };
 	ofParameter<float> rotateSpeed { "Rotate Speed", 0.5f, 0, 1 };
-	ofParameter<bool> bAnimZoom { "Anim", false };
-	ofParameter<float> animSpeed { "Anim Speed", 0.5f, 0, 1 };
-	ofParameter<float> powAnim{ "Anim Pow", 0.5f, 0, 1 };
+	ofParameter<bool> bAnimZoom { "Zoom Anim", false };
+	ofParameter<float> zoomSpeed { "Zoom Speed", 0.5f, 0, 1 };
+	ofParameter<float> powZoom { "Zoom Pow", 0.5f, 0, 1 };
 
 	ofParameter<int> indexScene { "SCENE", 0, 0, 2 };
 	ofParameter<string> nameScene { "Name", "" };
@@ -107,33 +106,23 @@ public:
 	// Gui
 	ofxPanel gui;
 
-	void refreshGui(); 
+	void refreshGui();
 	// Refresh gui for minimize/collapse workflow
 	// and to layout the gui panels on the app window.
 	ofEventListener listenerGuiRefresh;
-	 
+
 	//--
-	
+
 	// Models files browser
-#ifdef SURFING__USE__FILE_BROWSER
-	SurfingModels surfingModels;
-
-	void setupModels();
-	void loadModels();
-
-	ofEventListener listenerLoadModel;
+#ifdef SURFING__USE__MODELS_MANAGER
+	SurfingModelsManager modelsManager;
 	ofEventListener listenerIndexModel;
-
-	vector<std::unique_ptr<ofxAssimpModelLoader>> models;
-	vector<vector<ofVboMesh>> meshesModels;
-#endif
-
+#else
 	// One single model
-#ifndef SURFING__USE__FILE_BROWSER
 	void setupModel();
 	ofxAssimpModelLoader model;
 	vector<ofVboMesh> meshesModel;
 	string pathModel;
-	bool loadModel(string path, float scaled=1);
+	bool loadModel(string path, float scaled = 1);
 #endif
 };

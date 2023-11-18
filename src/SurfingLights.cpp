@@ -458,7 +458,7 @@ void SurfingLights::setupParameters() {
 
 	float u = 1.f * SURFING__SCENE_SIZE_UNIT;
 
-	bGui.set("UI LIGHTS", true);
+	bGui.set("UI LIGHTS", false);
 
 	bAnimLights.set("Anim Lights", false);
 	bMouseLights.set("Mouse Lights", false);
@@ -641,7 +641,7 @@ void SurfingLights::setupParameters() {
 
 	// Shadows
 
-	bGui_Shadows.set("UI SHADOWS", true);
+	bGui_Shadows.set("UI SHADOWS", false);
 	bDrawShadow.set("Draw Shadow", true);
 	shadowBias.set("Bias", 0.07, 0.0, 1.0);
 	shadowNormalBias.set("Normal Bias", -4.f, -10.0, 10.0);
