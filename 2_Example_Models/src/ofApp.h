@@ -35,6 +35,7 @@ public:
 	void setupPBR();
 	void renderScene();
 	void drawMyScene(); // Our scene is drawn here!
+	void updateSceneTransforms();
 
 	//--
 
@@ -116,7 +117,7 @@ public:
 	// Models files browser
 #ifdef SURFING__USE__MODELS_MANAGER
 	SurfingModelsManager modelsManager;
-	ofEventListener listenerIndexModel;
+	ofEventListener listenerIndexModel;//get class internal index changed
 #else
 	// One single model
 	void setupModel();

@@ -68,6 +68,7 @@ void SurfingMaterial::setupParams() {
 
 	colorParams.setName("Colors");
 	globalParams.setName("Globals");
+	globalLinksParams.setName("Links");
 	settingsParams.setName("Settings");
 	coatParams.setName("Coat");
 	randomizersParams.setName("Randomizers");
@@ -120,9 +121,10 @@ void SurfingMaterial::setupParams() {
 
 	globalParams.add(globalColor.set("Global Color", ofFloatColor::white));
 	globalParams.add(globalAlpha.set("Global Alpha", 1.0f, 0.0f, 1.0f));
-	globalParams.add(nameSourceGlobal.set("Source", "NONE"));
-	globalParams.add(fromColorToGlobal.set("fromColor", 0, 0, 3));
-	globalParams.add(vToGlobal.set("toGlobal"));
+	globalLinksParams.add(nameSourceGlobal.set("Source", "NONE"));
+	globalLinksParams.add(fromColorToGlobal.set("fromColor", 0, 0, 3));
+	globalLinksParams.add(vToGlobal.set("toGlobal"));
+	globalParams.add(globalLinksParams);
 	parameters.add(globalParams);
 	nameSourceGlobal.setSerializable(false);
 
@@ -154,6 +156,9 @@ void SurfingMaterial::setupParams() {
 	ofAddListener(parameters.parameterChangedE(), this, &SurfingMaterial::Changed);
 	ofAddListener(helpersParams.parameterChangedE(), this, &SurfingMaterial::ChangedHelpers);
 	ofAddListener(globalParams.parameterChangedE(), this, &SurfingMaterial::ChangedGlobals);
+
+	//refresh
+	fromColorToGlobal = fromColorToGlobal;
 }
 
 //--------------------------------------------------------------
@@ -176,11 +181,18 @@ void SurfingMaterial::setupGui() {
 	guiHelpers.setup(helpersParams);
 
 	//--
-
+	
 	// minimize panels
+	refreshGui();
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::refreshGui() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:refreshGui()";
 
 	gui.getGroup(settingsParams.getName()).getGroup(coatParams.getName()).minimize();
 	gui.getGroup(colorParams.getName()).minimize();
+	gui.getGroup(globalParams.getName()).getGroup(globalLinksParams.getName()).minimize();
 
 	//guiHelpers.minimizeAll();
 	guiHelpers.getGroup(randomizersParams.getName()).minimize();
@@ -305,6 +317,31 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 }
 
 //--------------------------------------------------------------
+void SurfingMaterial::doToGlobal() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doToGlobal()";
+
+	ofFloatColor c = ofFloatColor(1.f, 1.f);
+
+	const int i = fromColorToGlobal.get();
+
+	if (i == 0)
+		c = ambientColor.get();
+	else if (i == 1)
+		c = specularColor.get();
+	else if (i == 2)
+		c = diffuseColor.get();
+	else if (i == 3)
+		c = emissiveColor.get();
+
+	bAttendingGlobal = true;
+	{
+		globalColor.set(c);
+		globalAlpha.set(c.a);
+	}
+	bAttendingGlobal = false;
+}
+
+//--------------------------------------------------------------
 void SurfingMaterial::ChangedGlobals(ofAbstractParameter & e) {
 
 	std::string name = e.getName();
@@ -407,31 +444,12 @@ void SurfingMaterial::ChangedGlobals(ofAbstractParameter & e) {
 	}
 
 	else if (name == vToGlobal.getName()) {
-		ofFloatColor c = ofFloatColor(1.f, 1.f);
-
-		const int i = fromColorToGlobal.get();
-
-		if (i == 0)
-			c = ambientColor.get();
-		else if (i == 1)
-			c = specularColor.get();
-		else if (i == 2)
-			c = diffuseColor.get();
-		else if (i == 3)
-			c = emissiveColor.get();
-
-		bAttendingGlobal = true;
-		{
-			globalColor.set(c);
-			globalAlpha.set(c.a);
-		}
-		bAttendingGlobal = false;
+		doToGlobal();
 	}
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::Changed(ofAbstractParameter & e) {
-	//if (bDisableCallbacks) return;
 
 	std::string name = e.getName();
 
@@ -482,15 +500,21 @@ void SurfingMaterial::Changed(ofAbstractParameter & e) {
 	}
 }
 
+//--
+
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomMaterial() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomMaterial()";
+	
 	doRandomSettings();
 	doRandomColors();
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::doResetMaterial() {
-	//reset all the material params and colors with alpha settled to full.
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doResetMaterial()";
+
+	// resets all the material params and colors with alpha settled to full.
 
 	shininess.set(0);
 	roughness.set(0);
@@ -511,18 +535,26 @@ void SurfingMaterial::doResetMaterial() {
 	bClearCoat.set(false);
 	clearCoatRoughness.set(0.0001);
 	clearCoatStrength.set(0.0001);
+
+	refreshGlobals();
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomSettings() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomSettings()";
+	
 	// randomizes the PBR settings without touching the colors.
 
 	shininess.set(ofRandom(1));
 	roughness.set(ofRandom(1));
 	metallic.set(ofRandom(1));
 	reflectance.set(ofRandom(1));
+
+	refreshGlobals();
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColorsAlpha() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomColorsAlpha()";
+	
 	// randomizes the colors and their alphas too.
 
 	ofFloatColor c;
@@ -538,9 +570,13 @@ void SurfingMaterial::doRandomColorsAlpha() {
 
 	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), ofRandom(1));
 	emissiveColor.set(c);
+
+	refreshGlobals();
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColorGlobal() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomColorGlobal()";
+	
 	// randomizes the global color but do not touches the alpha/s.
 
 	ofFloatColor c;
@@ -552,6 +588,8 @@ void SurfingMaterial::doRandomColorGlobal() {
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColors() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomColors()";
+	
 	// randomizes the colors but do not touches the alphas.
 
 	ofFloatColor c;
@@ -576,9 +614,13 @@ void SurfingMaterial::doRandomColors() {
 	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), a);
 	if (emissiveColor.get() != c)
 		emissiveColor.set(c);
+
+	refreshGlobals();
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomAlphas() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomAlphas()";
+
 	//randomizes the alpha's only of each color. Do not touches the rgb of the colors.
 
 	ofFloatColor c;
@@ -607,6 +649,8 @@ void SurfingMaterial::doRandomAlphas() {
 	c = ofFloatColor(c.r, c.g, c.b, a);
 	if (emissiveColor.get() != c)
 		emissiveColor.set(c);
+
+	refreshGlobals();
 }
 
 //--
@@ -627,16 +671,13 @@ void SurfingMaterial::setupHistoryManager() {
 	vClearHistory.set("History Clear");
 	bAutoStoreAfterRandoms.set("Auto Store Randoms", true);
 
-	//workflow
-	//indexHistory.setSerializable(false);
-
 	historyParams.setName("History Browser");
 	historyParams.add(vNextHistory);
 	historyParams.add(vPrevHistory);
 	historyParams.add(indexHistory);
 	historyParams.add(vRecallState);
 	historyParams.add(vStoreNewState);
-	//historyParams.add(vSaveState);//forced autosave
+	//historyParams.add(vSaveState);//forced auto save
 	historyParams.add(vRemoveState);
 	historyParams.add(bAutoStoreAfterRandoms);
 	historyParams.add(vRefeshHistory);
@@ -772,8 +813,8 @@ void SurfingMaterial::doPrevHistory() {
 	if (indexHistory > 0)
 		indexHistory = indexHistory - 1;
 	else
-		indexHistory = indexHistory.getMax();
-	//indexHistory = indexHistory.getMin();
+		indexHistory = indexHistory.getMax();//cycled
+	//indexHistory = indexHistory.getMin();//clamped
 }
 
 //--------------------------------------------------------------
@@ -788,18 +829,19 @@ void SurfingMaterial::doNextHistory() {
 	if (indexHistory < indexHistory.getMax())
 		indexHistory = indexHistory + 1;
 	else
-		indexHistory = indexHistory.getMin();
-	//indexHistory = indexHistory.getMax();
+		indexHistory = indexHistory.getMin();//cycled
+	//indexHistory = indexHistory.getMax();//clamped
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::doSaveState(int i) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doSaveState(" << i << ")";
-	//save over loaded or passed state
+
+	// save over loaded or passed state
 
 	string p;
 
-	//save file
+	// save file
 	if (i == -1) {
 		p = getFilePathHistoryState(indexHistory);
 	} else {
@@ -812,7 +854,8 @@ void SurfingMaterial::doSaveState(int i) {
 //--------------------------------------------------------------
 void SurfingMaterial::doStoreNewState() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doStoreNewState()";
-	//save a new state at the end
+
+	// save a new state at the end
 
 	sizeHistory++;
 
@@ -829,20 +872,12 @@ void SurfingMaterial::doStoreNewState() {
 }
 
 //--------------------------------------------------------------
-void SurfingMaterial::restoreGlobal() {
-	//workflow. auto get
+void SurfingMaterial::refreshGlobals() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:refreshGlobals()";
+	
+	// workflow
+	// Auto get global from a source color.
 	vToGlobal.trigger();
-
-//#if 0
-//	//TODO: need fix: 
-//	// if we want to call after recalling a state, 
-//	// bc gui is not being updated..
-//	globalColor.setWithoutEventNotifications(ofFloatColor(1, 1));
-//	globalAlpha.setWithoutEventNotifications(1);
-//#else
-//	globalColor.set(ofFloatColor(1, 1));
-//	globalAlpha.set(1);
-//#endif
 }
 
 //--------------------------------------------------------------
@@ -861,7 +896,7 @@ void SurfingMaterial::doRecallState(int i) {
 
 		ofxSurfing::loadSettings(parameters, p);
 		
-		restoreGlobal();
+		refreshGlobals();
 	} else
 		ofLogError("ofxSurfingPBR") << "Out of range of history for index: " << i;
 }
@@ -939,8 +974,7 @@ void SurfingMaterial::load() {
 	autoSaver.start();
 #endif
 
-	//workflow. auto get
-	restoreGlobal();
+	refreshGlobals();
 }
 
 //--------------------------------------------------------------

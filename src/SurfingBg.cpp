@@ -121,6 +121,8 @@ void SurfingBg::setupParameters() {
 	bDrawWireframe.set("Draw Wireframe", false);
 	bModeBox.set("Mode Box", false);
 	bModeSphere.set("Mode Sphere", false);
+	resolutionSphere.set("Resolution SPH", 0.5, 0, 1);
+	resolutionBox.set("Resolution BOX", 0.5, 0, 1);
 
 	sizeScene.set("Size", 0.5, 0, 1.f);
 
@@ -146,9 +148,11 @@ void SurfingBg::setupParameters() {
 	paramsScene.add(bDrawBgColorPlain);
 
 	paramsObject.setName("Object");
-	paramsObject.add(sizeScene);
 	paramsObject.add(bModeBox);
 	paramsObject.add(bModeSphere);
+	paramsObject.add(resolutionBox);
+	paramsObject.add(resolutionSphere);
+	paramsObject.add(sizeScene);
 
 	paramsObject.add(bUseTexture);
 	paramsObject.add(pathTexture);
@@ -482,6 +486,9 @@ void SurfingBg::doResetScene() {
 	if (bModeBox) bModeBox = false;
 	if (!bModeSphere) bModeSphere = true;
 
+	resolutionSphere = 0.2f;
+	resolutionBox = 0.2f;
+
 	if (sizeScene != 0.5f) sizeScene = 0.5f;
 	if (speedRotate != 0.01) speedRotate = 0.01;
 
@@ -752,6 +759,24 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 		} else {
 			if (!bModeBox.get()) bModeBox.setWithoutEventNotifications(true); //fix crash
 		}
+	}
+
+	else if (name == resolutionSphere.getName()) {
+		int RESOLUTION_SPHERE_MIN = 2;
+		int RESOLUTION_SPHERE_MAX = 100;
+		float r = ofMap(resolutionSphere.get(), 
+			resolutionSphere.getMin(), resolutionSphere.getMax(),
+			RESOLUTION_SPHERE_MIN, RESOLUTION_SPHERE_MAX, true);
+		ofSetSphereResolution(r);
+	}
+
+	else if (name == resolutionBox.getName()) {
+		int RESOLUTION_BOX_MIN = 1;
+		int RESOLUTION_BOX_MAX = 100;
+		float r = ofMap(resolutionBox.get(), 
+			resolutionBox.getMin(), resolutionBox.getMax(),
+			RESOLUTION_BOX_MIN, RESOLUTION_BOX_MAX, true);
+		ofSetBoxResolution(r);
 	}
 
 	//--

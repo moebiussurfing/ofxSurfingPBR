@@ -31,6 +31,7 @@ private:
 
 	void setupParams();
 	void setupGui();
+	void refreshGui();
 
 	void Changed(ofAbstractParameter & e);
 	void ChangedHelpers(ofAbstractParameter & e);
@@ -48,6 +49,7 @@ public:
 
 	ofParameterGroup colorParams;
 	ofParameterGroup globalParams;
+	ofParameterGroup globalLinksParams;
 	ofParameterGroup settingsParams;
 	ofParameterGroup coatParams;
 	ofParameterGroup randomizersParams;
@@ -55,11 +57,14 @@ public:
 
 	ofParameter<ofFloatColor> globalColor; //will set all colors except touching their alphas.
 	ofParameter<float> globalAlpha; //will set this alpha to all colors.
+private:
 	ofParameter<void> vToGlobal;
 	ofParameter<int> fromColorToGlobal;
 	ofParameter<string> nameSourceGlobal;
 	bool bAttendingGlobal = false;
+	void doToGlobal();
 
+public:
 	ofParameter<ofFloatColor> diffuseColor;
 	ofParameter<ofFloatColor> specularColor;
 	ofParameter<ofFloatColor> ambientColor;
@@ -143,7 +148,7 @@ private:
 	void doRecallState(int i);
 	void doRemoveState(int i);
 	void removeHistoryFolder();
-	void restoreGlobal();
+	void refreshGlobals();
 
 	const string getFilePathHistoryState(const int &i);
 	string pathHistory = "ofxSurfingPBR_Material_Temp\\";

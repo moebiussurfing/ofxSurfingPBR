@@ -291,8 +291,8 @@ public:
 	ofParameter<glm::vec2> planeSize; //normalized
 	ofParameter<glm::vec2> planeResolution;
 	ofParameter<bool> bPlaneInfinite;
-	//will ignore planeSize
-	//make the plane huge size to better "fit a full horizon line"
+	// will ignore planeSize
+	// make the plane huge size to better "fit a full horizon line"
 
 	ofParameter<float> planeRotation; //x axis
 	ofParameter<float> planePosition; //y pos

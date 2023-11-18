@@ -117,6 +117,8 @@ public:
 	ofParameter<bool> bDrawWireframe;
 	ofParameter<bool> bModeBox;
 	ofParameter<bool> bModeSphere;
+	ofParameter<float> resolutionSphere;
+	ofParameter<float> resolutionBox;
 
 	ofParameter<void> vResetAll;
 	ofEventListener listenerResetAll;

@@ -1,4 +1,15 @@
 /*
+	TODO
+
+	- make aux transform params with makeRef
+		to link to loaded object,
+		then avoiding to expose all the object 
+		transforms folders to the gui
+
+	- add bool draw to each object to allow all models mode arrange.
+*/
+
+/*
 * SurfingModelsFilesBrowser.h
 * 
 	A class to help loading the many model files
@@ -40,10 +51,11 @@ public:
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
 	ofParameter<float> yPos { "y Pos", 0, -1.f, 1.f };
 	ofParameter<float> yRot { "y Rot", 0, -1.f, 1.f };
+	ofParameter<glm::vec3> rot { "Rot", glm::vec3(0), glm::vec3(-180), glm::vec3(180) };
 
 	ofParameterGroup parameters {
 		"Transform",
-		scalePow, scale, yPos, yRot
+		scalePow, scale, yPos, yRot, rot
 	};
 
 	Transform() {
@@ -61,6 +73,30 @@ public:
 	~SurfingModelsFilesBrowser();
 
 public:
+	ofParameterGroup parameters;
+
+	ofParameter<string> nameFile { "Name", "" };
+	ofParameter<int> indexFile { "FILE", -1, -1, -1 };
+	ofParameter<void> vNext { "Next" };
+	ofParameter<void> vPrev { "Previous" };
+
+	ofParameter<void> vReset { "Reset" };
+
+	ofParameterGroup extraParams;
+	ofParameter<bool> bModeAll { "All Models", false };
+	ofParameter<bool> bAutoSwitch { "Auto Switch", false }; //auto switch to next model
+	ofParameter<float> timeAutoSwitch { "Time Switch", 2, 0.05, 10 };
+	ofParameter<int> indexAnimation { "Index Anim", -1, -1, -1 };
+
+private:
+	void setupGui() {
+		gui.setup(parameters);
+		gui.getGroup(transformParams.getName()).minimize();
+
+		gui.getGroup(extraParams.getName()).minimize();
+	}
+
+public:
 	void setup(string path = "") {
 		setupDir(path);
 
@@ -68,9 +104,7 @@ public:
 
 		setupParams();
 
-		// Gui
-		gui.setup(parameters);
-		gui.getGroup(transformParams.getName()).minimize();
+		setupGui();
 
 		//--
 
@@ -118,6 +152,13 @@ public:
 		parameters.add(indexFile);
 		parameters.add(nameFile);
 
+		extraParams.setName("Extra");
+		extraParams.add(bModeAll);
+		extraParams.add(bAutoSwitch);
+		extraParams.add(timeAutoSwitch);
+		extraParams.add(indexAnimation);
+		parameters.add(extraParams);
+
 		//--
 
 		transformParams.setName("Transforms");
@@ -155,6 +196,14 @@ public:
 			}
 		});
 
+		listenerAnimationIndex = indexAnimation.newListener([this](int & i) {
+			static int i_ = -1;
+			if (i != i_) { //check that changed
+
+				i_ = i;
+			}
+		});
+
 		listenerNext = vNext.newListener([this](void) {
 			next();
 		});
@@ -175,6 +224,8 @@ public:
 
 		pathModel = dir.getPath(i);
 		vLoad.trigger();
+
+		timeIndexChanged = ofGetElapsedTimef();
 
 		refreshGui();
 
@@ -248,25 +299,30 @@ public:
 		}
 	}
 
+public:
+	void updateAutoSwitch() {
+		if (bAutoSwitch) {
+			float t = ofGetElapsedTimef() - timeIndexChanged;
+			if (t > timeAutoSwitch.get()) {
+				next();
+			}
+		}
+	}
+
 private:
 	ofDirectory dir;
 
 public:
-	ofParameterGroup parameters;
-
-	ofParameter<string> nameFile { "Name", "" };
-	ofParameter<int> indexFile { "FILE", -1, -1, -1 };
-	ofParameter<void> vNext { "Next" };
-	ofParameter<void> vPrev { "Previous" };
-
-	ofParameter<void> vReset { "Reset" };
-
 	void doReset() {
 		resetTransform();
 	}
 
 private:
+	float timeIndexChanged;
+
+private:
 	ofEventListener listenerReset;
+	ofEventListener listenerAnimationIndex;
 
 public:
 	ofParameter<void> vLoad { "LoadBang" };
@@ -281,6 +337,15 @@ private:
 
 	void Changed(ofAbstractParameter & e) {
 		autoSaver.saveSoon();
+
+		std::string name = e.getName();
+
+		ofLogNotice("ofxSurfingPBR") << "Changed " << name << ": " << e;
+
+		//if (name == bModeAll.getName()) {
+		//	//workflow
+		//	if (bAutoSwitch) bAutoSwitch.set(false);
+		//}
 	}
 
 public:
@@ -356,7 +421,10 @@ public:
 			bool b = (i == indexFile); //selected
 			auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
 			b ? g.maximize() : g.minimize();
+			g.getGroup(t.rot.getName()).minimize();	
 		}
+
+		//gui.getGroup(extraParams.getName()).minimize();
 	}
 
 private:
@@ -412,11 +480,18 @@ public:
 			v = transforms[i].yPos;
 		return v;
 	}
-	float getTransformRot(int i = -1) {
+	float getTransformRotY(int i = -1) {
 		float v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
 			v = transforms[i].yRot;
+		return v;
+	}
+	glm::vec3 getTransformRotVec(int i = -1) {
+		glm::vec3 v = glm::vec3(0);
+		if (i == -1) i = indexFile;
+		if (i < transforms.size())
+			v = transforms[i].rot;
 		return v;
 	}
 
@@ -424,9 +499,10 @@ public:
 		if (i == -1) i = indexFile;
 		if (i < transforms.size()) {
 			transforms[i].scalePow = 0;
+			transforms[i].scale = 0;
 			transforms[i].yPos = 0;
 			transforms[i].yRot = 0;
-			transforms[i].scale = 0;
+			transforms[i].rot = glm::vec3(0);
 		}
 	}
 
@@ -491,7 +567,7 @@ SurfingModelsFilesBrowser::~SurfingModelsFilesBrowser() {
 
 			float y = ofMap(filesBrowser.getTransformPos(), -1, 1, -yUnit, yUnit, true);
 			float s = ofMap(filesBrowser.getTransformScale(), -1, 1, 1.f / scaleUnit, scaleUnit, true);
-			float r = ofMap(filesBrowser.getTransformRot(), -1, 1, -180, 180, true);
+			float r = ofMap(filesBrowser.getTransformRotY(), -1, 1, -180, 180, true);
 
 			ofPushMatrix();
 			ofTranslate(0, y, 0);

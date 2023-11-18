@@ -37,7 +37,7 @@ void ofApp::setup() {
 
 	listenerIndexModel = modelsManager.indexFile.newListener([this](int & i) {
 		buildHelp(); // refresh help info
-		refreshGui(); // refresh gui layout
+		//refreshGui(); // refresh gui layout
 	});
 
 #else
@@ -368,6 +368,31 @@ void ofApp::renderScene() {
 //------
 
 //--------------------------------------------------------------
+void ofApp::updateSceneTransforms() {
+	ofPushMatrix();
+
+	// Position
+	float yUnit = SURFING__SCENE_SIZE_UNIT / 2.f;
+	float y = ofMap(yPos, -1.f, 1.f,
+		-yUnit, yUnit, true);
+
+	// Scale
+	float s = ofMap(scale, -1.f, 1.f,
+		1.f / SURFING__SCENE_TEST_UNIT_SCALE, SURFING__SCENE_TEST_UNIT_SCALE, true);
+
+	// Rotation
+	int tmax = 30;
+	// 30 seconds to complete 360deg
+	// at 60 fps, for the slower speed.
+	// faster speed is one second per 360deg.
+	int f = ofMap(rotateSpeed, 0.f, 1.f, 60 * tmax, 60, true);
+	float d = ofMap(ofGetFrameNum() % f, 0, f, 0.f, 360.f);
+
+	ofTranslate(0, y, 0);
+	ofScale(s);
+	if (bAnimRotate) ofRotateYDeg(d);
+}
+//--------------------------------------------------------------
 void ofApp::drawMyScene() {
 
 	/*
@@ -378,28 +403,7 @@ void ofApp::drawMyScene() {
 
 	// Scene transforms
 	{
-		ofPushMatrix();
-
-		// Position
-		float yUnit = SURFING__SCENE_SIZE_UNIT / 2.f;
-		float y = ofMap(yPos, -1.f, 1.f,
-			-yUnit, yUnit, true);
-
-		// Scale
-		float s = ofMap(scale, -1.f, 1.f,
-			1.f / SURFING__SCENE_TEST_UNIT_SCALE, SURFING__SCENE_TEST_UNIT_SCALE, true);
-
-		// Rotation
-		int tmax = 30;
-		// 30 seconds to complete 360deg
-		// at 60 fps, for the slower speed.
-		// faster speed is one second per 360deg.
-		int f = ofMap(rotateSpeed, 0.f, 1.f, 60 * tmax, 60, true);
-		float d = ofMap(ofGetFrameNum() % f, 0, f, 0.f, 360.f);
-
-		ofTranslate(0, y, 0);
-		ofScale(s);
-		if (bAnimRotate) ofRotateYDeg(d);
+		updateSceneTransforms();
 	}
 
 	//--
