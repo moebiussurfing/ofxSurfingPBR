@@ -17,7 +17,7 @@ SurfingMaterial::~SurfingMaterial() {
 
 //--------------------------------------------------------------
 void SurfingMaterial::setup(string name) {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setup() name: " << name;
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setup(" << name << ")";
 	this->setName(name);
 	setup();
 }
@@ -40,9 +40,14 @@ void SurfingMaterial::setupParams() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setupParams()";
 
 	//--
-
+	
 	string n = "PBR_MATERIAL";
-	if (name != "") n += name;
+	if (name != "") {
+		n += string("_");
+		n += name;
+	}
+	path = path + "_" + name + ext;
+
 	parameters.setName(n);
 
 	colorParams.setName("Colors");
@@ -767,11 +772,11 @@ void SurfingMaterial::doRemoveState(int i) {
 
 //--------------------------------------------------------------
 void SurfingMaterial::save() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Save: " << path + name + ext;
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Save: " << path;
 
 	// Save
 	{
-		ofxSurfing::saveSettings(parameters, path + name + ext);
+		ofxSurfing::saveSettings(parameters, path);
 
 		//workflow
 		if (bAutoSaveBeforeChangeIndex) {
@@ -788,7 +793,7 @@ void SurfingMaterial::setName(const string & n) {
 
 //--------------------------------------------------------------
 void SurfingMaterial::load() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Load: " << path + name + ext;
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Load: " << path;
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.pause();
@@ -796,7 +801,7 @@ void SurfingMaterial::load() {
 
 	// Load
 	{
-		ofxSurfing::loadSettings(parameters, path + name + ext);
+		ofxSurfing::loadSettings(parameters, path);
 	}
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE

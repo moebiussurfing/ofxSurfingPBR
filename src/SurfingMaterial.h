@@ -1,3 +1,14 @@
+/*
+
+	TODO
+
+	draw helpers gui bundled to improve materials standalone workflow.
+		add custom/name path for history browser.
+	add bang to update global color from other colors.
+
+*/
+
+
 #pragma once
 #include "ofMain.h"
 

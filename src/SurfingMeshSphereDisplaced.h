@@ -16,6 +16,8 @@
 #include "ofxGui.h"
 #include "ofxSurfingHelpersLite.h"
 
+#define SURFING__OBJ_SIZE_MAG 100
+
 class SurfingMeshSphereDisplaced {
 
 public:
@@ -24,6 +26,15 @@ public:
 
 public:
 	void setup();
+	void setup(string name);
+	void setName(const string & n);
+	void exit();
+
+private:
+	bool bDoneExit = false;
+	string name = "";
+
+public:
 	void setGuiPosition(glm::vec2 pos);
 	void draw(bool bwire = false);
 
@@ -32,7 +43,7 @@ private:
 	void drawSphereDisplaced(bool bwire = false, bool brotated = false);
 
 private:
-	string pathGlobalFolder; //top parent folder for all other subfolders
+	string pathGlobalFolder = ""; //top parent folder for all other subfolders
 
 public:
 
@@ -69,7 +80,7 @@ public:
 private:
 	void Changed(ofAbstractParameter & e);
 
-	string pathDisplace;
+	string pathDisplace = "";
 
 public:
 	void setPathGlobalFolder(string folder);
@@ -87,6 +98,8 @@ private:
 	ofSpherePrimitive sphere;
 	//ofBoxPrimitive sphere;
 	//ofIcoSpherePrimitive sphere;
+
+	ofMesh mesh;
 
 private:
 	void setNormals(ofMesh & mesh);

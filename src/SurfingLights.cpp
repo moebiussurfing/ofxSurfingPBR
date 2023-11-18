@@ -97,9 +97,9 @@ void SurfingLights::setupLights() {
 	//----
 
 	/*
-	const int numLights = 1; 
+	const int OFAPP_NUM_LIGHTS = 1; 
 
-	for (int i = 0; i < numLights; i++) {
+	for (int i = 0; i < OFAPP_NUM_LIGHTS; i++) {
 		auto light = make_shared<ofLight>();
 		light->enable();
 
