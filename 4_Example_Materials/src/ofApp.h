@@ -2,7 +2,6 @@
 #include "ofMain.h"
 
 #include "SurfingMaterial.h"
-#include "ofxSurfingPBR.h"
 
 #include "SurfingMeshSphereDisplaced.h"
 
@@ -31,7 +30,7 @@ public:
 	vector<std::unique_ptr<SurfingMeshSphereDisplaced>> objects;
 
 #ifdef SURFING__USE__LIGHTS
-	const int OFAPP_NUM_LIGHTS = 4;
+	const int OFAPP_NUM_LIGHTS = 5;
 	bool bEnableLights = true;
 	vector<shared_ptr<ofLight>> pointLights;
 	float colorHue = 0.0f;

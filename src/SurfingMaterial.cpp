@@ -40,15 +40,18 @@ void SurfingMaterial::setupParams() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setupParams()";
 
 	//--
-	
-	string n = "PBR_MATERIAL";
-	if (name != "") {
+
+	if (name == "") {
+		path = pathRoot + ext;
+	} else {
+		string n = "PBR_MATERIAL";
 		n += string("_");
 		n += name;
+		path = pathRoot + "_" + name + ext;
 	}
-	path = path + "_" + name + ext;
 
-	parameters.setName(n);
+	//parameters.setName(n);
+	parameters.setName(name);
 
 	colorParams.setName("Colors");
 	settingsParams.setName("Settings");
@@ -114,13 +117,14 @@ void SurfingMaterial::setupParams() {
 	autoSaver.bEnable.setSerializable(false);
 #endif
 
+	parameters.add(vRandomMaterial);
 	parameters.add(vResetMaterial);
 
 	//workflow
 	//parameters.add(indexHistory);
 
 	bGui.set("UI MATERIAL", true);
-	bGuiHelpers.set("UI HELPERS", true);
+	bGuiHelpers.set("UI HELPERS", false);
 
 	//bGuiHelpers.setSerializable(false);
 	//workflow: to exclude from states. trouble bc we would like to save & include into gui..
@@ -139,6 +143,7 @@ void SurfingMaterial::setupGui() {
 
 	gui.setup(parameters);
 
+#if 1
 	static ofEventListener listenerSave;
 	static ofEventListener listenerLoad;
 	listenerSave = gui.savePressedE.newListener([this] {
@@ -147,6 +152,7 @@ void SurfingMaterial::setupGui() {
 	listenerLoad = gui.loadPressedE.newListener([this] {
 		load();
 	});
+#endif
 
 	guiHelpers.setup(helpersParams);
 
@@ -177,6 +183,8 @@ void SurfingMaterial::update() {
 
 //--------------------------------------------------------------
 void SurfingMaterial::begin() {
+	ofSetColor(255);
+
 	material.begin();
 }
 //--------------------------------------------------------------
@@ -539,8 +547,8 @@ void SurfingMaterial::removeHistoryFolder() {
 }
 
 //--------------------------------------------------------------
-const string SurfingMaterial::getFilepathHistoryState(const int & i) {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:getFilepathHistoryState() " << i;
+const string SurfingMaterial::getFilePathHistoryState(const int & i) {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:getFilePathHistoryState() " << i;
 
 	// Check for valid index
 	if (i < 0 || i > sizeHistory - 1) {
@@ -612,7 +620,7 @@ void SurfingMaterial::reorganizeHistoryFolder() {
 		for (std::size_t i = 0; i < dir.size(); ++i) {
 			string p_ = dir.getPath(i);
 			ofFile file(p_);
-			string p = getFilepathHistoryState(i);
+			string p = getFilePathHistoryState(i);
 			file.renameTo(p, true, true);
 
 			ofLogNotice("ofxSurfingPBR") << p;
@@ -681,9 +689,9 @@ void SurfingMaterial::doSaveState(int i) {
 
 	//save file
 	if (i == -1) {
-		p = getFilepathHistoryState(indexHistory);
+		p = getFilePathHistoryState(indexHistory);
 	} else {
-		p = getFilepathHistoryState(i);
+		p = getFilePathHistoryState(i);
 	}
 
 	ofxSurfing::saveSettings(parameters, p);
@@ -703,7 +711,7 @@ void SurfingMaterial::doStoreNewState() {
 
 	//save file
 	int i = indexHistory;
-	string p = getFilepathHistoryState(i);
+	string p = getFilePathHistoryState(i);
 
 	ofxSurfing::saveSettings(parameters, p);
 }
@@ -734,7 +742,7 @@ void SurfingMaterial::doRecallState(int i) {
 	if (i >= 0 && i < sizeHistory) {
 		//load file
 		int i = indexHistory;
-		string p = getFilepathHistoryState(i);
+		string p = getFilePathHistoryState(i);
 
 		restoreGlobal();
 		ofxSurfing::loadSettings(parameters, p);
@@ -750,7 +758,7 @@ void SurfingMaterial::doRemoveState(int i) {
 	if (i >= 0 && i < sizeHistory) {
 		//remove file
 		int i = indexHistory;
-		string p = getFilepathHistoryState(i);
+		string p = getFilePathHistoryState(i);
 
 		ofFile file(p);
 		if (file.remove()) {
@@ -774,6 +782,10 @@ void SurfingMaterial::doRemoveState(int i) {
 void SurfingMaterial::save() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Save: " << path;
 
+	if (path == "") {
+	ofLogWarning("ofxSurfingPBR") << "Settings path is empty!";
+	}
+
 	// Save
 	{
 		ofxSurfing::saveSettings(parameters, path);
@@ -789,11 +801,16 @@ void SurfingMaterial::save() {
 void SurfingMaterial::setName(const string & n) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setName: " << n;
 	name = n;
+	pathHistory = pathHistory + "_" + name;
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::load() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Load: " << path;
+	
+	if (path == "") {
+		ofLogWarning("ofxSurfingPBR") << "Settings path is empty!";
+	}
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.pause();

@@ -9,7 +9,13 @@
 All this code is copied from and hardly based on this [OF forum topic](https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19 ).  
 Original authors: [@NickHardeman](https://github.com/NickHardeman) and [@paolo-scoppola](https://github.com/paolo-scoppola).  
 
-## SCREENSHOTS
+## VIDEO
+
+https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd5-ad4d-b77f885d3e24
+
+<details>
+  <summary>SCREENSHOTS</summary>
+  <p>
 
 ### 1_Example_Basic
 ![](1_Example_Basic/Capture.PNG)
@@ -17,9 +23,17 @@ Original authors: [@NickHardeman](https://github.com/NickHardeman) and [@paolo-s
 ### 2_Example_Models
 ![](2_Example_Models/Capture.PNG)
 
-## VIDEO
+### 3_Example_Lights / WIP
+![](3_Example_Lights/Capture.PNG)
 
-https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd5-ad4d-b77f885d3e24
+### 4_Example_Materials
+![](4_Example_Materials/Capture.PNG)
+
+### 5_Example_Shadows
+![](5_Example_Shadows/Capture.PNG)
+
+  </p>
+</details>
 
 ## FEATURES
 
@@ -28,7 +42,7 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
   - **Material B**. For the **other Objects**.
 - A positionable Ambient **light** with **Shadows**.
 - **Cubemaps** (**HDR**) files loader.
-  - Alternative background color.
+  - Alternative background color and sphere/box container using material.
 - Added **Shader** for *testing/code*.
   - **Displacement** applied to the plane and his material/mesh.
 - Persistent settings:
@@ -42,7 +56,8 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
     - **Presets**/**Snapshots** (Store/Recall) explorer system.
 - Included **3D models** browser/loader class.
 - Included [ofxSurfingHelpersLite](https://github.com/moebiussurfing/ofxSurfingHelpersLite) into `/libs`.
-    - **Helper classes** for settings serializers, auto saver, ofxGui customizer, layout helpers, ofDrawBitmapStringBox..etc  
+    - **Helper classes** for settings serializers, auto saver, ofxGui customizer, layout helpers, ofDrawBitmapStringBox...etc.  
+- Standalone materials can be used independently of the main class/scene manager.
 
 ### TODO
   - Add more **Shaders** related stuff. / HELP IS WELCOME! 
@@ -78,9 +93,6 @@ int main() {
 #include "ofMain.h"
 
 #include "ofxSurfingPBR.h"
-
-#include <functional>
-using callback_t = std::function<void()>;
 
 class ofApp : public ofBaseApp {
 public:
@@ -140,8 +152,8 @@ void ofApp::renderScene()
 
 bin  
 $~$ └ data  
-$~~~~~~$ ├ cubemaps $~~~~~~$ exr, hdr, jpg  
-$~~~~~~$ ├ models $~~~~~~~~$ obj, ply, fbx  
+$~~~~~~$ ├ cubemaps $~~~~$ exr, hdr, jpg  
+$~~~~~~$ ├ models $~~~~$ obj, ply, fbx  
 $~~~~~~$ ├ shadersGL2 $~~~~$ frag, vert  
 $~~~~~~$ └ shadersGL3 $~~~~$ frag, vert  
 

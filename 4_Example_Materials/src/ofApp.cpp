@@ -15,7 +15,7 @@ void ofApp::setup() {
 	for (size_t i = 0; i < OFAPP_NUM_ITEMS; i++) {
 		std::unique_ptr<SurfingMaterial> m;
 		m = std::make_unique<SurfingMaterial>();
-		string s = ofToString(i);
+		string s = "MATERIAL_" + ofToString(i);
 		m->setup(s);
 		materials.push_back(std::move(m));
 	}
@@ -62,19 +62,24 @@ void ofApp::draw() {
 //--------------------------------------------------------------
 void ofApp::buildHelp() {
 
-	string s = "";
-	s += "KEYS\n\n";
-	s += "DEBUG LIGHTS\n";
-	s += "L : " + string(bEnableLights ? "ON" : "OFF") + "\n\n";
 	bool b1 = pointLights[0]->getIsEnabled();
 	bool b2 = pointLights[1]->getIsEnabled();
 	bool b3 = pointLights[2]->getIsEnabled();
 	bool b4 = pointLights[3]->getIsEnabled();
+	bool b5 = pointLights[4]->getIsEnabled();
+
+	string s = "";
+	s += "KEYS\n\n";
+	s += "HELP\n";
+	s += "H : " + string(bHelp ? "ON" : "OFF") + "\n\n";
+	s += "DEBUG LIGHTS\n";
+	s += "L : " + string(bEnableLights ? "ON" : "OFF") + "\n\n";
 	s += "ENABLE LIGHT\n";
 	s += "1 : " + string(b1 ? "ON" : "OFF") + "\n";
 	s += "2 : " + string(b2 ? "ON" : "OFF") + "\n";
 	s += "3 : " + string(b3 ? "ON" : "OFF") + "\n";
-	s += "4 : " + string(b4 ? "ON" : "OFF");
+	s += "4 : " + string(b4 ? "ON" : "OFF") + "\n";
+	s += "5 : " + string(b5 ? "ON" : "OFF");
 
 	sHelp = s;
 }
@@ -87,11 +92,11 @@ void ofApp::drawGui() {
 	// draw gui panels
 
 	for (size_t i = 0; i < materials.size(); i++) {
-		materials[i]->gui.draw();
+		materials[i]->drawGui();
 	}
 
 	for (size_t i = 0; i < objects.size(); i++) {
-		objects[i]->gui.draw();
+		objects[i]->drawGui();
 	}
 
 #ifdef SURFING__USE__LIGHTS
@@ -212,8 +217,9 @@ void ofApp::keyPressed(int key) {
 		lindex = 2;
 	} else if (key == '4') {
 		lindex = 3;
+	}else if (key == '5') {
+		lindex = 4;
 	}
-	//..
 	if (lindex > -1 && lindex < (int)pointLights.size()) {
 		if (pointLights[lindex]->getIsEnabled()) {
 			pointLights[lindex]->disable();

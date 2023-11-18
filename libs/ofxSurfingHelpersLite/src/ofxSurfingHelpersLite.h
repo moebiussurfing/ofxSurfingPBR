@@ -50,7 +50,9 @@ namespace ofxSurfing {
 
 // Load
 //--------------------------------------------------------------
-inline bool loadSettings(ofParameterGroup & parameters, string path) {
+inline bool loadSettings(ofParameterGroup & parameters, string path = "") {
+	if (path == "") path = parameters.getName();
+
 	//verify that the file exist
 	ofFile f;
 	bool b = f.doesFileExist(path);
@@ -71,7 +73,9 @@ inline bool loadSettings(ofParameterGroup & parameters, string path) {
 
 // Save
 //--------------------------------------------------------------
-inline bool saveSettings(ofParameterGroup & parameters, string path) {
+inline bool saveSettings(ofParameterGroup & parameters, string path = "") {
+	if (path == "") path = parameters.getName();
+
 	//if the destination folder do not exists, will be created.
 	if (!ofDirectory::doesDirectoryExist(ofFilePath::getEnclosingDirectory(path))) {
 		if (ofFilePath::createEnclosingDirectory(path))
@@ -104,10 +108,10 @@ inline void checkFolderOrCreate(string path) {
 
 // LEGACY
 // for ofxSurfingHelpers
-inline bool loadGroup(ofParameterGroup & parameters, string path) {
+inline bool loadGroup(ofParameterGroup & parameters, string path = "") {
 	return loadSettings(parameters, path);
 }
-inline bool saveGroup(ofParameterGroup & parameters, string path) {
+inline bool saveGroup(ofParameterGroup & parameters, string path = "") {
 	return saveSettings(parameters, path);
 }
 
@@ -608,7 +612,7 @@ inline glm::vec2 getBitmapStringBoxPosToLayout(string s, int layout) {
 }
 
 //--------------------------------------------------------------
-inline void ofDrawBitmapStringBox(string s, SURFING_LAYOUT layout = SURFING_LAYOUT_CENTER) {
+inline void ofDrawBitmapStringBox(string s, SURFING_LAYOUT layout = SURFING_LAYOUT_TOP_LEFT) {
 	glm::vec2 p = ofxSurfing::getBitmapStringBoxPosToLayout(s, layout);
 	ofxSurfing::ofDrawBitmapStringBox(s, p.x, p.y);
 }
@@ -775,7 +779,7 @@ inline void setGuiPositionToLayoutPanelsCentered(ofxPanel & gui1, size_t amount,
 	//TODO: add other layouts?
 	// to be used for a landscape layout
 	// each panel right to the previous.
-	
+
 	//SURFING_LAYOUT_BOTTOM_CENTER
 	//SURFING_LAYOUT_TOP_CENTER
 
@@ -797,8 +801,10 @@ inline void setGuiPositionToLayoutPanelsCentered(ofxPanel & gui1, size_t amount,
 		x = ofGetWidth() / 2 - (w * amount) / 2;
 		y = SURFING__PAD_TO_WINDOW_BORDERS;
 	}
-	
+
 	else {
+		ofLogWarning("ofxSurfing") << "Layout not implemented to be used by setGuiPositionToLayoutPanelsCentered()";
+
 		x = SURFING__PAD_TO_WINDOW_BORDERS;
 		y = SURFING__PAD_TO_WINDOW_BORDERS;
 	}

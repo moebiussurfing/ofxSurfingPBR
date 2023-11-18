@@ -2,9 +2,8 @@
 
 	TODO
 
-	draw helpers gui bundled to improve materials standalone workflow.
-		add custom/name path for history browser.
-	add bang to update global color from other colors.
+	add bang to update/link global color from other colors.
+	fix coat for standalone material
 
 */
 
@@ -86,7 +85,8 @@ public:
 	ofParameter<int> & getIndexStateParam();
 
 public:
-	string path = "ofxSurfingPBR_Material";
+	string pathRoot = "ofxSurfingPBR_Material";
+	string path = "";
 	string name = "";
 	string ext= ".json";
 	void setName(const string &n);//call before setup
@@ -138,7 +138,7 @@ private:
 	void removeHistoryFolder();
 	void restoreGlobal();
 
-	const string getFilepathHistoryState(const int &i);
+	const string getFilePathHistoryState(const int &i);
 	string pathHistory = "ofxSurfing_Temp";
 	string pathHistoryNameRoot = "ofxSurfing_Material_";
 
@@ -148,4 +148,26 @@ public:
 	void doStoreNewState();
 	void doRecallState();
 	void doSaveState(int i=-1);
+
+public:
+	//TODO: startup fix overwrite settings from file..
+	// Helpers to pair with OF core ofMaterial
+	// Useful to replace code from your projects or OF bunbled examples.
+	void setAmbientColor(ofFloatColor c) {
+		ambientColor.set(c);
+	}
+	void setDiffuseColor(ofFloatColor c) {
+		diffuseColor.set(c);
+	}
+	void setSpecularColor(ofFloatColor c) {
+		specularColor.set(c);
+	}
+	void setEmissiveColor(ofFloatColor c) {
+		emissiveColor.set(c);
+	}
+	void setShininess(float shininess) {
+		this->shininess.set(shininess);
+	}
+
+
 };
