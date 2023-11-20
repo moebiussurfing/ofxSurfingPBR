@@ -11,7 +11,8 @@ SurfingMaterial::~SurfingMaterial() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:destructor()";
 
 	ofRemoveListener(ofEvents().update, this, &SurfingMaterial::update);
-	ofRemoveListener(parameters.parameterChangedE(), this, &SurfingMaterial::Changed);
+	ofRemoveListener(settingsParams.parameterChangedE(), this, &SurfingMaterial::ChangedSettings);
+	ofRemoveListener(colorParams.parameterChangedE(), this, &SurfingMaterial::ChangedColors);
 	ofRemoveListener(helpersParams.parameterChangedE(), this, &SurfingMaterial::ChangedHelpers);
 	ofRemoveListener(globalParams.parameterChangedE(), this, &SurfingMaterial::ChangedGlobals);
 }
@@ -68,7 +69,7 @@ void SurfingMaterial::setupParams() {
 
 	colorParams.setName("Colors");
 	globalParams.setName("Globals");
-	globalLinksParams.setName("Links");
+	globalLinksParams.setName("Link");
 	settingsParams.setName("Settings");
 	coatParams.setName("Coat");
 	randomizersParams.setName("Randomizers");
@@ -146,14 +147,15 @@ void SurfingMaterial::setupParams() {
 
 	bGuiHelpers.set("UI HELPERS", false);
 	bGuiHelpers.setSerializable(false);
-	// workflow: required to exclude from states/psnapshots. 
+	// workflow: required to exclude from states/snapshots.
 	// trouble bc we would like to save & include into gui..
 
 	parameters.add(bGuiHelpers);
 
 	//--
 
-	ofAddListener(parameters.parameterChangedE(), this, &SurfingMaterial::Changed);
+	ofAddListener(colorParams.parameterChangedE(), this, &SurfingMaterial::ChangedColors);
+	ofAddListener(settingsParams.parameterChangedE(), this, &SurfingMaterial::ChangedSettings);
 	ofAddListener(helpersParams.parameterChangedE(), this, &SurfingMaterial::ChangedHelpers);
 	ofAddListener(globalParams.parameterChangedE(), this, &SurfingMaterial::ChangedGlobals);
 
@@ -181,7 +183,7 @@ void SurfingMaterial::setupGui() {
 	guiHelpers.setup(helpersParams);
 
 	//--
-	
+
 	// minimize panels
 	refreshGui();
 }
@@ -210,6 +212,130 @@ void SurfingMaterial::update(ofEventArgs & args) {
 
 //--------------------------------------------------------------
 void SurfingMaterial::update() {
+
+	if (bFlagGlobalColor) {
+		bFlagGlobalColor = false;
+
+		doGlobalColor();
+	}
+
+	if (bFlagFromColorToGlobal) {
+		bFlagFromColorToGlobal = false;
+
+		doFromColorToGlobal();
+	}
+
+	if (bFlagToGlobal) {
+		bFlagToGlobal = false;
+
+		doToGlobal();
+	}
+
+	if (bFlagGlobalAlpha) {
+		bFlagGlobalAlpha = false;
+
+		doGlobalAlpha();
+	}
+
+	//--
+
+	if (bFlagDoRefreshIndexHistory) {
+		bFlagDoRefreshIndexHistory = false;
+
+		doRefreshIndexHistory();
+	}
+
+	if (bFlagDoResetMaterial) {
+		bFlagDoResetMaterial = false;
+
+		doResetMaterial();
+	}
+
+	if (bFlagDoRandomMaterial) {
+		bFlagDoRandomMaterial = false;
+
+		doRandomMaterial();
+	}
+
+	if (bFlagDoRandomColors) {
+		bFlagDoRandomColors = false;
+
+		doRandomColors();
+	}
+
+	if (bFlagDoRandomColorsAlpha) {
+		bFlagDoRandomColorsAlpha = false;
+
+		doRandomColorsAlpha();
+	}
+
+	if (bFlagDoRandomAlphas) {
+		bFlagDoRandomAlphas = false;
+
+		doRandomAlphas();
+	}
+
+	if (bFlagDoRandomColorGlobal) {
+		bFlagDoRandomColorGlobal = false;
+
+		doRandomColorGlobal();
+	}
+
+	if (bFlagDoRandomSettings) {
+		bFlagDoRandomSettings = false;
+
+		doRandomSettings();
+	}
+
+	//--
+
+	if (bFlagDoPrevHistory) {
+		bFlagDoPrevHistory = false;
+
+		doPrevHistory();
+	}
+
+	if (bFlagDoNextHistory) {
+		bFlagDoNextHistory = false;
+
+		doNextHistory();
+	}
+
+	if (bFlagDoSaveState) {
+		bFlagDoSaveState = false;
+
+		doSaveState();
+	}
+
+	if (bFlagDoStoreNewState) {
+		bFlagDoStoreNewState = false;
+
+		doStoreNewState();
+	}
+
+	if (bFlagDoRecallState) {
+		bFlagDoRecallState = false;
+
+		doRecallState(indexHistory);
+	}
+
+	if (bFlagDoRemoveState) {
+		bFlagDoRemoveState = false;
+
+		doRemoveState(indexHistory);
+	}
+
+	if (bFlagDoRefeshHistory) {
+		bFlagDoRefeshHistory = false;
+
+		refreshHistoryFolder();
+	}
+
+	if (bFlagDoClearHistory) {
+		bFlagDoClearHistory = false;
+
+		doClearHistory();
+	}
 }
 
 //--------------------------------------------------------------
@@ -234,9 +360,10 @@ void SurfingMaterial::drawGui() {
 	}
 }
 
+//--
+
 //--------------------------------------------------------------
 void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
-	//if (bDisableCallbacks) return;
 
 	std::string name = e.getName();
 
@@ -244,76 +371,293 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 
 	//--
 
+	if (name == vResetMaterial.getName()) {
+		bFlagDoResetMaterial = true;
+	}
+
 	// Randomizers
-	if (name == vRandomMaterial.getName()) {
-		doRandomMaterial();
-		if (bAutoStoreAfterRandoms) doStoreNewState();
-	} else if (name == vRandomColors.getName()) {
-		doRandomColors();
-		if (bAutoStoreAfterRandoms) doStoreNewState();
-	} else if (name == vRandomColorsGlobal.getName()) {
-		doRandomColorGlobal();
-		if (bAutoStoreAfterRandoms) doStoreNewState();
-	} else if (name == vRandomColorsAlpha.getName()) {
-		doRandomColorsAlpha();
-		if (bAutoStoreAfterRandoms) doStoreNewState();
-	} else if (name == vRandomAlphas.getName()) {
-		doRandomAlphas();
-		if (bAutoStoreAfterRandoms) doStoreNewState();
-	} else if (name == vRandomSettings.getName()) {
-		doRandomSettings();
-		if (bAutoStoreAfterRandoms) doStoreNewState();
+
+	else if (name == vRandomMaterial.getName()) {
+		bFlagDoRandomMaterial = true;
+	}
+
+	else if (name == vRandomColors.getName()) {
+		bFlagDoRandomColors = true;
+	}
+
+	else if (name == vRandomColorsAlpha.getName()) {
+		bFlagDoRandomColorsAlpha = true;
+	}
+
+	else if (name == vRandomAlphas.getName()) {
+		bFlagDoRandomAlphas = true;
+	}
+
+	else if (name == vRandomColorsGlobal.getName()) {
+		bFlagDoRandomColorGlobal = true;
+	}
+
+	else if (name == vRandomSettings.getName()) {
+		bFlagDoRandomSettings = true;
 	}
 
 	//--
 
 	// History
+
 	else if (name == vPrevHistory.getName()) {
-		//bDisableCallbacks = true;
-		doPrevHistory();
-		//bDisableCallbacks = false;
-	} else if (name == vNextHistory.getName()) {
-		doNextHistory();
-	} else if (name == vSaveState.getName()) {
-		doSaveState();
-	} else if (name == vStoreNewState.getName()) {
-		doStoreNewState();
-	} else if (name == vRecallState.getName()) {
-		doRecallState(indexHistory);
-	} else if (name == vRemoveState.getName()) {
-		doRemoveState(indexHistory);
-	} else if (name == vRefeshHistory.getName()) {
-		refreshHistoryFolder();
-	} else if (name == vClearHistory.getName()) {
-		doClearHistory();
+		bFlagDoNextHistory = true;
+	}
+
+	else if (name == vNextHistory.getName()) {
+		bFlagDoNextHistory = true;
+	}
+
+	else if (name == vSaveState.getName()) {
+		bFlagDoSaveState = true;
+	}
+
+	else if (name == vStoreNewState.getName()) {
+		bFlagDoStoreNewState = true;
+	}
+
+	else if (name == vRecallState.getName()) {
+		bFlagDoRecallState = true;
+	}
+
+	else if (name == vRemoveState.getName()) {
+		bFlagDoRemoveState = true;
+	}
+
+	else if (name == vRefeshHistory.getName()) {
+		bFlagDoRefeshHistory = true;
+	}
+
+	else if (name == vClearHistory.getName()) {
+		bFlagDoClearHistory = true;
 	}
 
 	else if (name == indexHistory.getName()) {
 
-		/*
-		//TODO?
-		//fix clamp bc name could not be correlated!
-		//this happens when deleting states manually or on runtime!
-		if (indexHistory.get() > indexHistory.getMax()) {
-			indexHistory = ofClamp(indexHistory.get(), indexHistory.getMin(), indexHistory.getMax());
-		}
-		*/
-
-		if (indexHistory != indexHistory_) { //changed
-
-			if (indexHistory >= 0 && indexHistory < sizeHistory) {
-				//workflow
-				///update/save current before load another.
-				if (bAutoSaveBeforeChangeIndex && indexHistory_ != -1) {
-					doSaveState(indexHistory_);
-				}
-
-				doRecallState();
-			}
-
-			indexHistory_ = indexHistory;
-		}
+		bFlagDoRefreshIndexHistory = true;
 	}
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::ChangedGlobals(ofAbstractParameter & e) {
+
+	std::string name = e.getName();
+	auto f = ofGetFrameNum();
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:ChangedGlobals: " << name << ": " << e;
+	ofLogNotice("ofxSurfingPBR") << "ofGetFrameNum(): " << f;
+
+	// exclude
+	if (name == nameSourceGlobal.getName()) {
+		return;
+	}
+
+	//--
+
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+	if (e.isSerializable()) {
+		autoSaver.saveSoon();
+	}
+#endif
+
+	//--
+
+	// this flag patterns helps reducing exception crashes when some callbacks happens.
+
+	if (name == globalColor.getName()) {
+		bFlagGlobalColor = true;
+	}
+
+	else if (name == globalAlpha.getName()) {
+		bFlagGlobalAlpha = true;
+	}
+
+	else if (name == fromColorToGlobal.getName()) {
+		bFlagFromColorToGlobal = true;
+	}
+
+	else if (name == vToGlobal.getName()) {
+		bFlagToGlobal = true;
+	}
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::ChangedColors(ofAbstractParameter & e) {
+
+	std::string name = e.getName();
+
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:ChangedColors: " << name << ": " << e;
+
+	//--
+
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+	if (e.isSerializable()) {
+		autoSaver.saveSoon();
+	}
+#endif
+
+	//--
+
+	if (name == diffuseColor.getName()) {
+		if (diffuseColor.get() != material.getDiffuseColor())
+			material.setDiffuseColor(diffuseColor.get());
+	}
+
+	else if (name == ambientColor.getName()) {
+		if (ambientColor.get() != material.getAmbientColor())
+			material.setAmbientColor(ambientColor.get());
+	}
+
+	else if (name == emissiveColor.getName()) {
+		if (emissiveColor.get() != material.getEmissiveColor())
+			material.setEmissiveColor(emissiveColor.get());
+	}
+
+	else if (name == specularColor.getName()) {
+		if (specularColor.get() != material.getSpecularColor())
+			material.setSpecularColor(specularColor.get());
+	}
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::ChangedSettings(ofAbstractParameter & e) {
+
+	std::string name = e.getName();
+
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:ChangedSettings: " << name << ": " << e;
+
+	//--
+
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+	if (e.isSerializable()) {
+		autoSaver.saveSoon();
+	}
+#endif
+
+	//--
+
+	if (name == roughness.getName()) {
+		material.setRoughness(roughness);
+	}
+	
+	else if (name == metallic.getName()) {
+		material.setMetallic(metallic);
+	} 
+	
+	else if (name == reflectance.getName()) {
+		material.setReflectance(reflectance);
+	} 
+	
+	else if (name == shininess.getName()) {
+		material.setShininess(shininess);
+	}
+
+	else if (name == bClearCoat.getName()) {
+		material.setClearCoatEnabled(bClearCoat);
+	} 
+	
+	else if (name == clearCoatRoughness.getName()) {
+		material.setClearCoatRoughness(clearCoatRoughness);
+	} 
+	
+	else if (name == clearCoatStrength.getName()) {
+		material.setClearCoatStrength(clearCoatStrength);
+	}
+}
+
+//--
+
+//--------------------------------------------------------------
+void SurfingMaterial::doGlobalColor() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doGlobalColor()";
+
+	// global color control applies to the other colors
+	// without touching their original alpha's.
+
+	ofFloatColor gc = globalColor.get();
+	ofFloatColor c;
+	float a;
+
+	a = ambientColor.get().a;
+	c = ofFloatColor(gc.r, gc.g, gc.b, a);
+	if (ambientColor.get() != c)
+		ambientColor.set(c);
+
+	a = specularColor.get().a;
+	c = ofFloatColor(gc.r, gc.g, gc.b, a);
+	if (specularColor.get() != c)
+		specularColor.set(c);
+
+	a = diffuseColor.get().a;
+	c = ofFloatColor(gc.r, gc.g, gc.b, a);
+	if (diffuseColor.get() != c)
+		diffuseColor.set(c);
+
+	a = emissiveColor.get().a;
+	c = ofFloatColor(gc.r, gc.g, gc.b, a);
+	if (emissiveColor.get() != c)
+		emissiveColor.set(c);
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::doGlobalAlpha() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doGlobalAlpha()";
+
+	// global alpha control applies to the other colors alpha
+	// without touching their original color's.
+
+	float a = globalAlpha.get();
+	ofFloatColor c;
+	ofFloatColor gc;
+
+	gc = ambientColor.get();
+	c = ofFloatColor(gc.r, gc.g, gc.b, a);
+	if (ambientColor.get() != c)
+		ambientColor.set(c);
+
+	gc = specularColor.get();
+	c = ofFloatColor(gc.r, gc.g, gc.b, a);
+	if (specularColor.get() != c)
+		specularColor.set(c);
+
+	gc = diffuseColor.get();
+	c = ofFloatColor(gc.r, gc.g, gc.b, a);
+	if (diffuseColor.get() != c)
+		diffuseColor.set(c);
+
+	gc = emissiveColor.get();
+	c = ofFloatColor(gc.r, gc.g, gc.b, a);
+	if (emissiveColor.get() != c)
+		emissiveColor.set(c);
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::doFromColorToGlobal() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doFromColorToGlobal()";
+
+	string s = "NONE";
+
+	const int i = fromColorToGlobal.get();
+
+	if (i == 0)
+		s = "Ambient";
+	else if (i == 1)
+		s = "Specular";
+	else if (i == 2)
+		s = "Diffuse";
+	else if (i == 3)
+		s = "Emissive";
+
+	nameSourceGlobal.set(s);
+
+	////workflow. auto get
+	////vToGlobal.trigger();
+	////doToGlobal();
+	//bFlagToGlobal = true;
 }
 
 //--------------------------------------------------------------
@@ -333,170 +677,35 @@ void SurfingMaterial::doToGlobal() {
 	else if (i == 3)
 		c = emissiveColor.get();
 
-	bAttendingGlobal = true;
-	{
-		globalColor.set(c);
-		globalAlpha.set(c.a);
-	}
-	bAttendingGlobal = false;
+	globalAlpha.set(c.a);
+	globalColor.set(c);
 }
 
 //--------------------------------------------------------------
-void SurfingMaterial::ChangedGlobals(ofAbstractParameter & e) {
+void SurfingMaterial::doRefreshIndexHistory() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRefreshIndexHistory()";
 
-	std::string name = e.getName();
+	if (indexHistory != indexHistory_) { //changed
+		/*
+		//TODO?
+		//fix clamp bc name could not be correlated!
+		//this happens when deleting states manually or on runtime!
+		if (indexHistory.get() > indexHistory.getMax()) {
+			indexHistory = ofClamp(indexHistory.get(), indexHistory.getMin(), indexHistory.getMax());
+		}
+		*/
 
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:ChangedGlobals: " << name << ": " << e;
+		if (indexHistory >= 0 && indexHistory < sizeHistory) {
+			//workflow
+			///update/save current before load another.
+			if (bAutoSaveBeforeChangeIndex && indexHistory_ != -1) {
+				doSaveState(indexHistory_);
+			}
 
-	// exclude
-	if (name == nameSourceGlobal.getName()) {
-		return;
-	}
+			doRecallState();
+		}
 
-	//--
-	
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
-	autoSaver.saveSoon();
-#endif
-
-	//--
-
-	if (name == globalColor.getName()) {
-		if (bAttendingGlobal) return;
-		
-		// global color control applies to the other colors
-		// without touching their original alpha's.
-
-		ofFloatColor gc = globalColor.get();
-		ofFloatColor c;
-		float a;
-
-		a = ambientColor.get().a;
-		c = ofFloatColor(gc.r, gc.g, gc.b, a);
-		if (ambientColor.get() != c)
-			ambientColor.set(c);
-
-		a = specularColor.get().a;
-		c = ofFloatColor(gc.r, gc.g, gc.b, a);
-		if (specularColor.get() != c)
-			specularColor.set(c);
-
-		a = diffuseColor.get().a;
-		c = ofFloatColor(gc.r, gc.g, gc.b, a);
-		if (diffuseColor.get() != c)
-			diffuseColor.set(c);
-
-		a = emissiveColor.get().a;
-		c = ofFloatColor(gc.r, gc.g, gc.b, a);
-		if (emissiveColor.get() != c)
-			emissiveColor.set(c);
-	}
-
-	else if (name == globalAlpha.getName()) {
-		if (bAttendingGlobal) return;
-
-		// global alpha control applies to the other colors alpha
-		// without touching their original color's.
-
-		float a = globalAlpha.get();
-		ofFloatColor c;
-		ofFloatColor gc;
-
-		gc = ambientColor.get();
-		c = ofFloatColor(gc.r, gc.g, gc.b, a);
-		if (ambientColor.get() != c)
-			ambientColor.set(c);
-
-		gc = specularColor.get();
-		c = ofFloatColor(gc.r, gc.g, gc.b, a);
-		if (specularColor.get() != c)
-			specularColor.set(c);
-
-		gc = diffuseColor.get();
-		c = ofFloatColor(gc.r, gc.g, gc.b, a);
-		if (diffuseColor.get() != c)
-			diffuseColor.set(c);
-
-		gc = emissiveColor.get();
-		c = ofFloatColor(gc.r, gc.g, gc.b, a);
-		if (emissiveColor.get() != c)
-			emissiveColor.set(c);
-	}
-
-	else if (name == fromColorToGlobal.getName()) {
-		string s = "NONE";
-
-		const int i = fromColorToGlobal.get();
-
-		if (i == 0)
-			s = "Ambient";
-		else if (i == 1)
-			s = "Specular";
-		else if (i == 2)
-			s = "Diffuse";
-		else if (i == 3)
-			s = "Emissive";
-
-		nameSourceGlobal.set(s);
-
-		//workflow. auto get
-		vToGlobal.trigger();
-	}
-
-	else if (name == vToGlobal.getName()) {
-		doToGlobal();
-	}
-}
-
-//--------------------------------------------------------------
-void SurfingMaterial::Changed(ofAbstractParameter & e) {
-
-	std::string name = e.getName();
-
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Changed: " << name << ": " << e;
-
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
-	autoSaver.saveSoon();
-#endif
-
-	//--
-
-	 if (name == diffuseColor.getName()) {
-		if (diffuseColor.get() != material.getDiffuseColor())
-			material.setDiffuseColor(diffuseColor.get());
-	} else if (name == ambientColor.getName()) {
-		if (ambientColor.get() != material.getAmbientColor())
-			material.setAmbientColor(ambientColor.get());
-	} else if (name == emissiveColor.getName()) {
-		if (emissiveColor.get() != material.getEmissiveColor())
-			material.setEmissiveColor(emissiveColor.get());
-	} else if (name == specularColor.getName()) {
-		if (specularColor.get() != material.getSpecularColor())
-			material.setSpecularColor(specularColor.get());
-	}
-
-	//--
-
-	else if (name == roughness.getName()) {
-		material.setRoughness(roughness);
-	} else if (name == metallic.getName()) {
-		material.setMetallic(metallic);
-	} else if (name == reflectance.getName()) {
-		material.setReflectance(reflectance);
-	} else if (name == shininess.getName()) {
-		material.setShininess(shininess);
-	}
-
-	else if (name == bClearCoat.getName()) {
-		material.setClearCoatEnabled(bClearCoat);
-	} else if (name == clearCoatRoughness.getName()) {
-		material.setClearCoatRoughness(clearCoatRoughness);
-	} else if (name == clearCoatStrength.getName()) {
-		material.setClearCoatStrength(clearCoatStrength);
-	}
-
-	else if (name == vResetMaterial.getName()) {
-		doResetMaterial();
+		indexHistory_ = indexHistory;
 	}
 }
 
@@ -505,9 +714,11 @@ void SurfingMaterial::Changed(ofAbstractParameter & e) {
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomMaterial() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomMaterial()";
-	
+
 	doRandomSettings();
 	doRandomColors();
+
+	if (bAutoStoreAfterRandoms) doStoreNewState();
 }
 
 //--------------------------------------------------------------
@@ -541,7 +752,7 @@ void SurfingMaterial::doResetMaterial() {
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomSettings() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomSettings()";
-	
+
 	// randomizes the PBR settings without touching the colors.
 
 	shininess.set(ofRandom(1));
@@ -550,11 +761,14 @@ void SurfingMaterial::doRandomSettings() {
 	reflectance.set(ofRandom(1));
 
 	refreshGlobals();
+
+	if (bAutoStoreAfterRandoms) doStoreNewState();
 }
+
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColorsAlpha() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomColorsAlpha()";
-	
+
 	// randomizes the colors and their alphas too.
 
 	ofFloatColor c;
@@ -572,11 +786,13 @@ void SurfingMaterial::doRandomColorsAlpha() {
 	emissiveColor.set(c);
 
 	refreshGlobals();
+
+	if (bAutoStoreAfterRandoms) doStoreNewState();
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColorGlobal() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomColorGlobal()";
-	
+
 	// randomizes the global color but do not touches the alpha/s.
 
 	ofFloatColor c;
@@ -585,11 +801,13 @@ void SurfingMaterial::doRandomColorGlobal() {
 	a = globalColor.get().a;
 	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), a);
 	globalColor.set(c);
+
+	if (bAutoStoreAfterRandoms) doStoreNewState();
 }
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColors() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomColors()";
-	
+
 	// randomizes the colors but do not touches the alphas.
 
 	ofFloatColor c;
@@ -616,7 +834,9 @@ void SurfingMaterial::doRandomColors() {
 		emissiveColor.set(c);
 
 	refreshGlobals();
+	if (bAutoStoreAfterRandoms) doStoreNewState();
 }
+
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomAlphas() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomAlphas()";
@@ -720,7 +940,9 @@ void SurfingMaterial::refreshHistoryFolder() {
 	// List directory with state files.
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:refreshHistoryFolder()";
-	ofLogNotice("ofxSurfingPBR") << pathHistory;
+	ofLogNotice("ofxSurfingPBR") << "Path: " << pathHistory;
+
+	ofxSurfing::checkFolderOrCreate(pathHistory);
 
 	ofDirectory dir;
 
@@ -813,7 +1035,7 @@ void SurfingMaterial::doPrevHistory() {
 	if (indexHistory > 0)
 		indexHistory = indexHistory - 1;
 	else
-		indexHistory = indexHistory.getMax();//cycled
+		indexHistory = indexHistory.getMax(); //cycled
 	//indexHistory = indexHistory.getMin();//clamped
 }
 
@@ -829,7 +1051,7 @@ void SurfingMaterial::doNextHistory() {
 	if (indexHistory < indexHistory.getMax())
 		indexHistory = indexHistory + 1;
 	else
-		indexHistory = indexHistory.getMin();//cycled
+		indexHistory = indexHistory.getMin(); //cycled
 	//indexHistory = indexHistory.getMax();//clamped
 }
 
@@ -874,7 +1096,7 @@ void SurfingMaterial::doStoreNewState() {
 //--------------------------------------------------------------
 void SurfingMaterial::refreshGlobals() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:refreshGlobals()";
-	
+
 	// workflow
 	// Auto get global from a source color.
 	vToGlobal.trigger();
@@ -895,7 +1117,7 @@ void SurfingMaterial::doRecallState(int i) {
 		string p = getFilePathHistoryState(i);
 
 		ofxSurfing::loadSettings(parameters, p);
-		
+
 		refreshGlobals();
 	} else
 		ofLogError("ofxSurfingPBR") << "Out of range of history for index: " << i;

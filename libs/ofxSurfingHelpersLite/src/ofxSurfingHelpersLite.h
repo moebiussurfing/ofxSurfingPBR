@@ -57,7 +57,7 @@ inline bool loadSettings(ofParameterGroup & parameters, string path = "") {
 	ofFile f;
 	bool b = f.doesFileExist(path);
 	if (b)
-		ofLogNotice("ofxSurfing") << "Found file: " << path;
+		ofLogNotice("ofxSurfing") << "Found settings file: " << path << " for ofParameterGroup: " << parameters.getName();
 	else
 		ofLogError("ofxSurfing") << "File " << path
 								 << " for ofParameterGroup " << parameters.getName() << " not found!";
@@ -99,11 +99,12 @@ inline bool saveSettings(ofParameterGroup & parameters, string path = "") {
 //--------------------------------------------------------------
 inline void checkFolderOrCreate(string path) {
 	if (!ofDirectory::doesDirectoryExist(ofFilePath::getEnclosingDirectory(path))) {
-		if (ofFilePath::createEnclosingDirectory(path))
+		if (ofFilePath::createEnclosingDirectory(path), true)
 			ofLogWarning("ofxSurfing") << "Created enclosing folder for: " << path;
 		else
 			ofLogError("ofxSurfing") << "Unable to create enclosing folder for: " << path;
 	}
+	ofLogNotice("ofxSurfing") << "Found enclosing folder for: " << path;
 }
 
 // LEGACY

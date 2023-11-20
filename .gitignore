@@ -592,3 +592,4 @@ MigrationBackup/
 3_Example_Lights/enc_temp_folder/16f1c0294d841bbe36a2e7be508aece/SurfingLights.cpp
 2_Example_Models/enc_temp_folder/87eef6d5160448de8f340bb54adfed3/SurfingMaterial.cpp
 2_Example_Models/bin/data/PBR_MATERIAL
+1_Example_Basic/bin/data/PBR_MATERIAL

@@ -839,7 +839,7 @@ void ofxSurfingPBR::setupGui() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshGui() {
 	ofLogNotice("ofxSurfingPBR") << "refreshGui()";
-
+	return;
 	// top-left
 	gui.setPosition(SURFING__PAD_TO_WINDOW_BORDERS, SURFING__PAD_TO_WINDOW_BORDERS);
 

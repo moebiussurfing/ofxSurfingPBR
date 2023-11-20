@@ -1,13 +1,13 @@
 {
     "PBR_MATERIAL": {
         "Colors": {
-            "Ambient": "0.354407, 0, 0.5, 1",
-            "Diffuse": "0.354407, 0, 0.5, 1",
-            "Emissive": "0.354407, 0, 0.5, 1",
-            "Specular": "0.354407, 0, 0.5, 1"
+            "Ambient": "0.5, 0.5, 0.5, 1",
+            "Diffuse": "0.5, 0.5, 0.5, 1",
+            "Emissive": "0.5, 0.5, 0.5, 1",
+            "Specular": "0.5, 0.5, 0.5, 1"
         },
         "Globals": {
-            "Links": {
+            "Link": {
                 "fromColor": "0"
             }
         },

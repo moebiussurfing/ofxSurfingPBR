@@ -33,7 +33,8 @@ private:
 	void setupGui();
 	void refreshGui();
 
-	void Changed(ofAbstractParameter & e);
+	void ChangedSettings(ofAbstractParameter & e);
+	void ChangedColors(ofAbstractParameter & e);
 	void ChangedHelpers(ofAbstractParameter & e);
 	void ChangedGlobals(ofAbstractParameter & e);
 
@@ -55,13 +56,25 @@ public:
 	ofParameterGroup randomizersParams;
 	ofParameterGroup helpersParams;
 
-	ofParameter<ofFloatColor> globalColor; //will set all colors except touching their alphas.
-	ofParameter<float> globalAlpha; //will set this alpha to all colors.
+	ofParameter<ofFloatColor> globalColor; // will set all colors except touching their alphas.
+	ofParameter<float> globalAlpha; // will set this alpha to all colors.
+
 private:
 	ofParameter<void> vToGlobal;
 	ofParameter<int> fromColorToGlobal;
 	ofParameter<string> nameSourceGlobal;
-	bool bAttendingGlobal = false;
+	//bool bAttendingGlobal = false;
+
+	bool bFlagGlobalColor= false;
+	void doGlobalColor();
+
+	bool bFlagGlobalAlpha= false;
+	void doGlobalAlpha();
+
+	bool bFlagFromColorToGlobal= false;
+	void doFromColorToGlobal();
+
+	bool bFlagToGlobal = false;
 	void doToGlobal();
 
 public:
@@ -121,6 +134,15 @@ public:
 	void doRandomSettings();
 
 private:
+	bool bFlagDoResetMaterial=false;
+	bool bFlagDoRandomMaterial=false;
+	bool bFlagDoRandomColors=false;
+	bool bFlagDoRandomAlphas=false;
+	bool bFlagDoRandomColorGlobal=false;
+	bool bFlagDoRandomColorsAlpha=false;
+	bool bFlagDoRandomSettings=false;
+
+private:
 	// History browser
 	size_t sizeHistory;
 	ofParameterGroup historyParams;
@@ -138,9 +160,21 @@ private:
 	ofParameter<void> vRecallState;
 	ofParameter<void> vRemoveState;
 	ofParameter<int> indexHistory;
-
 	int indexHistory_ = -1;
+	void doRefreshIndexHistory();
 
+private:
+	bool bFlagDoRefreshIndexHistory=false;
+	bool bFlagDoPrevHistory = false;
+	bool bFlagDoNextHistory= false;
+	bool bFlagDoSaveState= false;
+	bool bFlagDoStoreNewState= false;
+	bool bFlagDoRecallState= false;
+	bool bFlagDoRemoveState= false;
+	bool bFlagDoRefeshHistory= false;
+	bool bFlagDoClearHistory= false;
+
+private:
 	void setupHistoryManager();
 	void refreshHistoryFolder();
 	void reorganizeHistoryFolder();
@@ -163,8 +197,9 @@ public:
 
 public:
 	//TODO: startup fix overwrite settings from file..
+	
 	// Helpers to pair with OF core ofMaterial
-	// Useful to replace code from your projects or OF bunbled examples.
+	// Useful to replace code from your projects or OF CORE bundled examples.
 	void setAmbientColor(ofFloatColor c) {
 		ambientColor.set(c);
 	}
