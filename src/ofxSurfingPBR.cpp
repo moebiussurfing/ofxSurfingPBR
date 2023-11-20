@@ -1473,7 +1473,9 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 
 		material.gui.minimizeAll();
 		material.guiHelpers.minimizeAll();
-	} else if (name == vMaximizeAllGui.getName()) {
+	} 
+	
+	else if (name == vMaximizeAllGui.getName()) {
 		gui.maximizeAll();
 		material.gui.maximizeAll();
 		material.guiHelpers.maximizeAll();
@@ -1778,14 +1780,14 @@ void ofxSurfingPBR::exit() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::save() {
-	ofLogNotice("ofxSurfingPBR") << "Save: " << path;
+	ofLogNotice("ofxSurfingPBR") << "save -> " << path;
 
 	ofxSurfing::saveSettings(parameters, path);
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::load() {
-	ofLogNotice("ofxSurfingPBR") << "Load: " << path;
+	ofLogNotice("ofxSurfingPBR") << "load -> " << path;
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.pause();
@@ -1805,8 +1807,7 @@ void ofxSurfingPBR::load() {
 bool ofxSurfingPBR::getSettingsFileFoundForScene() {
 
 	// search for the mandatory settings file to consider if the app is opened for the first time.
-	ofFile f;
-	bool b = f.doesFileExist(path);
+	bool b = ofxSurfing::checkFileExist(path);
 	if (b) {
 		ofLogNotice("ofxSurfingPBR") << "getSettingsFileFound(): Found file settings!";
 		ofLogNotice("ofxSurfingPBR") << "Found PBR SCENE settings file: " << path;
@@ -1843,26 +1844,24 @@ bool ofxSurfingPBR::getSettingsFileFound() {
 
 //--------------------------------------------------------------
 bool ofxSurfingPBR::getSettingsFileFoundForMaterial() {
-	ofFile f2;
-	bool b2 = f2.doesFileExist(material.path);
-	if (b2) {
-		ofLogNotice("ofxSurfingPBR") << "Found MATERIAL settings file: " << material.path;
+	bool b = ofxSurfing::checkFileExist(material.path);
+	if (b) {
+		ofLogNotice("ofxSurfing") << "Found MATERIAL settings file: " << path;
 	} else {
-		ofLogWarning("ofxSurfingPBR") << "MATERIAL settings file: " << material.path << " not found!";
+		ofLogWarning("ofxSurfing") << "MATERIAL settings file: " << path << " not found!";
 	}
-	return b2;
+	return b;
 }
 
 //--------------------------------------------------------------
 bool ofxSurfingPBR::getSettingsFileFoundForCamera() {
-	ofFile f3;
-	bool b3 = f3.doesFileExist(pathCamera);
-	if (b3) {
+	bool b = ofxSurfing::checkFileExist(pathCamera);
+	if (b) {
 		ofLogNotice("ofxSurfingPBR") << "Found CAMERA settings file: " << pathCamera;
 	} else {
 		ofLogWarning("ofxSurfingPBR") << "CAMERA settings file: " << pathCamera << " not found!";
 	}
-	return b3;
+	return b;
 }
 
 //--

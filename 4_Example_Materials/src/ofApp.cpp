@@ -33,9 +33,25 @@ void ofApp::setup() {
 
 	//--
 
+	// gui
+	g.setName("ofApp");
+	for (size_t i = 0; i < OFAPP_NUM_ITEMS; i++) {
+		ofParameterGroup g_ { "Item " + ofToString(i) };
+		g_.add(materials[i]->bGui);
+		g_.add(objects[i]->bDraw);
+		g_.add(objects[i]->bGui);
+		g.add(g_);
+	}
+	gui.setup(g);
+	ofxSurfing::load(g);
+
+	//--
+
 #ifdef SURFING__USE__LIGHTS
 	setupLights();
 #endif
+
+	ofxLoadCamera(camera, pathCamera);
 }
 
 //--------------------------------------------------------------
@@ -56,6 +72,7 @@ void ofApp::draw() {
 
 	ofDisableDepthTest();
 	drawGui();
+	gui.draw();
 }
 
 #ifdef SURFING__USE__LIGHTS
@@ -217,7 +234,7 @@ void ofApp::keyPressed(int key) {
 		lindex = 2;
 	} else if (key == '4') {
 		lindex = 3;
-	}else if (key == '5') {
+	} else if (key == '5') {
 		lindex = 4;
 	}
 	if (lindex > -1 && lindex < (int)pointLights.size()) {
@@ -280,3 +297,10 @@ void ofApp::updateLights() {
 	}
 }
 #endif
+
+//--------------------------------------------------------------
+void ofApp::exit() {
+	ofxSurfing::save(g);
+
+	ofxSaveCamera(camera, pathCamera);
+}

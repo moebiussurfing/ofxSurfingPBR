@@ -4,6 +4,7 @@
 #include "SurfingMaterial.h"
 
 #include "SurfingMeshSphereDisplaced.h"
+#include "ofxCameraSaveLoad.h"
 
 #define SURFING__USE__LIGHTS
 
@@ -14,6 +15,7 @@ public:
 	void draw();
 	void keyPressed(int key);
 	void windowResized(int w, int h);
+	void exit();
 
 	void drawGui();
 	void refreshGuiLinks();
@@ -22,6 +24,8 @@ public:
 	void renderScene();
 
 	ofEasyCam camera;
+	string pathCamera = "ofxSurfingPBR_Camera.txt";
+
 	void drawScene();
 
 	const size_t OFAPP_NUM_ITEMS = 4;
@@ -42,4 +46,7 @@ public:
 	string sHelp = "";
 	bool bHelp = true;
 #endif
+
+	ofxPanel gui;
+	ofParameterGroup g;
 };

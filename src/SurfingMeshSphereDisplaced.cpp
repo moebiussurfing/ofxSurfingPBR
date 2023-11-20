@@ -28,7 +28,7 @@ void SurfingMeshSphereDisplaced::exit() {
 void SurfingMeshSphereDisplaced::Changed(ofAbstractParameter & e) {
 
 	string name = e.getName();
-	ofLogNotice("SurfingMeshSphereDisplaced") << " Changed " << name << " : " << e;
+	ofLogNotice("SurfingMeshSphereDisplaced") << "Changed " << name << " : " << e;
 
 	if (name == vResetAll.getName()) {
 		doResetAll();
@@ -104,6 +104,9 @@ void SurfingMeshSphereDisplaced::setup() {
 	doResetAll();
 
 	//---
+
+	bGui.set("UI " + parameters.getName(), true);
+	bDraw.set("Draw " + parameters.getName(), true);
 
 	gui.setup(parameters);
 
@@ -197,6 +200,8 @@ void SurfingMeshSphereDisplaced::doResetAll() {
 
 //--------------------------------------------------------------
 void SurfingMeshSphereDisplaced::draw(bool bwire) {
+	if (!bDraw) return;
+
 	update();
 
 	ofPushMatrix();

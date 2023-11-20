@@ -2,18 +2,15 @@
 
 	TODO
 
-	add bang to update/link global color from other colors.
-	fix coat for standalone material
-
 */
 
-
 #pragma once
+
 #include "ofMain.h"
 
-#include "ofxSurfingPBRConstants.h"
 #include "ofxGui.h"
 #include "ofxSurfingHelpersLite.h"
+#include "ofxSurfingPBRConstants.h"
 
 class SurfingMaterial {
 public:
@@ -38,6 +35,14 @@ private:
 	void ChangedHelpers(ofAbstractParameter & e);
 	void ChangedGlobals(ofAbstractParameter & e);
 
+	// App flow controls
+	//bool bDisableCallbacks = false;
+	bool bDoneSetup = false;
+	//bool bDoneSetupParams = false;
+	//bool bDoneStartup = false;
+	//bool bDoneDelayed = false;
+	bool bAppRunning = false;
+
 private:
 	ofMaterial material;
 
@@ -60,22 +65,22 @@ public:
 	ofParameter<float> globalAlpha; // will set this alpha to all colors.
 
 private:
-	ofParameter<void> vToGlobal;
-	ofParameter<int> fromColorToGlobal;
-	ofParameter<string> nameSourceGlobal;
 	//bool bAttendingGlobal = false;
+	ofParameter<void> vFromColorToGlobal;
+	ofParameter<int> indexFromColorToGlobal;
+	ofParameter<string> nameSourceGlobal;
 
-	bool bFlagGlobalColor= false;
+	bool bFlagGlobalColor = false;
 	void doGlobalColor();
 
-	bool bFlagGlobalAlpha= false;
+	bool bFlagGlobalAlpha = false;
 	void doGlobalAlpha();
 
-	bool bFlagFromColorToGlobal= false;
-	void doFromColorToGlobal();
+	bool bFlagIndexFromColorToGlobal = false;
+	void doIndexFromColorToGlobal();
 
-	bool bFlagToGlobal = false;
-	void doToGlobal();
+	bool bFlagFromColorIndexToGlobals = false;
+	void doFromColorIndexToGlobals();
 
 public:
 	ofParameter<ofFloatColor> diffuseColor;
@@ -93,7 +98,7 @@ public:
 	ofParameter<float> clearCoatStrength;
 
 	ofParameter<void> vResetMaterial;
-	ofParameter<void> vRandomMaterial;
+	ofParameter<void> vRandomMaterialFull;
 	ofParameter<void> vRandomColors;
 	ofParameter<void> vRandomAlphas;
 	ofParameter<void> vRandomColorsAlpha;
@@ -102,7 +107,7 @@ public:
 
 	ofxPanel gui;
 	void setGuiPosition(glm::vec2 pos);
-	
+
 	ofxPanel guiHelpers;
 	ofParameter<bool> bGui;
 	ofParameter<bool> bGuiHelpers;
@@ -113,8 +118,8 @@ public:
 	string pathRoot = "ofxSurfingPBR_Material";
 	string path = "";
 	string name = "";
-	string ext= ".json";
-	void setName(const string &n);//call before setup
+	string ext = ".json";
+	void setName(const string & n); //call before setup
 
 public:
 	void load();
@@ -134,13 +139,15 @@ public:
 	void doRandomSettings();
 
 private:
-	bool bFlagDoResetMaterial=false;
-	bool bFlagDoRandomMaterial=false;
-	bool bFlagDoRandomColors=false;
-	bool bFlagDoRandomAlphas=false;
-	bool bFlagDoRandomColorGlobal=false;
-	bool bFlagDoRandomColorsAlpha=false;
-	bool bFlagDoRandomSettings=false;
+	bool bFlagDoResetMaterial = false;
+	bool bFlagDoRandomMaterialFull = false;
+	bool bFlagDoRandomColors = false;
+	bool bFlagDoRandomAlphas = false;
+	bool bFlagDoRandomColorGlobal = false;
+	bool bFlagDoRandomColorsAlpha = false;
+	bool bFlagDoRandomSettings = false;
+
+	bool bAttendingColors= false;
 
 private:
 	// History browser
@@ -164,15 +171,15 @@ private:
 	void doRefreshIndexHistory();
 
 private:
-	bool bFlagDoRefreshIndexHistory=false;
+	bool bFlagDoRefreshIndexHistory = false;
 	bool bFlagDoPrevHistory = false;
-	bool bFlagDoNextHistory= false;
-	bool bFlagDoSaveState= false;
-	bool bFlagDoStoreNewState= false;
-	bool bFlagDoRecallState= false;
-	bool bFlagDoRemoveState= false;
-	bool bFlagDoRefeshHistory= false;
-	bool bFlagDoClearHistory= false;
+	bool bFlagDoNextHistory = false;
+	bool bFlagDoSaveState = false;
+	bool bFlagDoStoreNewState = false;
+	bool bFlagDoRecallState = false;
+	bool bFlagDoRemoveState = false;
+	bool bFlagDoRefeshHistory = false;
+	bool bFlagDoClearHistory = false;
 
 private:
 	void setupHistoryManager();
@@ -184,20 +191,20 @@ private:
 	void removeHistoryFolder();
 	void refreshGlobals();
 
-	const string getFilePathHistoryState(const int &i);
+	const string getFilePathHistoryState(const int & i);
 	string pathHistory = "ofxSurfingPBR_Material_Temp\\";
 	string pathHistoryNameRoot = "ofxSurfing_Material_";
 
 public:
 	void doPrevHistory();
 	void doNextHistory();
-	void doStoreNewState();
 	void doRecallState();
-	void doSaveState(int i=-1);
+	void doSaveState(int i = -1);
+	void doStoreNewState();
 
 public:
 	//TODO: startup fix overwrite settings from file..
-	
+
 	// Helpers to pair with OF core ofMaterial
 	// Useful to replace code from your projects or OF CORE bundled examples.
 	void setAmbientColor(ofFloatColor c) {
@@ -215,6 +222,4 @@ public:
 	void setShininess(float shininess) {
 		this->shininess.set(shininess);
 	}
-
-
 };

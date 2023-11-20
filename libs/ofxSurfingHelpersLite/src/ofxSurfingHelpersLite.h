@@ -57,7 +57,7 @@ inline bool loadSettings(ofParameterGroup & parameters, string path = "") {
 	ofFile f;
 	bool b = f.doesFileExist(path);
 	if (b)
-		ofLogNotice("ofxSurfing") << "Found settings file: " << path << " for ofParameterGroup: " << parameters.getName();
+		ofLogVerbose("ofxSurfing") << "Found settings file: " << path << " for ofParameterGroup: " << parameters.getName();
 	else
 		ofLogError("ofxSurfing") << "File " << path
 								 << " for ofParameterGroup " << parameters.getName() << " not found!";
@@ -88,14 +88,14 @@ inline bool saveSettings(ofParameterGroup & parameters, string path = "") {
 	ofSerialize(settings, parameters);
 	bool b = ofSavePrettyJson(path, settings);
 	if (b)
-		ofLogNotice("ofxSurfing") << "Saved ofParameterGroup: " << parameters.getName() << " to " << path;
+		ofLogVerbose("ofxSurfing") << "Saved ofParameterGroup: " << parameters.getName() << " to " << path;
 	else
 		ofLogError("ofxSurfing") << "Error saving: " << parameters.getName() << " to " << path;
 
 	return b;
 }
 
-// Create if folder not found
+// Create if a folder path is found or not
 //--------------------------------------------------------------
 inline void checkFolderOrCreate(string path) {
 	if (!ofDirectory::doesDirectoryExist(ofFilePath::getEnclosingDirectory(path))) {
@@ -104,7 +104,20 @@ inline void checkFolderOrCreate(string path) {
 		else
 			ofLogError("ofxSurfing") << "Unable to create enclosing folder for: " << path;
 	}
-	ofLogNotice("ofxSurfing") << "Found enclosing folder for: " << path;
+	ofLogVerbose("ofxSurfing") << "Found enclosing folder for: " << path;
+}
+
+// Create if a file path is found or not
+//--------------------------------------------------------------
+inline bool checkFileExist(string path) {
+	ofFile f2;
+	bool b2 = f2.doesFileExist(path);
+	if (b2) {
+		ofLogVerbose("ofxSurfing") << "Found file: " << path;
+	} else {
+		ofLogWarning("ofxSurfing") << "File: " << path << " not found!";
+	}
+	return b2;
 }
 
 // LEGACY
@@ -113,6 +126,12 @@ inline bool loadGroup(ofParameterGroup & parameters, string path = "") {
 	return loadSettings(parameters, path);
 }
 inline bool saveGroup(ofParameterGroup & parameters, string path = "") {
+	return saveSettings(parameters, path);
+}
+inline bool load(ofParameterGroup & parameters, string path = "") {
+	return loadSettings(parameters, path);
+}
+inline bool save(ofParameterGroup & parameters, string path = "") {
 	return saveSettings(parameters, path);
 }
 
@@ -921,7 +940,7 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 #else
 		if (bMini) {
 			textPadding = 6;
-			defaultWidth = 140;
+			defaultWidth = 150;
 			defaultHeight = 17;
 		} else {
 			textPadding = 6;
@@ -958,6 +977,8 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 
 	void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 		// ...	
+		//if (e.isSerializable())//to exclude saving 
+		//for non required parameters like void types.
 		autoSaver.saveSoon();
 	}
 

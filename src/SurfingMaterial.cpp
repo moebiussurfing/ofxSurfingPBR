@@ -1,4 +1,5 @@
 #include "SurfingMaterial.h"
+
 //--------------------------------------------------------------
 SurfingMaterial::SurfingMaterial() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:constructor()";
@@ -20,6 +21,7 @@ SurfingMaterial::~SurfingMaterial() {
 //--------------------------------------------------------------
 void SurfingMaterial::setup(string name) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setup(" << name << ")";
+
 	this->setName(name);
 	setup();
 }
@@ -35,11 +37,14 @@ void SurfingMaterial::setup() {
 	setupGui();
 
 	load();
+
+	bDoneSetup = true;
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setup() Done!";
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::setupParams() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setupParams()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:SurfingMaterial:setupParams()";
 
 	//--
 
@@ -52,10 +57,6 @@ void SurfingMaterial::setupParams() {
 	}
 
 	else { // to allow multiple instances. to be used for gui naming and settings path!
-		//string n = "PBR_MATERIAL";
-		//n += string("_");
-		//n += name;
-
 		path = pathRoot + "_" + name + ext;
 
 		pathHistory = pathHistory + "material_" + name;
@@ -102,12 +103,15 @@ void SurfingMaterial::setupParams() {
 	coatParams.add(clearCoatRoughness.set("CC Roughness", 0.0001, 0.0001, 10.0));
 	coatParams.add(clearCoatStrength.set("CC Strength", 0.0001, 0.0001, 10.0));
 
-	vResetMaterial.set("Mat Reset");
-
+	vResetMaterial.set("Material Reset");
+	vRandomMaterialFull.set("Material Random Full");
+	vRandomSettings.set("Material Random Settings");
+		
 	//--
 
-	randomizersParams.add(vRandomMaterial.set("Mat Random Full"));
-	randomizersParams.add(vRandomSettings.set("Mat Random Settings"));
+	randomizersParams.add(vResetMaterial);
+	randomizersParams.add(vRandomMaterialFull);
+	randomizersParams.add(vRandomSettings);
 	randomizersParams.add(vRandomColorsGlobal.set("Random Global Color"));
 	randomizersParams.add(vRandomColors.set("Random Colors"));
 	randomizersParams.add(vRandomColorsAlpha.set("Random ColorsAlpha"));
@@ -123,8 +127,8 @@ void SurfingMaterial::setupParams() {
 	globalParams.add(globalColor.set("Global Color", ofFloatColor::white));
 	globalParams.add(globalAlpha.set("Global Alpha", 1.0f, 0.0f, 1.0f));
 	globalLinksParams.add(nameSourceGlobal.set("Source", "NONE"));
-	globalLinksParams.add(fromColorToGlobal.set("fromColor", 0, 0, 3));
-	globalLinksParams.add(vToGlobal.set("toGlobal"));
+	globalLinksParams.add(indexFromColorToGlobal.set("fromColor", 0, 0, 3));
+	globalLinksParams.add(vFromColorToGlobal.set("toGlobal"));
 	globalParams.add(globalLinksParams);
 	parameters.add(globalParams);
 	nameSourceGlobal.setSerializable(false);
@@ -136,14 +140,17 @@ void SurfingMaterial::setupParams() {
 	settingsParams.add(coatParams);
 	parameters.add(settingsParams);
 
-	parameters.add(vRandomMaterial);
+	parameters.add(vRandomMaterialFull);
 	parameters.add(vRandomSettings);
 	parameters.add(vResetMaterial);
 
 	//workflow
 	//parameters.add(indexHistory);
 
-	bGui.set("UI MATERIAL", true);
+	if (name == "")
+		bGui.set("UI MATERIAL", true);
+	else
+		bGui.set("UI " + name, true);
 
 	bGuiHelpers.set("UI HELPERS", false);
 	bGuiHelpers.setSerializable(false);
@@ -159,8 +166,8 @@ void SurfingMaterial::setupParams() {
 	ofAddListener(helpersParams.parameterChangedE(), this, &SurfingMaterial::ChangedHelpers);
 	ofAddListener(globalParams.parameterChangedE(), this, &SurfingMaterial::ChangedGlobals);
 
-	//refresh
-	fromColorToGlobal = fromColorToGlobal;
+	////refresh
+	//indexFromColorToGlobal = indexFromColorToGlobal;
 }
 
 //--------------------------------------------------------------
@@ -213,28 +220,30 @@ void SurfingMaterial::update(ofEventArgs & args) {
 //--------------------------------------------------------------
 void SurfingMaterial::update() {
 
+	//--
+
 	if (bFlagGlobalColor) {
 		bFlagGlobalColor = false;
 
 		doGlobalColor();
 	}
 
-	if (bFlagFromColorToGlobal) {
-		bFlagFromColorToGlobal = false;
-
-		doFromColorToGlobal();
-	}
-
-	if (bFlagToGlobal) {
-		bFlagToGlobal = false;
-
-		doToGlobal();
-	}
-
 	if (bFlagGlobalAlpha) {
 		bFlagGlobalAlpha = false;
 
 		doGlobalAlpha();
+	}
+
+	if (bFlagFromColorIndexToGlobals) {
+		bFlagFromColorIndexToGlobals = false;
+
+		doFromColorIndexToGlobals();
+	}
+
+	if (bFlagIndexFromColorToGlobal) {
+		bFlagIndexFromColorToGlobal = false;
+
+		doIndexFromColorToGlobal();
 	}
 
 	//--
@@ -251,8 +260,8 @@ void SurfingMaterial::update() {
 		doResetMaterial();
 	}
 
-	if (bFlagDoRandomMaterial) {
-		bFlagDoRandomMaterial = false;
+	if (bFlagDoRandomMaterialFull) {
+		bFlagDoRandomMaterialFull = false;
 
 		doRandomMaterial();
 	}
@@ -336,6 +345,20 @@ void SurfingMaterial::update() {
 
 		doClearHistory();
 	}
+
+	//--
+
+	// App flow controls
+	{
+		// On the 1st frame
+		int f = (int)(ofGetFrameNum());
+		if (f >= 0) {
+			if (!bAppRunning) {
+				bAppRunning = true;
+				ofLogNotice("ofxSurfingPBR") << "Starting app at/and ending frame number: " << ofGetFrameNum();
+			}
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -351,6 +374,8 @@ void SurfingMaterial::end() {
 
 //--------------------------------------------------------------
 void SurfingMaterial::drawGui() {
+	if (!bGui) return;
+
 	gui.draw();
 
 	if (bGuiHelpers) {
@@ -365,7 +390,7 @@ void SurfingMaterial::drawGui() {
 //--------------------------------------------------------------
 void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 
-	std::string name = e.getName();
+	string name = e.getName();
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:ChangedHelpers: " << name << ": " << e;
 
@@ -377,8 +402,8 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 
 	// Randomizers
 
-	else if (name == vRandomMaterial.getName()) {
-		bFlagDoRandomMaterial = true;
+	else if (name == vRandomMaterialFull.getName()) {
+		bFlagDoRandomMaterialFull = true;
 	}
 
 	else if (name == vRandomColors.getName()) {
@@ -446,15 +471,14 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 //--------------------------------------------------------------
 void SurfingMaterial::ChangedGlobals(ofAbstractParameter & e) {
 
-	std::string name = e.getName();
-	auto f = ofGetFrameNum();
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:ChangedGlobals: " << name << ": " << e;
-	ofLogNotice("ofxSurfingPBR") << "ofGetFrameNum(): " << f;
-
-	// exclude
-	if (name == nameSourceGlobal.getName()) {
+	if (!bDoneSetup) {
+		ofLogWarning("ofxSurfingPBR") << "Skipped bc !bDoneSetup / SurfingMaterial:ChangedGlobals: " << name << ": " << e;
 		return;
+		//if (!bAppRunning) return;
 	}
+
+	string name = e.getName();
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:ChangedGlobals: " << name << ": " << e;
 
 	//--
 
@@ -466,29 +490,34 @@ void SurfingMaterial::ChangedGlobals(ofAbstractParameter & e) {
 
 	//--
 
-	// this flag patterns helps reducing exception crashes when some callbacks happens.
+	// This flag patterns helps reducing exception crashes when some callbacks happens.
+	// we moved the functions out of here/the callbacks.
+	// also limited many possible callbacks by calling maximum once per frame!
 
 	if (name == globalColor.getName()) {
+		if (bAttendingColors) return;
 		bFlagGlobalColor = true;
 	}
 
 	else if (name == globalAlpha.getName()) {
+		if (bAttendingColors) return;
 		bFlagGlobalAlpha = true;
 	}
 
-	else if (name == fromColorToGlobal.getName()) {
-		bFlagFromColorToGlobal = true;
+	else if (name == indexFromColorToGlobal.getName()) {
+		bFlagIndexFromColorToGlobal = true;
 	}
 
-	else if (name == vToGlobal.getName()) {
-		bFlagToGlobal = true;
+	else if (name == vFromColorToGlobal.getName()) {
+		bFlagFromColorIndexToGlobals = true;
 	}
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::ChangedColors(ofAbstractParameter & e) {
+	if (bAttendingColors) return;
 
-	std::string name = e.getName();
+	string name = e.getName();
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:ChangedColors: " << name << ": " << e;
 
@@ -526,7 +555,7 @@ void SurfingMaterial::ChangedColors(ofAbstractParameter & e) {
 //--------------------------------------------------------------
 void SurfingMaterial::ChangedSettings(ofAbstractParameter & e) {
 
-	std::string name = e.getName();
+	string name = e.getName();
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:ChangedSettings: " << name << ": " << e;
 
@@ -543,27 +572,27 @@ void SurfingMaterial::ChangedSettings(ofAbstractParameter & e) {
 	if (name == roughness.getName()) {
 		material.setRoughness(roughness);
 	}
-	
+
 	else if (name == metallic.getName()) {
 		material.setMetallic(metallic);
-	} 
-	
+	}
+
 	else if (name == reflectance.getName()) {
 		material.setReflectance(reflectance);
-	} 
-	
+	}
+
 	else if (name == shininess.getName()) {
 		material.setShininess(shininess);
 	}
 
 	else if (name == bClearCoat.getName()) {
 		material.setClearCoatEnabled(bClearCoat);
-	} 
-	
+	}
+
 	else if (name == clearCoatRoughness.getName()) {
 		material.setClearCoatRoughness(clearCoatRoughness);
-	} 
-	
+	}
+
 	else if (name == clearCoatStrength.getName()) {
 		material.setClearCoatStrength(clearCoatStrength);
 	}
@@ -636,12 +665,12 @@ void SurfingMaterial::doGlobalAlpha() {
 }
 
 //--------------------------------------------------------------
-void SurfingMaterial::doFromColorToGlobal() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doFromColorToGlobal()";
+void SurfingMaterial::doIndexFromColorToGlobal() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doIndexFromColorToGlobal()";
 
 	string s = "NONE";
 
-	const int i = fromColorToGlobal.get();
+	const int i = indexFromColorToGlobal.get();
 
 	if (i == 0)
 		s = "Ambient";
@@ -654,19 +683,21 @@ void SurfingMaterial::doFromColorToGlobal() {
 
 	nameSourceGlobal.set(s);
 
-	////workflow. auto get
-	////vToGlobal.trigger();
-	////doToGlobal();
-	//bFlagToGlobal = true;
+	//workflow. auto get
+	doFromColorIndexToGlobals();
 }
 
 //--------------------------------------------------------------
-void SurfingMaterial::doToGlobal() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doToGlobal()";
+void SurfingMaterial::doFromColorIndexToGlobals() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doFromColorIndexToGlobals()";
+
+	bAttendingColors = true;
+	// avoid affecting the colors when touching global color!
+	// this disables colors callbacks!
 
 	ofFloatColor c = ofFloatColor(1.f, 1.f);
 
-	const int i = fromColorToGlobal.get();
+	const int i = indexFromColorToGlobal.get();
 
 	if (i == 0)
 		c = ambientColor.get();
@@ -679,7 +710,11 @@ void SurfingMaterial::doToGlobal() {
 
 	globalAlpha.set(c.a);
 	globalColor.set(c);
+
+	bAttendingColors = false;
 }
+
+//--
 
 //--------------------------------------------------------------
 void SurfingMaterial::doRefreshIndexHistory() {
@@ -718,7 +753,8 @@ void SurfingMaterial::doRandomMaterial() {
 	doRandomSettings();
 	doRandomColors();
 
-	if (bAutoStoreAfterRandoms) doStoreNewState();
+	//if (bAutoStoreAfterRandoms) doStoreNewState();
+	if (bAutoStoreAfterRandoms) bFlagDoStoreNewState = true;
 }
 
 //--------------------------------------------------------------
@@ -749,6 +785,7 @@ void SurfingMaterial::doResetMaterial() {
 
 	refreshGlobals();
 }
+
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomSettings() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomSettings()";
@@ -762,7 +799,8 @@ void SurfingMaterial::doRandomSettings() {
 
 	refreshGlobals();
 
-	if (bAutoStoreAfterRandoms) doStoreNewState();
+	//if (bAutoStoreAfterRandoms) doStoreNewState();
+	if (bAutoStoreAfterRandoms) bFlagDoStoreNewState = true;
 }
 
 //--------------------------------------------------------------
@@ -787,8 +825,10 @@ void SurfingMaterial::doRandomColorsAlpha() {
 
 	refreshGlobals();
 
-	if (bAutoStoreAfterRandoms) doStoreNewState();
+	//if (bAutoStoreAfterRandoms) doStoreNewState();
+	if (bAutoStoreAfterRandoms) bFlagDoStoreNewState = true;
 }
+
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColorGlobal() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomColorGlobal()";
@@ -802,8 +842,10 @@ void SurfingMaterial::doRandomColorGlobal() {
 	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), a);
 	globalColor.set(c);
 
-	if (bAutoStoreAfterRandoms) doStoreNewState();
+	//if (bAutoStoreAfterRandoms) doStoreNewState();
+	if (bAutoStoreAfterRandoms) bFlagDoStoreNewState = true;
 }
+
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomColors() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomColors()";
@@ -834,14 +876,16 @@ void SurfingMaterial::doRandomColors() {
 		emissiveColor.set(c);
 
 	refreshGlobals();
-	if (bAutoStoreAfterRandoms) doStoreNewState();
+
+	//if (bAutoStoreAfterRandoms) doStoreNewState();
+	if (bAutoStoreAfterRandoms) bFlagDoStoreNewState = true;
 }
 
 //--------------------------------------------------------------
 void SurfingMaterial::doRandomAlphas() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doRandomAlphas()";
 
-	//randomizes the alpha's only of each color. Do not touches the rgb of the colors.
+	// randomizes the alpha's only of each color. Do not touches the rgb of the colors.
 
 	ofFloatColor c;
 	float a;
@@ -871,6 +915,8 @@ void SurfingMaterial::doRandomAlphas() {
 		emissiveColor.set(c);
 
 	refreshGlobals();
+
+	if (bAutoStoreAfterRandoms) bFlagDoStoreNewState = true;
 }
 
 //--
@@ -895,11 +941,11 @@ void SurfingMaterial::setupHistoryManager() {
 	historyParams.add(vNextHistory);
 	historyParams.add(vPrevHistory);
 	historyParams.add(indexHistory);
+	historyParams.add(bAutoStoreAfterRandoms);
 	historyParams.add(vRecallState);
 	historyParams.add(vStoreNewState);
 	//historyParams.add(vSaveState);//forced auto save
 	historyParams.add(vRemoveState);
-	historyParams.add(bAutoStoreAfterRandoms);
 	historyParams.add(vRefeshHistory);
 	historyParams.add(vClearHistory);
 
@@ -1036,7 +1082,7 @@ void SurfingMaterial::doPrevHistory() {
 		indexHistory = indexHistory - 1;
 	else
 		indexHistory = indexHistory.getMax(); //cycled
-	//indexHistory = indexHistory.getMin();//clamped
+	//indexHistory = indexHistory.getMin(); //clamped
 }
 
 //--------------------------------------------------------------
@@ -1052,7 +1098,7 @@ void SurfingMaterial::doNextHistory() {
 		indexHistory = indexHistory + 1;
 	else
 		indexHistory = indexHistory.getMin(); //cycled
-	//indexHistory = indexHistory.getMax();//clamped
+	//indexHistory = indexHistory.getMax(); //clamped
 }
 
 //--------------------------------------------------------------
@@ -1099,7 +1145,12 @@ void SurfingMaterial::refreshGlobals() {
 
 	// workflow
 	// Auto get global from a source color.
-	vToGlobal.trigger();
+
+	//vFromColorToGlobal.trigger();
+	//will not work during setup bc callbacks are bypassed until setup is done!
+	// So we flag to be called on next frame/update.
+	//bFlagFromColorIndexToGlobals = true;
+	doFromColorIndexToGlobals();
 }
 
 //--------------------------------------------------------------
@@ -1152,7 +1203,7 @@ void SurfingMaterial::doRemoveState(int i) {
 
 //--------------------------------------------------------------
 void SurfingMaterial::save() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Save(" << path << ")";
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:save -> " << path;
 
 	if (path == "") {
 		ofLogWarning("ofxSurfingPBR") << "Settings path is empty!";
@@ -1162,10 +1213,11 @@ void SurfingMaterial::save() {
 	{
 		ofxSurfing::saveSettings(parameters, path);
 
-		//workflow
-		if (bAutoSaveBeforeChangeIndex) {
-			doSaveState(indexHistory);
-		}
+		//TODO
+		////workflow
+		//if (bAutoSaveBeforeChangeIndex) {
+		//	doSaveState(indexHistory);
+		//}
 	}
 }
 
@@ -1177,7 +1229,7 @@ void SurfingMaterial::setName(const string & n) {
 
 //--------------------------------------------------------------
 void SurfingMaterial::load() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:Load(" << path << ")";
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:load -> " << path;
 
 	if (path == "") {
 		ofLogWarning("ofxSurfingPBR") << "Settings path is empty!";

@@ -68,8 +68,12 @@ public:
 	//--
 
 	ofxPanel gui;
+	ofParameter<bool> bGui;
+	ofParameter<bool> bDraw;
 
 	void drawGui() {
+		if (!bGui) return;
+
 		gui.draw();
 	}
 
