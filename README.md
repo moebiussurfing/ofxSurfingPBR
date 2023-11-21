@@ -37,27 +37,33 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 
 ## FEATURES
 
-- Two ready-to-use editable parametric materials:
-  - **Material A**. For the **Plane** (floor).
-  - **Material B**. For the **other Objects**.
-- A positionable Ambient **light** with **Shadows**.
+- Basic **Scene Manager** with default elements:
+  - Two ready-to-use editable parametric materials:
+    - **Material A**. For the **Plane** (floor).
+    - **Material B**. For the **other Objects**.
+  - Default **Lights combo**: 
+    - Flexible **Point**, **Directional** and **Spot**.
 - **Cubemaps** (**HDR**) files loader.
-  - Alternative background color and sphere/box container using material.
-- Added **Shader** for *testing/code*.
-  - **Displacement** applied to the plane and his material/mesh.
+  - **Background color** and **Sphere/Box container** with material.
+
+- **Standalone Materials** can be used independently of the **Scene Manager**.
+
 - Persistent settings:
   - Optimized **auto save** on any change.
   - **Plane** simple material, colors, transforms, snapshots, etc...
   - **Objects** material with full **PBR** specs. 
   - Camera settings.
     - Included [ofxCameraSaveLoad](https://github.com/roymacdonald/ofxCameraSaveLoad) into `/libs`.
+
 - Material **Randomizers**.
-- **History** browsing workflow.
-    - **Presets**/**Snapshots** (Store/Recall) explorer system.
+  - **History** browsing workflow.
+      - **Presets**/**Snapshots** (Store/Recall) explorer system.
 - Included **3D models** browser/loader class.
 - Included [ofxSurfingHelpersLite](https://github.com/moebiussurfing/ofxSurfingHelpersLite) into `/libs`.
     - **Helper classes** for settings serializers, auto saver, ofxGui customizer, layout helpers, ofDrawBitmapStringBox...etc.  
-- Standalone materials can be used independently of the main class/scene manager.
+
+- Added **Shader** for *testing/code*.
+  - **Displacement** applied to the plane and his material/mesh.
 
 ### TODO
   - Add more **Shaders** related stuff. / HELP IS WELCOME! 
