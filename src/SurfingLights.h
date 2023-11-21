@@ -1,12 +1,9 @@
 /*
-
-	move shadow here
-	add global color
-	fix rotate glm
-	resets
-	simple mode
-	fix debug
-
+	fix/remake callbacks pattern
+	add global from/to color
+	create init state
+	make simple mode/user/ game controls
+	add/restore handy bright controls.
 */
 
 //--

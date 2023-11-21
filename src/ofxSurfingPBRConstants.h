@@ -21,7 +21,7 @@
 
 // MODULES
 
-//#define SURFING__USE_LIGHTS_CLASS
+#define SURFING__USE_LIGHTS_CLASS
 #define SURFING__USE_CUBE_MAP
 
 //--

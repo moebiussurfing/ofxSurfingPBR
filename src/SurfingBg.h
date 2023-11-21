@@ -119,6 +119,8 @@ public:
 	ofParameter<bool> bModeSphere;
 	ofParameter<float> resolutionSphere;
 	ofParameter<float> resolutionBox;
+	float resolutionSphere_=1;
+	float resolutionBox_=1;
 
 	ofParameter<void> vResetAll;
 	ofEventListener listenerResetAll;

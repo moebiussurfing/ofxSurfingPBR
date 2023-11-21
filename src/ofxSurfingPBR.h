@@ -101,6 +101,7 @@ public:
 	void drawTestScene(); //a simple scene with 3 prims for easy testing
 	void pushTestSceneTRansform();
 	void popTestSceneTRansform();
+	ofParameter<bool> bGui_DrawTestScene; 
 	
 	void drawGui();
 	void drawOfxGui();

@@ -294,9 +294,11 @@ void ofxSurfingPBR::setupParams() {
 	//--
 
 	testSceneParams.setName("Test Scene");
+	bGui_DrawTestScene.set("Draw Scene", true);
 	scaleTestScene.set("Scale", 0, -1.f, 1.f);
 	positionTestScene.set("yPosition", 0, -1.f, 1.f);
 	vResetTestScene.set("Reset TestScene");
+	testSceneParams.add(bGui_DrawTestScene);
 	testSceneParams.add(scaleTestScene);
 	testSceneParams.add(positionTestScene);
 	testSceneParams.add(vResetTestScene);
@@ -1166,11 +1168,14 @@ void ofxSurfingPBR::draw() {
 
 	ofEnableDepthTest();
 
+	//TODO fix
+	drawPBRScene();
+
+	//--
+
 	// camera
 	camera->begin();
 	{
-		//TODO fix
-		drawPBRScene();
 
 #ifdef SURFING__USE_LIGHTS_CLASS
 		//TODO fix
@@ -1205,6 +1210,8 @@ void ofxSurfingPBR::draw() {
 		//surfingLights.end();
 		//surfingLights.endLights();
 #endif
+
+		//--
 
 		ofDisableDepthTest();
 
@@ -1644,17 +1651,23 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawTestScene() {
+	if (!bGui_DrawTestScene) return;
 
 	//----
 
-	// Do once
-	{
-		static bool b = false;
-		if (!b) {
-			b = true;
-			ofSetConeResolution(50, 10, 2);
-		}
-	}
+	//// Do once
+	//{
+	//	static bool b = false;
+	//	if (!b) {
+	//		b = true;
+	//		ofSetConeResolution(50, 10, 2);
+	//		ofSetSphereResolution(50);
+	//	}
+	//}
+
+	ofPushStyle();
+	ofSetConeResolution(50, 10, 2);
+	ofSetSphereResolution(50);
 
 	//--
 
@@ -1682,6 +1695,8 @@ void ofxSurfingPBR::drawTestScene() {
 	}
 
 	popTestSceneTRansform();
+
+	ofPopStyle();
 }
 
 //--------------------------------------------------------------

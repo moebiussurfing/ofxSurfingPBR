@@ -340,6 +340,8 @@ void SurfingBg::update(ofEventArgs & args) {
 
 //--------------------------------------------------------------
 void SurfingBg::drawObject(float r) {
+	if (!bModeSphere && !bModeBox) return;
+
 	ofPushMatrix();
 	{
 		// scene center
@@ -361,20 +363,30 @@ void SurfingBg::drawObject(float r) {
 
 		//--
 
+		ofPushStyle();
+
 		// sphere
 		if (bModeSphere) {
+			ofSetSphereResolution(resolutionSphere_);
 			ofDrawSphere(0, 0, 0, r);
 		}
 
 		// box
 		if (bModeBox) {
+			ofSetBoxResolution(resolutionBox_);
 			ofDrawBox(0, 0, 0, 2.f * r);
 		}
+
+		ofPopStyle();
 	}
 	ofPopMatrix();
 }
 //--------------------------------------------------------------
 void SurfingBg::drawScene() {
+	if (!bModeSphere && !bModeBox) return;
+
+	//--
+
 #define SURFING_BG_MIN 1.f
 #define SURFING_BG_MAX 5.f
 
@@ -386,6 +398,8 @@ void SurfingBg::drawScene() {
 	//else
 
 	float r = SURFING__SCENE_SIZE_UNIT;
+
+	// Face
 
 	material.begin();
 	{
@@ -421,6 +435,8 @@ void SurfingBg::drawScene() {
 	material.end();
 
 	//--
+
+	// Wire
 
 	if (bDrawWireframe) {
 		ofPushMatrix();
@@ -767,7 +783,7 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 		float r = ofMap(resolutionSphere.get(),
 			resolutionSphere.getMin(), resolutionSphere.getMax(),
 			RESOLUTION_SPHERE_MIN, RESOLUTION_SPHERE_MAX, true);
-		ofSetSphereResolution(r);
+		resolutionSphere_ = (r);
 	}
 
 	else if (name == resolutionBox.getName()) {
@@ -776,7 +792,7 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 		float r = ofMap(resolutionBox.get(),
 			resolutionBox.getMin(), resolutionBox.getMax(),
 			RESOLUTION_BOX_MIN, RESOLUTION_BOX_MAX, true);
-		ofSetBoxResolution(r);
+		resolutionBox_ = r;
 	}
 
 	//--
