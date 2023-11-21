@@ -43,7 +43,7 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
     - **Material B**. For the **other Objects**.
   - Default **Lights combo**: 
     - Flexible **Point**, **Directional** and **Spot**.
-- **Cubemaps** (**HDR**) files loader.
+  - **Cubemaps** (**HDR**) files loader.
   - **Background color** and **Sphere/Box container** with material.
 
 - **Standalone Materials** can be used independently of the **Scene Manager**.
@@ -51,13 +51,13 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 - Persistent settings:
   - Optimized **auto save** on any change.
   - **Plane** simple material, colors, transforms, snapshots, etc...
-  - **Objects** material with full **PBR** specs. 
+  - All materials with full **PBR** specs. 
   - Camera settings.
     - Included [ofxCameraSaveLoad](https://github.com/roymacdonald/ofxCameraSaveLoad) into `/libs`.
 
 - Material **Randomizers**.
   - **History** browsing workflow.
-      - **Presets**/**Snapshots** (Store/Recall) explorer system.
+    - **Presets**/**Snapshots** (Store/Recall) explorer system.
 - Included **3D models** browser/loader class.
 - Included [ofxSurfingHelpersLite](https://github.com/moebiussurfing/ofxSurfingHelpersLite) into `/libs`.
     - **Helper classes** for settings serializers, auto saver, ofxGui customizer, layout helpers, ofDrawBitmapStringBox...etc.  
