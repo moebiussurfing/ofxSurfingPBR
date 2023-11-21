@@ -764,7 +764,7 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 	else if (name == resolutionSphere.getName()) {
 		int RESOLUTION_SPHERE_MIN = 2;
 		int RESOLUTION_SPHERE_MAX = 100;
-		float r = ofMap(resolutionSphere.get(), 
+		float r = ofMap(resolutionSphere.get(),
 			resolutionSphere.getMin(), resolutionSphere.getMax(),
 			RESOLUTION_SPHERE_MIN, RESOLUTION_SPHERE_MAX, true);
 		ofSetSphereResolution(r);
@@ -773,7 +773,7 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 	else if (name == resolutionBox.getName()) {
 		int RESOLUTION_BOX_MIN = 1;
 		int RESOLUTION_BOX_MAX = 100;
-		float r = ofMap(resolutionBox.get(), 
+		float r = ofMap(resolutionBox.get(),
 			resolutionBox.getMin(), resolutionBox.getMax(),
 			RESOLUTION_BOX_MIN, RESOLUTION_BOX_MAX, true);
 		ofSetBoxResolution(r);
@@ -795,7 +795,9 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 
 		//force
 		if (pathTexture.get() == "" || pathTexture.get() == "NONE") {
-			pathTexture.setWithoutEventNotifications("images/001.jpg");
+			//string s = "001.jpg";
+			string s = "003.jpg";
+			pathTexture.setWithoutEventNotifications("images/" + s);
 		}
 
 		loadTexture(pathTexture.get());

@@ -119,7 +119,7 @@ void ofApp::drawGui() {
 #ifdef SURFING__USE__LIGHTS
 	if (bHelp) {
 		buildHelp();
-		ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_CENTER_LEFT);
+		ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
 	}
 #endif
 }

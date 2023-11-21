@@ -48,6 +48,8 @@ void SurfingMaterial::setupParams() {
 
 	//--
 
+	// This is required when using multiple material instances:
+
 	string nameParams;
 
 	if (name == "") { // default workflow. when using one single material instance
@@ -59,7 +61,7 @@ void SurfingMaterial::setupParams() {
 	else { // to allow multiple instances. to be used for gui naming and settings path!
 		path = pathRoot + "_" + name + ext;
 
-		pathHistory = pathHistory + "material_" + name;
+		pathHistory = pathHistory  + name;
 
 		nameParams = name;
 	}
@@ -105,7 +107,7 @@ void SurfingMaterial::setupParams() {
 
 	vResetMaterial.set("Material Reset");
 	vRandomMaterialFull.set("Material Random Full");
-	vRandomSettings.set("Material Random Settings");
+	vRandomSettings.set("Material Rand Settings");
 		
 	//--
 
@@ -128,7 +130,7 @@ void SurfingMaterial::setupParams() {
 	globalParams.add(globalAlpha.set("Global Alpha", 1.0f, 0.0f, 1.0f));
 	globalLinksParams.add(nameSourceGlobal.set("Source", "NONE"));
 	globalLinksParams.add(indexFromColorToGlobal.set("fromColor", 0, 0, 3));
-	globalLinksParams.add(vFromColorToGlobal.set("toGlobal"));
+	//globalLinksParams.add(vFromColorToGlobal.set("toGlobal"));
 	globalParams.add(globalLinksParams);
 	parameters.add(globalParams);
 	nameSourceGlobal.setSerializable(false);
@@ -471,10 +473,11 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 //--------------------------------------------------------------
 void SurfingMaterial::ChangedGlobals(ofAbstractParameter & e) {
 
+	//if (!bAppRunning) {;
 	if (!bDoneSetup) {
 		ofLogWarning("ofxSurfingPBR") << "Skipped bc !bDoneSetup / SurfingMaterial:ChangedGlobals: " << name << ": " << e;
+
 		return;
-		//if (!bAppRunning) return;
 	}
 
 	string name = e.getName();
@@ -508,9 +511,9 @@ void SurfingMaterial::ChangedGlobals(ofAbstractParameter & e) {
 		bFlagIndexFromColorToGlobal = true;
 	}
 
-	else if (name == vFromColorToGlobal.getName()) {
-		bFlagFromColorIndexToGlobals = true;
-	}
+	//else if (name == vFromColorToGlobal.getName()) {
+	//	bFlagFromColorIndexToGlobals = true;
+	//}
 }
 
 //--------------------------------------------------------------
@@ -1249,6 +1252,9 @@ void SurfingMaterial::load() {
 #endif
 
 	refreshGlobals();
+
+	//fix
+	bFlagIndexFromColorToGlobal = true;
 }
 
 //--------------------------------------------------------------

@@ -37,6 +37,7 @@ private:
 
 	// App flow controls
 	//bool bDisableCallbacks = false;
+	//bool bAttendingGlobal = false;
 	bool bDoneSetup = false;
 	//bool bDoneSetupParams = false;
 	//bool bDoneStartup = false;
@@ -65,8 +66,7 @@ public:
 	ofParameter<float> globalAlpha; // will set this alpha to all colors.
 
 private:
-	//bool bAttendingGlobal = false;
-	ofParameter<void> vFromColorToGlobal;
+	//ofParameter<void> vFromColorToGlobal;
 	ofParameter<int> indexFromColorToGlobal;
 	ofParameter<string> nameSourceGlobal;
 
@@ -115,10 +115,11 @@ public:
 	ofParameter<int> & getIndexStateParam();
 
 public:
-	string pathRoot = "ofxSurfingPBR_Material";
 	string path = "";
 	string name = "";
+	string pathRoot = "ofxSurfingPBR_Material";
 	string ext = ".json";
+private:
 	void setName(const string & n); //call before setup
 
 public:
@@ -192,7 +193,7 @@ private:
 	void refreshGlobals();
 
 	const string getFilePathHistoryState(const int & i);
-	string pathHistory = "ofxSurfingPBR_Material_Temp\\";
+	string pathHistory = "ofxSurfingPBR_Material_TEMP\\";
 	string pathHistoryNameRoot = "ofxSurfing_Material_";
 
 public:

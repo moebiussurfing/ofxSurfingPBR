@@ -56,7 +56,11 @@
 //--
 
 #include "SurfingMaterial.h"
-#include "SurfingLights.h"
+
+#ifdef SURFING__USE_LIGHTS_CLASS
+	#include "SurfingLights.h"
+#endif
+
 #include "SurfingBg.h"
 
 #include "ofxCameraSaveLoad.h"
@@ -72,7 +76,9 @@ public:
 	ofxSurfingPBR();
 	~ofxSurfingPBR();
 
+#ifdef SURFING__USE_LIGHTS_CLASS
 	SurfingLights surfingLights;
+#endif
 
 private:
 	void setupBg();

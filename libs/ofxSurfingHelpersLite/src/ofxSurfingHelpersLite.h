@@ -51,7 +51,7 @@ namespace ofxSurfing {
 // Load
 //--------------------------------------------------------------
 inline bool loadSettings(ofParameterGroup & parameters, string path = "") {
-	if (path == "") path = parameters.getName();
+	if (path == "") path = parameters.getName() + ".json";
 
 	//verify that the file exist
 	ofFile f;
@@ -74,7 +74,7 @@ inline bool loadSettings(ofParameterGroup & parameters, string path = "") {
 // Save
 //--------------------------------------------------------------
 inline bool saveSettings(ofParameterGroup & parameters, string path = "") {
-	if (path == "") path = parameters.getName();
+	if (path == "") path = parameters.getName() + ".json";
 
 	//if the destination folder do not exists, will be created.
 	if (!ofDirectory::doesDirectoryExist(ofFilePath::getEnclosingDirectory(path))) {
