@@ -131,7 +131,6 @@ private:
 	//--
 
 private:
-	void setupPBRScene();
 	void updatePBRScene();
 	void drawPBRScene();
 	void drawPBRSceneDebug();

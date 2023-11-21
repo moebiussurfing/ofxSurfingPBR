@@ -119,6 +119,9 @@ void SurfingBg::setupParameters() {
 
 	bDrawObject.set("Draw Bg Object", false);
 	bDrawWireframe.set("Draw Wireframe", false);
+	wireColor.set("Wire Color",
+		ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
+
 	bModeBox.set("Mode Box", false);
 	bModeSphere.set("Mode Sphere", false);
 	resolutionSphere.set("Resolution SPH", 0.5, 0, 1);
@@ -159,6 +162,7 @@ void SurfingBg::setupParameters() {
 	paramsObject.add(vOpenTexture);
 
 	paramsObject.add(bDrawWireframe);
+	paramsObject.add(wireColor);
 	paramsScene.add(paramsObject);
 	//paramsScene.add(bDrawBgColorPlain);
 
@@ -385,7 +389,7 @@ void SurfingBg::drawObject(float r) {
 void SurfingBg::drawScene() {
 	if (!bModeSphere && !bModeBox) return;
 
-	//--
+		//--
 
 #define SURFING_BG_MIN 1.f
 #define SURFING_BG_MAX 5.f
@@ -442,8 +446,7 @@ void SurfingBg::drawScene() {
 		ofPushMatrix();
 		ofPushStyle();
 		ofNoFill();
-		//ofSetColor(128, 220);
-		ofSetColor(255, 220);
+		ofSetColor(wireColor.get());
 		ofScale(0.99f);
 
 		drawObject(r);

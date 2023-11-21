@@ -1,9 +1,21 @@
 /*
-	fix/remake callbacks pattern
-	add global from/to color
-	create init state
-	make simple mode/user/ game controls
-	add/restore handy bright controls.
+* SurfingLights.h
+* 
+* This class is a predefined setup of 3 different type lights:
+* point, directional and spot.
+* Ready to be inserted on an environment scene.
+* 
+*/
+
+
+
+/*
+	TODO
+	add global from/to color workflow (copy from material).
+	create a cool init state.
+	make simple mode/user/ game controls.
+	fix mouse and time anims.
+	add area light. get from OF example.
 */
 
 //--
@@ -26,6 +38,32 @@ public:
 	SurfingLights();
 	~SurfingLights();
 
+public:
+	void setup();
+	void exit();
+
+private:
+	void setupParameters();
+	void startup();
+
+private:
+	void update();
+	void update(ofEventArgs & args);
+
+public:
+	void setupLights();
+	void updateLights();
+	void drawLights();
+	void drawDebugLights();
+
+	//--
+
+public:
+	void begin();
+	void end();
+
+	//--
+
 private:
 	vector<shared_ptr<ofLight>> lights;
 
@@ -36,34 +74,16 @@ public:
 
 	ofParameter<bool> bDebug;
 	ofParameter<bool> bDebugShadow;
+
 	ofParameter<void> vResetLights;
 
-public:
-	void setupLights();
-	void updateLights();
-	void drawLights();
-	void drawDebugLights();
+private:
+	bool bFlagDoResetLights= false;
 
 private:
-	bool bFlagUpdateLights = false;
+	bool bFlagRefreshGui = false;
 
-	ofLight pointLight;
-	ofLight spotLight;
-	ofLight directionalLight;
-
-	void update();
-	void update(ofEventArgs & args);
-
-public:
-	void setup();
-	void exit();
-
-	//void draw();
-	//void drawScene(bool bInCam = true);
-
-private:
-	void setupParameters();
-	void startup();
+	//--
 
 private:
 	void setupGui();
@@ -75,93 +95,102 @@ public:
 	void drawGui();
 	ofParameter<bool> bGui;
 
-	ofxPanel guiShadows;
-	ofParameter<bool> bGui_Shadows;
-
-public:
-	int mouseX, mouseY;
-
 	//-
 
 	ofParameterGroup parameters;
 
-	//void Changed(ofAbstractParameter & e);
-	void ChangedLights(ofAbstractParameter & e);
-
 	ofParameterGroup params_User;
 	ofParameterGroup params_Enablers;
 	ofParameterGroup params_Extra;
+	ofParameterGroup params_TestAnims;
 	ofParameterGroup params_Lights;
 
 	//--
 
+	void ChangedLights(ofAbstractParameter & e);
+
+	//void ChangedPoint(ofAbstractParameter & e);
+	//void ChangedSpot(ofAbstractParameter & e);
+	//void ChangedDirectional(ofAbstractParameter & e);
+
+	//--
+
+	// Point
 	ofParameterGroup pointParams;
 	ofParameterGroup pointColorsParams;
 	ofParameter<bool> bPoint;
 	ofParameter<void> vPointReset;
-	//ofParameter<float> pointBright;
-	ofParameter<ofFloatColor> pointLightAmbientColor;
-	ofParameter<ofFloatColor> pointLightDiffuseColor;
-	ofParameter<ofFloatColor> pointLightSpecularColor;
-	ofParameter<glm::vec3> pointLightPosition;
-	ofParameter<ofFloatColor> pointLightGlobalColor;
+	ofParameter<ofFloatColor> pointAmbientColor;
+	ofParameter<ofFloatColor> pointDiffuseColor;
+	ofParameter<ofFloatColor> pointSpecularColor;
+	ofParameter<glm::vec3> pointPosition;
+	ofParameter<ofFloatColor> pointGlobalColor;
 
-	ofParameterGroup spotLightParams;
-	ofParameterGroup spotLightColorsParams;
+	//--
+
+	// Spot
+	ofParameterGroup spotParams;
+	ofParameterGroup spotColorsParams;
 	ofParameter<bool> bSpot;
 	ofParameter<void> vSpotReset;
-	//ofParameter<float> spotBright;
-	ofParameter<ofFloatColor> spotLightAmbientColor;
-	ofParameter<ofFloatColor> spotLightDiffuseColor;
-	ofParameter<ofFloatColor> spotLightSpecularColor;
-	ofParameter<ofFloatColor> spotLightGlobalColor;
+	ofParameter<ofFloatColor> spotAmbientColor;
+	ofParameter<ofFloatColor> spotDiffuseColor;
+	ofParameter<ofFloatColor> spotSpecularColor;
+	ofParameter<ofFloatColor> spotGlobalColor;
+	ofParameter<glm::vec3> spotOrientation;
+	ofParameter<glm::vec3> spotPosition;
+	ofParameter<int> spotCutOff;
+	ofParameter<int> spotConcentration;
 
-	ofParameter<glm::vec3> spotLightOrientation;
-	ofParameter<glm::vec3> spotLightPosition;
-	ofParameter<int> spotLightCutOff;
-	ofParameter<int> spotLightConcentration;
+	//--
 
-	ofParameterGroup directionalLightParams;
+	// Directional
+	ofParameterGroup directionalParams;
 	ofParameterGroup directionalColorsParams;
 	ofParameter<bool> bDirectional;
 	ofParameter<void> vDirectionalReset;
-	//ofParameter<float> directionalBright;
-	ofParameter<ofFloatColor> directionalLightAmbientColor;
-	ofParameter<ofFloatColor> directionalLightDiffuseColor;
-	ofParameter<ofFloatColor> directionalLightSpecularColor;
-	ofParameter<ofFloatColor> directionalLightGlobalColor;
-	ofParameter<glm::vec3> directionalLightOrientation;
-	ofParameter<glm::vec3> directionalLightPosition;
+	ofParameter<ofFloatColor> directionalAmbientColor;
+	ofParameter<ofFloatColor> directionalDiffuseColor;
+	ofParameter<ofFloatColor> directionalSpecularColor;
+	ofParameter<ofFloatColor> directionalGlobalColor;
+	ofParameter<glm::vec3> directionalOrientation;
+	ofParameter<glm::vec3> directionalPosition;
+
+	//--
 
 public:
-	ofParameter<bool> bAnimLights;
-	ofParameter<bool> bMouseLights;
 	void updateAnims();
+	void restoreAnims();
+	ofParameter<bool> bAnimLights;
+	ofParameter<bool> bAnimLightsMouse;
+	int mouseX, mouseY;
+
 	ofParameter<bool> bDebugLights;
-	//void drawDebug();
 
 private:
 	ofParameter<bool> bSmoothLights;
 
 	ofVec3f center;
 
-public:
-	void beginLights();//?
-	void endLights();
+	//--
 
-public:
-	void begin();
-	void end();
-
-public:
 	// Resets
-	void doResetLights();
+public:
+	void doResetLights(bool bColorsToo = false);
 
 private:
-	void doResetPoint();
-	void doResetSpot();
-	void doResetDirectional();
+	void doResetPoint(bool bColorsToo=false);
+	void doResetSpot(bool bColorsToo = false);
+	void doResetDirectional(bool bColorsToo = false);
 
+	bool bFlagDoResetPoint = false;
+	bool bFlagDoResetSpot = false;
+	bool bFlagDoResetDirectional = false;
+
+	//--
+
+	// settings
+private:
 	string pathSettings = "ofxSurfingPBR_Lights.json";
 	string pathSettingsShadows = "ofxSurfingPBR_Shadows.json";
 
@@ -175,33 +204,49 @@ private:
 #endif
 
 	//--
-	/*
+
+	// brights
 private:
-	void refreshBrights();
-	void refreshBrightPoint();
-	void refreshBrightDirect();
-	void refreshBrightSpot();
+	bool bFlagDoRefreshBrights = false;
+	bool bFlagDoRefreshBrightPoint = false;
+	bool bFlagDoRefreshBrightDirect = false;
+	bool bFlagDoRefreshBrightSpot = false;
+
+	void doRefreshBrights();
+	void doRefreshBrightPoint();
+	void doRefreshBrightDirect();
+	void doRefreshBrightSpot();
+
 	void ChangedBrights(ofAbstractParameter & e);
 	ofParameterGroup params_Brights;
-	*/
+	ofParameter<float> pointBright;
+	ofParameter<float> spotBright;
+	ofParameter<float> directionalBright;
 
 	//----
 
+	// shadow
+private:
 	ofParameterGroup shadowParams;
 
 public:
 	ofParameter<bool> bDrawShadow;
-	//ofParameter<bool> bDebugShadow;
 
 private:
 	ofParameter<float> shadowBias;
 	ofParameter<float> shadowNormalBias;
 	ofParameter<void> vResetShadow;
+	bool bFlagDoResetShadow = false;
 
 	//TODO: OF PBR
+	// get other shadow params from OF example
 	// add other internal OF params
 	//ofParameter<float> shadowStrength;
 	//ofParameter<glm::vec2> shadowSize;
+
+public:
+	ofxPanel guiShadows;
+	ofParameter<bool> bGui_Shadows;
 
 public:
 	void doResetShadow();

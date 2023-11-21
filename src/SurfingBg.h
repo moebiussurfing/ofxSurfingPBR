@@ -115,6 +115,7 @@ public:
 
 	ofParameter<bool> bDrawObject;
 	ofParameter<bool> bDrawWireframe;
+	ofParameter<ofFloatColor> wireColor;
 	ofParameter<bool> bModeBox;
 	ofParameter<bool> bModeSphere;
 	ofParameter<float> resolutionSphere;

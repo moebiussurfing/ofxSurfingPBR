@@ -51,8 +51,9 @@
 #define SURFING__USE_AUTOSAVE_FORCE_ON_EXIT
 // TODO: fix to remove. to fix some unsaved settings bc calling order..
 
+//#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MIN 0.1f
 #define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 1.f
-//#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 0.75f
+#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET 0.3f
 
 //--
 

@@ -23,7 +23,7 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 ### 2_Example_Models
 ![](2_Example_Models/Capture.PNG)
 
-### 3_Example_Lights / WIP
+### 3_Example_Lights
 ![](3_Example_Lights/Capture.PNG)
 
 ### 4_Example_Materials

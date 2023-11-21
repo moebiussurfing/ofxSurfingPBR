@@ -327,11 +327,8 @@ void ofxSurfingPBR::setupParams() {
 	//advancedParams.add(bGui); //workflow: added to add to settings. could hide the toggle..
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
-	// auto saver
 	callback_t f = std::bind(&ofxSurfingPBR::save, this);
-	//register the local save function to be called when saving is required.
 	autoSaver.setFunctionSaver(f);
-	//advancedParams.add(autoSaver.bEnable);
 #endif
 
 	advancedParams.add(material.getIndexStateParam());
@@ -561,8 +558,6 @@ void ofxSurfingPBR::setupBg() {
 void ofxSurfingPBR::setup() {
 	ofLogNotice("ofxSurfingPBR") << "setup() Start";
 
-	//ofSetLogLevel("ofxSurfing", OF_LOG_WARNING);
-
 	// for using on any objects
 	material.setup();
 
@@ -577,8 +572,6 @@ void ofxSurfingPBR::setup() {
 	//link
 	//bDebug.makeReferenceTo(surfingLights.bDebug);
 #endif
-
-	setupPBRScene();
 
 	//--
 
@@ -774,17 +767,6 @@ void ofxSurfingPBR::startupDelayed() {
 
 	bDoneDelayed = true;
 	ofLogNotice("ofxSurfingPBR") << "startupDelayed() Done! at frame number: " << ofGetFrameNum();
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::setupPBRScene() {
-	ofLogNotice("ofxSurfingPBR") << "setupPBRScene()";
-
-	//--
-
-#ifdef SURFING__USE_LIGHTS_CLASS
-	surfingLights.setupLights();
-#endif
 }
 
 //--------------------------------------------------------------
@@ -1162,13 +1144,11 @@ void ofxSurfingPBR::drawBg() {
 void ofxSurfingPBR::draw() {
 	if (f_RenderScene == nullptr) return;
 
-	updatePBRScene();
+	ofEnableDepthTest();
 
 	//--
 
-	ofEnableDepthTest();
-
-	//TODO fix
+	updatePBRScene();
 	drawPBRScene();
 
 	//--
@@ -1178,13 +1158,9 @@ void ofxSurfingPBR::draw() {
 	{
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-		//TODO fix
-		//surfingLights.begin();
-		//surfingLights.beginLights();
+		surfingLights.begin();
 #endif
 
-		//TODO fix
-		// think how to apply the material..
 		drawBg();
 
 		//----
@@ -1206,9 +1182,7 @@ void ofxSurfingPBR::draw() {
 		//----
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-		//TODO fix
-		//surfingLights.end();
-		//surfingLights.endLights();
+		surfingLights.end();
 #endif
 
 		//--
@@ -1225,17 +1199,6 @@ void ofxSurfingPBR::drawPBRScene() {
 
 #ifdef SURFING__USE_LIGHTS_CLASS
 	surfingLights.drawLights();
-#endif
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::drawPBRSceneDebug() {
-
-#ifdef SURFING__USE_LIGHTS_CLASS
-	// Debug lights and shadows
-	if (bGui) {
-		surfingLights.drawDebugLights();
-	}
 #endif
 
 	//--
@@ -1261,6 +1224,16 @@ void ofxSurfingPBR::drawPBRSceneDebug() {
 			}
 		}
 	}
+#endif
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::drawPBRSceneDebug() {
+	if (!bGui) return;
+
+#ifdef SURFING__USE_LIGHTS_CLASS
+	// Debug lights and shadows
+	surfingLights.drawDebugLights();
 #endif
 }
 
@@ -1470,6 +1443,8 @@ void ofxSurfingPBR::ChangedTestScene(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedTestScene " << name << ": " << e;
 
+	//--
+
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
 		autoSaver.saveSoon();
@@ -1489,6 +1464,8 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 	std::string name = e.getName();
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedCamera " << name << ": " << e;
+
+	//--
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
@@ -1513,6 +1490,8 @@ void ofxSurfingPBR::ChangedDisplacers(ofAbstractParameter & e) {
 	std::string name = e.getName();
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedDisplacers " << name << ": " << e;
+
+	//--
 
 	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
@@ -1559,8 +1538,12 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedCubeMaps " << name << ": " << e;
 
+	//--
+
 	#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
-	autoSaver.saveSoon();
+	if (e.isSerializable()) {
+		autoSaver.saveSoon();
+	}
 	#endif
 
 	//--
@@ -1788,14 +1771,20 @@ void ofxSurfingPBR::save() {
 void ofxSurfingPBR::load() {
 	ofLogNotice("ofxSurfingPBR") << "load -> " << path;
 
+	//--
+
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.pause();
 #endif
+
+	//--
 
 	ofxSurfing::loadSettings(parameters, path);
 
 	//CubeMap
 	loadCubeMap(path_CubemapFileAbsPath.get());
+
+	//--
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.start();
