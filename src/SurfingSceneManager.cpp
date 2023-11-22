@@ -28,6 +28,9 @@ void SurfingSceneManager::clearMaterials() {
 void SurfingSceneManager::setFunctionRenderScene(callback_t f) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setFunctionRenderScene()";
 
+	clearColors();
+	clearMaterials();
+
 	if (f_RenderScene == nullptr) {
 		ofLogError("ofxSurfingPBR") << "SurfingSceneManager:setFunctionRenderScene(). Wrong callback_t";
 	}
@@ -47,11 +50,11 @@ void SurfingSceneManager::setup() {
 
 	surfingLights.setup();
 
+	//--
+
 	parameters.setName("SCENE_MANAGER");
 	parameters.add(surfingLights.bGui);
 	parameters.add(surfingLights.bGui_Shadows);
-
-	//--
 
 	parametersMaterials.setName("Materials");
 	parametersColors.setName("Colors");
@@ -70,9 +73,10 @@ void SurfingSceneManager::draw() {
 
 void SurfingSceneManager::drawGui() {
 	gui.draw();
-}
 
-void SurfingSceneManager::exit() {
+	for (size_t i = 0; i < materials.size(); i++) {
+		materials[i]->drawGui();
+	}
 }
 
 void SurfingSceneManager::addMaterial(string name) {
@@ -142,4 +146,8 @@ void SurfingSceneManager::beginLights() {
 
 void SurfingSceneManager::endLights() {
 	surfingLights.end();
+}
+
+void SurfingSceneManager::exit() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:exit()";
 }

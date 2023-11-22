@@ -68,15 +68,15 @@ private:
 	float cameraOrbit;
 	string path_CamSettings = "Camera_Settings.ini";
 
-	ofParameter<bool> bTestBox { "Test Box", false };
+	ofParameter<bool> bDrawTestBox { "Test Box", false };
 	ofParameter<bool> bGrid { "Grid", false };
 	ofParameter<bool> bMouseCam { "MouseCam", false };
 	ofParameter<bool> bResetCam { "Reset Cam", false };
 	ofParameter<bool> bRotate { "Rotate", true };
-	ofParameter<bool> bInCam { "In Cam", true };
+	//ofParameter<bool> bInCam { "In Cam", true };
 	ofParameter<float> speedRotate { "Speed", 0.5, 0, 1 };
-	ofParameter<bool> bSimpleOriginal { "Simple Og", false };
-	ofParameter<bool> bShoeParts = { "Colored Nike", true };
+	ofParameter<bool> bDrawSimpleOriginal { "Simple Og", false };
+	ofParameter<bool> bDrawShoeParts = { "Colored Nike", true };
 	ofParameter<bool> bParts = { "Parts", true };
 	ofParameter<bool> bLights = { "Lights", true };
 	ofParameter<bool> bMaterials = { "Materials", true };
@@ -94,7 +94,6 @@ private:
 	string path_Objects;
 
 	string curFileInfo;
-	bool bHelpText;
 
 	// Original model is a more raw object
 	// with only one material ad color.

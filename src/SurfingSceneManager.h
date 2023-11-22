@@ -35,7 +35,6 @@ public:
 	void clearColors();
 	void clearMaterials();
 
-
 	ofxPanel gui;
 	ofParameterGroup parameters;
 	ofParameterGroup parametersMaterials;

@@ -44,8 +44,6 @@ void ofApp::setup() {
 	else
 		cam.disableMouseInput();
 
-	bHelpText = true;
-
 	//--
 
 	setupParams();
@@ -55,6 +53,7 @@ void ofApp::setup() {
 	//--
 
 	loadModelFiles();
+	loadModelOriginal();
 
 	//--
 
@@ -65,19 +64,19 @@ void ofApp::setup() {
 void ofApp::setupParams() {
 	ofLogNotice(__FUNCTION__);
 
-	params_Panels.add(bLights);
-	params_Panels.add(bParts);
-	params_Panels.add(bMaterials);
-	params_Scene.add(params_Panels);
+	//params_Panels.add(bLights);
+	//params_Panels.add(bParts);
+	//params_Panels.add(bMaterials);
+	//params_Scene.add(params_Panels);
 
-	params_Objects.add(bShoeParts);
-	params_Objects.add(bSimpleOriginal);
-	params_Objects.add(bTestBox);
+	params_Objects.add(bDrawShoeParts);
+	params_Objects.add(bDrawSimpleOriginal);
+	params_Objects.add(bDrawTestBox);
 	params_Scene.add(params_Objects);
 
 	params_SceneExtra.add(scenePBR.surfingLights.bAnimLights);
 	params_SceneExtra.add(scenePBR.surfingLights.bAnimLightsMouse);
-	params_SceneExtra.add(bInCam);
+	//params_SceneExtra.add(bInCam);
 
 	params_SimpleOriginal.add(colorOriginal);
 	params_SimpleOriginal.add(shininessOriginal);
@@ -231,7 +230,7 @@ void ofApp::drawScene() {
 //--------------------------------------------------------------
 void ofApp::drawObjects() {
 
-	if (bShoeParts) {
+	if (bDrawShoeParts) {
 		for (int i = 0; i < models.size(); i++) {
 
 			// begin material
@@ -252,35 +251,36 @@ void ofApp::drawObjects() {
 		}
 	}
 
-	if (bSimpleOriginal) {
+	if (bDrawSimpleOriginal) {
 		ofPushStyle();
 		ofSetColor(colorOriginal.get());
 		ofFill();
 		materialOriginal.begin();
+		{
 #if 1
-		// meshes
-		for (int i = 0; i < meshesOriginal.size(); i++) {
-			meshesOriginal[i].drawFaces();
-		}
+			// meshes
+			for (int i = 0; i < meshesOriginal.size(); i++) {
+				meshesOriginal[i].drawFaces();
+			}
 #else
-		// model
-		modelOriginal.drawFaces();
+			// model
+			modelOriginal.drawFaces();
 #endif
-
+		}
 		materialOriginal.end();
 		ofPopStyle();
 	}
 
-	if (bTestBox) {
+	if (bDrawTestBox) {
 		materialOriginal.begin();
-
-		if (bRotate) {
-			ofRotateXDeg(ofNoise(-1.f * ofGetElapsedTimeMillis(), -0.5f));
-			ofRotateYDeg(ofNoise(1.f * ofGetElapsedTimeMillis()));
-			ofRotateZDeg(ofNoise(0.01f * ofGetElapsedTimeMillis(), -1.f));
+		{
+			if (bRotate) {
+				ofRotateXDeg(ofNoise(-1.f * ofGetElapsedTimeMillis(), -0.5f));
+				ofRotateYDeg(ofNoise(1.f * ofGetElapsedTimeMillis()));
+				ofRotateZDeg(ofNoise(0.01f * ofGetElapsedTimeMillis(), -1.f));
+			}
+			ofBox(0, 0, 0, 2);
 		}
-		ofBox(0, 0, 0, 2);
-
 		materialOriginal.end();
 	}
 }
@@ -292,6 +292,8 @@ void ofApp::drawGui() {
 	ofDisableDepthTest();
 
 	gui.draw();
+
+	scenePBR.drawGui();
 }
 
 //--
@@ -400,15 +402,15 @@ void ofApp::keyPressed(int key) {
 	}
 
 	else if (key == 'o')
-		bSimpleOriginal = !bSimpleOriginal;
+		bDrawSimpleOriginal = !bDrawSimpleOriginal;
 	else if (key == 'r')
 		bRotate = !bRotate;
 	else if (key == 'p')
-		bShoeParts = !bShoeParts;
+		bDrawShoeParts = !bDrawShoeParts;
 
 	//else if (key == OF_KEY_F1) {
-	//	bShoeParts = !bShoeParts;
-	//	bSimpleOriginal = !bShoeParts;
+	//	bDrawShoeParts = !bDrawShoeParts;
+	//	bDrawSimpleOriginal = !bDrawShoeParts;
 	//}
 
 	//else if (key == ' ') {
@@ -521,21 +523,21 @@ void ofApp::ChangedParameters(ofAbstractParameter & e) {
 
 	// Pick elements to render, Which scene type..
 
-	else if (name == bShoeParts.getName()) {
-		if (bShoeParts) {
-			bSimpleOriginal = bTestBox = false;
+	else if (name == bDrawShoeParts.getName()) {
+		if (bDrawShoeParts) {
+			bDrawSimpleOriginal = bDrawTestBox = false;
 		}
 	}
 
-	else if (name == bSimpleOriginal.getName()) {
-		if (bSimpleOriginal) {
-			bShoeParts = bTestBox = false;
+	else if (name == bDrawSimpleOriginal.getName()) {
+		if (bDrawSimpleOriginal) {
+			bDrawShoeParts = bDrawTestBox = false;
 		}
 	}
 
-	else if (name == bTestBox.getName()) {
-		if (bTestBox) {
-			bShoeParts = bSimpleOriginal = false;
+	else if (name == bDrawTestBox.getName()) {
+		if (bDrawTestBox) {
+			bDrawShoeParts = bDrawSimpleOriginal = false;
 		}
 	}
 
