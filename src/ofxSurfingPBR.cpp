@@ -28,6 +28,11 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 #ifdef SURFING__USE_CUBE_MAP
 	ofRemoveListener(cubeMapParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCubeMaps);
 #endif
+
+	if (!bDoneExit) {
+		ofLogWarning("ofxSurfingPBR") << "Force calling exit()!";
+		exit();
+	}
 }
 
 //--------------------------------------------------------------
@@ -1758,6 +1763,8 @@ void ofxSurfingPBR::exit() {
 #endif
 
 	if (bEnableCameraAutosave) doSaveCamera();
+
+	bDoneExit = true;
 }
 
 //--------------------------------------------------------------

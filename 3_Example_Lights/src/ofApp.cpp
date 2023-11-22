@@ -4,18 +4,10 @@
 void ofApp::setup() {
 
 	ofxSurfing::setOfxGuiTheme();
-
-	// App window
-	{
-		ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
+	ofxSurfing::setWindowTitleAsProjectName();
 #if 1
-		// Move and shape the window app.
-		// Customize settings: 60fps and vSync off.
-		ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
-		//ofxSurfing::setWindowAtMonitor(); // Stay at main display (center in my setup) and landscape.
-		//ofxSurfing::setWindowAtMonitor(1, true); // Move to right display and set portrait.
+	ofxSurfing::setWindowAtMonitor(-1);
 #endif
-	}
 
 	//--
 
@@ -36,15 +28,14 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
-
-	////TODO fix
-	//// think how to apply the material.. 
-	//// Bg
-	//ofPushMatrix();
-	//camera.begin();
-	//pbr.drawBg();
-	//camera.end();
-	//ofPopMatrix();
+#if 0
+	// we can insert objectS into the camera view:
+	camera.begin();
+	pbr.beginMaterial();
+	ofDrawBox(0, 500, 0, 100);
+	pbr.endMaterial();
+	camera.end();
+#endif
 
 	// Plane floor
 	pbr.drawPlane();
@@ -59,15 +50,10 @@ void ofApp::renderScene() {
 
 //--------------------------------------------------------------
 void ofApp::drawYourScene() {
-	pbr.drawTestScene(); // Draws an internal bundled testing scene
+	pbr.drawTestScene();
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	pbr.keyPressed(key);
-}
-
-//--------------------------------------------------------------
-void ofApp::exit() {
-	pbr.exit();
 }

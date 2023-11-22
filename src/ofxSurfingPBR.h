@@ -227,6 +227,7 @@ private:
 	bool bDoneSetupParams = false;
 	bool bDoneStartup = false;
 	bool bDoneDelayed = false;
+	bool bDoneExit = false;
 	bool bAppRunning = false;
 
 	//--

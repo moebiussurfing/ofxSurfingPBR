@@ -36,13 +36,13 @@ private:
 	void ChangedGlobals(ofAbstractParameter & e);
 
 	// App flow controls
+	bool bDoneSetup = false;
+	bool bAppRunning = false;
 	//bool bDisableCallbacks = false;
 	//bool bAttendingGlobal = false;
-	bool bDoneSetup = false;
 	//bool bDoneSetupParams = false;
 	//bool bDoneStartup = false;
 	//bool bDoneDelayed = false;
-	bool bAppRunning = false;
 
 private:
 	ofMaterial material;
@@ -120,7 +120,7 @@ public:
 	string pathRoot = "ofxSurfingPBR_Material";
 	string ext = ".json";
 private:
-	void setName(const string & n); //call before setup
+	void setName(const string & n); // must call before setup!
 
 public:
 	void load();
@@ -159,7 +159,7 @@ private:
 	ofParameter<void> vStoreNewState;
 	ofParameter<void> vSaveState;
 
-	//workflow
+	// workflow
 	bool bAutoSaveBeforeChangeIndex = true;
 	ofParameter<bool> bAutoStoreAfterRandoms;
 
@@ -203,7 +203,15 @@ public:
 	void doSaveState(int i = -1);
 	void doStoreNewState();
 
-public:
+	//--
+
+public:	
+	
+	void setColorGlobal(ofFloatColor c) {
+		globalColor.set(c);
+		//globalAlpha.set(c.a);
+	}
+	
 	//TODO: startup fix overwrite settings from file..
 
 	// Helpers to pair with OF core ofMaterial
