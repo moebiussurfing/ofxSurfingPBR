@@ -34,10 +34,10 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
-	// Plane floor
+	// Plane floor (Material A)
 	pbr.drawPlane();
 
-	// For other objects
+	// For other objects (Material B)
 	pbr.beginMaterial();
 	{
 		drawYourScene();
