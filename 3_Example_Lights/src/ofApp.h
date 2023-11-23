@@ -1,17 +1,36 @@
 #pragma once
+
 #include "ofMain.h"
 
-#include "ofxSurfingPBR.h"
+#include "SurfingLights.h"
+#include "SurfingMaterial.h"
+#include "ofxCameraSaveLoad.h"
 
 class ofApp : public ofBaseApp {
 public:
 	void setup();
+	void update();
 	void draw();
-	void keyPressed(int key);
+	void exit();
+	void windowResized(int w, int h);
 
-	ofxSurfingPBR pbr;
+	void setupGui();
+	void refreshGui();
+	void drawGui();
+	ofxPanel gui;
+	ofParameterGroup g;
+	ofParameter<bool> bRefreshGui;
+	
+	void drawScene();
 	void renderScene();
+	callback_t f_RenderScene = nullptr;
+
+	SurfingMaterial material;
+	SurfingLights lights;
 
 	ofEasyCam camera;
-	void drawYourScene();
+	ofParameter<void> vResetCamera;
+	ofEventListener listenerResetCamera;
+	void doResetCamera();
+	string pathCamera = "ofxSurfingPBR_Camera.txt";
 };

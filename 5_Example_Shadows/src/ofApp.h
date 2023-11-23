@@ -5,7 +5,8 @@
 #include "SurfingMaterial.h"
 
 //#define SURFING__USE__OF_CORE_PBR_MATERIALS
-// uncomment to disable the addon features and switch to "vanilla" OF core.
+// uncomment to disable the addon features 
+// and switch to "vanilla" OF core materials.
 
 class ofApp : public ofBaseApp {
 public:
@@ -26,6 +27,7 @@ public:
 
 	void resetMaterials();
 
+	// Using OF CORE "vanilla" lights
 	vector<shared_ptr<ofLight>> lights;
 
 	ofEasyCam camera;
@@ -37,12 +39,12 @@ public:
 #ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
 	SurfingMaterial bgMaterial;
 	SurfingMaterial logoMaterial;
-	SurfingMaterial boxMaterial;
+	SurfingMaterial boxesMaterial;
 	SurfingMaterial sphereMaterial;
 
 	ofParameter<bool> bDrawBg;
 	ofParameter<bool> bDrawLogo;
-	ofParameter<bool> bDrawBox;
+	ofParameter<bool> bDrawBoxes;
 	ofParameter<bool> bDrawSphere;
 	ofParameterGroup parameters;
 	void Changed(ofAbstractParameter & e);
@@ -55,8 +57,9 @@ public:
 	void save();
 	void load();
 #else
+	// Using OF CORE "vanilla" materials
 	ofMaterial bgMaterial;
-	ofMaterial boxMaterial;
+	ofMaterial boxesMaterial;
 	ofMaterial logoMaterial;
 	ofMaterial sphereMaterial;
 #endif

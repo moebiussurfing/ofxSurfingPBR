@@ -1038,6 +1038,8 @@ public:
 		if (bEnable) {
 			bEnable.setWithoutEventNotifications(false);
 		}
+
+		bFlagSave = false;//fix just in case
 	}
 
 	void start() {
@@ -1084,8 +1086,11 @@ public:
 
 public:
 	void save() {
+		if (!bEnable) {
+			ofLogWarning("SurfingAutoSaver") << "Skipped / Save as disabled " << name;
+			return;
+		}
 		if (f_Saver != nullptr) f_Saver();
-
 		ofLogVerbose("SurfingAutoSaver") << "Save() " << name;
 	}
 };

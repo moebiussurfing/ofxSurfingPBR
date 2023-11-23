@@ -770,7 +770,7 @@ void ofxSurfingPBR::startupDelayed() {
 	string s = ofxSurfing::getLayoutName(helpLayout.get());
 	nameHelpLayout.set(s);
 
-	bDoneDelayed = true;
+	bDoneStartupDelayed = true;
 	ofLogNotice("ofxSurfingPBR") << "startupDelayed() Done! at frame number: " << ofGetFrameNum();
 }
 
@@ -870,7 +870,7 @@ void ofxSurfingPBR::update() {
 	{
 		// On the 1st frame
 		int f = (int)(ofGetFrameNum());
-		if (f == 0) {
+		if (f >= 0) {
 			if (!bAppRunning) {
 				bAppRunning = true;
 				ofLogNotice("ofxSurfingPBR") << "Starting app at frame number: " << ofGetFrameNum();
@@ -878,7 +878,7 @@ void ofxSurfingPBR::update() {
 		}
 
 		// After the 1st frame
-		if (f > 0 && bAppRunning && !bDoneDelayed) {
+		if (f > 0 && bAppRunning && !bDoneStartupDelayed) {
 			//TODO fix crash callbacks
 			startupDelayed();
 		}
@@ -1642,16 +1642,6 @@ void ofxSurfingPBR::drawTestScene() {
 	if (!bGui_DrawTestScene) return;
 
 	//----
-
-	//// Do once
-	//{
-	//	static bool b = false;
-	//	if (!b) {
-	//		b = true;
-	//		ofSetConeResolution(50, 10, 2);
-	//		ofSetSphereResolution(50);
-	//	}
-	//}
 
 	ofPushStyle();
 	ofSetConeResolution(50, 10, 2);

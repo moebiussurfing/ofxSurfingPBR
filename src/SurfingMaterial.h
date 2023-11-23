@@ -30,6 +30,10 @@ private:
 	void setupGui();
 	void refreshGui();
 
+public:
+	ofRectangle getGuiShape() const;
+
+private:
 	void ChangedSettings(ofAbstractParameter & e);
 	void ChangedColors(ofAbstractParameter & e);
 	void ChangedHelpers(ofAbstractParameter & e);
@@ -42,9 +46,9 @@ private:
 	//bool bAttendingGlobal = false;
 	//bool bDoneSetupParams = false;
 	//bool bDoneStartup = false;
-	//bool bDoneDelayed = false;
+	//bool bDoneStartupDelayed = false;
 
-private:
+public:
 	ofMaterial material;
 
 public:
@@ -132,6 +136,7 @@ public:
 
 public:
 	void doResetMaterial();
+	void doResetMaterialOfMaterial();
 	void doRandomMaterial();
 	void doRandomColors();
 	void doRandomAlphas();

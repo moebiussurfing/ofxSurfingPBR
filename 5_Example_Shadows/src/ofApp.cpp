@@ -105,13 +105,13 @@ void ofApp::setupMaterials() {
 
 	bDrawBg.set("Bg", true);
 	bDrawLogo.set("Logo", true);
-	bDrawBox.set("Box", true);
+	bDrawBoxes.set("Boxes", true);
 	bDrawSphere.set("Sphere", true);
 
 	parameters.setName("ofApp Draw");
 	parameters.add(bDrawBg);
 	parameters.add(bDrawLogo);
-	parameters.add(bDrawBox);
+	parameters.add(bDrawBoxes);
 	parameters.add(bDrawSphere);
 	ofAddListener(parameters.parameterChangedE(), this, &ofApp::Changed);
 
@@ -121,7 +121,7 @@ void ofApp::setupMaterials() {
 	// and use the internal gui panels independently for each instance.
 	bgMaterial.setup(bDrawBg.getName());
 	logoMaterial.setup(bDrawLogo.getName());
-	boxMaterial.setup(bDrawBox.getName());
+	boxesMaterial.setup(bDrawBoxes.getName());
 	sphereMaterial.setup(bDrawSphere.getName());
 
 	refreshGuiAnchor();
@@ -144,9 +144,21 @@ void ofApp::setupMaterials() {
 //--------------------------------------------------------------
 void ofApp::resetMaterials() {
 
-	boxMaterial.setDiffuseColor(ofFloatColor(0.25));
-	boxMaterial.setShininess(60);
-	boxMaterial.setSpecularColor(ofFloatColor(1));
+#ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
+	//boxesMaterial.doResetMaterial();
+	//bgMaterial.doResetMaterial();
+	//sphereMaterial.doResetMaterial();
+	//logoMaterial.doResetMaterial();
+
+	boxesMaterial.doResetMaterialOfMaterial();
+	bgMaterial.doResetMaterialOfMaterial();
+	sphereMaterial.doResetMaterialOfMaterial();
+	logoMaterial.doResetMaterialOfMaterial();
+#endif
+
+	boxesMaterial.setDiffuseColor(ofFloatColor(0.25));
+	boxesMaterial.setShininess(60);
+	boxesMaterial.setSpecularColor(ofFloatColor(1));
 
 	bgMaterial.setDiffuseColor(ofFloatColor(0.15));
 	bgMaterial.setShininess(0.0);
@@ -244,7 +256,9 @@ void ofApp::drawScene() {
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CW);
 	glCullFace(GL_BACK);
-	renderScene();
+	{
+		renderScene();
+	}
 	glDisable(GL_CULL_FACE);
 
 	if (!ofIsGLProgrammableRenderer()) {
@@ -312,7 +326,7 @@ void ofApp::drawGui() {
 
 	gui.draw();
 	if (bDrawBg) bgMaterial.drawGui();
-	if (bDrawBox) boxMaterial.drawGui();
+	if (bDrawBoxes) boxesMaterial.drawGui();
 	if (bDrawLogo) logoMaterial.drawGui();
 	if (bDrawSphere) sphereMaterial.drawGui();
 #endif
@@ -332,50 +346,50 @@ void ofApp::renderScene() {
 	{
 		//ofSetColor(200, 50, 120);
 		sphereMaterial.begin();
+		{
+			ofPushMatrix();
+			ofTranslate(-120 + cosf(etimef * 1.4) * 20.0, 0, sinf(etimef * 1.7) * 250);
+			ofScale(30, 30, 30);
+			sphereMesh.draw();
 
-		ofPushMatrix();
-		ofTranslate(-120 + cosf(etimef * 1.4) * 20.0, 0, sinf(etimef * 1.7) * 250);
-		ofScale(30, 30, 30);
-		sphereMesh.draw();
+			//ofSetColor(255);
+			// ofDrawSphere() is triangle strip!!!!
+			// it will cause issues with rendering of point light depth maps
+			//	ofDrawSphere(0, 0, 0, 100 );
 
+			ofPopMatrix();
+		}
 		sphereMaterial.end();
-
-		//ofSetColor(255);
-		// ofDrawSphere() is triangle strip!!!!
-		// it will cause issues with rendering of point light depth maps
-		//	ofDrawSphere(0, 0, 0, 100 );
-
-		ofPopMatrix();
 	}
 
 #ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
-	if (bDrawBox)
+	if (bDrawBoxes)
 #endif
 	{
-		boxMaterial.begin();
-
-		//ofDrawBox(cosf(etimef) * 200., 0, sinf(etimef*0.452) * 100, 100 );
-		ofPushMatrix();
+		boxesMaterial.begin();
 		{
-			ofTranslate(250, cosf(etimef * 0.6) * 50 - 80, 200);
-			ofRotateZDeg(ofWrapDegrees((etimef * 0.04) * 360));
-			ofRotateXDeg(ofWrapDegrees((etimef * 0.06) * 360));
-			ofScale(100, 100, 100.0);
-			boxMesh.draw();
-		}
-		ofPopMatrix();
+			//ofDrawBox(cosf(etimef) * 200., 0, sinf(etimef*0.452) * 100, 100 );
+			ofPushMatrix();
+			{
+				ofTranslate(250, cosf(etimef * 0.6) * 50 - 80, 200);
+				ofRotateZDeg(ofWrapDegrees((etimef * 0.04) * 360));
+				ofRotateXDeg(ofWrapDegrees((etimef * 0.06) * 360));
+				ofScale(100, 100, 100.0);
+				boxMesh.draw();
+			}
+			ofPopMatrix();
 
-		ofPushMatrix();
-		{
-			ofTranslate(-250, cosf(etimef * 0.4) * 90 - 30, 200);
-			ofRotateZDeg(ofWrapDegrees((etimef * 0.034) * 360));
-			ofRotateXDeg(ofWrapDegrees((etimef * 0.067) * 360));
-			ofScale(100, 100, 100.0);
-			boxMesh.draw();
+			ofPushMatrix();
+			{
+				ofTranslate(-250, cosf(etimef * 0.4) * 90 - 30, 200);
+				ofRotateZDeg(ofWrapDegrees((etimef * 0.034) * 360));
+				ofRotateXDeg(ofWrapDegrees((etimef * 0.067) * 360));
+				ofScale(100, 100, 100.0);
+				boxMesh.draw();
+			}
+			ofPopMatrix();
 		}
-		ofPopMatrix();
-
-		boxMaterial.end();
+		boxesMaterial.end();
 	}
 
 #ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
@@ -384,47 +398,47 @@ void ofApp::renderScene() {
 	{
 		//ofSetColor(200);
 		bgMaterial.begin();
-
-		ofPushMatrix();
 		{
-			ofTranslate(0, -250, 0);
-			ofScale(1000, 50, 1000);
-			boxMesh.draw();
-		}
-		ofPopMatrix();
+			ofPushMatrix();
+			{
+				ofTranslate(0, -250, 0);
+				ofScale(1000, 50, 1000);
+				boxMesh.draw();
+			}
+			ofPopMatrix();
 
-		ofPushMatrix();
-		{
-			ofTranslate(500, 0, 0);
-			ofScale(50, 1000, 1000);
-			boxMesh.draw();
-		}
-		ofPopMatrix();
+			ofPushMatrix();
+			{
+				ofTranslate(500, 0, 0);
+				ofScale(50, 1000, 1000);
+				boxMesh.draw();
+			}
+			ofPopMatrix();
 
-		ofPushMatrix();
-		{
-			ofTranslate(-500, 0, 0);
-			ofScale(50, 1000, 1000);
-			boxMesh.draw();
-		}
-		ofPopMatrix();
+			ofPushMatrix();
+			{
+				ofTranslate(-500, 0, 0);
+				ofScale(50, 1000, 1000);
+				boxMesh.draw();
+			}
+			ofPopMatrix();
 
-		ofPushMatrix();
-		{
-			ofTranslate(0, 0, -500);
-			ofScale(1000, 1000, 50);
-			boxMesh.draw();
-		}
-		ofPopMatrix();
+			ofPushMatrix();
+			{
+				ofTranslate(0, 0, -500);
+				ofScale(1000, 1000, 50);
+				boxMesh.draw();
+			}
+			ofPopMatrix();
 
-		ofPushMatrix();
-		{
-			ofTranslate(0, 500, 0);
-			ofScale(1000, 50, 1000);
-			boxMesh.draw();
+			ofPushMatrix();
+			{
+				ofTranslate(0, 500, 0);
+				ofScale(1000, 50, 1000);
+				boxMesh.draw();
+			}
+			ofPopMatrix();
 		}
-		ofPopMatrix();
-
 		bgMaterial.end();
 	}
 
@@ -433,14 +447,14 @@ void ofApp::renderScene() {
 #endif
 	{
 		logoMaterial.begin();
-
-		ofPushMatrix();
-		ofTranslate(-50, -170, 50);
-		ofRotateXDeg(-90);
-		ofScale(60, 60, 60);
-		logoMesh.draw();
-		ofPopMatrix();
-
+		{
+			ofPushMatrix();
+			ofTranslate(-50, -170, 50);
+			ofRotateXDeg(-90);
+			ofScale(60, 60, 60);
+			logoMesh.draw();
+			ofPopMatrix();
+		}
 		logoMaterial.end();
 	}
 
@@ -514,8 +528,8 @@ void ofApp::refreshGuiLinks() {
 
 	ofxSurfing::setGuiPositionRightTo(bgMaterial.gui, gui);
 	ofxSurfing::setGuiPositionRightTo(logoMaterial.gui, bgMaterial.gui);
-	ofxSurfing::setGuiPositionRightTo(boxMaterial.gui, logoMaterial.gui);
-	ofxSurfing::setGuiPositionRightTo(sphereMaterial.gui, boxMaterial.gui);
+	ofxSurfing::setGuiPositionRightTo(boxesMaterial.gui, logoMaterial.gui);
+	ofxSurfing::setGuiPositionRightTo(sphereMaterial.gui, boxesMaterial.gui);
 }
 
 //--------------------------------------------------------------
@@ -538,11 +552,11 @@ void ofApp::Changed(ofAbstractParameter & e) {
 			logoMaterial.gui.maximize();
 		else
 			logoMaterial.gui.minimize();
-	} else if (name == bDrawBox.getName()) {
-		if (bDrawBox)
-			boxMaterial.gui.maximize();
+	} else if (name == bDrawBoxes.getName()) {
+		if (bDrawBoxes)
+			boxesMaterial.gui.maximize();
 		else
-			boxMaterial.gui.minimize();
+			boxesMaterial.gui.minimize();
 	} else if (name == bDrawSphere.getName()) {
 		if (bDrawSphere)
 			sphereMaterial.gui.maximize();

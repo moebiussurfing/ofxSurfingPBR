@@ -7,15 +7,14 @@
 * 
 */
 
-
-
 /*
 	TODO
+
+	fix spot light
 	add global from/to color workflow (copy from material).
+	add area light type. get from OF example.
 	create a cool init state.
-	make simple mode/user/ game controls.
-	fix mouse and time anims.
-	add area light. get from OF example.
+	make simple mode/user/game controls.
 */
 
 //--
@@ -45,6 +44,21 @@ public:
 private:
 	void setupParameters();
 	void startup();
+	void startupDelayed();
+
+	//--
+
+private:
+	//TODO fix crash callbacks
+	// To fix some settings
+	// that are not updated/refreshed correctly
+	// and/or app startup crashes!
+	// App flow controls
+	//bool bDisableCallbacks = false;
+	bool bDoneSetup = false;
+	bool bDoneStartup = false;
+	bool bDoneStartupDelayed = false;
+	bool bAppRunning = false;
 
 private:
 	void update();
@@ -74,6 +88,7 @@ public:
 
 	ofParameter<bool> bDebug;
 	ofParameter<bool> bDebugShadow;
+	ofParameter<bool> bRefreshGui;
 
 	ofParameter<void> vResetLights;
 
@@ -90,6 +105,9 @@ private:
 	void refreshGui();
 
 public:
+	ofRectangle getGuiShape() const;
+
+public:
 	ofxPanel gui;
 	void setGuiPosition(glm::vec2 pos);
 	void drawGui();
@@ -103,7 +121,7 @@ public:
 	ofParameterGroup params_Enablers;
 	ofParameterGroup params_Extra;
 	ofParameterGroup params_TestAnims;
-	ofParameterGroup params_Lights;
+	ofParameterGroup lightsParams;
 
 	//--
 
@@ -114,6 +132,8 @@ public:
 	//void ChangedDirectional(ofAbstractParameter & e);
 
 	//--
+
+	ofParameterGroup globalColorsParams;
 
 	// Point
 	ofParameterGroup pointParams;
@@ -194,6 +214,7 @@ private:
 	string pathSettings = "ofxSurfingPBR_Lights.json";
 	string pathSettingsShadows = "ofxSurfingPBR_Shadows.json";
 
+	bool bFlagLoad = false;
 public:
 	void load();
 	void save();
@@ -218,7 +239,7 @@ private:
 	void doRefreshBrightSpot();
 
 	void ChangedBrights(ofAbstractParameter & e);
-	ofParameterGroup params_Brights;
+	ofParameterGroup brightsParams;
 	ofParameter<float> pointBright;
 	ofParameter<float> spotBright;
 	ofParameter<float> directionalBright;

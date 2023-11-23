@@ -51,8 +51,12 @@
 #define SURFING__USE_AUTOSAVE_FORCE_ON_EXIT
 // TODO: fix to remove. to fix some unsaved settings bc calling order..
 
-//#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MIN 0.1f
-#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 1.f
+//TODO
+// there's some problem rounding bright to white/black..
+#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MIN 0.01f
+#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 0.99f
+
+
 #define SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET 0.3f
 
 //--
@@ -64,8 +68,6 @@
 
 static const float SURFING__PBR__LIGHTS_FAR = (float)SURFING__SCENE_SIZE_UNIT * 1.0f;
 static const float SURFING__PBR__LIGHTS_NEAR = SURFING__PBR__LIGHTS_FAR * 0.1f;
-//static const float SURFING__PBR__LIGHTS_FAR = (float)SURFING__SCENE_SIZE_UNIT * 10.0f;
-//static const float SURFING__PBR__LIGHTS_NEAR = SURFING__PBR__LIGHTS_FAR * .1f;
 
 
 #define SURFING__PBR__PLANE_COLORS_NO_ALPHA 
