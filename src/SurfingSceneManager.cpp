@@ -42,7 +42,7 @@ void SurfingSceneManager::setFunctionRenderScene(callback_t f) {
 void SurfingSceneManager::setup() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup()";
 
-	if (materials.size() == 0 ) {
+	if (materials.size() == 0) {
 		ofLogError("ofxSurfingPBR") << "SurfingSceneManager:Note that you need to add the materials before calling setup()!";
 	}
 
@@ -54,7 +54,6 @@ void SurfingSceneManager::setup() {
 
 	parameters.setName("SCENE_MANAGER");
 	parameters.add(surfingLights.bGui);
-	parameters.add(surfingLights.bGui_Shadows);
 
 	parametersMaterials.setName("Materials");
 	parametersColors.setName("Colors");
@@ -73,6 +72,10 @@ void SurfingSceneManager::draw() {
 
 void SurfingSceneManager::drawGui() {
 	gui.draw();
+
+	if (surfingLights.bGui)
+		ofxSurfing::setGuiPositionRightTo(surfingLights.gui, gui);
+	surfingLights.drawGui();
 
 	for (size_t i = 0; i < materials.size(); i++) {
 		materials[i]->drawGui();
@@ -98,7 +101,7 @@ void SurfingSceneManager::addColor(ofFloatColor color) {
 	string s = "Color_" + ofToString(i);
 	std::unique_ptr<ofParameter<ofFloatColor>> m;
 	m = std::make_unique<ofParameter<ofFloatColor>>();
-	m->set(s, color, ofFloatColor(0,0), ofFloatColor(1,1));
+	m->set(s, color, ofFloatColor(0, 0), ofFloatColor(1, 1));
 	parametersColors.add(*m);
 	colors.push_back(std::move(m));
 }

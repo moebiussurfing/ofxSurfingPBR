@@ -1,3 +1,10 @@
+/*
+* SurfingSceneManager.h
+* This class is a scene manager to queue lights and materials
+* to be use easily into a clean project.
+* Do not requires to include the main ofxSurfingPBR.h
+*/
+
 #pragma once
 
 #include "ofMain.h"

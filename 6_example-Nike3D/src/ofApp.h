@@ -15,6 +15,7 @@ public:
 	void draw();
 	void exit();
 	void startup();
+	void setupScene();
 	void keyPressed(int key);
 
 public:
@@ -35,69 +36,72 @@ public:
 	//--
 
 public:
-	SurfingSceneManager scenePBR;
+	SurfingSceneManager sceneManager;
 
 	//--
 
 public:
 	ofParameterGroup parameters { "ofApp" };
 
-	ofParameterGroup params_Scene { "Scene" };
-	ofParameterGroup params_Panels { "Panels" };
-	ofParameterGroup params_SceneExtra { "SceneExtra" };
-	ofParameterGroup params_SimpleOriginal { "Simple Og" };
-	ofParameterGroup params_Objects { "Objects" };
-	ofParameterGroup params_Camera { "Camera" };
-	ofParameterGroup params_Palette { "Palette" };
+	ofParameterGroup sceneParams { "Scene" };
+	ofParameterGroup panelsParams { "Panels" };
+	ofParameterGroup sceneExtraParams { "SceneExtra" };
+	ofParameterGroup originalParams { "Original" };
+	ofParameterGroup objectsParams { "Objects" };
+	ofParameterGroup cameraParams { "Camera" };
+	ofParameterGroup paletteParams { "Palette" };
 
 private:
-	void loadModelFiles();
+	void loadModelParts();
 
 	ofxAssimpModelLoader model;
+
 	vector<std::unique_ptr<ofxAssimpModelLoader>> models;
 
 	ofxAssimpModelLoader modelOriginal;
 	ofMaterial materialOriginal;
-	ofParameter<float> shininessOriginal { "Shin Og", 120, 0, 120 };
-	ofParameter<ofFloatColor> colorOriginal { "Color Og", ofColor(), ofColor(0), ofColor(1) };
+	ofParameter<float> shininessOriginal { "Shininess Original", 0, 0, 1 };
+	ofParameter<ofFloatColor> colorOriginal { "Color Original", ofFloatColor(), ofFloatColor(0), ofFloatColor(1) };
 
 	//--
 
 private:
 	ofEasyCam cam;
 	float cameraOrbit;
-	string path_CamSettings = "Camera_Settings.ini";
+	string path_CameraSettings = "CameraSettings.txt";
 
+	ofParameter<bool> bDrawGrid { "Draw Grid", true };
 	ofParameter<bool> bDrawTestBox { "Test Box", false };
-	ofParameter<bool> bGrid { "Grid", false };
-	ofParameter<bool> bMouseCam { "MouseCam", false };
-	ofParameter<bool> bResetCam { "Reset Cam", false };
+
+	ofParameter<bool> bDrawOriginal { "Original", true };
+	ofParameter<bool> bDrawShoeParts = { "Colored Parts", true };
+
+	ofParameter<bool> bMouseCam { "Mouse Cam", false };
+	ofParameter<void> vResetCam { "Reset Cam"};
 	ofParameter<bool> bRotate { "Rotate", true };
-	//ofParameter<bool> bInCam { "In Cam", true };
 	ofParameter<float> speedRotate { "Speed", 0.5, 0, 1 };
-	ofParameter<bool> bDrawSimpleOriginal { "Simple Og", false };
-	ofParameter<bool> bDrawShoeParts = { "Colored Nike", true };
-	ofParameter<bool> bParts = { "Parts", true };
-	ofParameter<bool> bLights = { "Lights", true };
-	ofParameter<bool> bMaterials = { "Materials", true };
-	ofParameter<int> index { "index", 0, 0, 0 };
-	ofParameter<bool> bMouseLight { "Mouse Light", false };
-	ofParameter<float> mx { "mouseX", 0, 0, 1920 };
-	ofParameter<float> my { "mouseY", 0, 0, 1080 };
+
+	//ofParameter<bool> bParts = { "Parts", true };
+	//ofParameter<bool> bLights = { "Lights", true };
+	//ofParameter<bool> bMaterials = { "Materials", true };
+	//ofParameter<int> index { "index", 0, 0, 0 };
+
+	void drawGrid();
 
 	//--
 
 private:
 	void ChangedParameters(ofAbstractParameter & e);
-	void ChangedPalette(ofAbstractParameter & e);
+	void ChangedPaletteParams(ofAbstractParameter & e);
 
-	string path_Objects;
+	string path_Model;
 
-	string curFileInfo;
+	string sNameModel;
 
 	// Original model is a more raw object
 	// with only one material ad color.
 	void loadModelOriginal();
+	void loadModelSimple();
 	void doRefreshColorsOriginal();
 	void doRandomPalette();
 
@@ -107,9 +111,9 @@ private:
 
 	// meshes
 	ofDirectory dir;
-	vector<vector<ofMesh>> meshParts;
 	ofMesh mesh;
-	vector<ofMesh> meshesOriginal;
+	vector<ofMesh> meshesModelOriginal;
+	vector<vector<ofMesh>> meshesParts;
 
 	void load();
 	void save();
