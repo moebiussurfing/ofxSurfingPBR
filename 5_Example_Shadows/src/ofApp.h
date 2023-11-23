@@ -2,7 +2,10 @@
 
 #include "ofMain.h"
 
-#include "SurfingMaterial.h"
+#include "SurfingMaterial.h" 
+// We only need this header bc 
+// we want to use only the material class
+// from the ofxSurfingPBR addon!
 
 //#define SURFING__USE__OF_CORE_PBR_MATERIALS
 // uncomment to disable the addon features 
@@ -20,11 +23,13 @@ public:
 	string sHelp;
 
 	void drawScene();
-	void drawGui();
-
 	void renderScene();
-	void setupMaterials();
 
+	void drawGui();
+	
+	void setupObjects();
+	void setupLights();
+	void setupMaterials();
 	void resetMaterials();
 
 	// Using OF CORE "vanilla" lights
@@ -38,28 +43,14 @@ public:
 	ofMesh cylinderMesh;
 
 #ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
+	// Using addon materials
 	SurfingMaterial bgMaterial;
 	SurfingMaterial logoMaterial;
 	SurfingMaterial boxesMaterial;
 	SurfingMaterial sphereMaterial;
 
-	ofParameter<bool> bDrawBg;
-	ofParameter<bool> bDrawLogo;
-	ofParameter<bool> bDrawBoxes;
-	ofParameter<bool> bDrawSphere;
-	ofParameterGroup parameters;
-	void Changed(ofAbstractParameter & e);
-
-	ofxPanel gui;
 	void refreshGuiLinks();
 	void refreshGuiAnchor();
-
-	SurfingAutoSaver autoSaver;
-	void save();
-	bool load();
-
-	ofParameter<void> vResetMaterials;
-
 #else
 	// Using OF CORE "vanilla" materials
 	ofMaterial bgMaterial;
@@ -67,6 +58,20 @@ public:
 	ofMaterial logoMaterial;
 	ofMaterial sphereMaterial;
 #endif
+
+	ofParameter<bool> bDrawBg;
+	ofParameter<bool> bDrawLogo;
+	ofParameter<bool> bDrawBoxes;
+	ofParameter<bool> bDrawSphere;
+	ofParameter<void> vResetMaterials;
+
+	ofParameterGroup parameters;
+	void Changed(ofAbstractParameter & e);
+
+	void save();
+	bool load();
+	
+	ofxPanel gui;
 
 	ofColor lightColor;
 	float colorHue = 0.0f;

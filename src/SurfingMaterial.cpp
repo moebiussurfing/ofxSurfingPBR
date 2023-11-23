@@ -439,7 +439,7 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 	// History
 
 	else if (name == vPrevHistory.getName()) {
-		bFlagDoNextHistory = true;
+		bFlagDoPrevHistory = true;
 	}
 
 	else if (name == vNextHistory.getName()) {
@@ -740,6 +740,7 @@ void SurfingMaterial::doRefreshIndexHistory() {
 		*/
 
 		if (indexHistory >= 0 && indexHistory < sizeHistory) {
+
 			//workflow
 			///update/save current before load another.
 			if (bAutoSaveBeforeChangeIndex && indexHistory_ != -1) {
