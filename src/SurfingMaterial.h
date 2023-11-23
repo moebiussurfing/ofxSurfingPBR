@@ -135,7 +135,7 @@ public:
 #endif
 
 public:
-	void doResetMaterial();
+	void doResetMaterial(bool bHard=true);
 	void doResetMaterialOfMaterial();
 	void doRandomMaterial();
 	void doRandomColors();

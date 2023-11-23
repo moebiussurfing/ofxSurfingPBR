@@ -107,12 +107,14 @@ void ofApp::setupMaterials() {
 	bDrawLogo.set("Logo", true);
 	bDrawBoxes.set("Boxes", true);
 	bDrawSphere.set("Sphere", true);
+	vResetMaterials.set("Reset Materials");
 
 	parameters.setName("ofApp Draw");
 	parameters.add(bDrawBg);
 	parameters.add(bDrawLogo);
 	parameters.add(bDrawBoxes);
 	parameters.add(bDrawSphere);
+	parameters.add(vResetMaterials);
 	ofAddListener(parameters.parameterChangedE(), this, &ofApp::Changed);
 
 	gui.setup(parameters);
@@ -138,23 +140,23 @@ void ofApp::setupMaterials() {
 #ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
 	callback_t f = std::bind(&ofApp::save, this);
 	autoSaver.setFunctionSaver(f);
-	load();
+	if (!load()) {
+		resetMaterials(); //reset scene/materials if there's no settings file.
+	}
 #endif
 }
 //--------------------------------------------------------------
 void ofApp::resetMaterials() {
 
 #ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
-	//boxesMaterial.doResetMaterial();
-	//bgMaterial.doResetMaterial();
-	//sphereMaterial.doResetMaterial();
-	//logoMaterial.doResetMaterial();
-
+	// Refresh the addon to mirror/reflect the same OF internal PBR settings!
 	boxesMaterial.doResetMaterialOfMaterial();
 	bgMaterial.doResetMaterialOfMaterial();
 	sphereMaterial.doResetMaterialOfMaterial();
 	logoMaterial.doResetMaterialOfMaterial();
 #endif
+
+	//--
 
 	boxesMaterial.setDiffuseColor(ofFloatColor(0.25));
 	boxesMaterial.setShininess(60);
@@ -288,9 +290,11 @@ void ofApp::drawScene() {
 void ofApp::buildHelp() {
 
 	stringstream ss;
-	ss << "HELP       ";
+	ss << "HELP          ";
 	ss << ofxSurfing::getProjectName() << endl
 	   << endl;
+
+	ss << "BACKSPACE     Reset materials" << endl;
 
 	if (!ofIsGLProgrammableRenderer()) {
 		ss << endl
@@ -299,16 +303,15 @@ void ofApp::buildHelp() {
 		ss << endl
 		   << "SHADOWS NOT SUPPORTED ON THIS PLATFORM!" << endl;
 	} else {
-		ss << "Shadows enabled (spacebar): " << bEnableShadows;
+		ss << "SPACEBAR      Shadows " << (bEnableShadows ? "ON " : "OFF");
 		ss << endl
-		   << "Draw frustums (f): " << bDrawFrustums;
+		   << "F             Draw frustums " << (bDrawFrustums ? "ON " : "OFF");
 		ss << endl
-		   << "Shadow Type (right): " << ofShadow::getShadowTypeAsString(shadowType);
+		   << "LEFT RIGHT    Shadow Type " << ofShadow::getShadowTypeAsString(shadowType);
 		ss << endl
-		   << "Sample Radius (up / down): " << shadowSampleRadius;
+		   << "UP DOWN       Sample Radius " << shadowSampleRadius;
 	}
 	sHelp = ss.str();
-	//sHelp = ofToUpper(s);
 }
 
 //--------------------------------------------------------------
@@ -317,9 +320,6 @@ void ofApp::drawGui() {
 
 	buildHelp();
 	ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
-
-	//ofSetColor(255);
-	//ofEnableAlphaBlending();
 
 #ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
 	refreshGuiLinks();
@@ -344,19 +344,12 @@ void ofApp::renderScene() {
 	if (bDrawSphere)
 #endif
 	{
-		//ofSetColor(200, 50, 120);
 		sphereMaterial.begin();
 		{
 			ofPushMatrix();
 			ofTranslate(-120 + cosf(etimef * 1.4) * 20.0, 0, sinf(etimef * 1.7) * 250);
 			ofScale(30, 30, 30);
 			sphereMesh.draw();
-
-			//ofSetColor(255);
-			// ofDrawSphere() is triangle strip!!!!
-			// it will cause issues with rendering of point light depth maps
-			//	ofDrawSphere(0, 0, 0, 100 );
-
 			ofPopMatrix();
 		}
 		sphereMaterial.end();
@@ -368,7 +361,6 @@ void ofApp::renderScene() {
 	{
 		boxesMaterial.begin();
 		{
-			//ofDrawBox(cosf(etimef) * 200., 0, sinf(etimef*0.452) * 100, 100 );
 			ofPushMatrix();
 			{
 				ofTranslate(250, cosf(etimef * 0.6) * 50 - 80, 200);
@@ -396,7 +388,6 @@ void ofApp::renderScene() {
 	if (bDrawBg)
 #endif
 	{
-		//ofSetColor(200);
 		bgMaterial.begin();
 		{
 			ofPushMatrix();
@@ -471,7 +462,7 @@ void ofApp::keyPressed(int key) {
 			ofShadow::disableAllShadows();
 		}
 	}
-	if (key == 'f') {
+	if (key == 'f' || key == 'F') {
 		bDrawFrustums = !bDrawFrustums;
 	}
 	if (key == OF_KEY_RIGHT) {
@@ -501,7 +492,6 @@ void ofApp::keyPressed(int key) {
 		}
 		ofShadow::setAllShadowSampleRadius(shadowSampleRadius);
 	}
-
 	if (key == OF_KEY_BACKSPACE) {
 		resetMaterials();
 	}
@@ -518,14 +508,12 @@ void ofApp::exit() {
 #ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
 //--------------------------------------------------------------
 void ofApp::refreshGuiAnchor() {
-
-	//ofxSurfing::setGuiPositionToLayoutPanelsCentered(gui, 5, ofxSurfing::SURFING_LAYOUT_TOP_CENTER);
 	ofxSurfing::setGuiPositionToLayout(gui, ofxSurfing::SURFING_LAYOUT_TOP_LEFT);
+	//ofxSurfing::setGuiPositionToLayoutPanelsCentered(gui, 5, ofxSurfing::SURFING_LAYOUT_TOP_CENTER);
 }
 
 //--------------------------------------------------------------
 void ofApp::refreshGuiLinks() {
-
 	ofxSurfing::setGuiPositionRightTo(bgMaterial.gui, gui);
 	ofxSurfing::setGuiPositionRightTo(logoMaterial.gui, bgMaterial.gui);
 	ofxSurfing::setGuiPositionRightTo(boxesMaterial.gui, logoMaterial.gui);
@@ -539,8 +527,16 @@ void ofApp::Changed(ofAbstractParameter & e) {
 
 	ofLogNotice() << "Changed: " << name << ": " << e;
 
-	autoSaver.saveSoon();
+	if (e.isSerializable()) autoSaver.saveSoon();
 
+	if (name == vResetMaterials.getName()) {
+		bgMaterial.doResetMaterial();
+		logoMaterial.doResetMaterial();
+		boxesMaterial.doResetMaterial();
+		sphereMaterial.doResetMaterial();
+	}
+
+	// workflow gui expand/minimize
 	#if 0
 	if (name == bDrawBg.getName()) {
 		if (bDrawBg)
@@ -567,15 +563,16 @@ void ofApp::Changed(ofAbstractParameter & e) {
 }
 
 //--------------------------------------------------------------
-void ofApp::load() {
+bool ofApp::load() {
 	autoSaver.pause(); //stop saving
-	ofxSurfing::loadSettings(parameters, "ofApp.json");
+	bool b = ofxSurfing::loadSettings(parameters);
 	autoSaver.start(); //start
+	return b;
 }
 
 //--------------------------------------------------------------
 void ofApp::save() {
-	ofxSurfing::saveSettings(parameters, "ofApp.json");
+	ofxSurfing::saveSettings(parameters);
 }
 
 #endif

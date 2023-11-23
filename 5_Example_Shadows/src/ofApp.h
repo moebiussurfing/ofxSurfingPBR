@@ -28,6 +28,7 @@ public:
 	void resetMaterials();
 
 	// Using OF CORE "vanilla" lights
+	// not the bundled from the addon.
 	vector<shared_ptr<ofLight>> lights;
 
 	ofEasyCam camera;
@@ -55,7 +56,10 @@ public:
 
 	SurfingAutoSaver autoSaver;
 	void save();
-	void load();
+	bool load();
+
+	ofParameter<void> vResetMaterials;
+
 #else
 	// Using OF CORE "vanilla" materials
 	ofMaterial bgMaterial;

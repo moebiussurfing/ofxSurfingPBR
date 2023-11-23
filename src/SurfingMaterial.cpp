@@ -61,7 +61,7 @@ void SurfingMaterial::setupParams() {
 	else { // to allow multiple instances. to be used for gui naming and settings path!
 		path = pathRoot + "_" + name + ext;
 
-		pathHistory = pathHistory  + name;
+		pathHistory = pathHistory + name;
 
 		nameParams = name;
 	}
@@ -91,7 +91,7 @@ void SurfingMaterial::setupParams() {
 
 	//--
 
-	settingsParams.add(shininess.set("Shininess", 0.0, 0.0, 1.0));
+	settingsParams.add(shininess.set("Shininess", 0.0, 0.0, SURFING__PBR__MAX_SHININESS));
 	settingsParams.add(roughness.set("Roughness", 0.0, 0.0, 1.0));
 	settingsParams.add(metallic.set("Metallic", 0.0, 0.0, 1.0));
 	settingsParams.add(reflectance.set("Reflectance", 0.0, 0.0, 1.0));
@@ -108,7 +108,7 @@ void SurfingMaterial::setupParams() {
 	vResetMaterial.set("Material Reset");
 	vRandomMaterialFull.set("Material Random Full");
 	vRandomSettings.set("Material Rand Settings");
-		
+
 	//--
 
 	randomizersParams.add(vResetMaterial);
@@ -769,34 +769,78 @@ void SurfingMaterial::doRandomMaterial() {
 //--------------------------------------------------------------
 void SurfingMaterial::doResetMaterialOfMaterial() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doResetMaterialOfMaterial()";
+
+	// resets raw/vanilla OF ofMaterial
 	material = ofMaterial();
+#if 0
+	// log defaults
+	ofLog() << "material.getShininess() " << material.getShininess();
+	ofLog() << "material.getRoughness() " << material.getRoughness();
+	ofLog() << "material.getMetallic() " << material.getMetallic();
+	ofLog() << "material.getReflectance() " << material.getReflectance();
+	ofLog() << "material.getAmbientColor() " << material.getAmbientColor();
+	ofLog() << "material.getSpecularColor() " << material.getSpecularColor();
+	ofLog() << "material.getDiffuseColor() " << material.getDiffuseColor();
+	ofLog() << "material.getEmissiveColor() " << material.getEmissiveColor();
+	ofLog() << "material.isClearCoatEnabled() " << material.isClearCoatEnabled();
+	ofLog() << "material.getClearCoatRoughness() " << material.getClearCoatRoughness();
+	ofLog() << "material.getClearCoatStrength() " << material.getClearCoatStrength();
+#endif
+
+	// Refresh the addon to mirror/reflect the same OF internal PBR settings!
+	ambientColor.set(material.getAmbientColor());
+	specularColor.set(material.getSpecularColor());
+	diffuseColor.set(material.getDiffuseColor());
+	emissiveColor.set(material.getEmissiveColor());
+
+	shininess.set(material.getShininess());
+	roughness.set(material.getRoughness());
+	metallic.set(material.getMetallic());
+	reflectance.set(material.getReflectance());
+
+	bClearCoat.set(material.isClearCoatEnabled());
+	clearCoatRoughness.set(material.getClearCoatRoughness());
+	clearCoatStrength.set(material.getClearCoatStrength());
+
+	material = ofMaterial(); //workaround fix?
 }
 
 //--------------------------------------------------------------
-void SurfingMaterial::doResetMaterial() {
+void SurfingMaterial::doResetMaterial(bool bHard ) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doResetMaterial()";
 
-	// resets all the material params and colors with alpha settled to full.
+	if (bHard) {
+		doResetMaterialOfMaterial();
+	}
 
-	shininess.set(0);
-	roughness.set(0);
+	//--
+
+	// resets all the material parameters and colors
+
+	// Addon defaults
+	//ofFloatColor c = ofFloatColor(0.5f, 1.f);
+	//ambientColor.set(c);
+	//specularColor.set(c);
+	//diffuseColor.set(c);
+	//emissiveColor.set(c);
+	//bClearCoat.set(false);
+	//clearCoatRoughness.set(0.0001);
+	//clearCoatStrength.set(0.0001);
+
+	// OF ofMaterial defaults
+	shininess.set(0.2);
+	roughness.set(0.5);
 	metallic.set(0);
-	reflectance.set(0);
-
-	ofFloatColor c = ofFloatColor(0.5f, 1.f);
-
-	globalColor.set(c);
-	globalAlpha.set(1.f);
-
-	// force again to overwrite the alphas too
-	ambientColor.set(c);
-	specularColor.set(c);
-	diffuseColor.set(c);
-	emissiveColor.set(c);
+	reflectance.set(0.5);
 
 	bClearCoat.set(false);
-	clearCoatRoughness.set(0.0001);
-	clearCoatStrength.set(0.0001);
+	clearCoatRoughness.set(0.1);
+	clearCoatStrength.set(1);
+
+	ambientColor.set(ofFloatColor(0.2, 0.2, 0.2, 1));
+	specularColor.set(ofFloatColor(0, 0, 0, 1));
+	diffuseColor.set(ofFloatColor(0.8, 0.8, 0.8, 1));
+	emissiveColor.set(ofFloatColor(0, 0, 0, 1));
 
 	refreshGlobals();
 }
@@ -807,14 +851,16 @@ void SurfingMaterial::doRandomSettings() {
 
 	// randomizes the PBR settings without touching the colors.
 
-	shininess.set(ofRandom(1));
-	roughness.set(ofRandom(1));
-	metallic.set(ofRandom(1));
-	reflectance.set(ofRandom(1));
+	shininess.set(ofRandom(shininess.getMax()));
+	roughness.set(ofRandom(roughness.getMax()));
+	metallic.set(ofRandom(metallic.getMax()));
+	reflectance.set(ofRandom(reflectance.getMax()));
+
+	clearCoatRoughness.set(ofRandom(clearCoatRoughness.getMax()));
+	clearCoatStrength.set(ofRandom(clearCoatStrength.getMax()));
 
 	refreshGlobals();
 
-	//if (bAutoStoreAfterRandoms) doStoreNewState();
 	if (bAutoStoreAfterRandoms) bFlagDoStoreNewState = true;
 }
 
@@ -1256,6 +1302,7 @@ void SurfingMaterial::load() {
 
 	// Load
 	{
+		//doResetMaterialOfMaterial();//TODO fix coherence with OF vanilla.. it looks darker..
 		ofxSurfing::loadSettings(parameters, path);
 	}
 
