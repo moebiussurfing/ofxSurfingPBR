@@ -52,7 +52,7 @@ void SurfingLights::setupLights() {
 		light->getShadow().setNearClip(SURFING__PBR__LIGHTS_NEAR);
 		light->getShadow().setFarClip(SURFING__PBR__LIGHTS_FAR);
 
-		light->getShadow().setStrength(SURFING__PBR__SHADOW_STRENGTH);
+		//light->getShadow().setStrength(SURFING__PBR__SHADOW_DEFAULT_STRENGTH);
 
 		light->getShadow().setGlCullingEnabled(false);
 
@@ -69,7 +69,7 @@ void SurfingLights::setupLights() {
 		light->getShadow().setNearClip(SURFING__PBR__LIGHTS_NEAR);
 		light->getShadow().setFarClip(SURFING__PBR__LIGHTS_FAR);
 
-		light->getShadow().setStrength(SURFING__PBR__SHADOW_STRENGTH);
+		//light->getShadow().setStrength(SURFING__PBR__SHADOW_DEFAULT_STRENGTH);
 
 		light->getShadow().setGlCullingEnabled(false);
 
@@ -86,7 +86,7 @@ void SurfingLights::setupLights() {
 		light->getShadow().setNearClip(SURFING__PBR__LIGHTS_NEAR);
 		light->getShadow().setFarClip(SURFING__PBR__LIGHTS_FAR);
 
-		light->getShadow().setStrength(SURFING__PBR__SHADOW_STRENGTH);
+		//light->getShadow().setStrength(SURFING__PBR__SHADOW_DEFAULT_STRENGTH);
 
 		light->getShadow().setGlCullingEnabled(false);
 
@@ -103,17 +103,21 @@ void SurfingLights::setupLights() {
 		light->getShadow().setNearClip(SURFING__PBR__LIGHTS_NEAR);
 		light->getShadow().setFarClip(SURFING__PBR__LIGHTS_FAR);
 
-		light->getShadow().setStrength(SURFING__PBR__SHADOW_STRENGTH);
+		//light->getShadow().setStrength(SURFING__PBR__SHADOW_DEFAULT_STRENGTH);
 
 		light->getShadow().setGlCullingEnabled(false);
 
 		lights.push_back(light);
 	}
 
+	//--
+
+	// Shadows
+
 	ofShadow::enableAllShadows();
 
 	//TODO: add from OF example
-	ofShadow::setAllShadowTypes(OF_SHADOW_TYPE_PCF_LOW);
+	//ofShadow::setAllShadowTypes(OF_SHADOW_TYPE_PCF_LOW);
 }
 
 //--------------------------------------------------------------
@@ -130,6 +134,10 @@ void SurfingLights::updateLights() {
 	// Point
 	{
 		lights[0]->getShadow().setEnabled(bDrawShadow);
+
+		//if( !ofIsGLProgrammableRenderer() ) {
+		//light->enable();
+		//}
 
 		if (bPoint) {
 			if (!lights[0]->getIsEnabled()) lights[0]->enable();
@@ -220,15 +228,19 @@ void SurfingLights::updateLights() {
 			lights[3]->setOrientation(q);
 		}
 	}
-
-	//--
-
-	ofShadow::setAllShadowBias(shadowBias.get());
-	ofShadow::setAllShadowNormalBias(shadowNormalBias.get());
 }
 
 //--------------------------------------------------------------
 void SurfingLights::drawLights() {
+
+	/*
+		Usually to be called with ofEnableDepthTest() and before camera.begin() 
+		void ofApp::draw(){
+			ofEnableDepthTest();
+			//drawLights();
+			camera.begin();
+	*/
+
 	if (f_RenderScene == nullptr) return;
 
 	for (int i = 0; i < lights.size(); i++) {
@@ -258,7 +270,7 @@ void SurfingLights::drawDebugLights() {
 
 	ofPushStyle();
 
-	for (int i = 0; i < lights.size(); i++) {
+	for (size_t i = 0; i < lights.size(); i++) {
 
 		// skip if not enabled
 		if (i == 0 && !bPoint)
@@ -512,7 +524,37 @@ void SurfingLights::setup() {
 void SurfingLights::setupParameters() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:setupParameters()";
 
-	float sz = 1.f * SURFING__SCENE_SIZE_UNIT;
+	//----
+
+	setupParametersLights();
+
+	setupParametersShadows();
+
+	//---
+
+	parameters.add(bGui_Shadows);
+	parameters.add(lightsSettingsParams);
+
+	//--
+
+	// Callbacks
+
+	ofAddListener(lightsSettingsParams.parameterChangedE(), this, &SurfingLights::ChangedLights);
+	ofAddListener(brightsParams.parameterChangedE(), this, &SurfingLights::ChangedBrights);
+	ofAddListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
+
+	//--
+
+	startup();
+}
+
+//--------------------------------------------------------------
+void SurfingLights::setupParametersLights() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:setupParametersLights()";
+
+	float sz = SURFING__SCENE_SIZE_UNIT * 1.f;
+
+	//--
 
 	bGui.set("UI LIGHTS", false);
 
@@ -522,7 +564,7 @@ void SurfingLights::setupParameters() {
 	bDebug.set("Debug", true);
 	bDebugShadow.set("Debug Shadow", true);
 	bDebugLights.set("Debug Lights", true);
-	bRefreshGui.set("Refresh Gui", false);
+	bRefreshGui.set("Refresh Gui", true);
 
 	//--
 
@@ -719,6 +761,8 @@ void SurfingLights::setupParameters() {
 	areaParams.add(areaSize);
 	areaParams.add(vAreaReset);
 
+	//--
+
 	// Enablers
 	params_Enablers.add(bPoint);
 	params_Enablers.add(bDirectional);
@@ -733,9 +777,11 @@ void SurfingLights::setupParameters() {
 	brightsParams.add(areaBright);
 	lightsSettingsParams.add(brightsParams);
 
-	lightsSettingsParams.add(globalColor);
+	//--
 
 	// Global colors
+	lightsSettingsParams.add(globalColor);
+
 	globalColorsParams.add(pointGlobalColor);
 	globalColorsParams.add(directionalGlobalColor);
 	globalColorsParams.add(spotGlobalColor);
@@ -748,6 +794,8 @@ void SurfingLights::setupParameters() {
 	lightsItemsParams.add(areaParams);
 	lightsSettingsParams.add(lightsItemsParams);
 
+	//--
+
 	// Extra
 	params_Extra.add(bSmoothLights);
 	params_TestAnims.setName("Test Anims");
@@ -755,61 +803,53 @@ void SurfingLights::setupParameters() {
 	params_TestAnims.add(modeAnimArea);
 	params_TestAnims.add(bAnimLightsMouse);
 	params_Extra.add(params_TestAnims);
+	params_Extra.add(bRefreshGui);
 	params_Extra.add(bDebugLights);
 	params_Extra.add(bDebugShadow);
 	lightsSettingsParams.add(params_Extra);
 
 	lightsSettingsParams.add(bDebug);
-	lightsSettingsParams.add(bRefreshGui);
 	lightsSettingsParams.add(vResetAllLights);
 
-	/// Exclude
+	// Exclude
 	globalColor.setSerializable(false);
 	globalColorsParams.setSerializable(false);
 	pointGlobalColor.setSerializable(false);
 	spotGlobalColor.setSerializable(false);
 	directionalGlobalColor.setSerializable(false);
 	areaGlobalColor.setSerializable(false);
+}
 
-	//----
+//--------------------------------------------------------------
+void SurfingLights::setupParametersShadows() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:setupParametersShadows()";
 
 	// Shadows
-
 	bGui_Shadows.set("UI SHADOWS", false);
-	bDrawShadow.set("Draw Shadow", true);
+	bDrawShadow.set("Draw Shadows", true);
 	shadowBias.set("Bias", 0.07, 0.0, 1.0);
 	shadowNormalBias.set("Normal Bias", -4.f, -10.0, 10.0);
+	indexShadowType.set("Type", 0, 0, OF_SHADOW_TYPE_TOTAL - 1);
+	nameShadowType.set("Name", "NONE");
+	shadowSampleRadius.set("Radius", 2.f, .0, 10.0);
+	shadowStrength.set("Strength", SURFING__PBR__SHADOW_DEFAULT_STRENGTH, 0.f, 1.f);
+	shadowResolution.set("Resolution", 1024, 256, 2048);
 	bDebugShadow.set("Debug Shadow", true);
 	vResetShadow.set("Reset Shadow");
+	
+	nameShadowType.setSerializable(false);
 
 	shadowParams.setName("PBR_SHADOWS");
 	shadowParams.add(bDrawShadow);
+	shadowParams.add(shadowStrength);
+	shadowParams.add(indexShadowType);
+	shadowParams.add(nameShadowType);
 	shadowParams.add(shadowBias);
 	shadowParams.add(shadowNormalBias);
-
-	//TODO
-	//shadowParams.add(shadowStrength.set("Strength", 0.6f, 0.f, 1.f));
-	//shadowParams.add(shadowSize.set("Shadow Size", glm::vec2(0.25f, 0.25f), glm::vec2(0, 0), glm::vec2(1.f, 1.f)));
-
+	shadowParams.add(shadowSampleRadius);
+	shadowParams.add(shadowResolution);
 	shadowParams.add(vResetShadow);
 	shadowParams.add(bDebugShadow);
-
-	//-
-
-	parameters.add(bGui_Shadows);
-	parameters.add(lightsSettingsParams);
-
-	//--
-
-	// Callbacks
-
-	ofAddListener(lightsSettingsParams.parameterChangedE(), this, &SurfingLights::ChangedLights);
-	ofAddListener(brightsParams.parameterChangedE(), this, &SurfingLights::ChangedBrights);
-	ofAddListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
-
-	//--
-
-	startup();
 }
 
 //--------------------------------------------------------------
@@ -829,35 +869,35 @@ void SurfingLights::startup() {
 
 	//TODO
 
-//#if 0
-//	// Settings
-//	bool bNotFound = true;
-//	//bNotFound |= !ofxSurfing::loadGroup(lightsSettingsParams, pathSettings);
-//	//bNotFound |= !ofxSurfing::loadGroup(paramsScene, pathSettings_Bg);
-//#endif
+	//#if 0
+	//	// Settings
+	//	bool bNotFound = true;
+	//	//bNotFound |= !ofxSurfing::loadGroup(lightsSettingsParams, pathSettings);
+	//	//bNotFound |= !ofxSurfing::loadGroup(paramsScene, pathSettings_Bg);
+	//#endif
 
 	//load();
-	bFlagLoad = true;
+	//bFlagLoad = true;
 
-//#if 0
-//	//TODO:
-//	// Settings file not found!
-//	// Should trig the callbacks to update engine!
-//	if (bNotFound) {
-//		ofLogError("ofxSurfingPBR") << "SurfingLights: Settings files not found!";
-//		ofLogError("ofxSurfingPBR") << "SurfingLights: Initializing...";
-//
-//		bPoint = true;
-//		bSpot = true;
-//		bDirectional = true;
-//
-//		doResetAllLights();
-//
-//		bDebug = true;
-//		bDebugLights = true;
-//		bDebugShadow = true;
-//	}
-//#endif
+	//#if 0
+	//	//TODO:
+	//	// Settings file not found!
+	//	// Should trig the callbacks to update engine!
+	//	if (bNotFound) {
+	//		ofLogError("ofxSurfingPBR") << "SurfingLights: Settings files not found!";
+	//		ofLogError("ofxSurfingPBR") << "SurfingLights: Initializing...";
+	//
+	//		bPoint = true;
+	//		bSpot = true;
+	//		bDirectional = true;
+	//
+	//		doResetAllLights();
+	//
+	//		bDebug = true;
+	//		bDebugLights = true;
+	//		bDebugShadow = true;
+	//	}
+	//#endif
 
 	bDoneStartup = true;
 }
@@ -1206,7 +1246,7 @@ void SurfingLights::doResetDirectional(bool bHard) {
 	}
 
 	directionalPosition.set(glm::vec3(0,
-		SURFING__SCENE_SIZE_UNIT * 0.8f,
+		SURFING__SCENE_SIZE_UNIT * 0.6f,
 		SURFING__SCENE_SIZE_UNIT * 0.5f));
 
 	directionalOrientation.set(glm::vec3(-60, 0, 0));
@@ -1228,13 +1268,12 @@ void SurfingLights::doResetSpot(bool bHard) {
 	spotPosition.set(glm::vec3(
 		0,
 		SURFING__SCENE_SIZE_UNIT,
-		SURFING__SCENE_SIZE_UNIT * 0.5f));
+		SURFING__SCENE_SIZE_UNIT * 0.7f));
 
 	spotOrientation.set(glm::vec3(-60, 0, 0));
 
-	//TODO
-	spotCutOff.set(40);
-	spotConcentration.set(10);
+	spotCutOff.set(90);
+	spotConcentration.set(30);
 
 	if (bHard)
 		spotBright = SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET;
@@ -1449,6 +1488,58 @@ void SurfingLights::ChangedShadow(ofAbstractParameter & e) {
 		bFlagDoResetShadow = true;
 	}
 
+	//--
+
+	else if (name == shadowResolution.getName()) {
+#ifndef TARGET_OPENGLES
+		ofShadow::setAllShadowDepthResolutions(shadowResolution, shadowResolution);
+#endif
+	}
+
+	else if (name == shadowBias.getName()) {
+		ofShadow::setAllShadowBias(shadowBias.get());
+	}
+
+	else if (name == shadowNormalBias.getName()) {
+		ofShadow::setAllShadowNormalBias(shadowNormalBias.get());
+	}
+
+	else if (name == shadowSampleRadius.getName()) {
+		ofShadow::setAllShadowSampleRadius(shadowSampleRadius.get());
+	}
+
+	else if (name == shadowStrength.getName()) {
+		for (size_t i = 0; i < lights.size(); i++) {
+			auto & light = lights[i];
+			light->getShadow().setStrength(shadowStrength.get());
+		}
+	}
+
+	else if (name == indexShadowType.getName()) {
+		int i = indexShadowType.get() + 1;
+		if (i == OF_SHADOW_TYPE_TOTAL) {
+			i = 0;
+		}
+		indexShadowType.set(i);
+
+		switch (indexShadowType.get()) {
+		case 0:
+			nameShadowType = "HARD";
+			break;
+		case 1:
+			nameShadowType = "PCF_LOW";
+			break;
+		case 2:
+			nameShadowType = "PCF_MED";
+			break;
+		case 3:
+			nameShadowType = "PCF_HIGH";
+			break;
+		}
+
+		ofShadow::setAllShadowTypes((ofShadowType)indexShadowType.get());
+	}
+
 	//workflow
 	else if (name == bDebugShadow.getName()) {
 		if (bDebugShadow) {
@@ -1614,23 +1705,27 @@ void SurfingLights::exit() {
 
 //--------------------------------------------------------------
 void SurfingLights::begin() {
-	ofEnableLighting();
+	if (!ofIsGLProgrammableRenderer()) {
+		ofEnableLighting();
+	}
 }
 
 //--------------------------------------------------------------
 void SurfingLights::end() {
-	ofDisableLighting();
+	if (!ofIsGLProgrammableRenderer()) {
+		ofDisableLighting();
+	}
 }
 
 //--------------------------------------------------------------
 void SurfingLights::doResetShadow() {
 
-	//bDebugShadow.set(false);
 	bDrawShadow.set(true);
 
+	shadowStrength.set(SURFING__PBR__SHADOW_DEFAULT_STRENGTH);
+	indexShadowType.set(0);
 	shadowBias.set(0.1);
-	shadowNormalBias.set(-4.f);
-
-	//shadowStrength.set(0.6f);//TODO
-	//shadowSize.set(glm::vec2(0.25f,0.25f));//TODO
+	shadowNormalBias.set(0.007);
+	shadowSampleRadius.set(2.f);
+	shadowResolution.set(SURFING__PBR__SHADOW_DEFAULT_RESOLUTION);
 }

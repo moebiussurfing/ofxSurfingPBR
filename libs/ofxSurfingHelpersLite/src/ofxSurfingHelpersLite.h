@@ -169,6 +169,13 @@ inline void setWindowTitleAsProjectName() {
 //	ofxSurfing::setWindowAtMonitor(-1, true); // Left monitor portrait
 //	ofxSurfing::setWindowAtMonitor(-1, false); // Left monitor landscape
 //	ofxSurfing::setWindowAtMonitor(1, false , 120, true); // Right monitor landscape, 60fps, vSync on
+ 
+// Examples:
+// Move and shape the window app.
+// Customizes settings too: 60fps and vSync off.
+//ofxSurfing::setWindowAtMonitor(); // Stay at main display (center in my setup) and landscape.
+//ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
+//ofxSurfing::setWindowAtMonitor(1, true); // Move to right display and set portrait.
 //--------------------------------------------------------------
 inline void setWindowAtMonitor(int pos = 0, bool bPortrait = false, int fps = 60, bool vSync = false) {
 

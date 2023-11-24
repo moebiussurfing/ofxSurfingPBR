@@ -1,4 +1,5 @@
 #pragma once
+
 #include "ofMain.h"
 
 #define OFAPP__USE__OPTIONAL_SETUP 0

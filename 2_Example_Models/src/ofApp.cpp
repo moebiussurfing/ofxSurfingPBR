@@ -5,20 +5,14 @@ void ofApp::setup() {
 
 #if 1
 	// Theme
-	if (1) ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
+	ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
 
 	// App window
-	{
-		ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
-		// Move and shape the window app.
-		// Customize settings too: 60fps and vSync off.
-		//ofxSurfing::setWindowAtMonitor(); // Stay at main display (center in my setup) and landscape.
-		ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
-		//ofxSurfing::setWindowAtMonitor(1, true); // Move to right display and set portrait.
+	ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
+	ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
 
-		pbr.setLogLevel(OF_LOG_VERBOSE);
-		ofSetLogLevel(OF_LOG_VERBOSE);
-	}
+	pbr.setLogLevel(OF_LOG_VERBOSE);
+	ofSetLogLevel(OF_LOG_VERBOSE);
 #endif
 
 	//--
@@ -224,8 +218,9 @@ void ofApp::setupMesh() {
 
 //--------------------------------------------------------------
 void ofApp::drawMesh() {
-	// Transforms
-	// Hardcoded for the ofLogoHollow.ply mesh.
+
+	// Hardcoded transforms
+	// for the ofLogoHollow.ply mesh.
 	ofPushMatrix();
 	ofTranslate(0, 60, 0);
 	ofScale(40.f);
@@ -245,7 +240,7 @@ void ofApp::update() {
 		float t = ofGetElapsedTimef();
 		float f = ofMap(zoomSpeed, 0.f, 1.f, 0.1, 2, true);
 		float v = glm::sin(2.f * glm::pi<float>() * t * f);
-		float a = ofMap(powZoom, 0.f, 1.f, 1.1, 10, true);
+		float a = ofMap(powZoom, 0.f, 1.f, 1.02, 10, true);
 		int unit = 600;
 		v = ofMap(v, -1, 1, unit, unit * a, true);
 
@@ -639,8 +634,6 @@ void ofApp::save() {
 //--------------------------------------------------------------
 void ofApp::exit() {
 	ofLogNotice("ofApp") << "exit()";
-
-	pbr.exit();
 
 	ofRemoveListener(parameters.parameterChangedE(), this, &ofApp::Changed);
 }

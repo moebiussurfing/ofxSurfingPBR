@@ -67,22 +67,38 @@
 //#define SURFING__PBR__MAX_SHININESS 1.f
 #define SURFING__PBR__MAX_SHININESS 128.f
 
-#define SURFING__PBR__SHADOW_STRENGTH 0.6f
+#define SURFING__PBR__SHADOW_DEFAULT_STRENGTH 0.5f
+#define SURFING__PBR__SHADOW_DEFAULT_RESOLUTION 1024
 
 static const float SURFING__PBR__LIGHTS_FAR = (float)SURFING__SCENE_SIZE_UNIT * 1.0f;
 static const float SURFING__PBR__LIGHTS_NEAR = SURFING__PBR__LIGHTS_FAR * 0.1f;
 
 
 #define SURFING__PBR__PLANE_COLORS_NO_ALPHA 
-// bc it seems that is not being used internally..
+// bc it seems that alpha is not being used internally..
 
 #define SURFING__PBR__BG_COLORS_NO_ALPHA 
-// bc it seems that is not being used internally..
+// bc it seems that alpha is not being used internally..
 
 //----
 
-// PBR ranges info
+// PBR NOTES
+// RANGES AND INFO
+/*
 
-// shininess is a value between 0 - 128, 128 being the most shiny //
-// setSpotlightCutOff is clamped between 0 - 90 degrees //
-// setSpotConcentration is clamped between 0 - 128 //
+	shininess is a value between 0 - 128, 128 being the most shiny
+
+	setSpotlightCutOff is clamped between 0 - 90 degrees
+
+	setSpotConcentration is clamped between 0 - 128
+
+	shadow bias is the margin of error the shadow depth
+	increasing the bias helps reduce shadow acne, but can cause light leaking
+	try to find a good balance that fits your needs
+	bias default is 0.005
+	//ofShadow::setAllShadowBias(0.007);
+	normal bias default is 0
+	moves the bias along the normal of the mesh, helps reduce shadow acne
+	//ofShadow::setAllShadowNormalBias(-4.f);
+
+*/

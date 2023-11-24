@@ -181,13 +181,18 @@ void ofxSurfingPBR::setupParams() {
 
 	parameters.setName("PBR_SCENE");
 
+	vLoad.set("Load");
+	vSave.set("Save");
+	parameters.add(vLoad);
+	parameters.add(vSave);
+
 	showGuiParams.setName("UI");
 	showGuiParams.add(material.bGui);
 	showGuiParams.add(surfingBg.bGui);
 
 #ifdef SURFING__USE_LIGHTS_CLASS
 	showGuiParams.add(surfingLights.bGui);
-	showGuiParams.add(surfingLights.bGui_Shadows);
+	//showGuiParams.add(surfingLights.bGui_Shadows);
 #endif
 
 	parameters.add(showGuiParams);
@@ -364,6 +369,16 @@ void ofxSurfingPBR::setupParams() {
 	//--
 
 	// Callbacks
+	setupCallbacks();
+
+	//--
+
+	bDoneSetupParams = true;
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::setupCallbacks() {
+	ofLogNotice("ofxSurfingPBR") << "setupCallbacks()";
 
 	listenerResetAll = vResetAll.newListener([this](void) {
 		doResetAll();
@@ -371,6 +386,14 @@ void ofxSurfingPBR::setupParams() {
 
 	listenerDebug = bDebug.newListener([this](bool) {
 		surfingLights.bDebug = bDebug;
+	});
+
+	listenerSave = vSave.newListener([this](void) {
+		save();
+	});
+
+	listenerLoad = vLoad.newListener([this](void) {
+		load();
 	});
 
 	ofAddListener(drawParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
@@ -386,10 +409,6 @@ void ofxSurfingPBR::setupParams() {
 #ifdef SURFING__USE_CUBE_MAP
 	ofAddListener(cubeMapParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCubeMaps);
 #endif
-
-	//--
-
-	bDoneSetupParams = true;
 }
 
 //--
@@ -741,9 +760,9 @@ void ofxSurfingPBR::startup() {
 		//--
 
 		//TODO: not works
-//#ifdef SURFING__USE_LIGHTS_CLASS
-//		surfingLights.bDebug.makeReferenceTo(bDebug);
-//#endif
+		//#ifdef SURFING__USE_LIGHTS_CLASS
+		//		surfingLights.bDebug.makeReferenceTo(bDebug);
+		//#endif
 	}
 
 	//--
@@ -1045,13 +1064,15 @@ void ofxSurfingPBR::drawDebugFPS() {
 		else
 			s += sWindowDimensions + "\n";
 
-		ofxSurfing::SURFING_LAYOUT l;
+		ofxSurfing::SURFING_LAYOUT l = ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT;
+#if 0
 		if (guiLayout.get() == 0)
 			l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
 		else if (guiLayout.get() == 1)
 			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
 		else
 			l = ofxSurfing::SURFING_LAYOUT_CENTER;
+#endif
 
 		ofxSurfing::ofDrawBitmapStringBox(s, l);
 	}
@@ -1169,6 +1190,7 @@ void ofxSurfingPBR::draw() {
 	//--
 
 	updatePBRScene();
+
 	drawPBRScene();
 
 	//--
@@ -1217,6 +1239,14 @@ void ofxSurfingPBR::draw() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawPBRScene() {
 
+	/*
+		Usually to be called with ofEnableDepthTest() and before camera.begin() 
+		void ofApp::draw(){
+			ofEnableDepthTest();
+			//drawLights();
+			camera.begin();
+	*/
+
 #ifdef SURFING__USE_LIGHTS_CLASS
 	surfingLights.drawLights();
 #endif
@@ -1225,7 +1255,7 @@ void ofxSurfingPBR::drawPBRScene() {
 
 #ifdef SURFING__USE_CUBE_MAP
 	if (bDrawCubeMap && bLoadedCubeMap) {
-		// Update debug cubemap
+		// Update debug cubeMap
 		// drawing of the cube map renders at max depth, so it can be drawn last
 		// this will allow for the benefit of depth clipping
 		if (cubeMapMode == 2) {
@@ -2096,7 +2126,8 @@ void ofxSurfingPBR::doResetPlaneTransform() {
 	planeSize.set(glm::vec2(0.12, 0.05));
 	planeResolution.set(glm::vec2(0.f, 0.f));
 	planePosition.set(0.f);
-	planeRotation.set(10.f);
+	planeRotation.set(0.f);
+	//planeRotation.set(10.f);
 	bPlaneInfinite = false;
 }
 

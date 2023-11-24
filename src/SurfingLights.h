@@ -1,22 +1,33 @@
 /*
 * SurfingLights.h
 * 
-* This class is a predefined setup of 4 different type lights:
-* point, directional, spot and area.
+* This class is a predefined set of 4 different type lights:
+* Point, Directional, Spot and Area.
 * Ready to be inserted on an environment scene.
+* Bundled testing animations, mouse positioning and debug helpers.
+* Persistent settings.
 */
 
 /*
 	TODO
 
+	fix visible rectangle when drawing area light
+
 	add global from/to color workflow (copy from material).
+
 	create a cool init state.
+	
 	make simple mode/user/game controls.
+	
+	for light positions: 
+		add height, long/lat, distance controls
+		instead of xyz
 */
 
 //--
 
 #pragma once
+
 #include "ofMain.h"
 
 //  SurfingLights.h
@@ -40,6 +51,8 @@ public:
 
 private:
 	void setupParameters();
+	void setupParametersLights();
+	void setupParametersShadows();
 	void startup();
 	void startupDelayed();
 
@@ -99,7 +112,7 @@ private:
 
 private:
 	void setupGui();
-	void refreshGui(bool bHard=false);
+	void refreshGui(bool bHard = false);
 
 public:
 	ofRectangle getGuiShape() const;
@@ -283,14 +296,14 @@ public:
 private:
 	ofParameter<float> shadowBias;
 	ofParameter<float> shadowNormalBias;
+	ofParameter<float> shadowSampleRadius;
+	ofParameter<int> indexShadowType;
+	ofParameter<string> nameShadowType;
+	ofParameter<float> shadowStrength;
+	ofParameter<int> shadowResolution;
+
 	ofParameter<void> vResetShadow;
 	bool bFlagDoResetShadow = false;
-
-	//TODO: OF PBR
-	// get other shadow params from OF example
-	// add other internal OF params
-	//ofParameter<float> shadowStrength;
-	//ofParameter<glm::vec2> shadowSize;
 
 public:
 	ofxPanel guiShadows;

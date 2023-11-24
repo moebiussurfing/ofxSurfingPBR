@@ -24,15 +24,13 @@
 /*
 * TODO
 * 
+	- add save/load all.
 
-	- fix shadows/lights
-		move code to same place/order than examples
+	- make some linking colors 
+		to fast set bg, floor, 
+		lights together with bright tweaks...
 	
-	- add alternate top camera
-
-	- fix some callbacks
-
-	- fix?
+	- add alternate top camera?
 
 	- add custom global path to /data/ofxSurfingPBR/MAT_NAME/
 
@@ -123,6 +121,7 @@ public:
 
 private:
 	void setupParams();
+	void setupCallbacks();
 	void setupGui();
 	void refreshGui();
 	void update();
@@ -398,6 +397,10 @@ private:
 public:
 	void load();
 	void save();
+	ofParameter<void> vLoad;
+	ofParameter<void> vSave;
+	ofEventListener listenerLoad;
+	ofEventListener listenerSave;
 
 	bool getSettingsFileFound();
 	// To check if the app is opened for the first time
