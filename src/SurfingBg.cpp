@@ -181,7 +181,6 @@ void SurfingBg::setupParameters() {
 	//paramsScene.add(bAnimLights);
 
 	paramsColorizers.setName("Colorizers");
-	paramsColorizers.add(shininess);
 
 	paramsColorsGlobal.setName("Global");
 	paramsColorsGlobal.add(brightGlobal);
@@ -195,6 +194,7 @@ void SurfingBg::setupParameters() {
 	paramsColor.add(specular);
 	paramsColor.add(emissive);
 	paramsColorizers.add(paramsColor);
+	paramsColorizers.add(shininess);
 
 	paramsColorizers.add(vResetColors);
 
@@ -281,7 +281,7 @@ void SurfingBg::refreshGui() {
 		.getGroup(paramsExtra.getName())
 		.minimize();
 
-	gui.getGroup(paramsColorizers.getName()).minimize();
+	//gui.getGroup(paramsColorizers.getName()).minimize();
 
 	gui.getGroup(paramsColorizers.getName())
 		.getGroup(paramsColor.getName())

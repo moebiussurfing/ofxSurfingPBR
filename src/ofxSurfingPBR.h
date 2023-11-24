@@ -139,6 +139,7 @@ private:
 	void ChangedPlane(ofAbstractParameter & e);
 	void ChangedInternal(ofAbstractParameter & e);
 	void ChangedTestScene(ofAbstractParameter & e);
+	void ChangedDraw(ofAbstractParameter & e);
 	void ChangedCamera(ofAbstractParameter & e);
 
 #ifdef SURFING__USE_CUBE_MAP
@@ -236,7 +237,7 @@ public:
 	// Main container to expose to ui and to handle persistent settings.
 	ofParameterGroup parameters;
 
-	ofParameterGroup showDrawParams;
+	ofParameterGroup drawParams;
 	ofParameterGroup showGuiParams;
 
 	//--
@@ -370,9 +371,12 @@ public:
 
 	//--
 
+private:
+	ofEventListener listenerResetAll;
+	ofEventListener listenerDebug;
+
 public:
 	void doResetAll(bool bExcludeExtras = false);
-	ofEventListener listenerResetAll;
 
 	void doResetPlane();
 	void doResetPlaneTransform();

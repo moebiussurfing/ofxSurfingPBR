@@ -1,18 +1,15 @@
 /*
 * SurfingLights.h
 * 
-* This class is a predefined setup of 3 different type lights:
-* point, directional and spot.
+* This class is a predefined setup of 4 different type lights:
+* point, directional, spot and area.
 * Ready to be inserted on an environment scene.
-* 
 */
 
 /*
 	TODO
 
-	fix spot light
 	add global from/to color workflow (copy from material).
-	add area light type. get from OF example.
 	create a cool init state.
 	make simple mode/user/game controls.
 */
@@ -22,9 +19,9 @@
 #pragma once
 #include "ofMain.h"
 
-//  SurfingLights.hpp
-//  Originally Created by Hiromitsu Iwanaka on 2018/05/26.
-//  Hardly modified and updated by moebiusSurfing, 2021.
+//  SurfingLights.h
+//  Some code originally inspired by Hiromitsu Iwanaka.
+//  Area light code is taken from: openFrameworks\examples\gl\areaLightExample"
 
 #include "ofxGui.h"
 #include "ofxSurfingHelpersLite.h"
@@ -90,10 +87,10 @@ public:
 	ofParameter<bool> bDebugShadow;
 	ofParameter<bool> bRefreshGui;
 
-	ofParameter<void> vResetLights;
+	ofParameter<void> vResetAllLights;
 
 private:
-	bool bFlagDoResetLights= false;
+	bool bFlagDoResetAllLights = false;
 
 private:
 	bool bFlagRefreshGui = false;
@@ -102,7 +99,7 @@ private:
 
 private:
 	void setupGui();
-	void refreshGui();
+	void refreshGui(bool bHard=false);
 
 public:
 	ofRectangle getGuiShape() const;
@@ -121,19 +118,19 @@ public:
 	ofParameterGroup params_Enablers;
 	ofParameterGroup params_Extra;
 	ofParameterGroup params_TestAnims;
-	ofParameterGroup lightsParams;
+	ofParameterGroup lightsSettingsParams;
+	ofParameterGroup lightsItemsParams;
 
 	//--
 
 	void ChangedLights(ofAbstractParameter & e);
 
-	//void ChangedPoint(ofAbstractParameter & e);
-	//void ChangedSpot(ofAbstractParameter & e);
-	//void ChangedDirectional(ofAbstractParameter & e);
-
 	//--
 
 	ofParameterGroup globalColorsParams;
+
+	ofParameter<ofFloatColor> globalColor; //main global
+	ofFloatColor globalColor_;
 
 	// Point
 	ofParameterGroup pointParams;
@@ -145,6 +142,20 @@ public:
 	ofParameter<ofFloatColor> pointSpecularColor;
 	ofParameter<glm::vec3> pointPosition;
 	ofParameter<ofFloatColor> pointGlobalColor;
+
+	//--
+
+	// Directional
+	ofParameterGroup directionalParams;
+	ofParameterGroup directionalColorsParams;
+	ofParameter<bool> bDirectional;
+	ofParameter<void> vDirectionalReset;
+	ofParameter<ofFloatColor> directionalAmbientColor;
+	ofParameter<ofFloatColor> directionalDiffuseColor;
+	ofParameter<ofFloatColor> directionalSpecularColor;
+	ofParameter<ofFloatColor> directionalGlobalColor;
+	ofParameter<glm::vec3> directionalOrientation;
+	ofParameter<glm::vec3> directionalPosition;
 
 	//--
 
@@ -164,22 +175,32 @@ public:
 
 	//--
 
-	// Directional
-	ofParameterGroup directionalParams;
-	ofParameterGroup directionalColorsParams;
-	ofParameter<bool> bDirectional;
-	ofParameter<void> vDirectionalReset;
-	ofParameter<ofFloatColor> directionalAmbientColor;
-	ofParameter<ofFloatColor> directionalDiffuseColor;
-	ofParameter<ofFloatColor> directionalSpecularColor;
-	ofParameter<ofFloatColor> directionalGlobalColor;
-	ofParameter<glm::vec3> directionalOrientation;
-	ofParameter<glm::vec3> directionalPosition;
+	// Area
+	ofParameterGroup areaParams;
+	ofParameterGroup areaColorsParams;
+	ofParameter<bool> bArea;
+	ofParameter<void> vAreaReset;
+	ofParameter<ofFloatColor> areaAmbientColor;
+	ofParameter<ofFloatColor> areaDiffuseColor;
+	ofParameter<ofFloatColor> areaSpecularColor;
+	ofParameter<glm::vec3> areaPosition;
+	ofParameter<glm::vec3> areaOrientation;
+	ofParameter<ofFloatColor> areaGlobalColor;
+
+	ofParameter<int> modeAnimArea;
+	ofParameter<glm::vec2> areaSize;
+
+private:
+	float orbitSpeed = 0.0;
+	float highwaySpeed = 0.;
+	float bump = 0.;
+	float bumpHeight = 50.0;
 
 	//--
 
 public:
 	void updateAnims();
+	void updateAnimsArea();
 	void restoreAnims();
 	ofParameter<bool> bAnimLights;
 	ofParameter<bool> bAnimLightsMouse;
@@ -196,16 +217,18 @@ private:
 
 	// Resets
 public:
-	void doResetLights(bool bColorsToo = false);
+	void doResetAllLights(bool bHard = false);
 
 private:
-	void doResetPoint(bool bColorsToo=false);
-	void doResetSpot(bool bColorsToo = false);
-	void doResetDirectional(bool bColorsToo = false);
+	void doResetPoint(bool bHard = false);
+	void doResetSpot(bool bHard = false);
+	void doResetDirectional(bool bHard = false);
+	void doResetArea(bool bHard = false);
 
 	bool bFlagDoResetPoint = false;
 	bool bFlagDoResetSpot = false;
 	bool bFlagDoResetDirectional = false;
+	bool bFlagDoResetArea = false;
 
 	//--
 
@@ -215,6 +238,7 @@ private:
 	string pathSettingsShadows = "ofxSurfingPBR_Shadows.json";
 
 	bool bFlagLoad = false;
+
 public:
 	void load();
 	void save();
@@ -232,17 +256,20 @@ private:
 	bool bFlagDoRefreshBrightPoint = false;
 	bool bFlagDoRefreshBrightDirect = false;
 	bool bFlagDoRefreshBrightSpot = false;
+	bool bFlagDoRefreshBrightArea = false;
 
 	void doRefreshBrights();
 	void doRefreshBrightPoint();
 	void doRefreshBrightDirect();
 	void doRefreshBrightSpot();
+	void doRefreshBrightArea();
 
 	void ChangedBrights(ofAbstractParameter & e);
 	ofParameterGroup brightsParams;
 	ofParameter<float> pointBright;
 	ofParameter<float> spotBright;
 	ofParameter<float> directionalBright;
+	ofParameter<float> areaBright;
 
 	//----
 

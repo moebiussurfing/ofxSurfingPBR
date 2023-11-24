@@ -16,6 +16,7 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 
 	//--
 
+	ofRemoveListener(drawParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
 	ofRemoveListener(planeParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedPlane);
 	ofRemoveListener(internalParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
 	ofRemoveListener(testSceneParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
@@ -30,7 +31,7 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 #endif
 
 	if (!bDoneExit) {
-		ofLogWarning("ofxSurfingPBR") << "Force calling exit()!";
+		ofLogWarning("ofxSurfingPBR") << "Force calling exit() bc has not been called until now!";
 		exit();
 	}
 }
@@ -191,21 +192,21 @@ void ofxSurfingPBR::setupParams() {
 
 	parameters.add(showGuiParams);
 
-	showDrawParams.setName("DRAW");
-	showDrawParams.add(bDrawPlane);
+	drawParams.setName("DRAW");
+	drawParams.add(bDrawPlane);
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-	showDrawParams.add(surfingLights.bDrawShadow);
+	drawParams.add(surfingLights.bDrawShadow);
 #endif
 
 #ifdef SURFING__USE_CUBE_MAP
 	bDrawCubeMap.set("Draw Bg CubeMap", true);
-	showDrawParams.add(bDrawCubeMap);
+	drawParams.add(bDrawCubeMap);
 #endif
 
-	showDrawParams.add(surfingBg.bDrawObject);
-	showDrawParams.add(surfingBg.bDrawBgColorPlain);
-	parameters.add(showDrawParams);
+	drawParams.add(surfingBg.bDrawObject);
+	drawParams.add(surfingBg.bDrawBgColorPlain);
+	parameters.add(drawParams);
 
 	//--
 
@@ -362,16 +363,21 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
+	// Callbacks
+
 	listenerResetAll = vResetAll.newListener([this](void) {
 		doResetAll();
 	});
 
+	listenerDebug = bDebug.newListener([this](bool) {
+		surfingLights.bDebug = bDebug;
+	});
+
+	ofAddListener(drawParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
 	ofAddListener(planeParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedPlane);
-	//ofAddListener(lightParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedLight);
 	ofAddListener(internalParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
 	ofAddListener(testSceneParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
 	ofAddListener(cameraParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
-	//ofAddListener(bgColorPlainParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedBg);4
 
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
 	ofAddListener(displacersParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDisplacers);
@@ -693,7 +699,7 @@ ofParameterGroup & ofxSurfingPBR::getMaterialParameters() { //mainly to expose t
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::startup() {
-	ofLogNotice("ofxSurfingPBR") << "startup() Start";
+	ofLogNotice("ofxSurfingPBR") << "startup() Begins!";
 
 	if (!this->getSettingsFileFound()) {
 		ofLogWarning("ofxSurfingPBR") << "Initialize settings for the first time!";
@@ -702,22 +708,24 @@ void ofxSurfingPBR::startup() {
 		ofLogWarning("ofxSurfingPBR") << "Enabled help, debug, reset camera and settings, etc...";
 
 		//--
-#if 0
-		// Initialize a Default Startup Scene!
-		{
-			//// Background
-			//bDrawBgColorPlain.set(true);
-			//bgColorPlain.set(ofFloatColor(0, 0.03, 0.3, 1));
 
-			// Plane
-			planeGlobalColor.set(ofFloatColor(0.25, 0, 0.5, 1));
+		//#if 0
+		//		// Initialize a Default Startup Scene!
+		//		{
+		//			//// Background
+		//			//bDrawBgColorPlain.set(true);
+		//			//bgColorPlain.set(ofFloatColor(0, 0.03, 0.3, 1));
+		//
+		//			// Plane
+		//			planeGlobalColor.set(ofFloatColor(0.25, 0, 0.5, 1));
+		//
+		//			// Material
+		//			material.roughness = 0.5;
+		//			material.reflectance = 0.5;
+		//			material.globalColor.set(ofFloatColor::orange);
+		//		}
+		//#endif
 
-			// Material
-			material.roughness = 0.5;
-			material.reflectance = 0.5;
-			material.globalColor.set(ofFloatColor::orange);
-		}
-#endif
 		//--
 
 		// Force enable Help and Debug states!
@@ -729,6 +737,13 @@ void ofxSurfingPBR::startup() {
 			bHelp = true;
 			bDebug = true;
 		}
+
+		//--
+
+		//TODO: not works
+//#ifdef SURFING__USE_LIGHTS_CLASS
+//		surfingLights.bDebug.makeReferenceTo(bDebug);
+//#endif
 	}
 
 	//--
@@ -1192,7 +1207,7 @@ void ofxSurfingPBR::draw() {
 
 		//--
 
-		ofDisableDepthTest();
+		//ofDisableDepthTest();
 
 		drawPBRSceneDebug();
 	}
@@ -1389,8 +1404,6 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 	}
 
 	else if (name == guiLayout.getName()) {
-		//bDisableCallbacks = true;
-
 		//do not updates the gui!
 		if (guiLayout.get() == 0) {
 			string n = namesGuiLayouts[0];
@@ -1407,7 +1420,6 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 		//--
 
 		//TODO fix crash callbacks
-		//if (!bDoneSetup) return;
 		if (!bDoneStartup) return;
 
 		//--
@@ -1423,8 +1435,6 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 			if (nameGuiLayout.get() != n)
 				nameGuiLayout.set(n);
 		}
-
-		//bDisableCallbacks = false;
 	}
 
 	else if (name == vMinimizeAllGui.getName()) {
@@ -1438,6 +1448,33 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 		gui.maximizeAll();
 		material.gui.maximizeAll();
 		material.guiHelpers.maximizeAll();
+	}
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::ChangedDraw(ofAbstractParameter & e) {
+
+	std::string name = e.getName();
+
+	ofLogNotice("ofxSurfingPBR") << "ChangedDraw " << name << ": " << e;
+
+	//--
+
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+	if (e.isSerializable()) {
+		autoSaver.saveSoon();
+	}
+#endif
+
+	//--
+
+	//workflow
+	if (name == surfingBg.bDrawBgColorPlain.getName() && surfingBg.bDrawBgColorPlain.get()) {
+		if (bDrawCubeMap) bDrawCubeMap.set(false);
+	}
+
+	else if (name == surfingBg.bDrawObject.getName() && surfingBg.bDrawObject.get()) {
+		if (bDrawCubeMap) bDrawCubeMap.set(false);
 	}
 }
 
@@ -1614,17 +1651,6 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 		}
 	#endif
 	}
-
-	//workflow
-	#if 1
-	else if (name == surfingBg.bDrawBgColorPlain.getName() && surfingBg.bDrawBgColorPlain.get()) {
-		if (bDrawCubeMap) bDrawCubeMap.set(false);
-	}
-
-	else if (name == surfingBg.bDrawObject.getName() && surfingBg.bDrawObject.get()) {
-		if (bDrawCubeMap) bDrawCubeMap.set(false);
-	}
-	#endif
 
 	////#ifdef SURFING__USE_CUBE_MAP
 	////	if (name == surfingBg.bDrawBgColorPlain.getName()) {
@@ -2133,7 +2159,7 @@ void ofxSurfingPBR::doResetAll(bool bExcludeExtras) {
 
 #ifdef SURFING__USE_LIGHTS_CLASS
 	// lights
-	if (!bExcludeExtras) surfingLights.doResetLights();
+	if (!bExcludeExtras) surfingLights.doResetAllLights();
 	// shadows
 	if (!bExcludeExtras) surfingLights.doResetShadow();
 #endif

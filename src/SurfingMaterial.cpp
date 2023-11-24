@@ -106,7 +106,7 @@ void SurfingMaterial::setupParams() {
 	coatParams.add(clearCoatStrength.set("CC Strength", 0.0001, 0.0001, 10.0));
 
 	vResetMaterial.set("Material Reset");
-	vRandomMaterialFull.set("Material Random Full");
+	vRandomMaterialFull.set("Material Rand Full");
 	vRandomSettings.set("Material Rand Settings");
 
 	//--
@@ -829,7 +829,7 @@ void SurfingMaterial::doResetMaterial(bool bHard ) {
 	//clearCoatStrength.set(0.0001);
 
 	// OF ofMaterial defaults
-	shininess.set(0.2);
+	shininess.set(30);
 	roughness.set(0.5);
 	metallic.set(0);
 	reflectance.set(0.5);
