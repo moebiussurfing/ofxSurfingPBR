@@ -11,6 +11,8 @@
 /*
 	TODO
 
+	fix not saving bright settings
+
 	fix visible rectangle when drawing area light
 
 	add global from/to color workflow (copy from material).
