@@ -690,7 +690,7 @@ void SurfingLights::setupParametersLights() {
 		ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
 #endif
 	modeAnimArea.set("Mode Anim Area", 0, 0, 2);
-	areaSize.set("Size Area", glm::vec2(400, 120),
+	areaSize.set("a Size", glm::vec2(400, 120),
 		glm::vec2(SURFING__SCENE_SIZE_UNIT / 100, SURFING__SCENE_SIZE_UNIT / 100),
 		glm::vec2(SURFING__SCENE_SIZE_UNIT, SURFING__SCENE_SIZE_UNIT));
 
@@ -836,7 +836,7 @@ void SurfingLights::setupParametersShadows() {
 	shadowResolution.set("Resolution", 1024, 256, 2048);
 	bDebugShadow.set("Debug Shadow", true);
 	vResetShadow.set("Reset Shadow");
-	
+
 	nameShadowType.setSerializable(false);
 
 	shadowParams.setName("PBR_SHADOWS");
@@ -1065,6 +1065,74 @@ void SurfingLights::restoreAnims() {
 }
 
 //--------------------------------------------------------------
+void SurfingLights::updateAnims() {
+
+	// Anim lights by time
+
+		auto t = ofGetElapsedTimef() * 0.7;
+
+	if (bAnimLights) {
+
+		const float r = SURFING__SCENE_SIZE_UNIT * 0.25f;
+
+
+		// Point
+		lights[0]->setPosition(
+			pointPosition.get().x,
+			cos(t) * r + pointPosition.get().y - r,
+			sin(t) * r * 2 + pointPosition.get().z);
+
+		// Directional
+		lights[1]->setPosition(
+			directionalPosition.get().x,
+			sin(t) * r + directionalPosition.get().y - r,
+			cos(t) * r * 2 + directionalPosition.get().z);
+
+		// Spot
+		lights[2]->setPosition(
+			spotPosition.get().x,
+			sin(t) * r + spotPosition.get().y - r,
+			-cos(t) * r * 6 + spotPosition.get().z);
+
+		// Area
+		updateAnimsArea();
+	}
+
+	//--
+
+	// Move lights by mouse
+
+	if (bAnimLightsMouse) {
+		mouseX = ofGetMouseX();
+		mouseY = ofGetMouseY();
+
+		float r = SURFING__SCENE_SIZE_UNIT * 3;
+		float x = ofMap(mouseX, 0, ofGetWidth(), -r, r, true);
+		float y = ofMap(mouseY, 0, ofGetHeight(), r, -r, true);
+		float oy = 200;
+
+		////TODO: make cool animators 
+		//float za = -cos(t) * r + areaPosition.get().z;
+
+		// Point
+		lights[0]->setPosition(x, y + oy, pointPosition.get().z);
+		lights[0]->setOrientation(glm::vec3(0, cos(ofGetElapsedTimef()) * RAD_TO_DEG, 0));
+
+		// Directional
+		lights[1]->setPosition(x, y, directionalPosition.get().z);
+		lights[1]->setOrientation(glm::vec3(0, cos(ofGetElapsedTimef()) * RAD_TO_DEG, 0));
+
+		// Spot
+		lights[2]->setPosition(x, y - oy, spotPosition.get().z);
+		lights[2]->setOrientation(glm::vec3(0, cos(ofGetElapsedTimef()) * RAD_TO_DEG, 0));
+
+		// Area
+		lights[3]->setPosition(x, y - oy, areaPosition.get().z);
+		lights[3]->setOrientation(glm::vec3(0, cos(ofGetElapsedTimef()) * RAD_TO_DEG, 0));
+	}
+}
+
+//--------------------------------------------------------------
 void SurfingLights::updateAnimsArea() {
 	if (lights.size() < 4) return;
 
@@ -1118,78 +1186,6 @@ void SurfingLights::updateAnimsArea() {
 			mousePercent = ofMap(ofGetMouseX(), 100, ofGetWidth() - 100, 0, 1, true);
 		lights[3]->setPosition(cos(elapsedTime * 2.0) * -600, fabs(sin(elapsedTime * 2.0) * 600) - 200, sin(elapsedTime * 3.4f) * 200 + 400);
 		lights[3]->tiltDeg(deltaTime * (mousePercent * 360.0 * 3.0 + 5.0f));
-	}
-}
-
-//--------------------------------------------------------------
-void SurfingLights::updateAnims() {
-
-	// Anim lights by time
-
-	if (bAnimLights) {
-
-		const float r = SURFING__SCENE_SIZE_UNIT * 0.25f;
-
-		auto t = ofGetElapsedTimef() * 0.7;
-
-		// Point
-		lights[0]->setPosition(
-			pointPosition.get().x,
-			cos(t) * r + pointPosition.get().y - r,
-			sin(t) * r * 2 + pointPosition.get().z);
-
-		// Directional
-		lights[1]->setPosition(
-			directionalPosition.get().x,
-			sin(t) * r + directionalPosition.get().y - r,
-			cos(t) * r * 2 + directionalPosition.get().z);
-
-		// Spot
-		lights[2]->setPosition(
-			spotPosition.get().x,
-			sin(t) * r + spotPosition.get().y - r,
-			-cos(t) * r * 6 + spotPosition.get().z);
-
-		//// Area
-		//lights[3]->setPosition(
-		//	areaPosition.get().x,
-		//	sin(t) * r + areaPosition.get().y - r,
-		//	-cos(t) * r * 6 + areaPosition.get().z);
-
-		//--
-
-		// Area
-		updateAnimsArea();
-	}
-
-	//--
-
-	// Move lights by mouse
-
-	if (bAnimLightsMouse) {
-		mouseX = ofGetMouseX();
-		mouseY = ofGetMouseY();
-
-		float r = 1.5f * SURFING__SCENE_SIZE_UNIT;
-		float x = ofMap(mouseX, 0, ofGetWidth(), -r, r, true);
-		float y = ofMap(mouseY, 0, ofGetHeight(), r, -r, true);
-		float oy = 200;
-
-		// Point
-		lights[0]->setPosition(x, y + oy, pointPosition.get().z);
-		lights[0]->setOrientation(glm::vec3(0, cos(ofGetElapsedTimef()) * RAD_TO_DEG, 0));
-
-		// Directional
-		lights[1]->setPosition(x, y, directionalPosition.get().z);
-		lights[1]->setOrientation(glm::vec3(0, cos(ofGetElapsedTimef()) * RAD_TO_DEG, 0));
-
-		// Spot
-		lights[2]->setPosition(x, y - oy, spotPosition.get().z);
-		lights[2]->setOrientation(glm::vec3(0, cos(ofGetElapsedTimef()) * RAD_TO_DEG, 0));
-
-		// Area
-		lights[3]->setPosition(x, y - oy, areaPosition.get().z);
-		lights[3]->setOrientation(glm::vec3(0, cos(ofGetElapsedTimef()) * RAD_TO_DEG, 0));
 	}
 }
 
@@ -1710,6 +1706,36 @@ void SurfingLights::begin() {
 	}
 }
 
+//TODO: works?
+//--------------------------------------------------------------
+shared_ptr<ofLight> SurfingLights::getLight(size_t index) {
+	if (index > lights.size() - 1) return nullptr;
+
+	return lights[index];
+}
+
+//--------------------------------------------------------------
+void SurfingLights::keyPressed(int key) {
+
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:keyPressed(" << (char)key << ")";
+
+	// toggle enable lights
+	switch (key) {
+	case '1':
+		bPoint = !bPoint;
+		break;
+	case '2':
+		bDirectional = !bDirectional;
+		break;
+	case '3':
+		bSpot = !bSpot;
+		break;
+	case '4':
+		bArea = !bArea;
+		break;
+	}
+}
+
 //--------------------------------------------------------------
 void SurfingLights::end() {
 	if (!ofIsGLProgrammableRenderer()) {
@@ -1719,6 +1745,7 @@ void SurfingLights::end() {
 
 //--------------------------------------------------------------
 void SurfingLights::doResetShadow() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doResetShadow()";
 
 	bDrawShadow.set(true);
 

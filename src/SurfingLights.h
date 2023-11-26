@@ -50,6 +50,7 @@ public:
 public:
 	void setup();
 	void exit();
+	void keyPressed(int key);
 
 private:
 	void setupParameters();
@@ -89,6 +90,8 @@ public:
 	void end();
 
 	//--
+	public:
+	shared_ptr<ofLight> getLight(size_t index);
 
 private:
 	vector<shared_ptr<ofLight>> lights;

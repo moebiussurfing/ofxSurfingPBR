@@ -1,14 +1,27 @@
+/*
+* This example is hardly based on the example
+* openFrameworks\examples\gl\shadowsExample 
+* from the OF Core made by @NickHardeman.
+* We will learn how to replace easily their OF materials 
+* with standalone materials that the addon includes, in this case will be standalone:
+* all the rest of the environment will remain un-touched from the example,
+* this means that we will not use the lights modules from the addon bigger classes like
+* ofxSurfingPBR or SurfingSceneManager neither: 
+* only the "vanilla" classes that bundles the OF Core will be used besides of the material class instances for each scene element.
+*/
+
+
 #pragma once
 
 #include "ofMain.h"
 
-#include "SurfingMaterial.h" 
-// We only need this header bc 
+#include "SurfingMaterial.h"
+// We only need this header bc
 // we want to use only the material class
 // from the ofxSurfingPBR addon!
 
 //#define SURFING__USE__OF_CORE_PBR_MATERIALS
-// uncomment to disable the addon features 
+// uncomment to disable the addon features
 // and switch to "vanilla" OF core materials.
 
 class ofApp : public ofBaseApp {
@@ -26,7 +39,7 @@ public:
 	void renderScene();
 
 	void drawGui();
-	
+
 	void setupObjects();
 	void setupLights();
 	void setupMaterials();
@@ -70,7 +83,7 @@ public:
 
 	void save();
 	bool load();
-	
+
 	ofxPanel gui;
 
 	ofColor lightColor;

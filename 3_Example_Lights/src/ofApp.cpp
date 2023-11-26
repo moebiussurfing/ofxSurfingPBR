@@ -3,10 +3,15 @@
 //--------------------------------------------------------------
 void ofApp::setup() {
 
-	material.setup();
+	// Surfing material
+	material.setup();\
 
+	//--
+
+	// Surfing lights combo
 	lights.setup();
 
+	// pass render functions required to do the shadow passes!
 	callback_t f = std::bind(&ofApp::renderScene, this);
 	lights.setFunctionRenderScene(f);
 
@@ -24,8 +29,8 @@ void ofApp::setup() {
 
 	//--
 
+	// Startup settings
 	ofxSurfing::load(g);
-
 	if (!ofxLoadCamera(camera, pathCamera)) {
 		doResetCamera();
 	}
@@ -60,26 +65,11 @@ void ofApp::refreshGui() {
 }
 
 //--------------------------------------------------------------
-void ofApp::update() {
-}
-
-//--------------------------------------------------------------
 void ofApp::draw() {
 
 	drawScene();
 
 	drawGui();
-}
-
-//--------------------------------------------------------------
-void ofApp::drawGui() {
-	ofDisableDepthTest();
-
-	if (bRefreshGui) refreshGui();
-
-	gui.draw();
-	lights.drawGui();
-	material.drawGui();
 }
 
 //--------------------------------------------------------------
@@ -97,26 +87,6 @@ void ofApp::drawScene() {
 			renderScene();
 		}
 		lights.end();
-
-		//--
-
-#if 0
-		// floor lines
-		ofPushMatrix();
-		ofTranslate(0, 1, 0);
-		ofRotateXDeg(90);
-		ofRotateYDeg(90);
-		ofPushStyle();
-		ofNoFill();
-		ofSetColor(ofFloatColor(0, .5));
-		ofDrawGridPlane(1000, 1, false);
-		ofPopStyle();
-		ofPopMatrix();
-#endif
-
-		//--
-
-		//ofDisableDepthTest();
 
 		lights.drawDebugLights();
 	}
@@ -139,6 +109,7 @@ void ofApp::renderScene() {
 
 		//--
 
+		// A three prims simple test scene
 		float sz = 300;
 
 		// Cone
@@ -166,11 +137,8 @@ void ofApp::renderScene() {
 //--------------------------------------------------------------
 void ofApp::doResetCamera() {
 
-	camera.setControlArea(ofGetCurrentViewport()); //small fix
-
-	//camera.setupPerspective(false);
+	camera.setControlArea(ofGetCurrentViewport()); //small fix for ofCamerSaveLoad..
 	camera.reset();
-
 	camera.setPosition({ 10, 500, 2000 });
 	camera.setOrientation({ 0, 0, 0 });
 
@@ -179,10 +147,21 @@ void ofApp::doResetCamera() {
 }
 
 //--------------------------------------------------------------
+void ofApp::drawGui() {
+	ofDisableDepthTest();
+
+	if (bRefreshGui) refreshGui();
+
+	gui.draw();
+
+	lights.drawGui();
+	material.drawGui();
+}
+
+//--------------------------------------------------------------
 void ofApp::windowResized(int w, int h) {
 	refreshGui();
 }
-
 //--------------------------------------------------------------
 void ofApp::exit() {
 	ofxSurfing::save(g);
@@ -190,4 +169,9 @@ void ofApp::exit() {
 
 	material.exit();
 	lights.exit();
+}
+
+//--------------------------------------------------------------
+void ofApp::keyPressed(int key) {
+	lights.keyPressed(key);
 }
