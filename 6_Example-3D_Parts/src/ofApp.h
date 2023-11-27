@@ -3,6 +3,7 @@
 #include "ofMain.h"
 
 #include "SurfingSceneManager.h"
+
 #include "ofxAssimpModelLoader.h"
 #include "ofxCameraSaveLoad.h"
 
@@ -10,19 +11,23 @@
 class ofApp : public ofBaseApp {
 public:
 	void setup();
-	void setupParams();
 	void update();
 	void draw();
 	void exit();
-	void startup();
-	void setupScene();
 	void keyPressed(int key);
 
+	void setupParams();
+	void startup();
+
 public:
-	void drawScene();
+	void setupObjects();
 	void drawObjects();
+
+	void setupScene();
+	void drawScene();
 	
 public:
+	void setupGui();
 	void drawGui();
 	ofxPanel gui;
 
@@ -45,9 +50,11 @@ public:
 
 	ofParameterGroup sceneParams { "Scene" };
 	ofParameterGroup panelsParams { "Panels" };
-	ofParameterGroup sceneExtraParams { "SceneExtra" };
-	ofParameterGroup originalParams { "Original" };
-	ofParameterGroup objectsParams { "Objects" };
+	//ofParameterGroup extraParams { "Extra" };
+
+	//ofParameterGroup originalParams { "Original" };
+	ofParameterGroup drawParams { "Draw" };
+	
 	ofParameterGroup cameraParams { "Camera" };
 	ofParameterGroup paletteParams { "Palette" };
 
@@ -57,51 +64,46 @@ private:
 	ofxAssimpModelLoader model;
 
 	vector<std::unique_ptr<ofxAssimpModelLoader>> models;
+	
+	vector<string> namesModels;
 
 	ofxAssimpModelLoader modelOriginal;
-	ofMaterial materialOriginal;
-	ofParameter<float> shininessOriginal { "Shininess Original", 0, 0, 1 };
-	ofParameter<ofFloatColor> colorOriginal { "Color Original", ofFloatColor(), ofFloatColor(0), ofFloatColor(1) };
+	
+	SurfingMaterial materialOriginal;
 
 	//--
 
+	ofParameter<bool> bDrawOriginal { "Draw Original", true };
+	ofParameter<bool> bDrawParts = { "Draw Parts", false };
+	ofParameter<bool> bDrawTestBox { "Draw TestBox", false };
+
 private:
+	void setupCamera();
 	ofEasyCam cam;
 	float cameraOrbit;
 	string path_CameraSettings = "CameraSettings.txt";
-
-	ofParameter<bool> bDrawGrid { "Draw Grid", true };
-	ofParameter<bool> bDrawTestBox { "Test Box", false };
-
-	ofParameter<bool> bDrawOriginal { "Original", true };
-	ofParameter<bool> bDrawShoeParts = { "Colored Parts", true };
-
 	ofParameter<bool> bMouseCam { "Mouse Cam", false };
 	ofParameter<void> vResetCam { "Reset Cam"};
 	ofParameter<bool> bRotate { "Rotate", true };
 	ofParameter<float> speedRotate { "Speed", 0.5, 0, 1 };
-
-	//ofParameter<bool> bParts = { "Parts", true };
-	//ofParameter<bool> bLights = { "Lights", true };
-	//ofParameter<bool> bMaterials = { "Materials", true };
-	//ofParameter<int> index { "index", 0, 0, 0 };
-
+	ofParameter<bool> bDrawGrid { "Draw Grid", true };
 	void drawGrid();
 
 	//--
 
 private:
-	void ChangedParameters(ofAbstractParameter & e);
-	void ChangedPaletteParams(ofAbstractParameter & e);
+	void Changed(ofAbstractParameter & e);
+	void ChangedPalette(ofAbstractParameter & e);
+	void ChangedDraw(ofAbstractParameter & e);
 
-	string path_Model;
-
-	string sNameModel;
+	string pathModel;
+	string nameModel;
 
 	// Original model is a more raw object
 	// with only one material ad color.
-	void loadModelOriginal();
-	void loadModelSimple();
+	void loadModelOriginalMeshed();
+	void loadModelOriginalSimple();
+
 	void doRefreshColorsOriginal();
 	void doRandomPalette();
 

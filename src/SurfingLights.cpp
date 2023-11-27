@@ -591,10 +591,10 @@ void SurfingLights::setupParametersLights() {
 	directionalParams.setName("Light Direct");
 	areaParams.setName("Light Area");
 
-	pointColorsParams.setName("p Colors");
-	directionalColorsParams.setName("d Colors");
-	spotColorsParams.setName("s Colors");
-	areaColorsParams.setName("a Colors");
+	pointColorsParams.setName("P Colors");
+	directionalColorsParams.setName("D Colors");
+	spotColorsParams.setName("S Colors");
+	areaColorsParams.setName("A Colors");
 
 	brightsParams.setName("Bright");
 	globalColorsParams.setName("Global Colors");
@@ -613,7 +613,7 @@ void SurfingLights::setupParametersLights() {
 
 	bPoint.set("Point", false);
 	bPointShadow.set("P Shadow", true);
-	vPointReset.set("Reset Point");
+	vPointReset.set("P Reset");
 	pointPosition.set("P Position", glm::vec3(), glm::vec3(-sz), glm::vec3(sz));
 
 	pointAmbientColor.set("P Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
@@ -624,7 +624,7 @@ void SurfingLights::setupParametersLights() {
 	pointGlobalColor.set("P Global",
 		ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
 #else
-	pointGlobalColor.set("Global Color",
+	pointGlobalColor.set("P Global",
 		ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
 #endif
 
@@ -634,7 +634,7 @@ void SurfingLights::setupParametersLights() {
 
 	bDirectional.set("Direct", false);
 	bDirectionalShadow.set("D Shadow", true);
-	vDirectionalReset.set("Reset Direct");
+	vDirectionalReset.set("D Reset");
 	directionalPosition.set("D Position", glm::vec3(0), glm::vec3(-sz), glm::vec3(sz));
 	directionalOrientation.set("D Orientation", glm::vec3(0), glm::vec3(-180), glm::vec3(180));
 
@@ -656,7 +656,7 @@ void SurfingLights::setupParametersLights() {
 
 	bSpot.set("Spot", false);
 	bSpotShadow.set("S Shadow", true);
-	vSpotReset.set("Reset Spot");
+	vSpotReset.set("S Reset");
 	spotPosition.set("S Position", glm::vec3(), glm::vec3(-sz), glm::vec3(sz));
 
 	spotAmbientColor.set("S Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
@@ -682,7 +682,7 @@ void SurfingLights::setupParametersLights() {
 
 	bArea.set("Area", false);
 	bAreaShadow.set("A Shadow", true);
-	vAreaReset.set("Reset Area");
+	vAreaReset.set("A Reset");
 	areaPosition.set("A Position", glm::vec3(0), glm::vec3(-sz), glm::vec3(sz));
 	areaOrientation.set("A Orientation", glm::vec3(0), glm::vec3(-180), glm::vec3(180));
 

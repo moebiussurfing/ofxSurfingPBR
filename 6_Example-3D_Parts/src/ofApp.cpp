@@ -4,8 +4,6 @@
 void ofApp::setup() {
 	ofLogNotice(__FUNCTION__);
 
-	ofBackground(128);
-
 	//--
 
 #if 1
@@ -15,88 +13,114 @@ void ofApp::setup() {
 	ofSetLogLevel(OF_LOG_VERBOSE);
 #endif
 
-	//--
-
-	// Camera
-	{
-		cameraOrbit = 0;
-		cam.setupPerspective();
-		cam.reset();
-		cam.setVFlip(false);
-		cam.setDistance(SURFING__SCENE_SIZE_UNIT);
-
-		if (bMouseCam)
-			cam.enableMouseInput();
-		else
-			cam.disableMouseInput();
-	}
-
-	//--
-
+	setupCamera();
 	setupParams();
-
-	gui.setup(parameters);
-
-	//--
-
-	path_Model = "models\\nike\\original\\nike1.fbx";
-
-	//// Load the first model
-	//index = 0;
-	//loadModel(index);
-
-	// Simple
-	loadModelSimple();
-
-	// Original
-	loadModelOriginal();
-
-	// By parts
-	loadModelParts();
-
-	//----
-
+	setupObjects();
 	setupScene();
-
-	//----
+	setupGui();
 
 	startup();
+}
+
+//--------------------------------------------------------------
+void ofApp::setupCamera() {
+	ofLogNotice(__FUNCTION__);
+
+	cameraOrbit = 0;
+	cam.setupPerspective();
+	cam.reset();
+	cam.setVFlip(false);
+	cam.setDistance(SURFING__SCENE_SIZE_UNIT);
+
+	if (bMouseCam)
+		cam.enableMouseInput();
+	else
+		cam.disableMouseInput();
 }
 
 //--------------------------------------------------------------
 void ofApp::setupParams() {
 	ofLogNotice(__FUNCTION__);
 
-	//panelsParams.add(bLights);
-	//panelsParams.add(bParts);
-	//panelsParams.add(bMaterials);
-	//sceneParams.add(panelsParams);
+	drawParams.add(bDrawOriginal);
+	drawParams.add(bDrawParts);
+	drawParams.add(bDrawTestBox);
+	sceneParams.add(drawParams);
 
-	objectsParams.add(bDrawShoeParts);
-	objectsParams.add(bDrawOriginal);
-	objectsParams.add(bDrawTestBox);
-	sceneParams.add(objectsParams);
-
-	//sceneExtraParams.add(sceneManager.surfingLights.bAnimLights);
-	//sceneExtraParams.add(sceneManager.surfingLights.bAnimLightsMouse);
-
-	originalParams.add(colorOriginal);
-	originalParams.add(shininessOriginal);
-
-	sceneExtraParams.add(originalParams);
-	sceneParams.add(sceneExtraParams);
-
+	cameraParams.add(bDrawGrid);
 	cameraParams.add(bRotate);
 	cameraParams.add(speedRotate);
 	cameraParams.add(bMouseCam);
 	cameraParams.add(vResetCam);
-	cameraParams.add(bDrawGrid);
 
 	parameters.add(cameraParams);
 	parameters.add(sceneParams);
 
-	ofAddListener(parameters.parameterChangedE(), this, &ofApp::ChangedParameters);
+	ofAddListener(drawParams.parameterChangedE(), this, &ofApp::ChangedDraw);
+	ofAddListener(parameters.parameterChangedE(), this, &ofApp::Changed);
 }
+
+//--------------------------------------------------------------
+void ofApp::setupObjects() {
+	ofLogNotice(__FUNCTION__);
+
+	pathModel = "models\\nike\\original\\nike1.fbx";
+
+	// Original Simple
+	loadModelOriginalSimple();
+
+	// Original
+	loadModelOriginalMeshed();
+
+	// By parts
+	loadModelParts();
+}
+
+//--------------------------------------------------------------
+void ofApp::setupScene() {
+	ofLogNotice(__FUNCTION__);
+
+	materialOriginal.setup("Original");
+
+	//--
+
+	// clear
+	sceneManager.clearColors();
+	sceneManager.clearMaterials();
+
+	//--
+
+	//// For original model simple and meshed
+	//sceneManager.addMaterial("Material Original");
+
+	//--
+
+	// Queue one material per parts/model
+	// Queue one color per model
+	for (size_t i = 0; i < models.size(); i++) {
+
+		string n = namesModels[i];
+		sceneManager.addMaterial(n);
+
+		ofFloatColor c = palette[i];
+		sceneManager.addColor(c);
+	}
+
+	//--
+
+	sceneManager.setup();
+}
+
+//--------------------------------------------------------------
+void ofApp::setupGui() {
+	ofLogNotice(__FUNCTION__);
+
+	gui.setup(parameters);
+
+	ofxSurfing::setGuiPositionToLayout(materialOriginal.gui, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
+}
+
+//--
 
 //--------------------------------------------------------------
 void ofApp::startup() {
@@ -105,22 +129,6 @@ void ofApp::startup() {
 	//--
 
 	load();
-}
-
-//--------------------------------------------------------------
-void ofApp::setupScene() {
-	ofLogNotice(__FUNCTION__);
-
-	//sceneManager.clearColors();
-	//sceneManager.clearMaterials();
-
-	//for (int i = 0; i < palette.size(); i++) {
-	//	sceneManager.addColor(palette[i].get());
-	//}
-
-	sceneManager.setup();
-
-	ofxSurfing::setGuiPositionRightTo(gui, sceneManager.gui);
 }
 
 //--------------------------------------------------------------
@@ -145,6 +153,18 @@ void ofApp::draw() {
 }
 
 //--------------------------------------------------------------
+void ofApp::drawGui() {
+	ofDisableDepthTest();
+
+	gui.draw();
+
+	ofxSurfing::setGuiPositionRightTo(sceneManager.gui, gui);
+	sceneManager.drawGui();
+
+	materialOriginal.drawGui();
+}
+
+//--------------------------------------------------------------
 void ofApp::drawScene() {
 
 	ofEnableDepthTest();
@@ -163,9 +183,12 @@ void ofApp::drawScene() {
 //--------------------------------------------------------------
 void ofApp::drawObjects() {
 
+	//--
+
 	// Parts
 
-	if (bDrawShoeParts) {
+	if (bDrawParts) {
+
 		for (size_t i = 0; i < models.size(); i++) {
 
 			// Begin material
@@ -173,8 +196,8 @@ void ofApp::drawObjects() {
 			{
 #if 1
 				// Meshes
-				for (auto & _m : meshesParts[i]) {
-					_m.drawFaces();
+				for (auto & mesh_ : meshesParts[i]) {
+					mesh_.drawFaces();
 				}
 #else
 				// Models
@@ -186,17 +209,30 @@ void ofApp::drawObjects() {
 		}
 	}
 
-	//--
+	//----
 
-	// Original
+	materialOriginal.begin();
+	{
+		//--
 
-	if (bDrawOriginal) {
-		ofPushStyle();
-		ofFill();
-		ofSetColor(colorOriginal.get());
+		// TestBox
 
-		materialOriginal.begin();
-		{
+		if (bDrawTestBox) {
+
+			//if (bRotate) {
+			//	ofRotateXDeg(ofNoise(-1.f * ofGetElapsedTimeMillis(), -0.5f));
+			//	ofRotateYDeg(ofNoise(1.f * ofGetElapsedTimeMillis()));
+			//	ofRotateZDeg(ofNoise(0.01f * ofGetElapsedTimeMillis(), -1.f));
+			//}
+			ofBox(0, 0, 0, 2);
+		}
+
+		//--
+
+		// Original
+
+		if (bDrawOriginal) {
+
 #if 1
 			// Meshes
 			for (size_t i = 0; i < meshesModelOriginal.size(); i++) {
@@ -207,39 +243,10 @@ void ofApp::drawObjects() {
 			modelOriginal.drawFaces();
 #endif
 		}
-		materialOriginal.end();
 
-		ofPopStyle();
+		//--
 	}
-
-	//--
-
-	// Test box
-
-	if (bDrawTestBox) {
-		materialOriginal.begin();
-		{
-			if (bRotate) {
-				ofRotateXDeg(ofNoise(-1.f * ofGetElapsedTimeMillis(), -0.5f));
-				ofRotateYDeg(ofNoise(1.f * ofGetElapsedTimeMillis()));
-				ofRotateZDeg(ofNoise(0.01f * ofGetElapsedTimeMillis(), -1.f));
-			}
-			ofBox(0, 0, 0, 2);
-		}
-		materialOriginal.end();
-	}
-}
-
-//--
-
-//--------------------------------------------------------------
-void ofApp::drawGui() {
-	ofDisableDepthTest();
-
-	gui.draw();
-
-	ofxSurfing::setGuiPositionRightTo(sceneManager.gui, gui);
-	sceneManager.drawGui();
+	materialOriginal.end();
 }
 
 //--
@@ -287,6 +294,8 @@ void ofApp::beginCam() {
 		ofScale(70.f);
 	}
 
+	//--
+
 	if (bDrawGrid) {
 		drawGrid();
 	}
@@ -325,8 +334,8 @@ void ofApp::keyPressed(int key) {
 
 	//// original
 	//else if (key == OF_KEY_RETURN) {
-	//	path_Model = "models\\nike\\original\\nike1.fbx";
-	//	loadModelOriginal();
+	//	pathModel = "models\\nike\\original\\nike1.fbx";
+	//	loadModelOriginalMeshed();
 	//}
 
 	//// next
@@ -334,8 +343,8 @@ void ofApp::keyPressed(int key) {
 	//	index++;
 	//	index = index % dir.size();
 	//	loadModel(index);
-	//	path_Model = dir.getFile(index).getAbsolutePath();
-	//	sNameModel = path_Model;
+	//	pathModel = dir.getFile(index).getAbsolutePath();
+	//	nameModel = pathModel;
 	//}
 
 	else if (key == 'c' || key == 'm' || key == OF_KEY_SHIFT) {
@@ -346,45 +355,48 @@ void ofApp::keyPressed(int key) {
 			cam.disableMouseInput();
 	}
 
-	else if (key == 'o')
-		bDrawOriginal = !bDrawOriginal;
 	else if (key == 'r')
 		bRotate = !bRotate;
+
+	else if (key == 'o')
+		bDrawOriginal = !bDrawOriginal;
+
 	else if (key == 'p')
-		bDrawShoeParts = !bDrawShoeParts;
+		bDrawParts = !bDrawParts;
 
 	//else if (key == OF_KEY_F1) {
-	//	bDrawShoeParts = !bDrawShoeParts;
-	//	bDrawOriginal = !bDrawShoeParts;
+	//	bDrawParts = !bDrawParts;
+	//	bDrawOriginal = !bDrawParts;
 	//}
 
+	//TODO
+	//browse parts
 	//else if (key == ' ') {
-	//	loadModelOriginal();
+	//	loadModelOriginalMeshed();
 	//}
-	
 	//else if (key == '0') {
-	//	path_Model = "models\\nike\\original\\nike1.fbx";
-	//	loadModelOriginal();
+	//	pathModel = "models\\nike\\original\\nike1.fbx";
+	//	loadModelOriginalMeshed();
 	//}
 	//else if (key == '2') {
-	//	path_Model = "models\\nike\\parts\\nike_01_Sole.fbx";
-	//	loadModelOriginal();
+	//	pathModel = "models\\nike\\parts\\nike_01_Sole.fbx";
+	//	loadModelOriginalMeshed();
 	//}
 	//else if (key == '3') {
-	//	path_Model = "models\\nike\\parts\\nike_02_Line.fbx";
-	//	loadModelOriginal();
+	//	pathModel = "models\\nike\\parts\\nike_02_Line.fbx";
+	//	loadModelOriginalMeshed();
 	//}
 }
 
 //--------------------------------------------------------------
-void ofApp::loadModelSimple() {
+void ofApp::loadModelOriginalSimple() {
 	ofLogNotice(__FUNCTION__);
 
-	bool b = modelOriginal.loadModel(path_Model, false);
+	bool b = modelOriginal.loadModel(pathModel, false);
 	if (b) {
-		ofLogNotice(__FUNCTION__) << "Loaded modelOriginal: " << path_Model;
+		ofLogNotice(__FUNCTION__) << "Loaded modelOriginal: " << pathModel;
 	} else {
-		ofLogError(__FUNCTION__) << "Unable to load modelOriginal: " << path_Model;
+		ofLogError(__FUNCTION__) << "Unable to load modelOriginal: " << pathModel;
 	}
 
 	modelOriginal.setRotation(0, 180, 1, 0, 0);
@@ -394,14 +406,14 @@ void ofApp::loadModelSimple() {
 }
 
 //--------------------------------------------------------------
-void ofApp::loadModelOriginal() {
+void ofApp::loadModelOriginalMeshed() {
 	ofLogNotice(__FUNCTION__);
 
-	bool b = model.loadModel(path_Model);
+	bool b = model.loadModel(pathModel);
 	if (b) {
-		ofLogNotice(__FUNCTION__) << "Loaded modelOriginal: " << path_Model;
+		ofLogNotice(__FUNCTION__) << "Loaded modelOriginal: " << pathModel;
 	} else {
-		ofLogError(__FUNCTION__) << "Unable to load modelOriginal: " << path_Model;
+		ofLogError(__FUNCTION__) << "Unable to load modelOriginal: " << pathModel;
 	}
 
 	model.setRotation(0, 180, 1, 0, 0);
@@ -428,7 +440,7 @@ void ofApp::loadModelOriginal() {
 	}
 
 	// model info
-	sNameModel = path_Model;
+	nameModel = pathModel;
 }
 
 //--------------------------------------------------------------
@@ -454,25 +466,20 @@ void ofApp::loadModelParts() {
 
 	//--
 
-	// clear
-	sceneManager.clearColors();
-	sceneManager.clearMaterials();
-
 	// load parts
-	for (auto & file : dir.getFiles()) 
-	{
+	for (auto & file : dir.getFiles()) {
 		ofLogNotice(__FUNCTION__) << file.getFileName();
 		string _path = file.getAbsolutePath();
 
 		std::unique_ptr<ofxAssimpModelLoader> m = std::make_unique<ofxAssimpModelLoader>();
-		
+
 		bool b = m->loadModel(_path, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
 		if (b) {
-			ofLogNotice(__FUNCTION__) << "Loaded modelOriginal: " << path_Model;
+			ofLogNotice(__FUNCTION__) << "Loaded modelOriginal: " << pathModel;
 		} else {
-			ofLogError(__FUNCTION__) << "Unable to load modelOriginal: " << path_Model;
+			ofLogError(__FUNCTION__) << "Unable to load modelOriginal: " << pathModel;
 		}
-		
+
 		m->setRotation(0, 180, 1, 0, 0);
 		m->setScale(1.f, 1.f, 1.f);
 		m->setScaleNormalization(false);
@@ -482,23 +489,23 @@ void ofApp::loadModelParts() {
 
 		//--
 
-		// Queue one material per model
-		sceneManager.addMaterial(file.getBaseName());
+		string n = "C" + ofToString(models.size() - 1) + " " + file.getBaseName();
+		//string n = "C " + ofToString(models.size() - 1);
+		//string n = file.getBaseName();
+
+		namesModels.push_back(n);
 
 		// Palette colors
-		string _name = "Color" + ofToString(models.size() - 1);
-		ofParameter<ofFloatColor> _col { _name, 
-			ofFloatColor(0, 0, 0, 0), 
-			ofFloatColor(0, 0, 0, 0), 
+		ofParameter<ofFloatColor> c { n,
+			ofFloatColor(0, 0, 0, 0),
+			ofFloatColor(0, 0, 0, 0),
 			ofFloatColor(1, 1, 1, 1) };
-		palette.emplace_back(_col);
-		paletteParams.add(_col);
 
-		// Queue one color per model
-		sceneManager.addColor(_col);
+		palette.emplace_back(c);
+		paletteParams.add(c);
 	}
 
-	ofAddListener(paletteParams.parameterChangedE(), this, &ofApp::ChangedPaletteParams);
+	ofAddListener(paletteParams.parameterChangedE(), this, &ofApp::ChangedPalette);
 
 	//--
 
@@ -547,26 +554,59 @@ void ofApp::doRefreshColorsOriginal() {
 }
 
 //--------------------------------------------------------------
-void ofApp::ChangedPaletteParams(ofAbstractParameter & e) {
+void ofApp::ChangedPalette(ofAbstractParameter & e) {
 
 	string name = e.getName();
 
-	ofLogNotice() << "ChangedPaletteParams:" << name << ": " << e;
+	ofLogNotice() << "ChangedPalette:" << name << ": " << e;
 
-	for (int i = 0; i < palette.size(); i++) {
-		string _name = "Color" + ofToString(i);
-		if (name == _name) {
-			sceneManager.setColor(palette[i].get(), i);
+	//for (int i = 0; i < palette.size(); i++) {
+	//	string _name = "Color" + ofToString(i);
+	//	if (name == _name) {
+	//		sceneManager.setColor(palette[i].get(), i);
+	//	}
+	//}
+}
+
+//--------------------------------------------------------------
+void ofApp::ChangedDraw(ofAbstractParameter & e) {
+
+	string name = e.getName();
+
+	ofLogNotice() << "ChangedDraw:" << name << ": " << e;
+
+	//--
+
+	// Select what to render
+
+	if (name == bDrawParts.getName()) {
+		if (bDrawParts) {
+			if (bDrawOriginal) bDrawOriginal = false;
+			if (bDrawTestBox) bDrawTestBox = false;
+		}
+	}
+
+	else if (name == bDrawOriginal.getName()) {
+		if (bDrawOriginal) {
+			if (bDrawParts) bDrawParts = false;
+			if (bDrawTestBox) bDrawTestBox = false;
+		}
+	}
+
+	else if (name == bDrawTestBox.getName()) {
+		if (bDrawTestBox) {
+			if (bDrawParts) bDrawParts = false;
+			if (bDrawOriginal) bDrawOriginal = false;
 		}
 	}
 }
 
 //--------------------------------------------------------------
-void ofApp::ChangedParameters(ofAbstractParameter & e) {
+void ofApp::Changed(ofAbstractParameter & e) {
 
 	string name = e.getName();
 
-	ofLogNotice() << "ChangedParameters:" << name << ": " << e;
+	ofLogNotice() << "Changed:" << name << ": " << e;
 
 	//--
 
@@ -583,39 +623,6 @@ void ofApp::ChangedParameters(ofAbstractParameter & e) {
 		cam.setVFlip(false);
 		cam.setDistance(SURFING__SCENE_SIZE_UNIT);
 	}
-
-	//--
-
-	// Pick elements to render, Which scene type..
-
-	//else if (name == bDrawShoeParts.getName()) {
-	//	if (bDrawShoeParts) {
-	//		bDrawOriginal = bDrawTestBox = false;
-	//	}
-	//}
-
-	//else if (name == bDrawOriginal.getName()) {
-	//	if (bDrawOriginal) {
-	//		bDrawShoeParts = bDrawTestBox = false;
-	//	}
-	//}
-
-	//else if (name == bDrawTestBox.getName()) {
-	//	if (bDrawTestBox) {
-	//		bDrawShoeParts = bDrawOriginal = false;
-	//	}
-	//}
-
-	else if (name == colorOriginal.getName()) {
-		materialOriginal.setAmbientColor(colorOriginal.get());
-		materialOriginal.setDiffuseColor(colorOriginal.get());
-		doRefreshColorsOriginal();
-	}
-
-	else if (name == shininessOriginal.getName()) {
-		materialOriginal.setShininess(shininessOriginal.get());
-		doRefreshColorsOriginal();
-	}
 }
 
 //--------------------------------------------------------------
@@ -624,6 +631,7 @@ void ofApp::save() {
 
 	ofxSurfing::saveGroup(parameters);
 	ofxSurfing::saveGroup(paletteParams);
+
 	ofxSaveCamera(cam, path_CameraSettings);
 }
 
@@ -633,6 +641,7 @@ void ofApp::load() {
 
 	ofxSurfing::loadGroup(parameters);
 	ofxSurfing::loadGroup(paletteParams);
+
 	ofxLoadCamera(cam, path_CameraSettings);
 }
 
@@ -640,54 +649,10 @@ void ofApp::load() {
 void ofApp::exit() {
 	ofLogNotice(__FUNCTION__);
 
-	ofRemoveListener(parameters.parameterChangedE(), this, &ofApp::ChangedParameters);
-	ofRemoveListener(paletteParams.parameterChangedE(), this, &ofApp::ChangedPaletteParams);
+	ofRemoveListener(drawParams.parameterChangedE(), this, &ofApp::ChangedDraw);
+	ofRemoveListener(parameters.parameterChangedE(), this, &ofApp::Changed);
+
+	ofRemoveListener(paletteParams.parameterChangedE(), this, &ofApp::ChangedPalette);
 
 	save();
 }
-
-////--------------------------------------------------------------
-//void ofApp::loadModel(int pos) {
-//	model = models[index];
-//
-//	meshesModelOriginal.clear();
-//	for (int i = 0; i < model.getMeshCount(); i++) {
-//
-//		auto m = model.getMesh(i);
-//
-//		for (int j = 0; j < m.getNumColors(); j++) {
-//			m.removeColor(i);
-//		}
-//		for (int j = 0; j < m.getVertices().size(); j++) {
-//			m.addColor(colorOriginal.get());
-//		}
-//
-//		meshesModelOriginal.push_back(m);
-//	}
-//
-//	// model info
-//	sNameModel = path_Model;
-//}
-
-////--------------------------------------------------------------
-//void ofApp::doRefreshPalette() {
-//	ofLogNotice(__FUNCTION__);
-//
-//	//return;
-//
-//	if (palette2.size() == 0 || palette.size() == 0) return;
-//
-//	//-
-//
-//	for (int i = 0; i < palette.size(); i++) {
-//		int i2;
-//		if (palette.size() > palette2.size()) {
-//			i2 = i % palette2.size();
-//			palette[i].set(palette2[i2]);
-//		} else {
-//			palette[i].set(palette2[i]);
-//		}
-//
-//		sceneManager.setColor(palette[i], i);
-//	}
-//}
