@@ -39,7 +39,7 @@ public:
 
 	// gui
 	void setupGui();
-	void refreshGui();
+	void refreshGui(bool bHard=false);
 	void drawGui();
 	ofxPanel gui;
 	ofParameterGroup g;

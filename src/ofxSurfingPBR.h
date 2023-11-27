@@ -343,6 +343,7 @@ private:
 	ofCubeMap cubeMap;
 
 	void setupCubeMap();
+	void updateCubeMap();
 	string path_CubemapsFolder = "cubemaps"; //bin/data/cubemaps/
 	string path_CubemapFilenameDefaultData = "modern_buildings_2_1k.exr"; //TODO: store path on settings
 	bool bLoadedCubeMap = false;

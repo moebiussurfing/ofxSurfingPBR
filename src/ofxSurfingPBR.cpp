@@ -930,10 +930,6 @@ void ofxSurfingPBR::update() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::updatePBRScene() {
 
-#ifdef SURFING__USE_LIGHTS_CLASS
-	surfingLights.updateLights();
-#endif
-
 	//--
 
 #ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
@@ -1236,24 +1232,10 @@ void ofxSurfingPBR::draw() {
 	camera->end();
 }
 
-//--------------------------------------------------------------
-void ofxSurfingPBR::drawPBRScene() {
-
-	/*
-		Usually to be called with ofEnableDepthTest() and before camera.begin() 
-		void ofApp::draw(){
-			ofEnableDepthTest();
-			//drawLights();
-			camera.begin();
-	*/
-
-#ifdef SURFING__USE_LIGHTS_CLASS
-	surfingLights.drawLights();
-#endif
-
-	//--
-
 #ifdef SURFING__USE_CUBE_MAP
+//--------------------------------------------------------------
+void ofxSurfingPBR::updateCubeMap() {
+
 	if (bDrawCubeMap && bLoadedCubeMap) {
 		// Update debug cubeMap
 		// drawing of the cube map renders at max depth, so it can be drawn last
@@ -1274,6 +1256,28 @@ void ofxSurfingPBR::drawPBRScene() {
 			}
 		}
 	}
+}
+#endif
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::drawPBRScene() {
+
+	/*
+		Usually to be called with ofEnableDepthTest() and before camera.begin() 
+		void ofApp::draw(){
+			ofEnableDepthTest();
+			//computeLights();
+			camera.begin();
+	*/
+
+#ifdef SURFING__USE_LIGHTS_CLASS
+	surfingLights.updateLights();
+#endif
+
+	//--
+
+#ifdef SURFING__USE_CUBE_MAP
+	updateCubeMap();
 #endif
 }
 

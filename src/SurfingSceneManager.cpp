@@ -44,6 +44,8 @@ void SurfingSceneManager::setup() {
 
 	if (materials.size() == 0) {
 		ofLogError("ofxSurfingPBR") << "SurfingSceneManager:Note that you need to add the materials before calling setup()!";
+	}if (colors.size() == 0) {
+		ofLogError("ofxSurfingPBR") << "SurfingSceneManager:Note that you need to add the colors before calling setup()!";
 	}
 
 	//--
@@ -52,19 +54,27 @@ void SurfingSceneManager::setup() {
 
 	//--
 
-	parameters.setName("SCENE_MANAGER");
-	parameters.add(surfingLights.bGui);
-
 	parametersMaterials.setName("Materials");
 	parametersColors.setName("Colors");
 
+	parameters.setName("SCENE_MANAGER");
+	parameters.add(surfingLights.bGui);
 	parameters.add(parametersMaterials);
 	parameters.add(parametersColors);
 
 	gui.setup(parameters);
+
+	ofxSurfing::loadSettings(parameters, path);
+
+	//--
+
+	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup() added " << colors.size() << " colors";
+	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup() added " << materials.size() << " materials";
+	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup() Done";
 }
 
 void SurfingSceneManager::update() {
+	surfingLights.updateLights();
 }
 
 void SurfingSceneManager::draw() {
@@ -153,4 +163,6 @@ void SurfingSceneManager::endLights() {
 
 void SurfingSceneManager::exit() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:exit()";
+
+	ofxSurfing::saveSettings(parameters, path);
 }

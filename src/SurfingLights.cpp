@@ -122,8 +122,25 @@ void SurfingLights::setupLights() {
 
 //--------------------------------------------------------------
 void SurfingLights::updateLights() {
+
+	/*
+		Usually to be called with ofEnableDepthTest() and before camera.begin() 
+		void ofApp::draw(){
+			ofEnableDepthTest();
+			//computeLights();
+			camera.begin();
+	*/
+
+	//--
+
+	computeLights();
+	computeShadows();
+}
+
+//--------------------------------------------------------------
+void SurfingLights::computeLights() {
 	if (lights.size() == 0) {
-		ofLogWarning("ofxSurfingPBR") << "SurfingLights:updateLights(). Skipped. Lights are not yet created!";
+		ofLogWarning("ofxSurfingPBR") << "SurfingLights:computeLights(). Skipped. Lights are not yet created!";
 		return;
 	}
 
@@ -235,15 +252,7 @@ void SurfingLights::updateLights() {
 }
 
 //--------------------------------------------------------------
-void SurfingLights::drawLights() {
-
-	/*
-		Usually to be called with ofEnableDepthTest() and before camera.begin() 
-		void ofApp::draw(){
-			ofEnableDepthTest();
-			//drawLights();
-			camera.begin();
-	*/
+void SurfingLights::computeShadows() {
 
 	if (f_RenderScene == nullptr) return;
 
@@ -1228,6 +1237,8 @@ void SurfingLights::doResetAllLights(bool bHard) {
 //--------------------------------------------------------------
 void SurfingLights::doResetPoint(bool bHard) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doResetPoint()";
+	
+	bPointShadow = true;
 
 	// touch colors too
 	if (bHard) {
@@ -1238,7 +1249,7 @@ void SurfingLights::doResetPoint(bool bHard) {
 	pointPosition.set(glm::vec3(
 		0,
 		SURFING__SCENE_SIZE_UNIT,
-		0));
+		SURFING__SCENE_SIZE_UNIT * 0.2));
 
 	if (bHard)
 		pointBright = SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET;
@@ -1249,6 +1260,8 @@ void SurfingLights::doResetPoint(bool bHard) {
 void SurfingLights::doResetDirectional(bool bHard) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doResetDirectional()";
 
+	bDirectionalShadow = true;
+
 	// touch colors too
 	if (bHard) {
 
@@ -1258,7 +1271,7 @@ void SurfingLights::doResetDirectional(bool bHard) {
 	directionalPosition.set(glm::vec3(
 		0,
 		SURFING__SCENE_SIZE_UNIT,
-		0));
+		SURFING__SCENE_SIZE_UNIT * 0.4));
 
 	directionalOrientation.set(glm::vec3(-60, 0, 0));
 
@@ -1271,6 +1284,8 @@ void SurfingLights::doResetDirectional(bool bHard) {
 void SurfingLights::doResetSpot(bool bHard) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doResetSpot()";
 
+	bSpotShadow = true;
+
 	// touch colors too
 	if (bHard) {
 		spotGlobalColor.set(ofFloatColor(1));
@@ -1279,7 +1294,7 @@ void SurfingLights::doResetSpot(bool bHard) {
 	spotPosition.set(glm::vec3(
 		0,
 		SURFING__SCENE_SIZE_UNIT,
-		0));
+		SURFING__SCENE_SIZE_UNIT * 0.5));
 
 	spotOrientation.set(glm::vec3(-60, 0, 0));
 
@@ -1295,6 +1310,8 @@ void SurfingLights::doResetSpot(bool bHard) {
 void SurfingLights::doResetArea(bool bHard) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doResetArea()";
 
+	bAreaShadow = true;
+
 	areaSize = { SURFING__SCENE_SIZE_UNIT / 8, SURFING__SCENE_SIZE_UNIT / 8 };
 
 	// touch colors too
@@ -1305,7 +1322,7 @@ void SurfingLights::doResetArea(bool bHard) {
 	areaPosition.set(glm::vec3(
 		0,
 		SURFING__SCENE_SIZE_UNIT,
-		SURFING__SCENE_SIZE_UNIT * 0.4));
+		SURFING__SCENE_SIZE_UNIT * 0.6));
 
 	areaOrientation.set(glm::vec3(-60, 0, 0));
 

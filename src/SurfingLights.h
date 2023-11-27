@@ -80,8 +80,11 @@ private:
 public:
 	void setupLights();
 	void updateLights();
-	void drawLights();
 	void drawDebugLights();
+
+private:
+	void computeLights();
+	void computeShadows();
 
 	//--
 
@@ -117,7 +120,7 @@ private:
 
 private:
 	void setupGui();
-	void refreshGui(bool bHard = false);
+	void refreshGui(bool bHard = false);//to reset anchor too
 
 public:
 	ofRectangle getGuiShape() const;

@@ -39,7 +39,7 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::setupGui() {
-	bRefreshGui.set("Refresh Gui", false);
+	bRefreshGui.set("Refresh Gui", true);
 
 	vResetCamera.set("Reset Camera");
 	listenerResetCamera = vResetCamera.newListener([this](void) {
@@ -53,15 +53,14 @@ void ofApp::setupGui() {
 	g.add(vResetCamera);
 	gui.setup(g);
 
-	refreshGui();
+	refreshGui(true);
 }
 
 //--------------------------------------------------------------
-void ofApp::refreshGui() {
-
-	ofxSurfing::setGuiPositionToLayout(gui, ofxSurfing::SURFING_LAYOUT_TOP_LEFT);
+void ofApp::refreshGui(bool bHard) {
+	if (bHard) ofxSurfing::setGuiPositionToLayout(gui, ofxSurfing::SURFING_LAYOUT_TOP_LEFT);
 	ofxSurfing::setGuiPositionRightTo(lights.gui, gui);
-	ofxSurfing::setGuiPositionToLayout(material.gui, ofxSurfing::SURFING_LAYOUT_TOP_RIGHT);
+	ofxSurfing::setGuiPositionBelowTo(material.gui, gui, true);
 }
 
 //--------------------------------------------------------------
@@ -78,7 +77,6 @@ void ofApp::drawScene() {
 	ofEnableDepthTest();
 
 	lights.updateLights();
-	lights.drawLights();
 
 	camera.begin();
 	{

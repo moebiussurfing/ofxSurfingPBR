@@ -25,18 +25,21 @@ public:
 
 	void setupScene();
 	void drawScene();
-	
+	void renderScene();
+	callback_t f_RenderScene = nullptr;
+
 public:
 	void setupGui();
 	void drawGui();
 	ofxPanel gui;
 
 public:
-	void beginLights();
-	void endLights();
+	//void beginLights();
+	//void endLights();
 
-	void beginCam();
-	void endCam();
+	void beginCamera();
+	void endCamera();
+	
 
 	//--
 
@@ -50,11 +53,7 @@ public:
 
 	ofParameterGroup sceneParams { "Scene" };
 	ofParameterGroup panelsParams { "Panels" };
-	//ofParameterGroup extraParams { "Extra" };
-
-	//ofParameterGroup originalParams { "Original" };
 	ofParameterGroup drawParams { "Draw" };
-	
 	ofParameterGroup cameraParams { "Camera" };
 	ofParameterGroup paletteParams { "Palette" };
 
@@ -111,7 +110,7 @@ private:
 
 	vector<ofParameter<ofFloatColor>> palette;
 
-	// meshes
+	// Meshes
 	ofDirectory dir;
 	ofMesh mesh;
 	vector<ofMesh> meshesModelOriginal;

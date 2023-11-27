@@ -48,16 +48,16 @@ void ofApp::setupParams() {
 	sceneParams.add(drawParams);
 
 	cameraParams.add(bDrawGrid);
+	cameraParams.add(bMouseCam);
 	cameraParams.add(bRotate);
 	cameraParams.add(speedRotate);
-	cameraParams.add(bMouseCam);
 	cameraParams.add(vResetCam);
 
 	parameters.add(cameraParams);
 	parameters.add(sceneParams);
 
-	ofAddListener(drawParams.parameterChangedE(), this, &ofApp::ChangedDraw);
 	ofAddListener(parameters.parameterChangedE(), this, &ofApp::Changed);
+	ofAddListener(drawParams.parameterChangedE(), this, &ofApp::ChangedDraw);
 }
 
 //--------------------------------------------------------------
@@ -84,16 +84,9 @@ void ofApp::setupScene() {
 
 	//--
 
-	// clear
-	sceneManager.clearColors();
-	sceneManager.clearMaterials();
-
-	//--
-
-	//// For original model simple and meshed
-	//sceneManager.addMaterial("Material Original");
-
-	//--
+	// Pass render functions required to do the shadow passes!
+	callback_t f = std::bind(&ofApp::renderScene, this);
+	sceneManager.setFunctionRenderScene(f);
 
 	// Queue one material per parts/model
 	// Queue one color per model
@@ -117,7 +110,7 @@ void ofApp::setupGui() {
 
 	gui.setup(parameters);
 
-	ofxSurfing::setGuiPositionToLayout(materialOriginal.gui, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
+	//ofxSurfing::setGuiPositionToLayout(materialOriginal.gui, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
 }
 
 //--
@@ -161,6 +154,7 @@ void ofApp::drawGui() {
 	ofxSurfing::setGuiPositionRightTo(sceneManager.gui, gui);
 	sceneManager.drawGui();
 
+	ofxSurfing::setGuiPositionBelowTo(materialOriginal.gui, gui, true);
 	materialOriginal.drawGui();
 }
 
@@ -169,15 +163,22 @@ void ofApp::drawScene() {
 
 	ofEnableDepthTest();
 
-	beginLights();
+	sceneManager.update();
+
+	sceneManager.beginLights();
 	{
-		beginCam();
+		beginCamera();
 		{
-			drawObjects();
+			renderScene();
 		}
-		endCam();
+		endCamera();
 	}
-	endLights();
+	sceneManager.endLights();
+}
+
+//--------------------------------------------------------------
+void ofApp::renderScene() {
+	drawObjects();
 }
 
 //--------------------------------------------------------------
@@ -188,25 +189,29 @@ void ofApp::drawObjects() {
 	// Parts
 
 	if (bDrawParts) {
+		ofPushMatrix();
+		ofScale(100);
+		{
+			for (size_t i = 0; i < models.size(); i++) {
 
-		for (size_t i = 0; i < models.size(); i++) {
-
-			// Begin material
-			sceneManager.beginMaterial(i);
-			{
+				// Begin material
+				sceneManager.beginMaterial(i);
+				{
 #if 1
-				// Meshes
-				for (auto & mesh_ : meshesParts[i]) {
-					mesh_.drawFaces();
-				}
+					// Meshes
+					for (auto & mesh_ : meshesParts[i]) {
+						mesh_.drawFaces();
+					}
 #else
-				// Models
-				models[i].drawFaces(); // do not works the material..
+					// Models
+					models[i].drawFaces(); // do not works the material..
 #endif
+				}
+				// End material
+				sceneManager.endMaterial(i);
 			}
-			// End material
-			sceneManager.endMaterial(i);
 		}
+		ofPopMatrix();
 	}
 
 	//----
@@ -219,12 +224,7 @@ void ofApp::drawObjects() {
 
 		if (bDrawTestBox) {
 
-			//if (bRotate) {
-			//	ofRotateXDeg(ofNoise(-1.f * ofGetElapsedTimeMillis(), -0.5f));
-			//	ofRotateYDeg(ofNoise(1.f * ofGetElapsedTimeMillis()));
-			//	ofRotateZDeg(ofNoise(0.01f * ofGetElapsedTimeMillis(), -1.f));
-			//}
-			ofBox(0, 0, 0, 2);
+			ofBox(0, 0, 0, 200);
 		}
 
 		//--
@@ -232,16 +232,20 @@ void ofApp::drawObjects() {
 		// Original
 
 		if (bDrawOriginal) {
-
+			ofPushMatrix();
+			ofScale(100);
+			{
 #if 1
-			// Meshes
-			for (size_t i = 0; i < meshesModelOriginal.size(); i++) {
-				meshesModelOriginal[i].drawFaces();
-			}
+				// Meshes
+				for (size_t i = 0; i < meshesModelOriginal.size(); i++) {
+					meshesModelOriginal[i].drawFaces();
+				}
 #else
-			// Model
-			modelOriginal.drawFaces();
+				// Model
+				modelOriginal.drawFaces();
 #endif
+			}
+			ofPopMatrix();
 		}
 
 		//--
@@ -272,7 +276,7 @@ void ofApp::doRandomPalette() {
 void ofApp::drawGrid() {
 	// Floor grid
 	// with one single rectangle
-	int sz = 10;
+	int sz = 1000;
 	ofPushStyle();
 	ofPushMatrix();
 	ofTranslate(0, 3, 0);
@@ -287,22 +291,25 @@ void ofApp::drawGrid() {
 }
 
 //--------------------------------------------------------------
-void ofApp::beginCam() {
+void ofApp::beginCamera() {
 	cam.begin();
-	{
-		ofPushMatrix();
-		ofScale(70.f);
-	}
 
 	//--
 
 	if (bDrawGrid) {
 		drawGrid();
 	}
+
+	//--
+
+	{
+		ofPushMatrix();
+		//ofScale(100.f);
+	}
 }
 
 //--------------------------------------------------------------
-void ofApp::endCam() {
+void ofApp::endCamera() {
 	{
 		ofPopMatrix();
 	}
@@ -311,15 +318,15 @@ void ofApp::endCam() {
 
 //--
 
-//--------------------------------------------------------------
-void ofApp::beginLights() {
-	sceneManager.beginLights();
-}
-
-//--------------------------------------------------------------
-void ofApp::endLights() {
-	sceneManager.endLights();
-}
+////--------------------------------------------------------------
+//void ofApp::beginLights() {
+//	sceneManager.beginLights();
+//}
+//
+////--------------------------------------------------------------
+//void ofApp::endLights() {
+//	sceneManager.endLights();
+//}
 
 //--
 
@@ -505,6 +512,8 @@ void ofApp::loadModelParts() {
 		paletteParams.add(c);
 	}
 
+	ofLogNotice(__FUNCTION__) << "added " << models.size() << " parts";
+
 	ofAddListener(paletteParams.parameterChangedE(), this, &ofApp::ChangedPalette);
 
 	//--
@@ -533,11 +542,6 @@ void ofApp::loadModelParts() {
 
 		k++;
 	}
-
-	ofLogNotice(__FUNCTION__) << "added " << models.size() << " parts";
-	ofLogNotice(__FUNCTION__) << "added " << sceneManager.colors.size() << " colors";
-	ofLogNotice(__FUNCTION__) << "added " << sceneManager.materials.size() << " materials";
-	ofLogNotice(__FUNCTION__) << "Done";
 }
 
 //--------------------------------------------------------------
@@ -577,7 +581,7 @@ void ofApp::ChangedDraw(ofAbstractParameter & e) {
 
 	//--
 
-	// Select what to render
+	// Select what to render. one single only.
 
 	if (name == bDrawParts.getName()) {
 		if (bDrawParts) {
@@ -649,8 +653,8 @@ void ofApp::load() {
 void ofApp::exit() {
 	ofLogNotice(__FUNCTION__);
 
-	ofRemoveListener(drawParams.parameterChangedE(), this, &ofApp::ChangedDraw);
 	ofRemoveListener(parameters.parameterChangedE(), this, &ofApp::Changed);
+	ofRemoveListener(drawParams.parameterChangedE(), this, &ofApp::ChangedDraw);
 
 	ofRemoveListener(paletteParams.parameterChangedE(), this, &ofApp::ChangedPalette);
 
