@@ -123,6 +123,8 @@ public:
 	string name = "";
 	string pathRoot = "ofxSurfingPBR_Material";
 	string ext = ".json";
+	string getName();
+
 private:
 	void setName(const string & n); // must call before setup!
 

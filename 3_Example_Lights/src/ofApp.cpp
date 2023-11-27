@@ -4,7 +4,7 @@
 void ofApp::setup() {
 
 	// Surfing material
-	material.setup();\
+	material.setup();
 
 	//--
 

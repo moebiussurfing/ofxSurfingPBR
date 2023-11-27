@@ -1249,7 +1249,7 @@ void SurfingLights::doResetPoint(bool bHard) {
 	pointPosition.set(glm::vec3(
 		0,
 		SURFING__SCENE_SIZE_UNIT,
-		SURFING__SCENE_SIZE_UNIT * 0.2));
+		SURFING__SCENE_SIZE_UNIT * 0.3));
 
 	if (bHard)
 		pointBright = SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET;

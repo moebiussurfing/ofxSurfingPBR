@@ -1284,6 +1284,11 @@ void SurfingMaterial::save() {
 }
 
 //--------------------------------------------------------------
+string SurfingMaterial::getName() {
+	return name;
+}
+
+//--------------------------------------------------------------
 void SurfingMaterial::setName(const string & n) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setName(" << n << ")";
 	name = n;

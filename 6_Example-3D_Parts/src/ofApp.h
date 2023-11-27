@@ -31,11 +31,12 @@ public:
 	void setupGui();
 	void drawGui();
 	ofxPanel gui;
+	ofParameter<bool> bGui;
 
 public:
 	void beginCamera();
 	void endCamera();
-	
+
 	//--
 
 public:
@@ -73,11 +74,11 @@ private:
 	float cameraOrbit;
 	string path_CameraSettings = "CameraSettings.txt";
 	ofParameter<bool> bMouseCam { "Mouse Cam", false };
-	ofParameter<void> vResetCam { "Reset Cam"};
+	ofParameter<void> vResetCam { "Reset Cam" };
 	ofParameter<bool> bRotate { "Rotate", true };
 	ofParameter<float> speedRotate { "Speed", 0.5, 0, 1 };
 	ofParameter<float> yRotate { "y Rotate", 0, -180, 180 };
-	ofParameter<float> scale { "Scale", 0, 0, 1};
+	ofParameter<float> scale { "Scale", 0, 0, 1 };
 	ofParameter<bool> bDrawGrid { "Draw Grid", true };
 	void drawGrid();
 

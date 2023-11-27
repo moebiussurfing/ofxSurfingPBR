@@ -42,6 +42,8 @@ void ofApp::setupCamera() {
 void ofApp::setupParams() {
 	ofLogNotice(__FUNCTION__);
 
+	bGui.set("Gui", true);
+
 	transformParams.add(scale);
 	transformParams.add(yRotate);
 
@@ -59,6 +61,8 @@ void ofApp::setupParams() {
 	parameters.add(transformParams);
 	parameters.add(cameraParams);
 
+	parameters.add(materialOriginal.bGui);
+	
 	ofAddListener(parameters.parameterChangedE(), this, &ofApp::Changed);
 	ofAddListener(drawParams.parameterChangedE(), this, &ofApp::ChangedDraw);
 }
@@ -114,6 +118,7 @@ void ofApp::setupGui() {
 	gui.setup(parameters);
 
 	gui.getGroup(cameraParams.getName()).minimize();
+	gui.getGroup(transformParams.getName()).minimize();
 }
 
 //--
@@ -150,6 +155,8 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::drawGui() {
+	if (!bGui) return;
+
 	ofDisableDepthTest();
 
 	gui.draw(); //anchor
@@ -287,7 +294,7 @@ void ofApp::drawGrid() {
 	ofPushStyle();
 	ofPushMatrix();
 	ofTranslate(0, 3, 0);
-	
+
 	ofSetColor(0, 0, 0, 255);
 	//ofSetColor(0, 255, 0, 255);
 
@@ -327,43 +334,14 @@ void ofApp::endCamera() {
 
 //--
 
-////--------------------------------------------------------------
-//void ofApp::beginLights() {
-//	sceneManager.beginLights();
-//}
-//
-////--------------------------------------------------------------
-//void ofApp::endLights() {
-//	sceneManager.endLights();
-//}
-
-//--
-
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 	ofLogNotice(__FUNCTION__) << key;
 
-	if (key == OF_KEY_BACKSPACE) {
-		doRandomPalette();
-		//colorOriginal = ofColor(ofRandom(255), ofRandom(255), ofRandom(255));
-	}
+	if (key == 'g')
+		bGui = !bGui;
 
-	//// original
-	//else if (key == OF_KEY_RETURN) {
-	//	pathModel = "models\\nike\\original\\nike1.fbx";
-	//	loadModelOriginalMeshed();
-	//}
-
-	//// next
-	//else if (key == ' ') {
-	//	index++;
-	//	index = index % dir.size();
-	//	loadModel(index);
-	//	pathModel = dir.getFile(index).getAbsolutePath();
-	//	nameModel = pathModel;
-	//}
-
-	else if (key == 'c' || key == 'm' || key == OF_KEY_SHIFT) {
+	else if (key == 'm') {
 		bMouseCam = !bMouseCam;
 		if (bMouseCam)
 			cam.enableMouseInput();
@@ -374,34 +352,10 @@ void ofApp::keyPressed(int key) {
 	else if (key == 'r')
 		bRotate = !bRotate;
 
-	else if (key == 'o')
-		bDrawOriginal = !bDrawOriginal;
-
-	else if (key == 'p')
-		bDrawParts = !bDrawParts;
-
-	//else if (key == OF_KEY_F1) {
-	//	bDrawParts = !bDrawParts;
-	//	bDrawOriginal = !bDrawParts;
-	//}
-
-	//TODO
-	//browse parts
-	//else if (key == ' ') {
-	//	loadModelOriginalMeshed();
-	//}
-	//else if (key == '0') {
-	//	pathModel = "models\\nike\\original\\nike1.fbx";
-	//	loadModelOriginalMeshed();
-	//}
-	//else if (key == '2') {
-	//	pathModel = "models\\nike\\parts\\nike_01_Sole.fbx";
-	//	loadModelOriginalMeshed();
-	//}
-	//else if (key == '3') {
-	//	pathModel = "models\\nike\\parts\\nike_02_Line.fbx";
-	//	loadModelOriginalMeshed();
-	//}
+	if (key == OF_KEY_BACKSPACE) {
+		doRandomPalette();
+		//colorOriginal = ofColor(ofRandom(255), ofRandom(255), ofRandom(255));
+	}
 }
 
 //--------------------------------------------------------------
@@ -465,8 +419,9 @@ void ofApp::loadModelOriginalMeshed() {
 void ofApp::loadModelParts() {
 	ofLogNotice(__FUNCTION__);
 
+	string pathParts = "models\\nike\\parts";
 	dir.allowExt("fbx");
-	dir.open("models\\nike"); // parts folder
+	dir.open(pathParts); // parts folder
 	dir.listDir();
 
 	if (dir.size() == 0)
@@ -493,9 +448,9 @@ void ofApp::loadModelParts() {
 
 		bool b = m->loadModel(_path, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
 		if (b) {
-			ofLogNotice(__FUNCTION__) << "Loaded modelOriginal: " << pathModel;
+			ofLogNotice(__FUNCTION__) << "Loaded modelOriginal: " << _path;
 		} else {
-			ofLogError(__FUNCTION__) << "Unable to load modelOriginal: " << pathModel;
+			ofLogError(__FUNCTION__) << "Unable to load modelOriginal: " << _path;
 		}
 
 		m->setRotation(0, 180, 1, 0, 0);

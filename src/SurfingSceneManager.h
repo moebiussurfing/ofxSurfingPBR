@@ -22,9 +22,12 @@ public:
 
 	void setup();
 
-	void updateLights();
-
 private:
+	void setupParams();
+	void setupGui();
+	void refreshGui();
+	void startup();
+
 	void draw();
 
 public:
@@ -52,17 +55,30 @@ public:
 	ofxPanel gui;
 	ofParameterGroup parameters;
 
+	ofxPanel guiMaterials;
+	ofxPanel guiColors;
+
 private:
-	ofParameterGroup parametersMaterials;
-	ofParameterGroup parametersColors;
+	ofParameterGroup materialsParams;
+	ofParameterGroup colorsParams;
 
 private:
 	SurfingLights lights;
 
 public:
+	void updateLights();
 	void beginLights();
 	void endLights();
 	void drawDebugLights();
+
+	void toggleDebug();
+
+	ofParameter<bool>bGui_Materials;
+	ofParameter<bool>bGui_Colors;
+	ofParameter<int>indexMaterial;
+	ofParameter<int> indexColor;
+	ofEventListener listenerIndexColor;
+	ofEventListener listenerIndexMaterial;
 
 private:
 	vector<std::unique_ptr<SurfingMaterial>> materials;
