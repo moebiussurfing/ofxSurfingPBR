@@ -191,8 +191,8 @@ void ofxSurfingPBR::setupParams() {
 	showGuiParams.add(surfingBg.bGui);
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-	showGuiParams.add(surfingLights.bGui);
-	//showGuiParams.add(surfingLights.bGui_Shadows);
+	showGuiParams.add(lights.bGui);
+	//showGuiParams.add(lights.bGui_Shadows);
 #endif
 
 	parameters.add(showGuiParams);
@@ -201,7 +201,7 @@ void ofxSurfingPBR::setupParams() {
 	drawParams.add(bDrawPlane);
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-	drawParams.add(surfingLights.bDrawShadow);
+	drawParams.add(lights.bDrawShadow);
 #endif
 
 #ifdef SURFING__USE_CUBE_MAP
@@ -385,7 +385,7 @@ void ofxSurfingPBR::setupCallbacks() {
 	});
 
 	listenerDebug = bDebug.newListener([this](bool) {
-		surfingLights.bDebug = bDebug;
+		lights.bDebug = bDebug;
 	});
 
 	listenerSave = vSave.newListener([this](void) {
@@ -594,13 +594,13 @@ void ofxSurfingPBR::setup() {
 	//--
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-	surfingLights.setup();
+	lights.setup();
 
 	//--
 
 	//TODO
 	//link
-	//bDebug.makeReferenceTo(surfingLights.bDebug);
+	//bDebug.makeReferenceTo(lights.bDebug);
 #endif
 
 	//--
@@ -707,7 +707,7 @@ void ofxSurfingPBR::setFunctionRenderScene(callback_t f) {
 	f_RenderScene = f;
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-	surfingLights.setFunctionRenderScene(f_RenderScene);
+	lights.setFunctionRenderScene(f_RenderScene);
 #endif
 }
 
@@ -761,7 +761,7 @@ void ofxSurfingPBR::startup() {
 
 		//TODO: not works
 		//#ifdef SURFING__USE_LIGHTS_CLASS
-		//		surfingLights.bDebug.makeReferenceTo(bDebug);
+		//		lights.bDebug.makeReferenceTo(bDebug);
 		//#endif
 	}
 
@@ -999,7 +999,7 @@ void ofxSurfingPBR::drawOfxGui() {
 		//--
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-		if (surfingLights.bGui) {
+		if (lights.bGui) {
 			glm::vec2 p;
 			if (surfingBg.bGui)
 				p = surfingBg.gui.getShape().getTopRight();
@@ -1008,9 +1008,9 @@ void ofxSurfingPBR::drawOfxGui() {
 			else
 				p = gui.getShape().getTopRight();
 			p += glm::vec2 { (float)SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0.f };
-			surfingLights.setGuiPosition(p);
+			lights.setGuiPosition(p);
 
-			surfingLights.drawGui();
+			lights.drawGui();
 		}
 #endif
 	}
@@ -1196,7 +1196,7 @@ void ofxSurfingPBR::draw() {
 	{
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-		surfingLights.begin();
+		lights.begin();
 #endif
 
 		drawBg();
@@ -1220,7 +1220,7 @@ void ofxSurfingPBR::draw() {
 		//----
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-		surfingLights.end();
+		lights.end();
 #endif
 
 		//--
@@ -1271,7 +1271,7 @@ void ofxSurfingPBR::drawPBRScene() {
 	*/
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-	surfingLights.updateLights();
+	lights.updateLights();
 #endif
 
 	//--
@@ -1287,7 +1287,7 @@ void ofxSurfingPBR::drawPBRSceneDebug() {
 
 #ifdef SURFING__USE_LIGHTS_CLASS
 	// Debug lights and shadows
-	surfingLights.drawDebugLights();
+	lights.drawDebugLights();
 #endif
 }
 
@@ -1808,7 +1808,7 @@ void ofxSurfingPBR::exit() {
 	surfingBg.exit();
 
 	#ifdef SURFING__USE_LIGHTS_CLASS
-	surfingLights.exit();
+	lights.exit();
 	#endif
 #endif
 
@@ -2049,7 +2049,7 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 'p') bDrawPlane = !bDrawPlane;
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-	if (key == 's') surfingLights.bDrawShadow = !surfingLights.bDrawShadow;
+	if (key == 's') lights.bDrawShadow = !lights.bDrawShadow;
 #endif
 
 	if (key == 'b') surfingBg.bDrawBgColorPlain = !surfingBg.bDrawBgColorPlain;
@@ -2194,9 +2194,9 @@ void ofxSurfingPBR::doResetAll(bool bExcludeExtras) {
 
 #ifdef SURFING__USE_LIGHTS_CLASS
 	// lights
-	if (!bExcludeExtras) surfingLights.doResetAllLights();
+	if (!bExcludeExtras) lights.doResetAllLights();
 	// shadows
-	if (!bExcludeExtras) surfingLights.doResetShadow();
+	if (!bExcludeExtras) lights.doResetShadow();
 #endif
 
 		// shader displacer

@@ -21,7 +21,6 @@ public:
 
 public:
 	void setupObjects();
-	void drawObjects();
 
 	void setupScene();
 	void drawScene();
@@ -34,13 +33,9 @@ public:
 	ofxPanel gui;
 
 public:
-	//void beginLights();
-	//void endLights();
-
 	void beginCamera();
 	void endCamera();
 	
-
 	//--
 
 public:
@@ -51,23 +46,19 @@ public:
 public:
 	ofParameterGroup parameters { "ofApp" };
 
-	ofParameterGroup sceneParams { "Scene" };
 	ofParameterGroup panelsParams { "Panels" };
 	ofParameterGroup drawParams { "Draw" };
 	ofParameterGroup cameraParams { "Camera" };
+	ofParameterGroup transformParams { "Transform" };
 	ofParameterGroup paletteParams { "Palette" };
 
 private:
 	void loadModelParts();
 
-	ofxAssimpModelLoader model;
-
 	vector<std::unique_ptr<ofxAssimpModelLoader>> models;
-	
 	vector<string> namesModels;
 
 	ofxAssimpModelLoader modelOriginal;
-	
 	SurfingMaterial materialOriginal;
 
 	//--
@@ -85,6 +76,8 @@ private:
 	ofParameter<void> vResetCam { "Reset Cam"};
 	ofParameter<bool> bRotate { "Rotate", true };
 	ofParameter<float> speedRotate { "Speed", 0.5, 0, 1 };
+	ofParameter<float> yRotate { "y Rotate", 0, -180, 180 };
+	ofParameter<float> scale { "Scale", 0, 0, 1};
 	ofParameter<bool> bDrawGrid { "Draw Grid", true };
 	void drawGrid();
 

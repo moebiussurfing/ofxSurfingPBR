@@ -36,7 +36,7 @@ void SurfingSceneManager::setFunctionRenderScene(callback_t f) {
 	}
 	f_RenderScene = f;
 
-	surfingLights.setFunctionRenderScene(f_RenderScene);
+	lights.setFunctionRenderScene(f_RenderScene);
 }
 
 void SurfingSceneManager::setup() {
@@ -50,7 +50,7 @@ void SurfingSceneManager::setup() {
 
 	//--
 
-	surfingLights.setup();
+	lights.setup();
 
 	//--
 
@@ -58,7 +58,7 @@ void SurfingSceneManager::setup() {
 	parametersColors.setName("Colors");
 
 	parameters.setName("SCENE_MANAGER");
-	parameters.add(surfingLights.bGui);
+	parameters.add(lights.bGui);
 	parameters.add(parametersMaterials);
 	parameters.add(parametersColors);
 
@@ -73,8 +73,8 @@ void SurfingSceneManager::setup() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup() Done";
 }
 
-void SurfingSceneManager::update() {
-	surfingLights.updateLights();
+void SurfingSceneManager::updateLights() {
+	lights.updateLights();
 }
 
 void SurfingSceneManager::draw() {
@@ -83,9 +83,9 @@ void SurfingSceneManager::draw() {
 void SurfingSceneManager::drawGui() {
 	gui.draw();
 
-	if (surfingLights.bGui)
-		ofxSurfing::setGuiPositionRightTo(surfingLights.gui, gui);
-	surfingLights.drawGui();
+	if (lights.bGui)
+		ofxSurfing::setGuiPositionRightTo(lights.gui, gui);
+	lights.drawGui();
 
 	for (size_t i = 0; i < materials.size(); i++) {
 		materials[i]->drawGui();
@@ -154,11 +154,15 @@ void SurfingSceneManager::endMaterial(int index) {
 }
 
 void SurfingSceneManager::beginLights() {
-	surfingLights.begin();
+	lights.begin();
 }
 
 void SurfingSceneManager::endLights() {
-	surfingLights.end();
+	lights.end();
+}
+
+void SurfingSceneManager::drawDebugLights() {
+	lights.drawDebugLights();
 }
 
 void SurfingSceneManager::exit() {

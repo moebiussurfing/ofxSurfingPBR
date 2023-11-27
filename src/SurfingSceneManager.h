@@ -21,7 +21,8 @@ public:
 	~SurfingSceneManager();
 
 	void setup();
-	void update();
+
+	void updateLights();
 
 private:
 	void draw();
@@ -56,11 +57,12 @@ private:
 	ofParameterGroup parametersColors;
 
 private:
-	SurfingLights surfingLights;
+	SurfingLights lights;
 
 public:
 	void beginLights();
 	void endLights();
+	void drawDebugLights();
 
 private:
 	vector<std::unique_ptr<SurfingMaterial>> materials;

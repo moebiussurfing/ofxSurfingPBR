@@ -75,7 +75,7 @@ public:
 	~ofxSurfingPBR();
 
 #ifdef SURFING__USE_LIGHTS_CLASS
-	SurfingLights surfingLights;
+	SurfingLights lights;
 #endif
 
 private:

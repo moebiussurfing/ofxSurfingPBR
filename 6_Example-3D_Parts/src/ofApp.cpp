@@ -42,19 +42,22 @@ void ofApp::setupCamera() {
 void ofApp::setupParams() {
 	ofLogNotice(__FUNCTION__);
 
-	drawParams.add(bDrawOriginal);
-	drawParams.add(bDrawParts);
-	drawParams.add(bDrawTestBox);
-	sceneParams.add(drawParams);
+	transformParams.add(scale);
+	transformParams.add(yRotate);
 
-	cameraParams.add(bDrawGrid);
 	cameraParams.add(bMouseCam);
 	cameraParams.add(bRotate);
 	cameraParams.add(speedRotate);
 	cameraParams.add(vResetCam);
 
+	drawParams.add(bDrawOriginal);
+	drawParams.add(bDrawParts);
+	drawParams.add(bDrawTestBox);
+	drawParams.add(bDrawGrid);
+
+	parameters.add(drawParams);
+	parameters.add(transformParams);
 	parameters.add(cameraParams);
-	parameters.add(sceneParams);
 
 	ofAddListener(parameters.parameterChangedE(), this, &ofApp::Changed);
 	ofAddListener(drawParams.parameterChangedE(), this, &ofApp::ChangedDraw);
@@ -80,7 +83,7 @@ void ofApp::setupObjects() {
 void ofApp::setupScene() {
 	ofLogNotice(__FUNCTION__);
 
-	materialOriginal.setup("Original");
+	materialOriginal.setup("Material");
 
 	//--
 
@@ -110,7 +113,7 @@ void ofApp::setupGui() {
 
 	gui.setup(parameters);
 
-	//ofxSurfing::setGuiPositionToLayout(materialOriginal.gui, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
+	gui.getGroup(cameraParams.getName()).minimize();
 }
 
 //--
@@ -149,13 +152,13 @@ void ofApp::draw() {
 void ofApp::drawGui() {
 	ofDisableDepthTest();
 
-	gui.draw();
+	gui.draw(); //anchor
 
 	ofxSurfing::setGuiPositionRightTo(sceneManager.gui, gui);
-	sceneManager.drawGui();
+	sceneManager.drawGui(); //right linked
 
 	ofxSurfing::setGuiPositionBelowTo(materialOriginal.gui, gui, true);
-	materialOriginal.drawGui();
+	materialOriginal.drawGui(); //below linked
 }
 
 //--------------------------------------------------------------
@@ -163,34 +166,32 @@ void ofApp::drawScene() {
 
 	ofEnableDepthTest();
 
-	sceneManager.update();
+	sceneManager.updateLights();
 
-	sceneManager.beginLights();
+	beginCamera();
 	{
-		beginCamera();
+		sceneManager.beginLights();
 		{
 			renderScene();
+
+			sceneManager.drawDebugLights();
 		}
-		endCamera();
+		sceneManager.endLights();
 	}
-	sceneManager.endLights();
+	endCamera();
 }
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
-	drawObjects();
-}
-
-//--------------------------------------------------------------
-void ofApp::drawObjects() {
-
+	float s = ofMap(scale, 0, 1, 50, 700, true);
 	//--
 
 	// Parts
 
 	if (bDrawParts) {
 		ofPushMatrix();
-		ofScale(100);
+		ofRotateYDeg(yRotate + 180);
+		ofScale(s);
 		{
 			for (size_t i = 0; i < models.size(); i++) {
 
@@ -223,8 +224,10 @@ void ofApp::drawObjects() {
 		// TestBox
 
 		if (bDrawTestBox) {
+			ofRotateYDeg(yRotate + 90);
+			ofScale(s);
 
-			ofBox(0, 0, 0, 200);
+			ofBox(0, 0, 0, 2);
 		}
 
 		//--
@@ -233,7 +236,8 @@ void ofApp::drawObjects() {
 
 		if (bDrawOriginal) {
 			ofPushMatrix();
-			ofScale(100);
+			ofRotateYDeg(yRotate + 180);
+			ofScale(s);
 			{
 #if 1
 				// Meshes
@@ -274,17 +278,23 @@ void ofApp::doRandomPalette() {
 
 //--------------------------------------------------------------
 void ofApp::drawGrid() {
-	// Floor grid
-	// with one single rectangle
-	int sz = 1000;
+
+	// Floor grid with one single rectangle
+
+	float yr = 0.3;
+	int sz = 2 * 1000;
+
 	ofPushStyle();
 	ofPushMatrix();
 	ofTranslate(0, 3, 0);
-	ofSetColor(0, 255, 0, 255);
+	
+	ofSetColor(0, 0, 0, 255);
+	//ofSetColor(0, 255, 0, 255);
+
 	ofNoFill();
 	ofSetLineWidth(1.f);
 	ofRotateXDeg(90);
-	ofTranslate(-sz / 2, -sz / 2, 0.7 * sz);
+	ofTranslate(-sz / 2, -sz / 2, yr * sz);
 	ofDrawRectangle(0, 0, sz, sz);
 	ofPopMatrix();
 	ofPopStyle();
@@ -304,7 +314,6 @@ void ofApp::beginCamera() {
 
 	{
 		ofPushMatrix();
-		//ofScale(100.f);
 	}
 }
 
@@ -416,6 +425,8 @@ void ofApp::loadModelOriginalSimple() {
 void ofApp::loadModelOriginalMeshed() {
 	ofLogNotice(__FUNCTION__);
 
+	ofxAssimpModelLoader model;
+
 	bool b = model.loadModel(pathModel);
 	if (b) {
 		ofLogNotice(__FUNCTION__) << "Loaded modelOriginal: " << pathModel;
@@ -473,7 +484,7 @@ void ofApp::loadModelParts() {
 
 	//--
 
-	// load parts
+	// Load parts
 	for (auto & file : dir.getFiles()) {
 		ofLogNotice(__FUNCTION__) << file.getFileName();
 		string _path = file.getAbsolutePath();
@@ -512,7 +523,7 @@ void ofApp::loadModelParts() {
 		paletteParams.add(c);
 	}
 
-	ofLogNotice(__FUNCTION__) << "added " << models.size() << " parts";
+	ofLogNotice(__FUNCTION__) << "Added " << models.size() << " parts from model: " << pathModel;
 
 	ofAddListener(paletteParams.parameterChangedE(), this, &ofApp::ChangedPalette);
 
