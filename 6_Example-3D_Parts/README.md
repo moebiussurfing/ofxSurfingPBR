@@ -1,4 +1,4 @@
 
 ![](Capture.PNG)
 
-![](CaptureData.PNG)
+![](CaptureData.png)
