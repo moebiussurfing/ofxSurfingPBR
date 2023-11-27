@@ -154,6 +154,7 @@ public:
 	ofParameterGroup pointParams;
 	ofParameterGroup pointColorsParams;
 	ofParameter<bool> bPoint;
+	ofParameter<bool> bPointShadow;
 	ofParameter<void> vPointReset;
 	ofParameter<ofFloatColor> pointAmbientColor;
 	ofParameter<ofFloatColor> pointDiffuseColor;
@@ -167,6 +168,7 @@ public:
 	ofParameterGroup directionalParams;
 	ofParameterGroup directionalColorsParams;
 	ofParameter<bool> bDirectional;
+	ofParameter<bool> bDirectionalShadow;
 	ofParameter<void> vDirectionalReset;
 	ofParameter<ofFloatColor> directionalAmbientColor;
 	ofParameter<ofFloatColor> directionalDiffuseColor;
@@ -181,6 +183,7 @@ public:
 	ofParameterGroup spotParams;
 	ofParameterGroup spotColorsParams;
 	ofParameter<bool> bSpot;
+	ofParameter<bool> bSpotShadow;
 	ofParameter<void> vSpotReset;
 	ofParameter<ofFloatColor> spotAmbientColor;
 	ofParameter<ofFloatColor> spotDiffuseColor;
@@ -197,6 +200,7 @@ public:
 	ofParameterGroup areaParams;
 	ofParameterGroup areaColorsParams;
 	ofParameter<bool> bArea;
+	ofParameter<bool> bAreaShadow;
 	ofParameter<void> vAreaReset;
 	ofParameter<ofFloatColor> areaAmbientColor;
 	ofParameter<ofFloatColor> areaDiffuseColor;
@@ -204,7 +208,6 @@ public:
 	ofParameter<glm::vec3> areaPosition;
 	ofParameter<glm::vec3> areaOrientation;
 	ofParameter<ofFloatColor> areaGlobalColor;
-
 	ofParameter<int> modeAnimArea;
 	ofParameter<glm::vec2> areaSize;
 
