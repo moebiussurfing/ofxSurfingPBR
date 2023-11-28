@@ -1,3 +1,8 @@
+
+[bin/data.zip](https://mega.nz/file/5Klk0ZZA#nDyOPUj6tvw-g271pFeunr8EA7dBn5juWXZgrJkkOGk)
+
+</br>
+
 This example shows how to illuminate a loaded FBX model  
 with their PBR textures.  
 Also, we have a data folder with some parts of the model  

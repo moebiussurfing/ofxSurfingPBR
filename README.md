@@ -157,7 +157,8 @@ void ofApp::renderScene()
 
 ## REQUERIMENTS 
 
-* Copy the content of `data.zip` to the examples or to your projects into `/bin/data`:
+* Copy the content of `data.zip` to the examples or to your projects into `/bin/data`:  
+[bin/data.zip](https://mega.nz/file/cHkylJZY#sVdQpSF8IkvdmKdpMIbA4767kvBvfGL7R7GnU9g20ow)  
 
 bin  
 $~$ └ data  
