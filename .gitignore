@@ -606,3 +606,11 @@ MigrationBackup/
 6_example-Nike3D/bin/data/assets/fonts/NotoSansMono-Regular.ttf
 6_example-Nike3D/bin/data/assets/fonts/JetBrainsMono-Bold.ttf
 1_Example_Basic/ExtractDescriptionFromOfAppToReadme.ps1
+6_Example_3D_Parts/bin/data/models/nike/original/nike1.fbm/Retro_1002_Roughness.png
+6_Example_3D_Parts/bin/data/models/nike/original/nike1.fbm/Retro_1002_Normal.png
+6_Example_3D_Parts/bin/data/models/nike/original/nike1.fbm/Retro_1002_Diffuse.png
+6_Example_3D_Parts/bin/data/models/nike/original/nike1.fbm/Retro_1001_Roughness.png
+6_Example_3D_Parts/bin/data/models/nike/original/nike1.fbm/Retro_1001_Normal.png
+6_Example_3D_Parts/bin/data/models/nike/original/nike1.fbm/Retro_1001_BaseColor.png
+6_Example_3D_Parts/bin/data/images/001.jpg
+6_Example_3D_Parts/bin/data/assets/fonts/NotoSansMono-Regular.ttf
