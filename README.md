@@ -40,7 +40,7 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 
 ## FEATURES
 
-- Basic **Scene Manager** with default elements:
+- Main class `ofxSurfingPBR.h` is a **Scene Manager** with default common elements:
   - Two ready-to-use editable parametric materials:
     - **Material A**. For the **Plane** (floor).
     - **Material B**. For the **other Objects**.
@@ -49,7 +49,11 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
   - **Cubemaps** (**HDR**) files loader.
   - **Background color** and **Sphere/Box container** with material.
 
-- **Standalone Materials** can be used independently of the **Scene Manager**.
+- Class `SurfingMaterial.h`: **Standalone Materials** can be used independently of the main class.
+
+- Class `SurfingLights.h`: Four **bundled lights**: `Point`, `Direct`, `Spot` and `Area` with shadows. 
+
+- Class `SurfingSceneManager.h`: Bundles the lights from `SurfingLights.h` and allows **queuing materials** dynamically.
 
 - Persistent settings:
   - Optimized **auto save** on any change.
