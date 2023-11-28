@@ -14,5 +14,7 @@ into OF core:
 All with his settings on a gui to tweak all the internals.  
 All of them with all the settings persistent, gui exposed and ready  
 to use on any project.  
-    
+
+</br>
+
 ![](Capture.PNG)
