@@ -45,8 +45,8 @@ void SurfingSceneManager::setFunctionRenderScene(callback_t f) {
 }
 
 //--------------------------------------------------------------
-void SurfingSceneManager::setup() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup()";
+void SurfingSceneManager::setupBuild() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setupBuild()";
 
 	if (materials.size() == 0) {
 		ofLogError("ofxSurfingPBR") << "SurfingSceneManager:Note that you need to add the materials before calling setup()!";
@@ -62,6 +62,7 @@ void SurfingSceneManager::setup() {
 	//--
 
 	setupParams();
+
 	setupGui();
 
 	//--
@@ -84,6 +85,11 @@ void SurfingSceneManager::setupParams() {
 	bGui_Materials.set("Materials", true);
 	bGui_Colors.set("Colors", false);
 
+	nameIndexMaterial.set("M Name", "");
+	nameIndexColor.set("C Name", "");
+	nameIndexMaterial.setSerializable(false);
+	nameIndexColor.setSerializable(false);
+
 	indexMaterial.set("Select Material", -1, -1, -1);
 	if (materials.size() > 0) {
 		indexMaterial.setMax(materials.size() - 1);
@@ -100,19 +106,30 @@ void SurfingSceneManager::setupParams() {
 
 	parameters.setName("SCENE_MANAGER");
 	parameters.add(lights.bGui);
-
 	parameters.add(bGui_Materials);
 	parameters.add(indexMaterial);
+	parameters.add(nameIndexMaterial);
 	parameters.add(bGui_Colors);
 	parameters.add(indexColor);
+	parameters.add(nameIndexColor);
 
 	materialsParams.setName("Materials");
-	colorsParams.setName("Colors");
+	listenerIndexMaterial = indexMaterial.newListener([this](int & i) {
+		if (i < materials.size()) {
+			string n = materials[i]->getName();
+			nameIndexMaterial.set(n);
+		}
 
-	listenerIndexColor = indexColor.newListener([this](int & i) {
 		refreshGui();
 	});
-	listenerIndexMaterial = indexMaterial.newListener([this](int & i) {
+
+	colorsParams.setName("Colors");
+	listenerIndexColor = indexColor.newListener([this](int & i) {
+		if (i < colors.size()) {
+			string n = colors[i]->getName();
+			nameIndexColor.set(n);
+		}
+		
 		refreshGui();
 	});
 }
@@ -120,6 +137,10 @@ void SurfingSceneManager::setupParams() {
 //--------------------------------------------------------------
 void SurfingSceneManager::startup() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:startup()";
+
+	indexMaterial = indexMaterial;
+	indexColor = indexColor;
+
 	ofxSurfing::loadSettings(parameters, path);
 }
 
@@ -142,8 +163,18 @@ void SurfingSceneManager::refreshGui() {
 
 	for (size_t i = 0; i < materials.size(); i++) {
 		auto & g = guiMaterials.getGroup(materials[i]->getName());
+
 		if (i == indexMaterial.get()) {
 			g.maximize();
+
+			g.getGroup(materials[i]->settingsParams.getName())
+				.getGroup(materials[i]->coatParams.getName())
+				.minimize();
+			g.getGroup(materials[i]->colorParams.getName()).minimize();
+			g.getGroup(materials[i]->moreParams.getName()).minimize();
+			g.getGroup(materials[i]->globalParams.getName())
+				.getGroup(materials[i]->globalLinksParams.getName())
+				.minimize();
 		} else {
 			g.minimize();
 		}
@@ -151,6 +182,7 @@ void SurfingSceneManager::refreshGui() {
 
 	for (size_t i = 0; i < colors.size(); i++) {
 		auto & g = guiColors.getGroup(colors[i]->getName());
+
 		if (i == indexColor.get()) {
 			g.maximize();
 		} else {
@@ -193,7 +225,11 @@ void SurfingSceneManager::addMaterial(string name) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:addMaterial(" << name << ")";
 
 	int i = materials.size();
-	string s = "Material_" + ofToString(i);
+	string s = "";
+	if (name == "")
+		s += "M_" + ofToString(i);
+	else
+		s += name;
 	std::unique_ptr<SurfingMaterial> m;
 	m = std::make_unique<SurfingMaterial>();
 	m->setup(s);
@@ -202,11 +238,15 @@ void SurfingSceneManager::addMaterial(string name) {
 }
 
 //--------------------------------------------------------------
-void SurfingSceneManager::addColor(ofFloatColor color) {
+void SurfingSceneManager::addColor(ofFloatColor color, string name) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:addColor(" << color << ")";
 
 	int i = colors.size();
-	string s = "Color_" + ofToString(i);
+	string s = "";
+	if (name == "")
+		s += "C_" + ofToString(i);
+	else
+		s += name;
 	std::unique_ptr<ofParameter<ofFloatColor>> m;
 	m = std::make_unique<ofParameter<ofFloatColor>>();
 	m->set(s, color, ofFloatColor(0, 0), ofFloatColor(1, 1));

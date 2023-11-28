@@ -4,8 +4,6 @@
 void ofApp::setup() {
 	ofLogNotice(__FUNCTION__);
 
-	//--
-
 #if 1
 	ofxSurfing::setOfxGuiTheme();
 	ofxSurfing::setWindowTitleAsProjectName();
@@ -26,16 +24,13 @@ void ofApp::setup() {
 void ofApp::setupCamera() {
 	ofLogNotice(__FUNCTION__);
 
-	cameraOrbit = 0;
-	cam.setupPerspective();
-	cam.reset();
-	cam.setVFlip(false);
-	cam.setDistance(SURFING__SCENE_SIZE_UNIT);
+	rotateSpeed = 0.5;
+	bAnimRotate = false;
 
-	if (bMouseCam)
-		cam.enableMouseInput();
-	else
-		cam.disableMouseInput();
+	camera.setupPerspective();
+	camera.reset();
+	camera.setVFlip(false);
+	camera.setDistance(SURFING__SCENE_SIZE_UNIT);
 }
 
 //--------------------------------------------------------------
@@ -44,25 +39,32 @@ void ofApp::setupParams() {
 
 	bGui.set("Gui", true);
 
-	transformParams.add(scale);
-	transformParams.add(yRotate);
-
-	cameraParams.add(bMouseCam);
-	cameraParams.add(bRotate);
-	cameraParams.add(speedRotate);
-	cameraParams.add(vResetCam);
-
-	drawParams.add(bDrawOriginal);
-	drawParams.add(bDrawParts);
+	drawModeParams.add(bDrawOriginal);
+	drawModeParams.add(bDrawParts);
+	drawModeParams.add(bDrawOnePiece);
+	drawParams.add(drawModeParams);
 	drawParams.add(bDrawTestBox);
 	drawParams.add(bDrawGrid);
 
-	parameters.add(drawParams);
-	parameters.add(transformParams);
-	parameters.add(cameraParams);
+	transformsParams.add(scale);
+	transformsParams.add(yPos);
+	transformsParams.add(yRotate);
+	transformsParams.add(vResetTransforms);
+	listenerReset = vResetTransforms.newListener([this](void) {
+		doResetTransforms();
+	});
 
-	parameters.add(materialOriginal.bGui);
-	
+	cameraParams.add(bMouseCamera);
+	cameraParams.add(rotateSpeed);
+	cameraParams.add(bAnimRotate);
+	cameraParams.add(vResetCam);
+
+	parameters.add(transformsParams);
+	parameters.add(cameraParams);
+	parameters.add(drawParams);
+	parameters.add(materialOnePiece.bGui);
+	parameters.add(bHelp);
+
 	ofAddListener(parameters.parameterChangedE(), this, &ofApp::Changed);
 	ofAddListener(drawParams.parameterChangedE(), this, &ofApp::ChangedDraw);
 }
@@ -71,12 +73,12 @@ void ofApp::setupParams() {
 void ofApp::setupObjects() {
 	ofLogNotice(__FUNCTION__);
 
-	pathModel = "models\\nike\\original\\nike1.fbx";
+	pathModel = pathModel_DEFAULT;
 
-	// Original Simple
-	loadModelOriginalSimple();
+	// Originally textured into the fbx and his textures folder.
+	loadModelOriginal();
 
-	// Original
+	// Original Meshed
 	loadModelOriginalMeshed();
 
 	// By parts
@@ -87,7 +89,7 @@ void ofApp::setupObjects() {
 void ofApp::setupScene() {
 	ofLogNotice(__FUNCTION__);
 
-	materialOriginal.setup("Material");
+	materialOnePiece.setup("Material OnePiece");
 
 	//--
 
@@ -96,19 +98,22 @@ void ofApp::setupScene() {
 	sceneManager.setFunctionRenderScene(f);
 
 	// Queue one material per parts/model
-	// Queue one color per model
+	// Queue one color per model 
+	// but mainly to be accesssible to load palettes on the fly easily.
 	for (size_t i = 0; i < models.size(); i++) {
-
 		string n = namesModels[i];
-		sceneManager.addMaterial(n);
+
+		string nm = "M" + n;
+		sceneManager.addMaterial(nm);
 
 		ofFloatColor c = palette[i];
-		sceneManager.addColor(c);
+		string nc = "C" + n;
+		sceneManager.addColor(c, nc);
 	}
 
 	//--
 
-	sceneManager.setup();
+	sceneManager.setupBuild();
 }
 
 //--------------------------------------------------------------
@@ -118,7 +123,9 @@ void ofApp::setupGui() {
 	gui.setup(parameters);
 
 	gui.getGroup(cameraParams.getName()).minimize();
-	gui.getGroup(transformParams.getName()).minimize();
+	gui.getGroup(transformsParams.getName()).minimize();
+
+	buildHelp();
 }
 
 //--
@@ -127,20 +134,19 @@ void ofApp::setupGui() {
 void ofApp::startup() {
 	ofLogNotice(__FUNCTION__);
 
+	// Defaults
+	bDrawParts = true;
+	doResetTransforms();
+	doResetCamera();
+
 	//--
 
+	// Settings
 	load();
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
-
-	// Camera
-	if (bRotate) {
-		float r = ofMap(speedRotate, 0, 1, 1.f, 100.f, true);
-		cameraOrbit += ofGetLastFrameTime() * r; // r degrees per second;
-		cam.orbitDeg(cameraOrbit, 0.f, cam.getDistance(), { 0.f, 0.f, 0.f });
-	}
 }
 
 //--
@@ -164,8 +170,30 @@ void ofApp::drawGui() {
 	ofxSurfing::setGuiPositionRightTo(sceneManager.gui, gui);
 	sceneManager.drawGui(); //right linked
 
-	ofxSurfing::setGuiPositionBelowTo(materialOriginal.gui, gui, true);
-	materialOriginal.drawGui(); //below linked
+	ofxSurfing::setGuiPositionBelowTo(materialOnePiece.gui, gui);
+	materialOnePiece.drawGui(); //below linked
+
+	drawHelp();
+}
+
+//--------------------------------------------------------------
+void ofApp::buildHelp() {
+	sHelp = "";
+	sHelp += "HELP\n";
+	sHelp += ofxSurfing::getProjectName() + "\n";
+	sHelp += "\n";
+	sHelp += "g Gui\n";
+	sHelp += "h Help\n";
+	sHelp += "m Mouse Camera\n";
+	sHelp += "r Rotate\n";
+}
+
+//--------------------------------------------------------------
+void ofApp::drawHelp() {
+
+	if (bHelp) {
+		ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
+	}
 }
 
 //--------------------------------------------------------------
@@ -189,52 +217,63 @@ void ofApp::drawScene() {
 }
 
 //--------------------------------------------------------------
+void ofApp::pushTransforms() {
+	ofPushMatrix();
+
+	// Position
+	float yUnit = SURFING__SCENE_SIZE_UNIT / 2.f;
+	float y = ofMap(yPos, -1.f, 1.f, -yUnit, yUnit, true);
+
+	// Scale
+	float s = ofMap(scale, -1.f, 1.f,
+		1.f / SURFING__SCENE_TEST_UNIT_SCALE, SURFING__SCENE_TEST_UNIT_SCALE, true);
+	s *= (SURFING__SCENE_SIZE_UNIT * 0.05f); //tweak here to set max zoom.
+
+	// Rotation anim
+	int tmax = 30;
+	// 30 seconds to complete 360deg
+	// at 60 fps, for the slower speed.
+	// faster speed is one second per 360deg.
+	int f = ofMap(rotateSpeed, 0.f, 1.f, 60 * tmax, 60, true);
+	float d = ofMap(ofGetFrameNum() % f, 0, f, 0.f, 360.f);
+
+	ofTranslate(0, y, 0);
+	ofScale(s);
+	ofRotateYDeg(yRotate);
+	if (bAnimRotate) ofRotateYDeg(d);
+}
+
+//--------------------------------------------------------------
+void ofApp::popTransforms() {
+	ofPopMatrix();
+}
+
+//--------------------------------------------------------------
 void ofApp::renderScene() {
-	float s = ofMap(scale, 0, 1, 50, 700, true);
-	//--
 
-	// Parts
+	pushTransforms();
+	ofRotateYDeg(180);
 
-	if (bDrawParts) {
-		ofPushMatrix();
-		ofRotateYDeg(yRotate + 180);
-		ofScale(s);
-		{
+	{
+		// Parts
+
+		if (bDrawParts) {
 			for (size_t i = 0; i < models.size(); i++) {
 
-				// Begin material
+				// Begin i material
 				sceneManager.beginMaterial(i);
 				{
-#if 1
 					// Meshes
 					for (auto & mesh_ : meshesParts[i]) {
 						mesh_.drawFaces();
 					}
-#else
-					// Models
-					models[i].drawFaces(); // do not works the material..
-#endif
+
+					//// Models
+					//models[i]->drawFaces(); // do not works the material?
 				}
-				// End material
+				// End i material
 				sceneManager.endMaterial(i);
 			}
-		}
-		ofPopMatrix();
-	}
-
-	//----
-
-	materialOriginal.begin();
-	{
-		//--
-
-		// TestBox
-
-		if (bDrawTestBox) {
-			ofRotateYDeg(yRotate + 90);
-			ofScale(s);
-
-			ofBox(0, 0, 0, 2);
 		}
 
 		//--
@@ -242,26 +281,40 @@ void ofApp::renderScene() {
 		// Original
 
 		if (bDrawOriginal) {
-			ofPushMatrix();
-			ofRotateYDeg(yRotate + 180);
-			ofScale(s);
-			{
-#if 1
-				// Meshes
-				for (size_t i = 0; i < meshesModelOriginal.size(); i++) {
-					meshesModelOriginal[i].drawFaces();
-				}
-#else
-				// Model
-				modelOriginal.drawFaces();
-#endif
-			}
-			ofPopMatrix();
+			modelOriginal.drawFaces();
 		}
 
 		//--
+
+		materialOnePiece.begin();
+		{
+			//--
+
+			// One Piece
+
+			if (bDrawOnePiece) {
+				for (size_t i = 0; i < meshesModelOriginal.size(); i++) {
+					meshesModelOriginal[i].drawFaces();
+				}
+			}
+
+			//----
+
+			// TestBox
+
+			if (bDrawTestBox) {
+				ofRotateYDeg(45);
+				ofBox(0, 0, 0, 5);
+			}
+
+			//--
+		}
+		materialOnePiece.end();
+
+		//--
 	}
-	materialOriginal.end();
+
+	popTransforms();
 }
 
 //--
@@ -288,28 +341,26 @@ void ofApp::drawGrid() {
 
 	// Floor grid with one single rectangle
 
-	float yr = 0.3;
-	int sz = 2 * 1000;
+	float yOffset = 0.2f;
+	float sz = SURFING__SCENE_SIZE_UNIT * 1.0f;
 
 	ofPushStyle();
-	ofPushMatrix();
-	ofTranslate(0, 3, 0);
-
-	ofSetColor(0, 0, 0, 255);
-	//ofSetColor(0, 255, 0, 255);
-
+	ofSetColor(0, 255);
 	ofNoFill();
-	ofSetLineWidth(1.f);
+	ofSetLineWidth(2.f);
+
+	ofPushMatrix();
 	ofRotateXDeg(90);
-	ofTranslate(-sz / 2, -sz / 2, yr * sz);
+	ofTranslate(-sz / 2, -sz / 2, yOffset * sz);
 	ofDrawRectangle(0, 0, sz, sz);
 	ofPopMatrix();
+
 	ofPopStyle();
 }
 
 //--------------------------------------------------------------
 void ofApp::beginCamera() {
-	cam.begin();
+	camera.begin();
 
 	//--
 
@@ -329,7 +380,7 @@ void ofApp::endCamera() {
 	{
 		ofPopMatrix();
 	}
-	cam.end();
+	camera.end();
 }
 
 //--
@@ -341,16 +392,15 @@ void ofApp::keyPressed(int key) {
 	if (key == 'g')
 		bGui = !bGui;
 
+	else if (key == 'h')
+		bHelp = !bHelp;
+
 	else if (key == 'm') {
-		bMouseCam = !bMouseCam;
-		if (bMouseCam)
-			cam.enableMouseInput();
-		else
-			cam.disableMouseInput();
+		bMouseCamera = !bMouseCamera;
 	}
 
 	else if (key == 'r')
-		bRotate = !bRotate;
+		bAnimRotate = !bAnimRotate;
 
 	if (key == OF_KEY_BACKSPACE) {
 		doRandomPalette();
@@ -359,10 +409,11 @@ void ofApp::keyPressed(int key) {
 }
 
 //--------------------------------------------------------------
-void ofApp::loadModelOriginalSimple() {
+void ofApp::loadModelOriginal() {
 	ofLogNotice(__FUNCTION__);
 
 	bool b = modelOriginal.loadModel(pathModel, false);
+
 	if (b) {
 		ofLogNotice(__FUNCTION__) << "Loaded modelOriginal: " << pathModel;
 	} else {
@@ -370,8 +421,10 @@ void ofApp::loadModelOriginalSimple() {
 	}
 
 	modelOriginal.setRotation(0, 180, 1, 0, 0);
+	modelOriginal.setRotation(1, 180, 0, 1, 0);
 	modelOriginal.setScale(1.f, 1.f, 1.f);
 	modelOriginal.setScaleNormalization(false);
+
 	modelOriginal.enableColors();
 }
 
@@ -388,9 +441,6 @@ void ofApp::loadModelOriginalMeshed() {
 		ofLogError(__FUNCTION__) << "Unable to load modelOriginal: " << pathModel;
 	}
 
-	model.setRotation(0, 180, 1, 0, 0);
-	model.setScale(1.f, 1.f, 1.f);
-	model.setScaleNormalization(false);
 	model.enableColors();
 
 	//--
@@ -419,7 +469,8 @@ void ofApp::loadModelOriginalMeshed() {
 void ofApp::loadModelParts() {
 	ofLogNotice(__FUNCTION__);
 
-	string pathParts = "models\\nike\\parts";
+	string pathParts = pathParts_DEFAULT;
+
 	dir.allowExt("fbx");
 	dir.open(pathParts); // parts folder
 	dir.listDir();
@@ -442,31 +493,29 @@ void ofApp::loadModelParts() {
 	// Load parts
 	for (auto & file : dir.getFiles()) {
 		ofLogNotice(__FUNCTION__) << file.getFileName();
-		string _path = file.getAbsolutePath();
+		string path_ = file.getAbsolutePath();
 
 		std::unique_ptr<ofxAssimpModelLoader> m = std::make_unique<ofxAssimpModelLoader>();
 
-		bool b = m->loadModel(_path, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
+		bool b = m->loadModel(path_, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
+
 		if (b) {
-			ofLogNotice(__FUNCTION__) << "Loaded modelOriginal: " << _path;
+			ofLogNotice(__FUNCTION__) << "Loaded model part: " << path_;
 		} else {
-			ofLogError(__FUNCTION__) << "Unable to load modelOriginal: " << _path;
+			ofLogError(__FUNCTION__) << "Unable to load model part: " << path_;
 		}
 
-		m->setRotation(0, 180, 1, 0, 0);
-		m->setScale(1.f, 1.f, 1.f);
-		m->setScaleNormalization(false);
 		m->enableColors();
 
 		models.push_back(std::move(m));
 
 		//--
 
-		string n = "C" + ofToString(models.size() - 1) + " " + file.getBaseName();
-		//string n = "C " + ofToString(models.size() - 1);
-		//string n = file.getBaseName();
-
+		// Set a name to be used on gui groups too
+		string n = ofToString(models.size() - 1) + " " + file.getBaseName();
 		namesModels.push_back(n);
+
+		//--
 
 		// Palette colors
 		ofParameter<ofFloatColor> c { n,
@@ -488,26 +537,16 @@ void ofApp::loadModelParts() {
 
 	size_t k = 0;
 	for (auto & model_ : models) {
-		vector<ofMesh> meshes_;
-
+		vector<ofVboMesh> meshes_;
 		for (size_t i = 0; i < model_->getMeshCount(); i++) {
-			auto & m = model_->getMesh(i);
-
-			//for (size_t j = 0; j < m.getNumColors(); j++) {
-			//	m.removeColor(i);
-			//}
-
-			//for (size_t j = 0; j < m.getVertices().size(); j++) {
-			//	m.addColor(palette[k].get());
-			//}
-
+			ofVboMesh m = model_->getMesh(i);
 			meshes_.push_back(m);
 		}
-
 		meshesParts.push_back(meshes_);
-
 		k++;
 	}
+
+	ofPopMatrix();
 }
 
 //--------------------------------------------------------------
@@ -516,7 +555,6 @@ void ofApp::doRefreshColorsOriginal() {
 
 	//for (size_t i = 0; i < modelOriginal.getMeshCount(); i++) {
 	//	auto & m = meshesModelOriginal[i];
-
 	//	for (size_t j = 0; j < m.getVertices().size(); j++) {
 	//		m.setColor(i, colorOriginal.get());
 	//	}
@@ -547,17 +585,27 @@ void ofApp::ChangedDraw(ofAbstractParameter & e) {
 
 	//--
 
-	// Select what to render. one single only.
+	// Select what to render. Exclusive / only one enabled.
 
-	if (name == bDrawParts.getName()) {
-		if (bDrawParts) {
-			if (bDrawOriginal) bDrawOriginal = false;
+	if (name == bDrawOriginal.getName()) {
+		if (bDrawOriginal) {
+			if (bDrawParts) bDrawParts = false;
+			if (bDrawOnePiece) bDrawOnePiece = false;
 			if (bDrawTestBox) bDrawTestBox = false;
 		}
 	}
 
-	else if (name == bDrawOriginal.getName()) {
-		if (bDrawOriginal) {
+	else if (name == bDrawParts.getName()) {
+		if (bDrawParts) {
+			if (bDrawOriginal) bDrawOriginal = false;
+			if (bDrawOnePiece) bDrawOnePiece = false;
+			if (bDrawTestBox) bDrawTestBox = false;
+		}
+	}
+
+	else if (name == bDrawOnePiece.getName()) {
+		if (bDrawOnePiece) {
+			if (bDrawOriginal) bDrawOriginal = false;
 			if (bDrawParts) bDrawParts = false;
 			if (bDrawTestBox) bDrawTestBox = false;
 		}
@@ -567,6 +615,7 @@ void ofApp::ChangedDraw(ofAbstractParameter & e) {
 		if (bDrawTestBox) {
 			if (bDrawParts) bDrawParts = false;
 			if (bDrawOriginal) bDrawOriginal = false;
+			if (bDrawOnePiece) bDrawOnePiece = false;
 		}
 	}
 }
@@ -580,18 +629,15 @@ void ofApp::Changed(ofAbstractParameter & e) {
 
 	//--
 
-	if (name == bMouseCam.getName()) {
-		if (bMouseCam)
-			cam.enableMouseInput();
+	if (name == bMouseCamera.getName()) {
+		if (bMouseCamera)
+			camera.enableMouseInput();
 		else
-			cam.disableMouseInput();
+			camera.disableMouseInput();
 	}
 
 	else if (name == vResetCam.getName()) {
-		cam.setupPerspective();
-		cam.reset();
-		cam.setVFlip(false);
-		cam.setDistance(SURFING__SCENE_SIZE_UNIT);
+		doResetCamera();
 	}
 }
 
@@ -602,7 +648,7 @@ void ofApp::save() {
 	ofxSurfing::saveGroup(parameters);
 	ofxSurfing::saveGroup(paletteParams);
 
-	ofxSaveCamera(cam, path_CameraSettings);
+	ofxSaveCamera(camera, path_CameraSettings);
 }
 
 //--------------------------------------------------------------
@@ -612,7 +658,7 @@ void ofApp::load() {
 	ofxSurfing::loadGroup(parameters);
 	ofxSurfing::loadGroup(paletteParams);
 
-	ofxLoadCamera(cam, path_CameraSettings);
+	ofxLoadCamera(camera, path_CameraSettings);
 }
 
 //--------------------------------------------------------------
@@ -625,4 +671,26 @@ void ofApp::exit() {
 	ofRemoveListener(paletteParams.parameterChangedE(), this, &ofApp::ChangedPalette);
 
 	save();
+}
+
+//--------------------------------------------------------------
+void ofApp::doResetTransforms() {
+	ofLogNotice(__FUNCTION__);
+
+	scale = -0.6;
+	yRotate = -45;
+	yPos = 0;
+}
+
+//--------------------------------------------------------------
+void ofApp::doResetCamera() {
+	ofLogNotice(__FUNCTION__);
+
+	camera.setupPerspective();
+	camera.reset();
+	camera.setVFlip(false);
+	camera.setDistance(SURFING__SCENE_SIZE_UNIT);
+
+	rotateSpeed = 0.5f;
+	bMouseCamera = bMouseCamera;
 }

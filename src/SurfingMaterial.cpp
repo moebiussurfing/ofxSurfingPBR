@@ -21,7 +21,6 @@ SurfingMaterial::~SurfingMaterial() {
 //--------------------------------------------------------------
 void SurfingMaterial::setup(string name) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setup(" << name << ")";
-
 	this->setName(name);
 	setup();
 }
@@ -77,6 +76,7 @@ void SurfingMaterial::setupParams() {
 	coatParams.setName("Coat");
 	randomizersParams.setName("Randomizers");
 	helpersParams.setName("Helpers");
+	moreParams.setName("More");
 
 	//--
 
@@ -135,6 +135,11 @@ void SurfingMaterial::setupParams() {
 	parameters.add(globalParams);
 	nameSourceGlobal.setSerializable(false);
 
+	bGuiHelpers.set("UI HELPERS", false);
+	bGuiHelpers.setSerializable(false);
+	// workflow: required to exclude from states/snapshots.
+	// trouble bc we would like to save & include into gui..
+
 	//--
 
 	parameters.add(colorParams);
@@ -142,9 +147,11 @@ void SurfingMaterial::setupParams() {
 	settingsParams.add(coatParams);
 	parameters.add(settingsParams);
 
-	parameters.add(vRandomMaterialFull);
-	parameters.add(vRandomSettings);
-	parameters.add(vResetMaterial);
+	moreParams.add(vRandomMaterialFull);
+	moreParams.add(vRandomSettings);
+	moreParams.add(vResetMaterial);
+	moreParams.add(bGuiHelpers);
+	parameters.add(moreParams);
 
 	//workflow
 	//parameters.add(indexHistory);
@@ -153,13 +160,6 @@ void SurfingMaterial::setupParams() {
 		bGui.set("UI MATERIAL", true);
 	else
 		bGui.set("UI " + name, true);
-
-	bGuiHelpers.set("UI HELPERS", false);
-	bGuiHelpers.setSerializable(false);
-	// workflow: required to exclude from states/snapshots.
-	// trouble bc we would like to save & include into gui..
-
-	parameters.add(bGuiHelpers);
 
 	//--
 
@@ -204,8 +204,8 @@ void SurfingMaterial::refreshGui() {
 	gui.getGroup(settingsParams.getName()).getGroup(coatParams.getName()).minimize();
 	gui.getGroup(colorParams.getName()).minimize();
 	gui.getGroup(globalParams.getName()).getGroup(globalLinksParams.getName()).minimize();
-
-	//guiHelpers.minimizeAll();
+	gui.getGroup(moreParams.getName()).minimize();
+	
 	guiHelpers.getGroup(randomizersParams.getName()).minimize();
 }
 
@@ -387,8 +387,7 @@ void SurfingMaterial::drawGui() {
 	gui.draw();
 
 	if (bGuiHelpers) {
-		auto p = gui.getShape().getBottomLeft();
-		guiHelpers.setPosition(p + glm::vec2(0, SURFING__PAD_OFXGUI_BETWEEN_PANELS * 2));
+		ofxSurfing::setGuiPositionBelowTo(guiHelpers, gui);
 		guiHelpers.draw();
 	}
 }
@@ -1292,6 +1291,7 @@ string SurfingMaterial::getName() {
 void SurfingMaterial::setName(const string & n) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:setName(" << n << ")";
 	name = n;
+	//bGui.setName("UI " + name);
 }
 
 //--------------------------------------------------------------

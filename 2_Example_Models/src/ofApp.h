@@ -86,9 +86,9 @@ public:
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
 	ofParameter<float> yPos { "Pos y", 0, -1.f, 1.f };
 
-	ofParameterGroup animateParams;
 	ofParameterGroup transformsParams;
 
+	ofParameterGroup animateParams;
 	ofParameter<bool> bAnimRotate { "Rotate Anim", false };
 	ofParameter<float> rotateSpeed { "Rotate Speed", 0.5f, 0, 1 };
 	ofParameter<bool> bAnimZoom { "Zoom Anim", false };

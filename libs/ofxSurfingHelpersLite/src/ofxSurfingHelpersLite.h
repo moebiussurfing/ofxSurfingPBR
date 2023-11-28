@@ -169,7 +169,7 @@ inline void setWindowTitleAsProjectName() {
 //	ofxSurfing::setWindowAtMonitor(-1, true); // Left monitor portrait
 //	ofxSurfing::setWindowAtMonitor(-1, false); // Left monitor landscape
 //	ofxSurfing::setWindowAtMonitor(1, false , 120, true); // Right monitor landscape, 60fps, vSync on
- 
+
 // Examples:
 // Move and shape the window app.
 // Customizes settings too: 60fps and vSync off.
@@ -962,6 +962,39 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 }
 };
 
+//TODO:
+// queue ofxPanels.
+// set anchor panel
+// set position for linked
+//--------------------------------------------------------------
+class SurfingOfxGuiPanelsManager {
+	/*
+	//--------------------------------------------------------------
+void SurfingSceneManager::drawGui() {
+	gui.draw();
+
+	if (lights.bGui) {
+		ofxSurfing::setGuiPositionRightTo(lights.gui, gui);
+		lights.drawGui();
+	}
+
+	if (bGui_Materials) {
+		ofxSurfing::setGuiPositionRightTo(guiMaterials, lights.bGui ? lights.gui : gui);
+		guiMaterials.draw();
+	}
+
+	if (bGui_Colors) {
+		ofxSurfing::setGuiPositionRightTo(guiColors, guiMaterials);
+		guiColors.draw();
+	}
+}
+	*/
+public:
+	SurfingOfxGuiPanelsManager() {};
+
+	~SurfingOfxGuiPanelsManager() {};
+};
+
 //------
 
 /*
@@ -1046,7 +1079,7 @@ public:
 			bEnable.setWithoutEventNotifications(false);
 		}
 
-		bFlagSave = false;//fix just in case
+		bFlagSave = false; //fix just in case
 	}
 
 	void start() {

@@ -307,7 +307,7 @@ void ofxSurfingPBR::setupParams() {
 	testSceneParams.setName("Test Scene");
 	bGui_DrawTestScene.set("Draw Scene", true);
 	scaleTestScene.set("Scale", 0, -1.f, 1.f);
-	positionTestScene.set("yPosition", 0, -1.f, 1.f);
+	positionTestScene.set("yPos", 0, -1.f, 1.f);
 	vResetTestScene.set("Reset TestScene");
 	testSceneParams.add(bGui_DrawTestScene);
 	testSceneParams.add(scaleTestScene);

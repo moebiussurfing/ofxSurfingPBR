@@ -2,7 +2,7 @@
 * SurfingSceneManager.h
 * This class is a new WIP scene manager to queue lights and materials
 * to be used easily into a clean project.
-* Do not requires to include the main ofxSurfingPBR.h
+* Do not requires to include the main ofxSurfingPBR.h.
 */
 
 #pragma once
@@ -20,7 +20,7 @@ public:
 	SurfingSceneManager();
 	~SurfingSceneManager();
 
-	void setup();
+	void setupBuild(); // must be called afer adding materials and colors before!
 
 private:
 	void setupParams();
@@ -43,8 +43,8 @@ public:
 	void clearColors();
 	void clearMaterials();
 
-	void addMaterial(string name);
-	void addColor(ofFloatColor color);
+	void addMaterial(string name = "");
+	void addColor(ofFloatColor color, string name = "");
 
 	void setColor(ofFloatColor color, int index);
 	void setColorMaterial(ofFloatColor color, int index);
@@ -76,7 +76,9 @@ public:
 	ofParameter<bool>bGui_Materials;
 	ofParameter<bool>bGui_Colors;
 	ofParameter<int>indexMaterial;
+	ofParameter<string>nameIndexMaterial;
 	ofParameter<int> indexColor;
+	ofParameter<string>nameIndexColor;
 	ofEventListener listenerIndexColor;
 	ofEventListener listenerIndexMaterial;
 

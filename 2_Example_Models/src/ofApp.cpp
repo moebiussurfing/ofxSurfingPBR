@@ -387,6 +387,7 @@ void ofApp::updateSceneTransforms() {
 	ofScale(s);
 	if (bAnimRotate) ofRotateYDeg(d);
 }
+
 //--------------------------------------------------------------
 void ofApp::drawMyScene() {
 

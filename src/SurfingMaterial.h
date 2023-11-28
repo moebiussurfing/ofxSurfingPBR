@@ -1,7 +1,8 @@
 /*
-
 	TODO
 
+	fix changing colors must refresh 
+		to be passed by bright power values!
 */
 
 #pragma once
@@ -28,9 +29,9 @@ private:
 
 	void setupParams();
 	void setupGui();
+public:
 	void refreshGui();
 
-public:
 	ofRectangle getGuiShape() const;
 
 private:
@@ -62,6 +63,7 @@ public:
 	ofParameterGroup globalParams;
 	ofParameterGroup globalLinksParams;
 	ofParameterGroup settingsParams;
+	ofParameterGroup moreParams;
 	ofParameterGroup coatParams;
 	ofParameterGroup randomizersParams;
 	ofParameterGroup helpersParams;
