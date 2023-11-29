@@ -15,5 +15,5 @@
 ### 5_Example_Shadows
 ![](5_Example_Shadows/Capture.PNG)
  
-### 6_Example-3D_Parts
-![](6_Example-3D_Parts/Capture.PNG)
+### 6_Example_3D_Parts
+![](6_Example_3D_Parts/Capture.PNG)
