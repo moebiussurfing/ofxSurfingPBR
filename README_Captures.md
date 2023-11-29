@@ -26,4 +26,4 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 
 ![](6_Example_3D_Parts/CaptureData.PNG)
 
-![](6_Example_3D_Parts/CaptureData2_.PNG)
+![](6_Example_3D_Parts/CaptureData2.PNG)
