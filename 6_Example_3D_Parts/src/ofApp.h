@@ -1,25 +1,27 @@
 /*
 
-	This example shows how to illuminate a loaded FBX model  
-	with their PBR textures.  
-	Also, we have a data folder with some parts of the model  
-	that we exported separately manually  
-	from Blender, Cinema4D, or any others.  
+## EXAMPLE DESCRIPTION
 
-	We will use the `SurfingSceneManager.h` class  
-	to customize the scene.  
-	This class auto-creates a combo of the four default lights,  
-	to perform the light illumination,  
-	and allows queuing materials and colors to our scene.  
-	We will create a material for each part,  
-	so we can tweak each PBR material color and the PBR settings  
-	for each part independently.  
+This example shows how to illuminate a loaded `FBX model`  
+affecting their `PBR texture files`.  
+Also, we have a data folder with some parts of the model  
+that we exported separately manually  
+from Blender, Cinema4D, or any others.  
+`bin/data/models/nike/parts/*.*`
 
-	We have also a rotating camera with height and longitude settings.  
-	Also, we can apply one single material when using Draw OnePiece.  
+We will use the `SurfingSceneManager.h` class to customize the scene.  
+This class auto-creates a combo of the four default lights,  
+to perform the light illumination,  
+	
+Also allows queuing materials and colors to our scene.  
+We will create a material for each part,  
+so we can tweak each PBR material color and the PBR settings  
+for each part independently.  
+
+We have also a rotating camera with height and longitude settings.  
+Also, we can apply one single aux material when using the floor and on the OnePiece mode.  
 
 */
-
 
 #pragma once
 
@@ -33,8 +35,15 @@
 //--------------------------------------------------------------
 class ofApp : public ofBaseApp {
 private:
-	const string pathModel_DEFAULT = "models\\nike\\original\\nike1.fbx";//original textured model
-	const string pathParts_DEFAULT = "models\\nike\\parts";//must contain separated parts without textures
+	// Set your models files paths here!
+	
+	const string pathModel_DEFAULT = "models\\nike\\original\\nike1.fbx"; 
+	// The original textured model.
+	
+	const string pathParts_DEFAULT = "models\\nike\\parts"; 
+	// Must contain separated files parts without textures.
+
+	//--
 
 public:
 	void setup();
@@ -69,6 +78,8 @@ public:
 public:
 	SurfingSceneManager sceneManager;
 
+	SurfingMaterial materialAux; // to be used for the floor plane/box and on OnPiece mode.
+
 	//--
 
 public:
@@ -96,7 +107,6 @@ private:
 	vector<string> namesModels;
 
 	ofxAssimpModelLoader modelOriginal;
-	SurfingMaterial materialOnePiece;
 
 	//--
 
@@ -123,12 +133,16 @@ private:
 	ofParameter<float> yRotate { "y Rotate", 0, -180, 180 };
 	ofParameter<float> yPos { "Pos y", 0, -1.f, 1.f };
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
+	ofParameter<float> szFloor { "Floor Size", 0, 0, 1.f };
 	ofParameter<void> vResetTransforms { "Reset" };
 	ofEventListener listenerReset;
 	void doResetTransforms();
 
 	ofParameter<bool> bDrawGrid { "Draw Grid", true };
+	ofParameter<bool> bDrawFloor { "Draw Floor", true };
 	void drawGrid();
+	void drawFloor();
+	float yOffsetFloor = 0.2f;
 
 	//--
 

@@ -24,6 +24,9 @@ public:
 	void exit();
 
 private:
+	bool bDoneExit = false;
+
+private:
 	void update();
 	void update(ofEventArgs & args);
 

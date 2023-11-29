@@ -37,7 +37,7 @@ public:
 	void windowResized(int w, int h);
 	void keyPressed(int key);
 
-	// gui
+	// Gui
 	void setupGui();
 	void refreshGui(bool bHard=false);
 	void drawGui();
@@ -45,12 +45,12 @@ public:
 	ofParameterGroup g;
 	ofParameter<bool> bRefreshGui;
 	
-	// scene
+	// Scene
 	void drawScene();
 	void renderScene();
 	callback_t f_RenderScene = nullptr;
 
-	//camera
+	// Camera
 	ofEasyCam camera;
 	ofParameter<void> vResetCamera;
 	ofEventListener listenerResetCamera;
@@ -59,9 +59,9 @@ public:
 
 	//--
 
-	// standalone material
+	// Standalone material
 	SurfingMaterial material;
 
-	// standalone lights
+	// Standalone lights
 	SurfingLights lights;
 };

@@ -1,29 +1,28 @@
 /*
 * SurfingLights.h
 * 
-* This class is a predefined set of 4 different type lights:
+* This class is a predefined set of the OF core 
+* 4 different light types:
 * Point, Directional, Spot and Area.
 * Ready to be inserted on an environment scene.
-* Bundled testing animations, mouse positioning and debug helpers.
-* Persistent settings.
+* With the related parameters and a ui based on ofxGui.
+* Bundled testing animations, mouse positioning and debug helpers,
+* for positioning or shadows.
+* All settings are persistent.
 */
 
 /*
 	TODO
 
 	fix not saving bright settings
-
-	fix visible rectangle when drawing area light
-
+		refresh bright after changing colors!
+		bc if not, do not reflects the bright/power of the light!
+	fix visible rectangle when drawing area light?
 	add global from/to color workflow (copy from material).
-
 	create a cool init state.
-	
 	make simple mode/user/game controls.
-	
 	for light positions: 
-		add height, long/lat, distance controls
-		instead of xyz
+		add height, long/lat, distance controls instead of xyz
 */
 
 //--
@@ -51,6 +50,9 @@ public:
 	void setup();
 	void exit();
 	void keyPressed(int key);
+
+private:
+	bool bDoneExit = false;
 
 private:
 	void setupParameters();
@@ -264,7 +266,7 @@ private:
 	bool bFlagLoad = false;
 
 public:
-	void load();
+	bool load();
 	void save();
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE

@@ -16,6 +16,11 @@ SurfingMaterial::~SurfingMaterial() {
 	ofRemoveListener(colorParams.parameterChangedE(), this, &SurfingMaterial::ChangedColors);
 	ofRemoveListener(helpersParams.parameterChangedE(), this, &SurfingMaterial::ChangedHelpers);
 	ofRemoveListener(globalParams.parameterChangedE(), this, &SurfingMaterial::ChangedGlobals);
+
+	if (!bDoneExit) {
+		ofLogWarning("ofxSurfingPBR") << "SurfingMaterial:destructor() Force calling exit() bc has not been called until now!";
+		exit();
+	}
 }
 
 //--------------------------------------------------------------
@@ -1330,6 +1335,8 @@ void SurfingMaterial::exit() {
 #if defined(SURFING__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__USE_AUTOSAVE_SETTINGS_ENGINE)
 	save();
 #endif
+
+	bDoneExit = true;
 }
 
 //--------------------------------------------------------------

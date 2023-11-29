@@ -8,7 +8,7 @@ void ofApp::setup() {
 	ofxSurfing::setOfxGuiTheme();
 	ofxSurfing::setWindowTitleAsProjectName();
 	ofxSurfing::setWindowAtMonitor(-1);
-	ofSetLogLevel(OF_LOG_VERBOSE);
+	//ofSetLogLevel(OF_LOG_VERBOSE);
 #endif
 
 	setupCamera();
@@ -44,6 +44,8 @@ void ofApp::setupParams() {
 	drawModeParams.add(bDrawOnePiece);
 	drawParams.add(drawModeParams);
 	drawParams.add(bDrawTestBox);
+	drawParams.add(szFloor);
+	drawParams.add(bDrawFloor);
 	drawParams.add(bDrawGrid);
 
 	transformsParams.add(scale);
@@ -59,10 +61,10 @@ void ofApp::setupParams() {
 	cameraParams.add(bAnimRotate);
 	cameraParams.add(vResetCam);
 
-	parameters.add(transformsParams);
 	parameters.add(cameraParams);
+	parameters.add(transformsParams);
 	parameters.add(drawParams);
-	parameters.add(materialOnePiece.bGui);
+	parameters.add(materialAux.bGui);
 	parameters.add(bHelp);
 
 	ofAddListener(parameters.parameterChangedE(), this, &ofApp::Changed);
@@ -89,7 +91,7 @@ void ofApp::setupObjects() {
 void ofApp::setupScene() {
 	ofLogNotice(__FUNCTION__);
 
-	materialOnePiece.setup("Material OnePiece");
+	materialAux.setup("Material Aux");
 
 	//--
 
@@ -98,7 +100,7 @@ void ofApp::setupScene() {
 	sceneManager.setFunctionRenderScene(f);
 
 	// Queue one material per parts/model
-	// Queue one color per model 
+	// Queue one color per model
 	// but mainly to be accesssible to load palettes on the fly easily.
 	for (size_t i = 0; i < models.size(); i++) {
 		string n = namesModels[i];
@@ -170,8 +172,8 @@ void ofApp::drawGui() {
 	ofxSurfing::setGuiPositionRightTo(sceneManager.gui, gui);
 	sceneManager.drawGui(); //right linked
 
-	ofxSurfing::setGuiPositionBelowTo(materialOnePiece.gui, gui);
-	materialOnePiece.drawGui(); //below linked
+	ofxSurfing::setGuiPositionBelowTo(materialAux.gui, gui);
+	materialAux.drawGui(); //below linked
 
 	drawHelp();
 }
@@ -192,7 +194,9 @@ void ofApp::buildHelp() {
 void ofApp::drawHelp() {
 
 	if (bHelp) {
-		ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
+		string s = sHelp;
+		s += "\n" + ofToString(ofGetFrameRate(), 1) + " FPS";
+		ofxSurfing::ofDrawBitmapStringBox(s, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
 	}
 }
 
@@ -252,9 +256,14 @@ void ofApp::popTransforms() {
 void ofApp::renderScene() {
 
 	pushTransforms();
-	ofRotateYDeg(180);
-
 	{
+
+		//--
+
+		ofRotateYDeg(180); //flip
+
+		//--
+
 		// Parts
 
 		if (bDrawParts) {
@@ -269,7 +278,7 @@ void ofApp::renderScene() {
 					}
 
 					//// Models
-					//models[i]->drawFaces(); // do not works the material?
+					//models[i]->drawFaces(); // do not works when applying the material?
 				}
 				// End i material
 				sceneManager.endMaterial(i);
@@ -286,7 +295,7 @@ void ofApp::renderScene() {
 
 		//--
 
-		materialOnePiece.begin();
+		materialAux.begin();
 		{
 			//--
 
@@ -309,7 +318,7 @@ void ofApp::renderScene() {
 
 			//--
 		}
-		materialOnePiece.end();
+		materialAux.end();
 
 		//--
 	}
@@ -337,22 +346,45 @@ void ofApp::doRandomPalette() {
 //--
 
 //--------------------------------------------------------------
+void ofApp::drawFloor() {
+
+	materialAux.begin();
+	{
+		// Floor thin box
+
+		float r = ofMap(szFloor, 0, 1, 1, 2, true);
+		float sz = SURFING__SCENE_SIZE_UNIT * r;
+
+		ofPushMatrix();
+		{
+			ofRotateXDeg(90);
+			ofTranslate(0, 0, yOffsetFloor * sz);
+			ofDrawBox(glm::vec3(0, 0, 0), sz, sz, 1);
+		}
+		ofPopMatrix();
+	}
+	materialAux.end();
+}
+
+//--------------------------------------------------------------
 void ofApp::drawGrid() {
 
 	// Floor grid with one single rectangle
-
-	float yOffset = 0.2f;
-	float sz = SURFING__SCENE_SIZE_UNIT * 1.0f;
 
 	ofPushStyle();
 	ofSetColor(0, 255);
 	ofNoFill();
 	ofSetLineWidth(2.f);
 
+	float r = ofMap(szFloor, 0, 1, 1, 2, true);
+	float sz = SURFING__SCENE_SIZE_UNIT * r;
+
 	ofPushMatrix();
-	ofRotateXDeg(90);
-	ofTranslate(-sz / 2, -sz / 2, yOffset * sz);
-	ofDrawRectangle(0, 0, sz, sz);
+	{
+		ofRotateXDeg(90);
+		ofTranslate(-sz / 2, -sz / 2, yOffsetFloor * sz);
+		ofDrawRectangle(0, 0, sz, sz);
+	}
 	ofPopMatrix();
 
 	ofPopStyle();
@@ -360,7 +392,14 @@ void ofApp::drawGrid() {
 
 //--------------------------------------------------------------
 void ofApp::beginCamera() {
+
 	camera.begin();
+
+	//--
+
+	if (bDrawFloor) {
+		drawFloor();
+	}
 
 	//--
 
@@ -676,6 +715,8 @@ void ofApp::exit() {
 //--------------------------------------------------------------
 void ofApp::doResetTransforms() {
 	ofLogNotice(__FUNCTION__);
+
+	//szFloor = 0;
 
 	scale = -0.6;
 	yRotate = -45;

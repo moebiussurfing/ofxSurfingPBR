@@ -1,3 +1,4 @@
+
 This example includes the main and bigger class from the addon:  
 `ofxSurfingPBR.h`.  
 
@@ -9,8 +10,8 @@ This class have multiple modules or features included by default:
 - Background object with sphere or box with material.  
 - Test Scene draw with three prims.  
 - Shader module to help integration/dev. 
-    (currentlly commented / disabled by default)  
-- Lights bundle with 4predefinde lights: 
+    (currently commented / disabled by default)  
+- Lights bundle with 4 predefined lights: 
     `Point`, `Direct`, `Spot` and `Area`.  
 
 All the modules has his own settings and a gui (ofGui) 

@@ -11,6 +11,11 @@ SurfingSceneManager::SurfingSceneManager() {
 //--------------------------------------------------------------
 SurfingSceneManager ::~SurfingSceneManager() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:~SurfingSceneManager()";
+
+	if (!bDoneExit) {
+		ofLogWarning("ofxSurfingPBR") << "SurfingSceneManager:destructor() Force calling exit() bc has not been called until now!";
+		exit();
+	}
 }
 
 //--------------------------------------------------------------
@@ -82,8 +87,8 @@ void SurfingSceneManager::setupParams() {
 
 	//--
 
-	bGui_Materials.set("Materials", true);
-	bGui_Colors.set("Colors", false);
+	bGui_Materials.set("UI Materials", true);
+	bGui_Colors.set("UI Colors", false);
 
 	nameIndexMaterial.set("M Name", "");
 	nameIndexColor.set("C Name", "");
@@ -104,14 +109,20 @@ void SurfingSceneManager::setupParams() {
 		indexColor.set(0);
 	}
 
+	materialsControlParams.setName("Materials");
+	materialsControlParams.add(indexMaterial);
+	materialsControlParams.add(nameIndexMaterial);
+
+	colorsControlParams.setName("Colors");
+	colorsControlParams.add(indexColor);
+	colorsControlParams.add(nameIndexColor);
+
 	parameters.setName("SCENE_MANAGER");
 	parameters.add(lights.bGui);
 	parameters.add(bGui_Materials);
-	parameters.add(indexMaterial);
-	parameters.add(nameIndexMaterial);
 	parameters.add(bGui_Colors);
-	parameters.add(indexColor);
-	parameters.add(nameIndexColor);
+	parameters.add(materialsControlParams);
+	parameters.add(colorsControlParams);
 
 	materialsParams.setName("Materials");
 	listenerIndexMaterial = indexMaterial.newListener([this](int & i) {
@@ -129,7 +140,7 @@ void SurfingSceneManager::setupParams() {
 			string n = colors[i]->getName();
 			nameIndexColor.set(n);
 		}
-		
+
 		refreshGui();
 	});
 }
@@ -152,12 +163,19 @@ void SurfingSceneManager::setupGui() {
 	guiMaterials.setup(materialsParams);
 	guiColors.setup(colorsParams);
 
-	refreshGui();
+	refreshGui(true);
 }
 
 //--------------------------------------------------------------
-void SurfingSceneManager::refreshGui() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:refreshGui()";
+void SurfingSceneManager::refreshGui(bool bHard) {
+	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:refreshGui(" << bHard << ")";
+
+	if (bHard) {
+		gui.getGroup(materialsControlParams.getName()).minimize();
+		gui.getGroup(colorsControlParams.getName()).minimize();
+	}
+
+	//--
 
 	// maximize selected index only for materials and colors
 
@@ -180,6 +198,7 @@ void SurfingSceneManager::refreshGui() {
 		}
 	}
 
+	//TODO: implement usage
 	for (size_t i = 0; i < colors.size(); i++) {
 		auto & g = guiColors.getGroup(colors[i]->getName());
 
@@ -315,6 +334,8 @@ void SurfingSceneManager::exit() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:exit()";
 
 	ofxSurfing::saveSettings(parameters, path);
+
+	bDoneExit = true;
 }
 
 //--------------------------------------------------------------

@@ -163,11 +163,14 @@ void ofApp::renderScene()
 
 * Copy the content of `data.zip` to the examples or to your projects into `/bin/data`:  
 [bin/data.zip](https://mega.nz/file/cHkylJZY#sVdQpSF8IkvdmKdpMIbA4767kvBvfGL7R7GnU9g20ow)  
+[bin/data_Shaders](https://mega.nz/file/gLMwXY6S#HjIfsu80ZIpPccaFbJKowE3qeoRZeK8jnfSrhUEeGQE)
 
 bin  
 $~$ └ data  
+$~~~~~~$ ├ assets/fonts $~~~~$ ttf, otf  
 $~~~~~~$ ├ cubemaps $~~~~$ exr, hdr, jpg  
 $~~~~~~$ ├ models $~~~~$ obj, ply, fbx  
+$~~~~~~$ ├ images $~~~~$ jpg, png  
 $~~~~~~$ ├ shadersGL2 $~~~~$ frag, vert  
 $~~~~~~$ └ shadersGL3 $~~~~$ frag, vert  
 

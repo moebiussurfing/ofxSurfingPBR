@@ -11,7 +11,7 @@ void ofApp::setup() {
 	// Surfing lights combo
 	lights.setup();
 
-	// pass render functions required to do the shadow passes!
+	// Pass render functions required to do the shadow passes!
 	callback_t f = std::bind(&ofApp::renderScene, this);
 	lights.setFunctionRenderScene(f);
 
@@ -100,9 +100,10 @@ void ofApp::renderScene() {
 		ofSetSphereResolution(50);
 
 		// floor thin box
+		float sz = SURFING__SCENE_SIZE_UNIT * 2.0f;
 		ofPushMatrix();
 		ofRotateXDeg(90);
-		ofDrawBox(glm::vec3(0, 0, 0), 2000, 2000, 1);
+		ofDrawBox(glm::vec3(0, 0, 0), sz, sz, 1);
 		ofPopMatrix();
 
 		//--
@@ -140,7 +141,7 @@ void ofApp::doResetCamera() {
 	camera.setPosition({ 10, 500, 2000 });
 	camera.setOrientation({ 0, 0, 0 });
 
-	// save
+	// Save
 	ofxSaveCamera(camera, pathCamera);
 }
 
@@ -165,8 +166,8 @@ void ofApp::exit() {
 	ofxSurfing::save(g);
 	ofxSaveCamera(camera, pathCamera);
 
-	material.exit();
-	lights.exit();
+	//material.exit();//not required
+	//lights.exit();//not required
 }
 
 //--------------------------------------------------------------

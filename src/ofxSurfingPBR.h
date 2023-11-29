@@ -378,6 +378,8 @@ private:
 public:
 	void doResetAll(bool bExcludeExtras = false);
 
+	void doResetDefaultScene();
+
 	void doResetPlane();
 	void doResetPlaneTransform();
 	void doResetTestScene();
@@ -396,7 +398,7 @@ private:
 	string path = "ofxSurfingPBR_Scene.json";
 
 public:
-	void load();
+	bool load();
 	void save();
 	ofParameter<void> vLoad;
 	ofParameter<void> vSave;

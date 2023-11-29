@@ -25,7 +25,7 @@ public:
 private:
 	void setupParams();
 	void setupGui();
-	void refreshGui();
+	void refreshGui(bool bHard=false);
 	void startup();
 
 	void draw();
@@ -33,6 +33,9 @@ private:
 public:
 	void drawGui();
 	void exit();
+
+private:
+	bool bDoneExit = false;
 
 private:
 	callback_t f_RenderScene = nullptr;
@@ -54,6 +57,9 @@ public:
 
 	ofxPanel gui;
 	ofParameterGroup parameters;
+
+	ofParameterGroup materialsControlParams;
+	ofParameterGroup colorsControlParams;
 
 	ofxPanel guiMaterials;
 	ofxPanel guiColors;

@@ -720,30 +720,20 @@ ofParameterGroup & ofxSurfingPBR::getMaterialParameters() { //mainly to expose t
 void ofxSurfingPBR::startup() {
 	ofLogNotice("ofxSurfingPBR") << "startup() Begins!";
 
+	//TODO: need fix. some classes overwritte force settings here!
 	if (!this->getSettingsFileFound()) {
 		ofLogWarning("ofxSurfingPBR") << "Initialize settings for the first time!";
 		ofLogWarning("ofxSurfingPBR") << "Potential Newbie User Found!";
-		ofLogWarning("ofxSurfingPBR") << "Forcing states and some default stuff visible:";
-		ofLogWarning("ofxSurfingPBR") << "Enabled help, debug, reset camera and settings, etc...";
 
 		//--
 
-		//#if 0
-		//		// Initialize a Default Startup Scene!
-		//		{
-		//			//// Background
-		//			//bDrawBgColorPlain.set(true);
-		//			//bgColorPlain.set(ofFloatColor(0, 0.03, 0.3, 1));
-		//
-		//			// Plane
-		//			planeGlobalColor.set(ofFloatColor(0.25, 0, 0.5, 1));
-		//
-		//			// Material
-		//			material.roughness = 0.5;
-		//			material.reflectance = 0.5;
-		//			material.globalColor.set(ofFloatColor::orange);
-		//		}
-		//#endif
+#if 1
+		// Initialize a Default Startup Scene!
+		{
+			ofLogWarning("ofxSurfingPBR") << "Forcing reset to a hardcoded Default Scene!";
+			doResetDefaultScene();
+		}
+#endif
 
 		//--
 
@@ -751,10 +741,15 @@ void ofxSurfingPBR::startup() {
 		// Ready to a newbie user!
 		// All important/learning controls will be visible.
 		{
+			ofLogWarning("ofxSurfingPBR") << "Forcing states and some default stuff visible:";
+			ofLogWarning("ofxSurfingPBR") << "Enable help, debug, reset camera and settings, etc...";
+
 			bGui = true;
 			bGui_ofxGui = true;
 			bHelp = true;
 			bDebug = true;
+
+			doResetCamera();
 		}
 
 		//--
@@ -763,6 +758,8 @@ void ofxSurfingPBR::startup() {
 		//#ifdef SURFING__USE_LIGHTS_CLASS
 		//		lights.bDebug.makeReferenceTo(bDebug);
 		//#endif
+	} else {
+		ofLogNotice("ofxSurfingPBR") << "Located settings. Not opening for the first time!";
 	}
 
 	//--
@@ -1800,7 +1797,9 @@ void ofxSurfingPBR::drawPlane() {
 void ofxSurfingPBR::exit() {
 	ofLogNotice("ofxSurfingPBR") << "exit()";
 
-// Not required to be called bc it's using the auto saver!
+	// Should not mandatory as settings should be internally auto saved when changing.
+
+	// Not required to be called bc it's using the auto saver!
 #if defined(SURFING__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__USE_AUTOSAVE_SETTINGS_ENGINE)
 	save();
 
@@ -1825,8 +1824,10 @@ void ofxSurfingPBR::save() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::load() {
+bool ofxSurfingPBR::load() {
 	ofLogNotice("ofxSurfingPBR") << "load -> " << path;
+
+	bool b;
 
 	//--
 
@@ -1836,7 +1837,7 @@ void ofxSurfingPBR::load() {
 
 	//--
 
-	ofxSurfing::loadSettings(parameters, path);
+	b = ofxSurfing::loadSettings(parameters, path);
 
 	//CubeMap
 	loadCubeMap(path_CubemapFileAbsPath.get());
@@ -1846,6 +1847,8 @@ void ofxSurfingPBR::load() {
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.start();
 #endif
+
+	return b;
 }
 
 //--------------------------------------------------------------
@@ -2276,4 +2279,22 @@ void ofxSurfingPBR::doRandomMaterialAlphas() {
 
 	material.doRandomAlphas();
 	material.doStoreNewState();
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetDefaultScene() {
+	ofLogNotice("ofxSurfingPBR") << "doResetDefaultScene()";
+
+	// Background
+	surfingBg.bDrawBgColorPlain.set(true);
+	surfingBg.bgColorPlain.set(ofFloatColor(0, 0.03, 0.3, 1));
+
+	// Plane
+	planeGlobalColor.set(ofFloatColor::red);
+	//planeGlobalColor.set(ofFloatColor(0.25, 0, 0.5, 1));
+
+	// Material
+	material.roughness = 0.5;
+	material.reflectance = 0.5;
+	material.globalColor.set(ofFloatColor::orange);
 }

@@ -3,17 +3,20 @@
 	This example includes the main and bigger class from the addon:  
 	`ofxSurfingPBR.h`.  
 
-	This class have multiple modules or features included by default:  
+	This class has multiple modules 
+	or commontly used features included by default:  
+
 	- Floor plane with a simple material  
 		and customizable size and transforms.  
 	- One full PBR material ready to be used.  
 	- CubeMap for the PBR material and drawing as background.  
 	- Background object with sphere or box with material.  
 	- Test Scene draw with three prims.  
-	- Shader module to help integration/dev. 
-		(currentlly commented / disabled by default)  
-	- Lights bundle with 4predefinde lights: 
+	- Lights bundle with 4 predefined lights: 
 		`Point`, `Direct`, `Spot` and `Area`.  
+	- An internal and public exposed camera.
+	- Shader module to help integration/dev. 
+		(currently commented / disabled by default)  
 
 	All the modules has his own settings and a gui (ofGui) 
 	to tweak all the internal parameters.  

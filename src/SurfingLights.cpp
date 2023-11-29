@@ -15,6 +15,12 @@ SurfingLights::~SurfingLights() {
 	ofRemoveListener(lightsSettingsParams.parameterChangedE(), this, &SurfingLights::ChangedLights);
 	ofRemoveListener(brightsParams.parameterChangedE(), this, &SurfingLights::ChangedBrights);
 	ofRemoveListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
+
+	if (!bDoneExit) {
+		ofLogWarning("ofxSurfingPBR") << "SurfingLights:~SurfingLights() Force calling exit() bc has not been called until now!";
+
+		exit();
+	}
 }
 
 //--
@@ -575,8 +581,9 @@ void SurfingLights::setupParametersLights() {
 	bAnimLightsMouse.set("Mouse Lights", false);
 
 	bDebug.set("Debug", true);
-	bDebugShadow.set("Debug Shadow", true);
 	bDebugLights.set("Debug Lights", true);
+	bDebugShadow.set("Debug Shadow", false);
+
 	bRefreshGui.set("Refresh Gui", true);
 
 	//--
@@ -1237,7 +1244,7 @@ void SurfingLights::doResetAllLights(bool bHard) {
 //--------------------------------------------------------------
 void SurfingLights::doResetPoint(bool bHard) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doResetPoint()";
-	
+
 	bPointShadow = true;
 
 	// touch colors too
@@ -1568,12 +1575,12 @@ void SurfingLights::ChangedShadow(ofAbstractParameter & e) {
 		ofShadow::setAllShadowTypes((ofShadowType)indexShadowType.get());
 	}
 
-	//workflow
-	else if (name == bDebugShadow.getName()) {
-		if (bDebugShadow) {
-			if (!bDebug) bDebug = true;
-		}
-	}
+	////workflow
+	//else if (name == bDebugShadow.getName()) {
+	//	if (bDebugShadow) {
+	//		if (!bDebug) bDebug = true;
+	//	}
+	//}
 }
 
 //--
@@ -1699,26 +1706,32 @@ void SurfingLights::doRefreshBrightArea() {
 
 //--------------------------------------------------------------
 void SurfingLights::save() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Save -> " << pathSettings << " , " << pathSettingsShadows;
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Save -> " << pathSettings;
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Save -> " << pathSettingsShadows;
 
 	ofxSurfing::saveSettings(shadowParams, pathSettingsShadows);
 	ofxSurfing::saveSettings(lightsSettingsParams, pathSettings);
 }
 
 //--------------------------------------------------------------
-void SurfingLights::load() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Load -> " << pathSettings << " , " << pathSettingsShadows;
+bool SurfingLights::load() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Load -> " << pathSettings;
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Load -> " << pathSettingsShadows;
+
+	bool b;
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.pause();
 #endif
 
-	ofxSurfing::loadSettings(shadowParams, pathSettingsShadows);
-	ofxSurfing::loadSettings(lightsSettingsParams, pathSettings);
+	b = ofxSurfing::loadSettings(shadowParams, pathSettingsShadows);
+	b &= ofxSurfing::loadSettings(lightsSettingsParams, pathSettings);
 
 #ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.start();
 #endif
+
+	return b;
 }
 
 //--------------------------------------------------------------
@@ -1729,6 +1742,8 @@ void SurfingLights::exit() {
 #if defined(SURFING__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__USE_AUTOSAVE_SETTINGS_ENGINE)
 	save();
 #endif
+
+	bDoneExit = true;
 }
 
 //--------------------------------------------------------------
