@@ -1035,13 +1035,13 @@ using callback_t = std::function<void()>;
 //--------------------------------------------------------------
 class SurfingAutoSaver {
 public:
-	SurfingAutoSaver::SurfingAutoSaver() {
+	SurfingAutoSaver() {
 		ofAddListener(ofEvents().update, this, &SurfingAutoSaver::update);
 
 		bEnable.setSerializable(false); //force always enable
 	}
 
-	SurfingAutoSaver::~SurfingAutoSaver() {
+	~SurfingAutoSaver() {
 		ofRemoveListener(ofEvents().update, this, &SurfingAutoSaver::update);
 	}
 
