@@ -1952,7 +1952,7 @@ bool ofxSurfingPBR::loadCubeMap(string path) {
 	if (bLoadedCubeMap) {
 		ofLogNotice("ofxSurfingPBR") << "Successfully loaded cubeMap from path: " << path;
 
-		cubeMapMode = cubeMapMode; //refresh
+		cubeMapMode.set(cubeMapMode.get()); //refresh
 
 		//get basename
 		cubeMapName = ofFilePath::getBaseName(path);

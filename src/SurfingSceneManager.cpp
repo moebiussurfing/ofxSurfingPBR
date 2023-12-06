@@ -149,8 +149,8 @@ void SurfingSceneManager::setupParams() {
 void SurfingSceneManager::startup() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:startup()";
 
-	indexMaterial = indexMaterial;
-	indexColor = indexColor;
+	indexMaterial.set(indexMaterial.get());
+	indexColor.set(indexColor.get());
 
 	ofxSurfing::loadSettings(parameters, path);
 }

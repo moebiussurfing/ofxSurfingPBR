@@ -99,7 +99,7 @@ inline bool saveSettings(ofParameterGroup & parameters, string path = "") {
 //--------------------------------------------------------------
 inline void checkFolderOrCreate(string path) {
 	if (!ofDirectory::doesDirectoryExist(ofFilePath::getEnclosingDirectory(path))) {
-		if (ofFilePath::createEnclosingDirectory(path), true)
+		if (ofFilePath::createEnclosingDirectory(path, true))
 			ofLogWarning("ofxSurfing") << "Created enclosing folder for: " << path;
 		else
 			ofLogError("ofxSurfing") << "Unable to create enclosing folder for: " << path;
@@ -1035,8 +1035,15 @@ using callback_t = std::function<void()>;
 //--------------------------------------------------------------
 class SurfingAutoSaver {
 public:
-	SurfingAutoSaver();
-	~SurfingAutoSaver();
+	SurfingAutoSaver::SurfingAutoSaver() {
+		ofAddListener(ofEvents().update, this, &SurfingAutoSaver::update);
+
+		bEnable.setSerializable(false); //force always enable
+	}
+
+	SurfingAutoSaver::~SurfingAutoSaver() {
+		ofRemoveListener(ofEvents().update, this, &SurfingAutoSaver::update);
+	}
 
 	// auto saver workflow
 	// we will auto save after every param change,
@@ -1134,16 +1141,6 @@ public:
 		ofLogVerbose("SurfingAutoSaver") << "Save() " << name;
 	}
 };
-
-SurfingAutoSaver::SurfingAutoSaver() {
-	ofAddListener(ofEvents().update, this, &SurfingAutoSaver::update);
-
-	bEnable.setSerializable(false); //force always enable
-}
-
-SurfingAutoSaver::~SurfingAutoSaver() {
-	ofRemoveListener(ofEvents().update, this, &SurfingAutoSaver::update);
-}
 
 //------
 
