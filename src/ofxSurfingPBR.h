@@ -398,14 +398,14 @@ private:
 	string path = "ofxSurfingPBR_Scene.json";
 
 public:
-	//bool load(bool bHard = false);
-	//void save(bool bHard = false);
 	bool load();
 	void save();
-	ofParameter<void> vLoad;
-	ofParameter<void> vSave;
-	ofEventListener listenerLoad;
-	ofEventListener listenerSave;
+	bool loadAll();
+	void saveAll();
+	ofParameter<void> vLoadAll;
+	ofParameter<void> vSaveAll;
+	ofEventListener listenerLoadAll;
+	ofEventListener listenerSaveAll;
 
 	bool getSettingsFileFound();
 	// To check if the app is opened for the first time

@@ -181,10 +181,10 @@ void ofxSurfingPBR::setupParams() {
 
 	parameters.setName("PBR_SCENE");
 
-	vLoad.set("Load");
-	vSave.set("Save");
-	parameters.add(vLoad);
-	parameters.add(vSave);
+	vLoadAll.set("Load All");
+	vSaveAll.set("Save All");
+	parameters.add(vLoadAll);
+	parameters.add(vSaveAll);
 
 	showGuiParams.setName("UI");
 	showGuiParams.add(material.bGui);
@@ -388,12 +388,12 @@ void ofxSurfingPBR::setupCallbacks() {
 		lights.bDebug = bDebug;
 	});
 
-	listenerSave = vSave.newListener([this](void) {
-		save();
+	listenerSaveAll = vSaveAll.newListener([this](void) {
+		saveAll();
 	});
 
-	listenerLoad = vLoad.newListener([this](void) {
-		load();
+	listenerLoadAll = vLoadAll.newListener([this](void) {
+		loadAll();
 	});
 
 	ofAddListener(drawParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
@@ -1822,16 +1822,6 @@ void ofxSurfingPBR::save() {
 
 	//save scene
 	ofxSurfing::saveSettings(parameters, path);
-
-//	//save all: material, bg and lights.
-//	if (1) {
-//		material.save();
-//		surfingBg.save();
-//
-//#ifdef SURFING__USE_LIGHTS_CLASS
-//		lights.save();
-//#endif
-//	}
 }
 
 //--------------------------------------------------------------
@@ -1853,15 +1843,61 @@ bool ofxSurfingPBR::load() {
 	//CubeMap
 	loadCubeMap(path_CubemapFileAbsPath.get());
 
-//	//load all: material, bg and lights.
-//	if (1) {
-//		material.load();
-//		surfingBg.load();
-//
-//#ifdef SURFING__USE_LIGHTS_CLASS
-//		lights.load();
-//#endif
-//	}
+	//--
+
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+	autoSaver.start();
+#endif
+
+	return b;
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::saveAll() {
+	ofLogNotice("ofxSurfingPBR") << "saveAll -> " << path;
+
+	//save scene
+	ofxSurfing::saveSettings(parameters, path);
+
+	//save all: material, bg, lights and camera.
+	material.save();
+	surfingBg.save();
+
+#ifdef SURFING__USE_LIGHTS_CLASS
+	lights.save();
+#endif
+
+	if (bEnableCameraAutosave) doSaveCamera();
+}
+
+//--------------------------------------------------------------
+bool ofxSurfingPBR::loadAll() {
+	ofLogNotice("ofxSurfingPBR") << "loadAll -> " << path;
+
+	bool b;
+
+	//--
+
+#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+	autoSaver.pause();
+#endif
+
+	//--
+
+	b = ofxSurfing::loadSettings(parameters, path);
+
+	//CubeMap
+	loadCubeMap(path_CubemapFileAbsPath.get());
+
+	//load all: material, bg, lights and camera.
+	material.load();
+	surfingBg.load();
+
+#ifdef SURFING__USE_LIGHTS_CLASS
+	lights.load();
+#endif
+	
+	doLoadCamera();
 
 	//--
 

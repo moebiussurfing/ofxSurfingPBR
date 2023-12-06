@@ -2,14 +2,14 @@
 
 //--------------------------------------------------------------
 SurfingBg::SurfingBg() {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: SurfingBg()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: SurfingBg()";
 
 	ofAddListener(ofEvents().update, this, &SurfingBg::update);
 }
 
 //--------------------------------------------------------------
 SurfingBg::~SurfingBg() {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: ~SurfingBg()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: ~SurfingBg()";
 
 	ofRemoveListener(ofEvents().update, this, &SurfingBg::update);
 
@@ -20,7 +20,7 @@ SurfingBg::~SurfingBg() {
 
 //--------------------------------------------------------------
 void SurfingBg::exit() {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: exit()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: exit()";
 
 #if defined(SURFING__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__USE_AUTOSAVE_SETTINGS_ENGINE)
 	save();
@@ -29,14 +29,14 @@ void SurfingBg::exit() {
 
 //--------------------------------------------------------------
 void SurfingBg::save() {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: save()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: save()";
 
 	ofxSurfing::saveSettings(parameters, pathSettings);
 }
 
 //--------------------------------------------------------------
 bool SurfingBg::load() {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: load()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: load()";
 
 	bool b = false;
 
@@ -233,7 +233,7 @@ void SurfingBg::setupParameters() {
 
 //--------------------------------------------------------------
 void SurfingBg::startup() {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: startup()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: startup()";
 
 	//--
 
@@ -255,7 +255,7 @@ void SurfingBg::startup() {
 
 //--------------------------------------------------------------
 void SurfingBg::setupGui() {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: setupGui()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: setupGui()";
 
 	gui.setup(parameters);
 
@@ -273,7 +273,7 @@ void SurfingBg::setupGui() {
 
 //--------------------------------------------------------------
 void SurfingBg::refreshGui() {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: refreshGui()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: refreshGui()";
 
 	//gui.getGroup(paramsScene.getName()).minimize();
 
@@ -459,7 +459,7 @@ void SurfingBg::drawScene() {
 // Bg
 //--------------------------------------------------------------
 void SurfingBg::doResetAll() {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: doResetAll()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: doResetAll()";
 
 	doResetColors();
 	doResetScene();
@@ -467,7 +467,7 @@ void SurfingBg::doResetAll() {
 
 //--------------------------------------------------------------
 void SurfingBg::doResetColors() {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: doResetColors()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: doResetColors()";
 
 	if (brightGlobal != 0.15f) brightGlobal = 0.15f;
 	setBrightToColorGroup(brightGlobal);
@@ -493,7 +493,7 @@ void SurfingBg::doResetColors() {
 
 //--------------------------------------------------------------
 void SurfingBg::doResetScene() {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: doResetScene()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: doResetScene()";
 
 	ofSetSmoothLighting(bSmoothLights);
 
@@ -519,7 +519,7 @@ void SurfingBg::doResetScene() {
 
 //--------------------------------------------------------------
 void SurfingBg::setBgColorPlain(ofFloatColor c) {
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: setBgColorPlain(" << c << ")";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: setBgColorPlain(" << c << ")";
 
 	bgColorPlain = c;
 }
@@ -542,7 +542,7 @@ void SurfingBg::setColorBgGroup(ofFloatColor c) {
 
 	//--
 
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: setColorBgGroup(" << c << ")";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: setColorBgGroup(" << c << ")";
 
 	diffuse.set(c);
 	ambient.set(c);
@@ -584,7 +584,7 @@ void SurfingBg::setBrightToColorGroup(float brg) {
 
 	//--
 
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: setBrightToColorGroup(" << brg << ")";
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: setBrightToColorGroup(" << brg << ")";
 
 	auto cc = colorGroup.get();
 
@@ -633,7 +633,7 @@ void SurfingBg::ChangedColors(ofAbstractParameter & e) {
 
 	//--
 
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: ChangedColors " << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: ChangedColors " << name << " : " << e;
 
 	//--
 
@@ -700,7 +700,7 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 
 	//--
 
-	ofLogNotice("ofxSurfingPBR") << " SurfingBg: ChangedScene " << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg: ChangedScene " << name << " : " << e;
 
 	//--
 

@@ -627,3 +627,6 @@ MigrationBackup/
 >>>>>>> Stashed changes
 1_Example_Basic/bin/data/images/001.jpg
 1_Example_Basic/bin/data/images/002.jpg
+2_Example_Models/bin/data/assets/fonts/NotoSansMono-Regular.ttf
+2_Example_Models/bin/data/images/001.jpg
+2_Example_Models/bin/data/images/002.jpg
