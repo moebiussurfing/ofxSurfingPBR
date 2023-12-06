@@ -488,16 +488,7 @@ void ofApp::loadModelOriginalMeshed() {
 
 	for (size_t i = 0; i < model.getMeshCount(); i++) {
 
-		auto & m = model.getMesh(i);
-
-		//for (size_t j = 0; j < m.getNumColors(); j++) {
-		//	m.removeColor(i);
-		//}
-		//for (size_t j = 0; j < m.getVertices().size(); j++) {
-		//	m.addColor(colorOriginal.get());
-		//}
-
-		meshesModelOriginal.push_back(m);
+		meshesModelOriginal.push_back(model.getMesh(i));
 	}
 
 	// model info
