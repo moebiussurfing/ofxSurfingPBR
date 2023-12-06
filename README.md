@@ -162,8 +162,10 @@ void ofApp::renderScene()
 ## REQUERIMENTS 
 
 * Copy the content of `data.zip` to the examples or to your projects into `/bin/data`:  
-[bin/data.zip](https://mega.nz/file/cHkylJZY#sVdQpSF8IkvdmKdpMIbA4767kvBvfGL7R7GnU9g20ow)  
-[bin/data_Shaders](https://mega.nz/file/gLMwXY6S#HjIfsu80ZIpPccaFbJKowE3qeoRZeK8jnfSrhUEeGQE)
+DATA [bin/data.zip](https://mega.nz/file/cHkylJZY#sVdQpSF8IkvdmKdpMIbA4767kvBvfGL7R7GnU9g20ow)  
+ONLY SHADERS [bin/data_Shaders](https://mega.nz/file/gLMwXY6S#HjIfsu80ZIpPccaFbJKowE3qeoRZeK8jnfSrhUEeGQE)  
+DATA FOR `2_Example_Models` [bin/data.zip](https://mega.nz/file/saMXjATJ#hCcfG5KWJrRnwX85Wy0MmH0JMViaToS1MyOejCIxSZY)  
+DATA FOR `6_Example_3D_Parts` [bin/data.zip](https://mega.nz/file/5Klk0ZZA#nDyOPUj6tvw-g271pFeunr8EA7dBn5juWXZgrJkkOGk)  
 
 bin  
 $~$ └ data  
