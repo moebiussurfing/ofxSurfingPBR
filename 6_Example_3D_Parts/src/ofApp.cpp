@@ -107,10 +107,12 @@ void ofApp::setupScene() {
 
 		string nm = "M" + n;
 		sceneManager.addMaterial(nm);
-
+		
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 		ofFloatColor c = palette[i];
 		string nc = "C" + n;
 		sceneManager.addColor(c, nc);
+#endif
 	}
 
 	//--
@@ -188,6 +190,11 @@ void ofApp::buildHelp() {
 	sHelp += "h Help\n";
 	sHelp += "m Mouse Camera\n";
 	sHelp += "r Rotate\n";
+	sHelp += "\n";
+	sHelp += "DRAW\n";
+	sHelp += "1 Original\n";
+	sHelp += "2 Parts\n";
+	sHelp += "3 OnePiece (Aux Material)\n";
 }
 
 //--------------------------------------------------------------
@@ -339,7 +346,10 @@ void ofApp::doRandomPalette() {
 		ofFloatColor c = c_;
 
 		palette[i].set(c);
+
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 		sceneManager.addColor(c);
+#endif
 	}
 }
 
@@ -444,6 +454,16 @@ void ofApp::keyPressed(int key) {
 	if (key == OF_KEY_BACKSPACE) {
 		doRandomPalette();
 		//colorOriginal = ofColor(ofRandom(255), ofRandom(255), ofRandom(255));
+	}
+
+	else if (key == '1') {
+		bDrawOriginal = true;
+	}
+	else if (key == '2') {
+		bDrawParts = true;
+	}
+	else if (key == '3') {
+		bDrawOnePiece = true;
 	}
 }
 
@@ -724,5 +744,7 @@ void ofApp::doResetCamera() {
 	camera.setDistance(SURFING__SCENE_SIZE_UNIT);
 
 	rotateSpeed = 0.5f;
-	bMouseCamera = bMouseCamera;
+
+	//refresh
+	bMouseCamera.set(bMouseCamera.get());
 }

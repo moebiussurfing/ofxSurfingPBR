@@ -4,8 +4,11 @@
 SurfingSceneManager::SurfingSceneManager() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:SurfingSceneManager()";
 
-	clearColors();
 	clearMaterials();
+
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
+	clearColors();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -18,6 +21,7 @@ SurfingSceneManager ::~SurfingSceneManager() {
 	}
 }
 
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 //--------------------------------------------------------------
 void SurfingSceneManager::clearColors() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:clearColors()";
@@ -25,6 +29,7 @@ void SurfingSceneManager::clearColors() {
 	colors.clear();
 	colorsParams.clear();
 }
+#endif
 
 //--------------------------------------------------------------
 void SurfingSceneManager::clearMaterials() {
@@ -38,8 +43,11 @@ void SurfingSceneManager::clearMaterials() {
 void SurfingSceneManager::setFunctionRenderScene(callback_t f) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setFunctionRenderScene()";
 
-	clearColors();
 	clearMaterials();
+
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
+	clearColors();
+#endif
 
 	if (f_RenderScene == nullptr) {
 		ofLogError("ofxSurfingPBR") << "SurfingSceneManager:setFunctionRenderScene(). Wrong callback_t";
@@ -56,9 +64,12 @@ void SurfingSceneManager::setupBuild() {
 	if (materials.size() == 0) {
 		ofLogError("ofxSurfingPBR") << "SurfingSceneManager:Note that you need to add the materials before calling setup()!";
 	}
+
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	if (colors.size() == 0) {
 		ofLogError("ofxSurfingPBR") << "SurfingSceneManager:Note that you need to add the colors before calling setup()!";
 	}
+#endif
 
 	//--
 
@@ -72,9 +83,12 @@ void SurfingSceneManager::setupBuild() {
 
 	//--
 
-	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup() added " << colors.size() << " colors";
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup() added " << materials.size() << " materials";
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup() Done";
+	
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
+	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup() added " << colors.size() << " colors";
+#endif
 
 	//--
 
@@ -88,12 +102,15 @@ void SurfingSceneManager::setupParams() {
 	//--
 
 	bGui_Materials.set("UI Materials", true);
-	bGui_Colors.set("UI Colors", false);
 
 	nameIndexMaterial.set("M Name", "");
-	nameIndexColor.set("C Name", "");
 	nameIndexMaterial.setSerializable(false);
+
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
+	bGui_Colors.set("UI Colors", false);
+	nameIndexColor.set("C Name", "");
 	nameIndexColor.setSerializable(false);
+#endif
 
 	indexMaterial.set("Select Material", -1, -1, -1);
 	if (materials.size() > 0) {
@@ -102,27 +119,37 @@ void SurfingSceneManager::setupParams() {
 		indexMaterial.set(0);
 	}
 
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	indexColor.set("Select Color", -1, -1, -1);
 	if (colors.size() > 0) {
 		indexColor.setMax(colors.size() - 1);
 		indexColor.setMin(0);
 		indexColor.set(0);
 	}
+#endif
 
 	materialsControlParams.setName("Materials");
 	materialsControlParams.add(indexMaterial);
 	materialsControlParams.add(nameIndexMaterial);
 
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	colorsControlParams.setName("Colors");
 	colorsControlParams.add(indexColor);
 	colorsControlParams.add(nameIndexColor);
+#endif
 
 	parameters.setName("SCENE_MANAGER");
 	parameters.add(lights.bGui);
 	parameters.add(bGui_Materials);
+	
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	parameters.add(bGui_Colors);
+#endif
 	parameters.add(materialsControlParams);
+
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	parameters.add(colorsControlParams);
+#endif
 
 	materialsParams.setName("Materials");
 	listenerIndexMaterial = indexMaterial.newListener([this](int & i) {
@@ -134,6 +161,7 @@ void SurfingSceneManager::setupParams() {
 		refreshGui();
 	});
 
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	colorsParams.setName("Colors");
 	listenerIndexColor = indexColor.newListener([this](int & i) {
 		if (i < colors.size()) {
@@ -143,6 +171,7 @@ void SurfingSceneManager::setupParams() {
 
 		refreshGui();
 	});
+#endif
 }
 
 //--------------------------------------------------------------
@@ -150,7 +179,10 @@ void SurfingSceneManager::startup() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:startup()";
 
 	indexMaterial.set(indexMaterial.get());
+
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	indexColor.set(indexColor.get());
+#endif
 
 	ofxSurfing::loadSettings(parameters, path);
 }
@@ -161,7 +193,10 @@ void SurfingSceneManager::setupGui() {
 
 	gui.setup(parameters);
 	guiMaterials.setup(materialsParams);
+
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	guiColors.setup(colorsParams);
+#endif
 
 	refreshGui(true);
 }
@@ -172,7 +207,10 @@ void SurfingSceneManager::refreshGui(bool bHard) {
 
 	if (bHard) {
 		gui.getGroup(materialsControlParams.getName()).minimize();
+
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 		gui.getGroup(colorsControlParams.getName()).minimize();
+#endif
 	}
 
 	//--
@@ -199,6 +237,7 @@ void SurfingSceneManager::refreshGui(bool bHard) {
 	}
 
 	//TODO: implement usage
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	for (size_t i = 0; i < colors.size(); i++) {
 		auto & g = guiColors.getGroup(colors[i]->getName());
 
@@ -208,6 +247,7 @@ void SurfingSceneManager::refreshGui(bool bHard) {
 			g.minimize();
 		}
 	}
+#endif
 }
 
 //--------------------------------------------------------------
@@ -233,10 +273,12 @@ void SurfingSceneManager::drawGui() {
 		guiMaterials.draw();
 	}
 
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	if (bGui_Colors) {
 		ofxSurfing::setGuiPositionRightTo(guiColors, guiMaterials);
 		guiColors.draw();
 	}
+#endif
 }
 
 //--------------------------------------------------------------
@@ -256,6 +298,7 @@ void SurfingSceneManager::addMaterial(string name) {
 	materials.push_back(std::move(m));
 }
 
+#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 //--------------------------------------------------------------
 void SurfingSceneManager::addColor(ofFloatColor color, string name) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:addColor(" << color << ")";
@@ -272,6 +315,7 @@ void SurfingSceneManager::addColor(ofFloatColor color, string name) {
 	colorsParams.add(*m);
 	colors.push_back(std::move(m));
 }
+#endif
 
 //--------------------------------------------------------------
 void SurfingSceneManager::setColor(ofFloatColor color, int index) {

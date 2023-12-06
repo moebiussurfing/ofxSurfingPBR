@@ -12,10 +12,15 @@
 
 //----
 
-// DEBUG
+// DEBUG / WIP
 
 //#define SURFING__SHADER_DEBUG 
 // TODO: testing to improve performance.
+
+#define SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
+//TODO: disabled as is not finished yet.
+// The idea of this code is to have a palette of colors
+// linked to the materials easily.
 
 //----
 

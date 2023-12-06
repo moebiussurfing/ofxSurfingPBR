@@ -120,7 +120,7 @@ private:
 	ofEasyCam camera;
 	float rotationLong;
 	string path_CameraSettings = "CameraSettings.txt";
-	ofParameter<bool> bMouseCamera { "Mouse Camera", false };
+	ofParameter<bool> bMouseCamera { "Mouse Camera", true };
 	ofParameter<void> vResetCam { "Reset Camera" };
 	ofParameter<bool> bAnimRotate { "Rotate Anim", true };
 	ofParameter<float> rotateSpeed { "Rotate Speed", 0.5, 0, 1 };
@@ -152,7 +152,7 @@ private:
 	void ChangedDraw(ofAbstractParameter & e);
 
 	void doRefreshColorsOriginal();
-	void doRandomPalette();
+	void doRandomPalette();//TODO
 
 	//--
 
@@ -169,6 +169,6 @@ private:
 
 	void drawHelp();
 	void buildHelp(); //refresh help info to display updated
-	ofParameter<bool> bHelp { "Help", false };
+	ofParameter<bool> bHelp { "Help", true };
 	string sHelp;
 };
