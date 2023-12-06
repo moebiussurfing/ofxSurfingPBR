@@ -1031,6 +1031,7 @@ public:
 
 #include <functional>
 using callback_t = std::function<void()>;
+using callback_tb = std::function<void(bool)>;//TODO
 
 //--------------------------------------------------------------
 class SurfingAutoSaver {

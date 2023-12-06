@@ -1820,7 +1820,18 @@ void ofxSurfingPBR::exit() {
 void ofxSurfingPBR::save() {
 	ofLogNotice("ofxSurfingPBR") << "save -> " << path;
 
+	//save scene
 	ofxSurfing::saveSettings(parameters, path);
+
+//	//save all: material, bg and lights.
+//	if (1) {
+//		material.save();
+//		surfingBg.save();
+//
+//#ifdef SURFING__USE_LIGHTS_CLASS
+//		lights.save();
+//#endif
+//	}
 }
 
 //--------------------------------------------------------------
@@ -1841,6 +1852,16 @@ bool ofxSurfingPBR::load() {
 
 	//CubeMap
 	loadCubeMap(path_CubemapFileAbsPath.get());
+
+//	//load all: material, bg and lights.
+//	if (1) {
+//		material.load();
+//		surfingBg.load();
+//
+//#ifdef SURFING__USE_LIGHTS_CLASS
+//		lights.load();
+//#endif
+//	}
 
 	//--
 

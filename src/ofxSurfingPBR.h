@@ -398,6 +398,8 @@ private:
 	string path = "ofxSurfingPBR_Scene.json";
 
 public:
+	//bool load(bool bHard = false);
+	//void save(bool bHard = false);
 	bool load();
 	void save();
 	ofParameter<void> vLoad;
