@@ -170,9 +170,9 @@ void ofApp::renderScene()
 bin  
 $~$ └ data  
 $~~~~~~$ ├ assets/fonts $~~~~$ ttf, otf $~~~$ | for ofxGui customize  
-$~~~~~~$ ├ cubemaps $~~~~$ exr, hdr, jpg $~~~$ | for CubeMaps  
-$~~~~~~$ ├ models $~~~~~~~~~$ obj, ply, fbx $~~~$ | for 3d objects  
-$~~~~~~$ ├ images $~~~~~~~~~$ jpg, png $~~~$ | for Bg sphere texture  
+$~~~~~~$ ├ cubemaps $~~~~~$ exr, hdr, jpg $~~~$ | for CubeMaps  
+$~~~~~~$ ├ models $~~~~~~~~~~$ obj, ply, fbx $~~~$ | for 3d objects  
+$~~~~~~$ ├ images $~~~~~~~~~~$ jpg, png $~~~$ | for Bg sphere texture  
 $~~~~~~$ ├ shadersGL2 $~~~~$ frag, vert $~~~$ | used when enabled  
 $~~~~~~$ └ shadersGL3 $~~~~$ frag, vert $~~~$ | used when enabled  
 
