@@ -33,7 +33,8 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 ![](5_Example_Shadows/Capture.PNG)
  
 ### 6_Example-3D_Parts
-![](6_Example-3D_Parts/Capture.PNG)
+![](6_Example_3D_Parts/Capture.PNG)
+![](6_Example_3D_Parts/CaptureData3.PNG)
 
   </p>
 </details>

@@ -510,9 +510,12 @@ public:
 };
 
 SurfingModelsFilesBrowser::SurfingModelsFilesBrowser() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingModelsFilesBrowser:SurfingModelsFilesBrowser()";
 }
 
 SurfingModelsFilesBrowser::~SurfingModelsFilesBrowser() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingModelsFilesBrowser:~SurfingModelsFilesBrowser()";
+
 	ofRemoveListener(parameters.parameterChangedE(), this, &SurfingModelsFilesBrowser::Changed);
 
 	//TODO: fix auto saver!

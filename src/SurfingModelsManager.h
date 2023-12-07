@@ -19,10 +19,12 @@
 
 class SurfingModelsManager {
 public:
-	SurfingModelsManager::SurfingModelsManager() {
+	SurfingModelsManager() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingModelsManager:SurfingModelsManager()";
 	}
 
-	SurfingModelsManager::~SurfingModelsManager() {
+	~SurfingModelsManager() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingModelsManager:~SurfingModelsManager()";
 	}
 
 private:
@@ -183,10 +185,10 @@ public:
 
 			int j = filesBrowser.indexAnimation.get();
 			int numAnims = models[i]->getAnimationCount();
-			
+
 			filesBrowser.indexAnimation.setMin(0);
-			filesBrowser.indexAnimation.setMax(numAnims-1);
-			
+			filesBrowser.indexAnimation.setMax(numAnims - 1);
+
 			j %= numAnims;
 			j = ofClamp(j, filesBrowser.indexAnimation.getMin(), filesBrowser.indexAnimation.getMax());
 			filesBrowser.indexAnimation.set(j);
