@@ -133,6 +133,7 @@ void ofApp::setup() {
 
 void ofApp::draw() {
     pbr.draw();
+    
     pbr.drawGui();
 }
 
