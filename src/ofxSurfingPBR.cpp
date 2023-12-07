@@ -2180,6 +2180,8 @@ void ofxSurfingPBR::doResetPlane() {
 	if (!bLimitImage) bLimitImage.set(true);
 	if (bShaderToPlane) bShaderToPlane.set(false);
 	if (bDisplaceToMaterial) bDisplaceToMaterial.set(false);
+
+
 #endif
 }
 
@@ -2188,7 +2190,7 @@ void ofxSurfingPBR::doResetPlaneTransform() {
 	ofLogNotice("ofxSurfingPBR") << "doResetPlaneTransform()";
 
 	planeSize.set(glm::vec2(0.12, 0.05));
-	planeResolution.set(glm::vec2(0.f, 0.f));
+	planeResolution.set(glm::vec2(0.5f, 0.5f));
 	planePosition.set(0.f);
 	planeRotation.set(0.f);
 	//planeRotation.set(10.f);
@@ -2272,10 +2274,12 @@ void ofxSurfingPBR::doResetAll(bool bExcludeExtras) {
 	if (!bExcludeExtras) surfingBg.doResetAll();
 
 	// test scene
-	vResetTestScene.trigger();
+	//vResetTestScene.trigger();
+	doResetTestScene();
 
 	// camera
-	vResetCamera.trigger();
+	//vResetCamera.trigger();
+	doResetCamera();
 }
 
 //--------------------------------------------------------------
