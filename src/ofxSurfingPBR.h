@@ -55,7 +55,7 @@
 
 #include "SurfingMaterial.h"
 
-#ifdef SURFING__USE_LIGHTS_CLASS
+#ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	#include "SurfingLights.h"
 #endif
 
@@ -74,7 +74,7 @@ public:
 	ofxSurfingPBR();
 	~ofxSurfingPBR();
 
-#ifdef SURFING__USE_LIGHTS_CLASS
+#ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	SurfingLights lights;
 #endif
 
@@ -141,11 +141,11 @@ private:
 	void ChangedDraw(ofAbstractParameter & e);
 	void ChangedCamera(ofAbstractParameter & e);
 
-#ifdef SURFING__USE_CUBE_MAP
+#ifdef SURFING__PBR__USE_CUBE_MAP
 	void ChangedCubeMaps(ofAbstractParameter & e);
 #endif
 
-#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
+#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 	void ChangedDisplacers(ofAbstractParameter & e);
 #endif
 
@@ -338,7 +338,7 @@ public:
 
 	//--
 
-#ifdef SURFING__USE_CUBE_MAP
+#ifdef SURFING__PBR__USE_CUBE_MAP
 private:
 	ofCubeMap cubeMap;
 
@@ -414,14 +414,14 @@ public:
 	bool getSettingsFileFoundForMaterial();
 	bool getSettingsFileFoundForCamera();
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 private:
 	SurfingAutoSaver autoSaver;
 #endif
 
 	//--
 
-#ifdef SURFING__USE__PLANE_SHADER_AND_DISPLACERS
+#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 private:
 	ofShader shaderPlane;
 	bool bLoadedShaderPlane = false;

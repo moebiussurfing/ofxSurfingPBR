@@ -88,7 +88,7 @@ void SurfingMaterial::setupParams() {
 	globalColor.setSerializable(false);
 	globalAlpha.setSerializable(false);
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	// auto saver
 	callback_t f = std::bind(&SurfingMaterial::save, this);
 	autoSaver.setFunctionSaver(f);
@@ -495,7 +495,7 @@ void SurfingMaterial::ChangedGlobals(ofAbstractParameter & e) {
 
 	//--
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
 		autoSaver.saveSoon();
 	}
@@ -536,7 +536,7 @@ void SurfingMaterial::ChangedColors(ofAbstractParameter & e) {
 
 	//--
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
 		autoSaver.saveSoon();
 	}
@@ -574,7 +574,7 @@ void SurfingMaterial::ChangedSettings(ofAbstractParameter & e) {
 
 	//--
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
 		autoSaver.saveSoon();
 	}
@@ -1307,7 +1307,7 @@ void SurfingMaterial::load() {
 		ofLogWarning("ofxSurfingPBR") << "Settings path is empty!";
 	}
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.pause();
 #endif
 
@@ -1317,7 +1317,7 @@ void SurfingMaterial::load() {
 		ofxSurfing::loadSettings(parameters, path);
 	}
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.start();
 #endif
 
@@ -1332,7 +1332,7 @@ void SurfingMaterial::exit() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:exit()";
 	// Not required to be called bc it's using the auto saver!
 
-#if defined(SURFING__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__USE_AUTOSAVE_SETTINGS_ENGINE)
+#if defined(SURFING__PBR__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE)
 	save();
 #endif
 

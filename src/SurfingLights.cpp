@@ -571,7 +571,7 @@ void SurfingLights::setupParameters() {
 void SurfingLights::setupParametersLights() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:setupParametersLights()";
 
-	float sz = SURFING__SCENE_SIZE_UNIT * 1.5f;
+	float sz = SURFING__PBR__SCENE_SIZE_UNIT * 1.5f;
 
 	//--
 
@@ -715,7 +715,7 @@ void SurfingLights::setupParametersLights() {
 #endif
 	modeAnimArea.set("Mode Anim Area", 0, 0, 2);
 
-	float sza = SURFING__SCENE_SIZE_UNIT;
+	float sza = SURFING__PBR__SCENE_SIZE_UNIT;
 
 	areaSize.set("a Size", glm::vec2(400, 120),
 		glm::vec2(sza / 100, sza / 100),
@@ -891,7 +891,7 @@ void SurfingLights::startup() {
 
 	//--
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	callback_t f = std::bind(&SurfingLights::save, this);
 	autoSaver.setFunctionSaver(f);
 #endif
@@ -1104,7 +1104,7 @@ void SurfingLights::updateAnims() {
 
 	if (bAnimLights) {
 
-		const float r = SURFING__SCENE_SIZE_UNIT * 0.25f;
+		const float r = SURFING__PBR__SCENE_SIZE_UNIT * 0.25f;
 
 		// Point
 		lights[0]->setPosition(
@@ -1136,7 +1136,7 @@ void SurfingLights::updateAnims() {
 		mouseX = ofGetMouseX();
 		mouseY = ofGetMouseY();
 
-		float r = SURFING__SCENE_SIZE_UNIT * 3;
+		float r = SURFING__PBR__SCENE_SIZE_UNIT * 3;
 		float x = ofMap(mouseX, 0, ofGetWidth(), -r, r, true);
 		float y = ofMap(mouseY, 0, ofGetHeight(), r, -r, true);
 		float oy = 200;
@@ -1255,8 +1255,8 @@ void SurfingLights::doResetPoint(bool bHard) {
 
 	pointPosition.set(glm::vec3(
 		0,
-		SURFING__SCENE_SIZE_UNIT,
-		SURFING__SCENE_SIZE_UNIT * 0.3));
+		SURFING__PBR__SCENE_SIZE_UNIT,
+		SURFING__PBR__SCENE_SIZE_UNIT * 0.3));
 
 	if (bHard)
 		pointBright = SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET;
@@ -1277,8 +1277,8 @@ void SurfingLights::doResetDirectional(bool bHard) {
 
 	directionalPosition.set(glm::vec3(
 		0,
-		SURFING__SCENE_SIZE_UNIT,
-		SURFING__SCENE_SIZE_UNIT * 0.4));
+		SURFING__PBR__SCENE_SIZE_UNIT,
+		SURFING__PBR__SCENE_SIZE_UNIT * 0.4));
 
 	directionalOrientation.set(glm::vec3(-60, 0, 0));
 
@@ -1300,8 +1300,8 @@ void SurfingLights::doResetSpot(bool bHard) {
 
 	spotPosition.set(glm::vec3(
 		0,
-		SURFING__SCENE_SIZE_UNIT,
-		SURFING__SCENE_SIZE_UNIT * 0.5));
+		SURFING__PBR__SCENE_SIZE_UNIT,
+		SURFING__PBR__SCENE_SIZE_UNIT * 0.5));
 
 	spotOrientation.set(glm::vec3(-60, 0, 0));
 
@@ -1319,7 +1319,7 @@ void SurfingLights::doResetArea(bool bHard) {
 
 	bAreaShadow = true;
 
-	areaSize = { SURFING__SCENE_SIZE_UNIT / 8, SURFING__SCENE_SIZE_UNIT / 8 };
+	areaSize = { SURFING__PBR__SCENE_SIZE_UNIT / 8, SURFING__PBR__SCENE_SIZE_UNIT / 8 };
 
 	// touch colors too
 	if (bHard) {
@@ -1328,8 +1328,8 @@ void SurfingLights::doResetArea(bool bHard) {
 
 	areaPosition.set(glm::vec3(
 		0,
-		SURFING__SCENE_SIZE_UNIT,
-		SURFING__SCENE_SIZE_UNIT * 0.6));
+		SURFING__PBR__SCENE_SIZE_UNIT,
+		SURFING__PBR__SCENE_SIZE_UNIT * 0.6));
 
 	areaOrientation.set(glm::vec3(-60, 0, 0));
 
@@ -1345,7 +1345,7 @@ void SurfingLights::ChangedLights(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:ChangedLights " << name << " : " << e;
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
 		autoSaver.saveSoon();
 	}
@@ -1511,7 +1511,7 @@ void SurfingLights::ChangedShadow(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:ChangedShadow " << name << ": " << e;
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
 		autoSaver.saveSoon();
 	}
@@ -1591,7 +1591,7 @@ void SurfingLights::ChangedBrights(ofAbstractParameter & e) {
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:ChangedBrights " << name << " : " << e;
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
 		autoSaver.saveSoon();
 	}
@@ -1720,14 +1720,14 @@ bool SurfingLights::load() {
 
 	bool b;
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.pause();
 #endif
 
 	b = ofxSurfing::loadSettings(shadowParams, pathSettingsShadows);
 	b &= ofxSurfing::loadSettings(lightsSettingsParams, pathSettings);
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.start();
 #endif
 
@@ -1739,7 +1739,7 @@ void SurfingLights::exit() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:exit()";
 
 // Not required to be called bc it's using the auto saver!
-#if defined(SURFING__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__USE_AUTOSAVE_SETTINGS_ENGINE)
+#if defined(SURFING__PBR__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE)
 	save();
 #endif
 

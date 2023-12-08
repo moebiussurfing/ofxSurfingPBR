@@ -22,7 +22,7 @@ SurfingBg::~SurfingBg() {
 void SurfingBg::exit() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingBg: exit()";
 
-#if defined(SURFING__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__USE_AUTOSAVE_SETTINGS_ENGINE)
+#if defined(SURFING__PBR__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE)
 	save();
 #endif
 }
@@ -40,13 +40,13 @@ bool SurfingBg::load() {
 
 	bool b = false;
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.pause();
 #endif
 
 	b = ofxSurfing::loadSettings(parameters, pathSettings);
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.start();
 #endif
 
@@ -223,7 +223,7 @@ void SurfingBg::setupParameters() {
 
 	//--
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	// auto saver
 	callback_t f = std::bind(&SurfingBg::save, this);
 	//register the local save function to be called when saving is required.
@@ -397,11 +397,11 @@ void SurfingBg::drawScene() {
 	//bool bInCam = true;
 	//if (bInCam)
 	//	r = ofMap(sizeScene, sizeScene.getMin(), sizeScene.getMax(),
-	//		SURFING__SCENE_SIZE_UNIT * SURFING_BG_MIN,
-	//		SURFING__SCENE_SIZE_UNIT * SURFING_BG_MAX, true);
+	//		SURFING__PBR__SCENE_SIZE_UNIT * SURFING_BG_MIN,
+	//		SURFING__PBR__SCENE_SIZE_UNIT * SURFING_BG_MAX, true);
 	//else
 
-	float r = SURFING__SCENE_SIZE_UNIT;
+	float r = SURFING__PBR__SCENE_SIZE_UNIT;
 
 	// Face
 
@@ -410,14 +410,14 @@ void SurfingBg::drawScene() {
 
 		if (bModeSphere) {
 			r = ofMap(sizeScene, sizeScene.getMin(), sizeScene.getMax(),
-				SURFING__SCENE_SIZE_UNIT * SURFING_BG_MIN,
-				SURFING__SCENE_SIZE_UNIT * SURFING_BG_MAX, true);
+				SURFING__PBR__SCENE_SIZE_UNIT * SURFING_BG_MIN,
+				SURFING__PBR__SCENE_SIZE_UNIT * SURFING_BG_MAX, true);
 		}
 
 		else if (bModeBox) {
 			r = ofMap(sizeScene, sizeScene.getMin(), sizeScene.getMax(),
-				SURFING__SCENE_SIZE_UNIT * SURFING_BG_MIN,
-				SURFING__SCENE_SIZE_UNIT * SURFING_BG_MAX, true);
+				SURFING__PBR__SCENE_SIZE_UNIT * SURFING_BG_MIN,
+				SURFING__PBR__SCENE_SIZE_UNIT * SURFING_BG_MAX, true);
 		}
 
 		//--
@@ -484,7 +484,7 @@ void SurfingBg::doResetColors() {
 	//--
 
 	bgColorPlain.set(ofFloatColor(0.2f));
-#ifdef SURFING__USE_CUBE_MAP
+#ifdef SURFING__PBR__USE_CUBE_MAP
 	if (bDrawBgColorPlain) bDrawBgColorPlain = false;
 #else
 	bDrawBg = true;
@@ -615,7 +615,7 @@ void SurfingBg::setBrightToColorGroup(float brg) {
 
 //--------------------------------------------------------------
 void SurfingBg::Changed(ofAbstractParameter & e) {
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.saveSoon();
 #endif
 }
@@ -846,7 +846,7 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 
 	//--
 
-	////#ifdef SURFING__USE_CUBE_MAP
+	////#ifdef SURFING__PBR__USE_CUBE_MAP
 	////	if (name == surfingBg.bDrawBgColorPlain.getName()) {
 	////		if (!bLoadedCubeMap) return; //skip
 	////		//workflow

@@ -18,7 +18,7 @@ public:
 private:
 	void update(ofEventArgs & args);
 
-#ifdef SURFING__USE_AUTOSAVE_SETTINGS_ENGINE
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 
 private:
 	SurfingAutoSaver autoSaver;
