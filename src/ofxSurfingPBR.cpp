@@ -618,7 +618,8 @@ void ofxSurfingPBR::setup() {
 	//--
 
 	// reset all except material to avoid do it twice and overwrite loaded settings!
-	doResetAll(true);
+	doResetAll();
+	//doResetAll(true);
 
 	setupGui();
 
@@ -720,8 +721,12 @@ ofParameterGroup & ofxSurfingPBR::getMaterialParameters() { //mainly to expose t
 void ofxSurfingPBR::startup() {
 	ofLogNotice("ofxSurfingPBR") << "startup() Begins!";
 
+	bool b = !load();
+	//bool b = !this->getSettingsFileFound();
+
 	//TODO: need fix. some classes overwritte force settings here!
-	if (!this->getSettingsFileFound()) {
+	if (b) {
+		ofLogWarning("ofxSurfingPBR") << "No file settings found!";
 		ofLogWarning("ofxSurfingPBR") << "Initialize settings for the first time!";
 		ofLogWarning("ofxSurfingPBR") << "Potential Newbie User Found!";
 
@@ -740,6 +745,7 @@ void ofxSurfingPBR::startup() {
 		// Force enable Help and Debug states!
 		// Ready to a newbie user!
 		// All important/learning controls will be visible.
+		//if (0)
 		{
 			ofLogWarning("ofxSurfingPBR") << "Forcing states and some default stuff visible:";
 			ofLogWarning("ofxSurfingPBR") << "Enable help, debug, reset camera and settings, etc...";
@@ -758,8 +764,10 @@ void ofxSurfingPBR::startup() {
 		//#ifdef SURFING__PBR__USE_LIGHTS_CLASS
 		//		lights.bDebug.makeReferenceTo(bDebug);
 		//#endif
-	} else {
-		ofLogNotice("ofxSurfingPBR") << "Located settings. Not opening for the first time!";
+	} 
+	else 
+	{
+		ofLogNotice("ofxSurfingPBR") << "Located scene settings. Not opening for the first time!";
 	}
 
 	//--
@@ -769,8 +777,6 @@ void ofxSurfingPBR::startup() {
 	//}
 
 	//--
-
-	load();
 
 	bDoneStartup = true;
 	ofLogNotice("ofxSurfingPBR") << "startup() Done! at frame number: " << ofGetFrameNum();
@@ -2262,7 +2268,7 @@ void ofxSurfingPBR::doResetAll(bool bExcludeExtras) {
 	if (!bExcludeExtras) lights.doResetShadow();
 #endif
 
-		// shader displacer
+	// shader displacer
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 	doResetNoise();
 	doResetDisplace();
