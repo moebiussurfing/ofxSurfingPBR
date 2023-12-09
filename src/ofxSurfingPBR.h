@@ -31,7 +31,7 @@
 		to fast set bg, floor, 
 		lights together with bright tweaks...
 	
-	- add alternate top camera?
+	- add alternate top camera? 
 
 	- add custom global path to /data/ofxSurfingPBR/MAT_NAME/
 
@@ -136,6 +136,7 @@ private:
 	void drawPBRSceneDebug();
 
 private:
+	void Changed(ofAbstractParameter & e);
 	void ChangedPlane(ofAbstractParameter & e);
 	void ChangedInternal(ofAbstractParameter & e);
 	void ChangedTestScene(ofAbstractParameter & e);

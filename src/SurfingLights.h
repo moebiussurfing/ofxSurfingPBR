@@ -141,8 +141,8 @@ public:
 	ofParameterGroup params_Enablers;
 	ofParameterGroup params_Extra;
 	ofParameterGroup params_TestAnims;
+	ofParameterGroup lightsParams;
 	ofParameterGroup lightsSettingsParams;
-	ofParameterGroup lightsItemsParams;
 
 	//--
 
@@ -166,6 +166,7 @@ public:
 	ofParameter<ofFloatColor> pointSpecularColor;
 	ofParameter<glm::vec3> pointPosition;
 	ofParameter<ofFloatColor> pointGlobalColor;
+	ofParameter<float> pointSizeFar;
 
 	//--
 
@@ -181,6 +182,7 @@ public:
 	ofParameter<ofFloatColor> directionalGlobalColor;
 	ofParameter<glm::vec3> directionalOrientation;
 	ofParameter<glm::vec3> directionalPosition;
+	ofParameter<float> directionalSizeFar;
 
 	//--
 
@@ -198,6 +200,7 @@ public:
 	ofParameter<glm::vec3> spotPosition;
 	ofParameter<int> spotCutOff;
 	ofParameter<int> spotConcentration;
+	ofParameter<float> spotSizeFar;
 
 	//--
 
@@ -215,6 +218,7 @@ public:
 	ofParameter<ofFloatColor> areaGlobalColor;
 	ofParameter<int> modeAnimArea;
 	ofParameter<glm::vec2> areaSize;
+	ofParameter<float> areaSizeFar;
 
 private:
 	float orbitSpeed = 0.0;

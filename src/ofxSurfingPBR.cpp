@@ -16,6 +16,8 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 
 	//--
 
+	ofRemoveListener(parameters.parameterChangedE(), this, &ofxSurfingPBR::Changed);
+
 	ofRemoveListener(drawParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
 	ofRemoveListener(planeParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedPlane);
 	ofRemoveListener(internalParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
@@ -223,7 +225,7 @@ void ofxSurfingPBR::setupParams() {
 	//--
 
 	planeParams.setName("Plane");
-	planeMaterialParams.setName("Material");
+	planeMaterialParams.setName("Plane Material");
 	planeSettingsParams.setName("Settings");
 	planeColorsParams.setName("Colors");
 	planeTransformParams.setName("Transform");
@@ -344,11 +346,6 @@ void ofxSurfingPBR::setupParams() {
 
 	//advancedParams.add(bGui); //workflow: added to add to settings. could hide the toggle..
 
-#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
-	callback_t f = std::bind(&ofxSurfingPBR::save, this);
-	autoSaver.setFunctionSaver(f);
-#endif
-
 	advancedParams.add(material.getIndexStateParam());
 	//advancedParams.add(material.bGuiHelpers);
 
@@ -402,6 +399,8 @@ void ofxSurfingPBR::setupCallbacks() {
 	listenerLoadAll = vLoadAll.newListener([this](void) {
 		loadAll();
 	});
+
+	ofAddListener(parameters.parameterChangedE(), this, &ofxSurfingPBR::Changed);
 
 	ofAddListener(drawParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
 	ofAddListener(planeParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedPlane);
@@ -638,6 +637,13 @@ void ofxSurfingPBR::setup() {
 
 	//--
 
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
+	callback_t f = std::bind(&ofxSurfingPBR::save, this);
+	autoSaver.setFunctionSaver(f);
+#endif
+
+	//--
+
 	setupGui();
 
 	buildHelp();
@@ -826,8 +832,10 @@ void ofxSurfingPBR::startupDelayed() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::setupGui() {
+
 	gui.setup(parameters);
 
+	// assign to ofxGui icons
 	static ofEventListener listenerSave;
 	static ofEventListener listenerLoad;
 	listenerSave = gui.savePressedE.newListener([this] {
@@ -836,9 +844,6 @@ void ofxSurfingPBR::setupGui() {
 	listenerLoad = gui.loadPressedE.newListener([this] {
 		load();
 	});
-
-	//TOOO: remove the button to include only in settings..?
-	//gui.getGroup(internalParams.getName()).getButton(bGui.getName()).setSize(5, 6);
 
 	refreshGui();
 }
@@ -1348,17 +1353,25 @@ void ofxSurfingPBR::refreshPlane() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::ChangedPlane(ofAbstractParameter & e) {
+void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 
 	std::string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << "ChangedPlane " << name << ": " << e;
+	ofLogVerbose("ofxSurfingPBR") << "Changed " << name << ": " << e;
 
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
 		autoSaver.saveSoon();
 	}
 #endif
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::ChangedPlane(ofAbstractParameter & e) {
+
+	std::string name = e.getName();
+
+	ofLogNotice("ofxSurfingPBR") << "ChangedPlane " << name << ": " << e;
 
 	//--
 
@@ -1437,14 +1450,6 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 
 	//--
 
-#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
-	if (e.isSerializable()) {
-		autoSaver.saveSoon();
-	}
-#endif
-
-	//--
-
 	if (name == bKeys.getName()) {
 		buildHelp();
 	}
@@ -1513,14 +1518,6 @@ void ofxSurfingPBR::ChangedDraw(ofAbstractParameter & e) {
 
 	//--
 
-#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
-	if (e.isSerializable()) {
-		autoSaver.saveSoon();
-	}
-#endif
-
-	//--
-
 	//workflow
 	if (name == surfingBg.bDrawBgColorPlain.getName() && surfingBg.bDrawBgColorPlain.get()) {
 		if (bDrawCubeMap) bDrawCubeMap.set(false);
@@ -1540,14 +1537,6 @@ void ofxSurfingPBR::ChangedTestScene(ofAbstractParameter & e) {
 
 	//--
 
-#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
-	if (e.isSerializable()) {
-		autoSaver.saveSoon();
-	}
-#endif
-
-	//--
-
 	if (name == vResetTestScene.getName()) {
 		doResetTestScene();
 	}
@@ -1559,14 +1548,6 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 	std::string name = e.getName();
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedCamera " << name << ": " << e;
-
-	//--
-
-#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
-	if (e.isSerializable()) {
-		autoSaver.saveSoon();
-	}
-#endif
 
 	//--
 
@@ -1588,14 +1569,6 @@ void ofxSurfingPBR::ChangedDisplacers(ofAbstractParameter & e) {
 	std::string name = e.getName();
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedDisplacers " << name << ": " << e;
-
-	//--
-
-	#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
-	if (e.isSerializable()) {
-		autoSaver.saveSoon();
-	}
-	#endif
 
 	//--
 
@@ -1635,14 +1608,6 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 	std::string name = e.getName();
 
 	ofLogNotice("ofxSurfingPBR") << "ChangedCubeMaps " << name << ": " << e;
-
-	//--
-
-	#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
-	if (e.isSerializable()) {
-		autoSaver.saveSoon();
-	}
-	#endif
 
 	//--
 
