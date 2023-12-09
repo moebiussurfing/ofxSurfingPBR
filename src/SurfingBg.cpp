@@ -521,10 +521,12 @@ void SurfingBg::doResetScene() {
 	if (bModeBox) bModeBox = false;
 	if (!bModeSphere) bModeSphere = true;
 
-	resolutionSphere = 0.2f;
-	resolutionBox = 0.2f;
+	//resolutionSphere = 0.2f;
+	//resolutionBox = 0.2f;
+	resolutionSphere = 1.f;
+	resolutionBox = 1.f;
 
-	if (sizeScene != 0.5f) sizeScene = 0.5f;
+	if (sizeScene != 0.5f) sizeScene = 0.f;
 	if (speedRotate != 0.01) speedRotate = 0.01;
 
 	//if (bRotate) bRotate = false;

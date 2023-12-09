@@ -17,12 +17,10 @@
 	fix not saving bright settings
 		refresh bright after changing colors!
 		bc if not, do not reflects the bright/power of the light!
-	fix visible rectangle when drawing area light?
-	add global from/to color workflow (copy from material).
+	fix appeared visible rectangle when drawing area light?
 	create a cool init state.
 	make simple mode/user/game controls.
-	for light positions: 
-		add height, long/lat, distance controls instead of xyz
+	for light positions: add height, long/lat, distance controls instead of xyz
 */
 
 //--
@@ -154,6 +152,13 @@ public:
 
 	ofParameter<ofFloatColor> globalColor; //main global
 	ofFloatColor globalColor_;
+	ofParameter<int> indexFromColorToGlobal;
+	ofParameter<string> nameSourceGlobal;
+	bool bFlagIndexFromColorToGlobal = false;
+	void doIndexFromColorToGlobal();
+	void doGetGlobalColorFromIndexColor();
+	bool bAttendingColors = false;
+	bool bFlagFromColorIndexToGlobals = false;
 
 	// Point
 	ofParameterGroup pointParams;

@@ -1,8 +1,7 @@
 /*
 	TODO
 
-	fix changing colors must refresh 
-		to be passed by bright power values!
+	fix saving json
 */
 
 #pragma once
@@ -89,7 +88,7 @@ private:
 	void doIndexFromColorToGlobal();
 
 	bool bFlagFromColorIndexToGlobals = false;
-	void doFromColorIndexToGlobals();
+	void doGetGlobalColorFromIndexColor();
 
 public:
 	ofParameter<ofFloatColor> diffuseColor;
@@ -113,9 +112,16 @@ public:
 	ofParameter<void> vRandomColorsAlpha;
 	ofParameter<void> vRandomColorsGlobal;
 	ofParameter<void> vRandomSettings;
+	
+	ofParameter<void> vLoad;
+	ofParameter<void> vSave;
+	ofEventListener listenerLoad;
+	ofEventListener listenerSave;
 
 	ofxPanel gui;
 	void setGuiPosition(glm::vec2 pos);
+	ofEventListener listenerSaveGui;
+	ofEventListener listenerLoadGui;
 
 	ofxPanel guiHelpers;
 	ofParameter<bool> bGui;

@@ -1098,7 +1098,11 @@ public:
 
 private:
 	uint64_t timeLastChange = 0;
-	int timeSaveDelay = 1000; //save delayed x milliseconds.
+	
+	const int timeSaveDelay = 500; 
+	// save delayed x milliseconds.
+	// all the params that change will be saved all in one take, during the delay time.
+
 	bool bFlagSave = false;
 
 	bool bAutoSave_ = false;

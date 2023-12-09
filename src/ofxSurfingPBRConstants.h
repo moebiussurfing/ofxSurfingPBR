@@ -4,7 +4,7 @@
 
 // OPTIONAL
 
-//#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS 
+#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS 
 // TODO: WIP: add another shader/material.
 
 #define SURFING__PBR__USE__MODELS_MANAGER 
@@ -52,8 +52,8 @@
 
 //TODO
 // there's some problem rounding bright to white/black..
-#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MIN 0.01f
-#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 0.99f
+#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MIN 0.001f
+#define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 0.999f
 
 #define SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET 0.25f
 
@@ -70,19 +70,15 @@
 
 // PBR CONSTANTS
 
-//#define SURFING__PBR__MAX_SHININESS 1.f
-#define SURFING__PBR__MAX_SHININESS 128.f
+#define SURFING__PBR__MAX_SHININESS 1.f
+//#define SURFING__PBR__MAX_SHININESS 128.f
 
 #define SURFING__PBR__SHADOW_DEFAULT_STRENGTH 0.5f
 #define SURFING__PBR__SHADOW_DEFAULT_RESOLUTION 1024
 
-#define SURFING__PBR__LIGHTS_FAR_RATIO_MAX 4.f
 static const float SURFING__PBR__LIGHTS_FAR = (float)SURFING__PBR__SCENE_SIZE_UNIT * 1.0f;
 static const float SURFING__PBR__LIGHTS_NEAR = (float)SURFING__PBR__SCENE_SIZE_UNIT * 0.1f;
-
-//static const float SURFING__PBR__LIGHTS_FAR = (float)SURFING__PBR__SCENE_SIZE_UNIT * 1.0f;
-//static const float SURFING__PBR__LIGHTS_NEAR = (float)SURFING__PBR__SCENE_SIZE_UNIT * 0.1f;
-
+#define SURFING__PBR__LIGHTS_FAR_RATIO_MAX 4.f
 
 #define SURFING__PBR__PLANE_COLORS_NO_ALPHA 
 // bc it seems that alpha is not being used internally..
@@ -106,6 +102,7 @@ static const float SURFING__PBR__LIGHTS_NEAR = (float)SURFING__PBR__SCENE_SIZE_U
 	try to find a good balance that fits your needs
 	bias default is 0.005
 	//ofShadow::setAllShadowBias(0.007);
+
 	normal bias default is 0
 	moves the bias along the normal of the mesh, helps reduce shadow acne
 	//ofShadow::setAllShadowNormalBias(-4.f);

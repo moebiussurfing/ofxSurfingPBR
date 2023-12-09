@@ -91,6 +91,8 @@ void SurfingMaterial::setupParams() {
 	globalColor.setSerializable(false);
 	globalAlpha.setSerializable(false);
 
+	moreParams.setSerializable(false);
+
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	// auto saver
 	callback_t f = std::bind(&SurfingMaterial::save, this);
@@ -113,9 +115,9 @@ void SurfingMaterial::setupParams() {
 	coatParams.add(clearCoatRoughness.set("CC Roughness", 0.0001, 0.0001, 10.0));
 	coatParams.add(clearCoatStrength.set("CC Strength", 0.0001, 0.0001, 10.0));
 
-	vResetMaterial.set("Material Reset");
-	vRandomMaterialFull.set("Material Rand Full");
-	vRandomSettings.set("Material Rand Settings");
+	vResetMaterial.set("Mat Reset");
+	vRandomMaterialFull.set("Mat Rand Full");
+	vRandomSettings.set("Mat Rand Settings");
 
 	//--
 
@@ -136,8 +138,8 @@ void SurfingMaterial::setupParams() {
 
 	globalParams.add(globalColor.set("Global Color", ofFloatColor::white));
 	globalParams.add(globalAlpha.set("Global Alpha", 1.0f, 0.0f, 1.0f));
-	globalLinksParams.add(nameSourceGlobal.set("Source", "NONE"));
-	globalLinksParams.add(indexFromColorToGlobal.set("fromColor", 0, 0, 3));
+	globalLinksParams.add(indexFromColorToGlobal.set("Get G Color", 0, 0, 3));
+	globalLinksParams.add(nameSourceGlobal.set("from Source", "NONE"));
 	//globalLinksParams.add(vFromColorToGlobal.set("toGlobal"));
 	globalParams.add(globalLinksParams);
 	parameters.add(globalParams);
@@ -154,6 +156,17 @@ void SurfingMaterial::setupParams() {
 
 	settingsParams.add(coatParams);
 	parameters.add(settingsParams);
+
+	//vLoad.set("Load");
+	//vSave.set("Save");
+	//moreParams.add(vLoad);
+	//moreParams.add(vSave);
+	//listenerSave = vSave.newListener([this](void) {
+	//	save();
+	//});
+	//listenerLoad = vLoad.newListener([this](void) {
+	//	load();
+	//});
 
 	moreParams.add(vRandomMaterialFull);
 	moreParams.add(vRandomSettings);
@@ -187,12 +200,10 @@ void SurfingMaterial::setupGui() {
 	gui.setup(parameters);
 
 #if 1
-	static ofEventListener listenerSave;
-	static ofEventListener listenerLoad;
-	listenerSave = gui.savePressedE.newListener([this] {
+	listenerSaveGui = gui.savePressedE.newListener([this] {
 		save();
 	});
-	listenerLoad = gui.loadPressedE.newListener([this] {
+	listenerLoadGui = gui.loadPressedE.newListener([this] {
 		load();
 	});
 #endif
@@ -253,7 +264,7 @@ void SurfingMaterial::update() {
 	if (bFlagFromColorIndexToGlobals) {
 		bFlagFromColorIndexToGlobals = false;
 
-		doFromColorIndexToGlobals();
+		doGetGlobalColorFromIndexColor();
 	}
 
 	if (bFlagIndexFromColorToGlobal) {
@@ -700,12 +711,12 @@ void SurfingMaterial::doIndexFromColorToGlobal() {
 	nameSourceGlobal.set(s);
 
 	//workflow. auto get
-	doFromColorIndexToGlobals();
+	doGetGlobalColorFromIndexColor();
 }
 
 //--------------------------------------------------------------
-void SurfingMaterial::doFromColorIndexToGlobals() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doFromColorIndexToGlobals()";
+void SurfingMaterial::doGetGlobalColorFromIndexColor() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doGetGlobalColorFromIndexColor()";
 
 	bAttendingColors = true;
 	// avoid affecting the colors when touching global color!
@@ -836,7 +847,7 @@ void SurfingMaterial::doResetMaterial(bool bHard ) {
 	//clearCoatStrength.set(0.0001);
 
 	// OF ofMaterial defaults
-	shininess.set(30);
+	shininess.set(shininess.getMax() * 0.25f);
 	roughness.set(0.5);
 	metallic.set(0);
 	reflectance.set(0.5);
@@ -1219,7 +1230,7 @@ void SurfingMaterial::refreshGlobals() {
 	//will not work during setup bc callbacks are bypassed until setup is done!
 	// So we flag to be called on next frame/update.
 	//bFlagFromColorIndexToGlobals = true;
-	doFromColorIndexToGlobals();
+	doGetGlobalColorFromIndexColor();
 }
 
 //--------------------------------------------------------------
@@ -1280,7 +1291,10 @@ void SurfingMaterial::save() {
 
 	// Save
 	{
-		ofxSurfing::saveSettings(parameters, path);
+		bool b = ofxSurfing::saveSettings(parameters, path);
+		if (b) {
+			ofLogNotice("ofxSurfingPBR") << "Successful saving " << path;
+		}
 
 		//TODO
 		////workflow
@@ -1317,7 +1331,11 @@ void SurfingMaterial::load() {
 	// Load
 	{
 		//doResetMaterialOfMaterial();//TODO fix coherence with OF vanilla.. it looks darker..
-		ofxSurfing::loadSettings(parameters, path);
+		bool b=ofxSurfing::loadSettings(parameters, path);
+		if (b) {
+			ofLogNotice("ofxSurfingPBR") << "Successful loading "<<path;
+
+		}
 	}
 
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE

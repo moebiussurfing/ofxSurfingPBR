@@ -35,6 +35,7 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
+	// The camera is internal!
 
 	// Plane floor (Material A / simple)
 	// don't need to begin/end material manually.

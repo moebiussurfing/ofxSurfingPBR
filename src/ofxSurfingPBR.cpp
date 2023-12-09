@@ -71,29 +71,29 @@ void ofxSurfingPBR::buildHelp() {
 	sHelp += "KEYS " + string(bKeys ? "ON" : "OFF") + "\n";
 	sHelp += "\n";
 	if (bKeys) {
-		sHelp += "h     Help\n";
-		sHelp += "L-l   Help Layout\n";
-		//sHelp += "      " + nameHelpLayout.get() + "\n";
-		sHelp += "d     Debug\n";
-		sHelp += "i     Infinite Plane\n";
-		sHelp += "g-G   Gui-ofxGui\n";
-		sHelp += "Tab   Layout UI\n";
-		//sHelp += "      " + nameGuiLayout.get() + "\n";
+		sHelp += "h      Help\n";
+		sHelp += "L-l    Help Layout\n";
+		//sHelp += "       " + nameHelpLayout.get() + "\n";
+		sHelp += "d      Debug\n";
+		sHelp += "i      Infinite Plane\n";
+		sHelp += "g-G    Gui-ofxGui\n";
+		sHelp += "Tab    Layout UI\n";
+		//sHelp += "       " + nameGuiLayout.get() + "\n";
 		sHelp += "\n";
 		sHelp += "DRAW\n";
-		sHelp += "p     Plane\n";
-		sHelp += "s     Shadow \n";
-		sHelp += "c     CubeMap\n";
-		sHelp += "b     BgAlt\n";
+		sHelp += "p      Plane\n";
+		sHelp += "s      Shadow \n";
+		sHelp += "c      CubeMap\n";
+		sHelp += "b      BgAlt\n";
 		sHelp += "\n";
 	}
 	sHelp += "WINDOW\n";
-	sHelp += "      " + ofToString(ofGetFrameRate(), 1) + " FPS\n";
-	sHelp += "      " + ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
+	sHelp += "       " + ofToString(ofGetFrameRate(), 1) + " FPS\n";
+	sHelp += "       " + ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
 	if (bKeys) {
-		sHelp += "f     FullScreen\n";
-		sHelp += "q-Q   Squared\n";
-		sHelp += "1-5   Instagram Sizes\n";
+		sHelp += "f      FullScreen\n";
+		sHelp += "q-Q    Squared\n";
+		sHelp += "1-5    Instagram Sizes\n";
 		sHelp += sWindowDimensions + "\n";
 	}
 	if (bKeys) {
@@ -101,22 +101,22 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "HELPERS MATERIAL\n";
 		sHelp += "\n";
 		sHelp += "RESET\n";
-		sHelp += "F1    Full\n";
+		sHelp += "F1     Full\n";
 		sHelp += "\n";
 		sHelp += "RANDOM\n";
-		sHelp += "F2    Full\n";
-		sHelp += "F3    Settings\n";
+		sHelp += "F2     Full\n";
+		sHelp += "F3     Settings\n";
 		sHelp += "\n";
 		sHelp += "COLORS\n";
-		sHelp += "F4    GlobalNoAlpha\n";
-		sHelp += "F5    NoAlpha\n";
-		sHelp += "F6    WithAlpha\n";
-		sHelp += "F7    OnlyAlphas\n";
+		sHelp += "F4     GlobalNoAlpha\n";
+		sHelp += "F5     NoAlpha\n";
+		sHelp += "F6     WithAlpha\n";
+		sHelp += "F7     OnlyAlphas\n";
 		sHelp += "\n";
 		sHelp += "HISTORY BROWSER\n";
-		sHelp += "z-x   Prev-Next\n";
-		sHelp += "r     Recall\n";
-		sHelp += "s     Store\n";
+		sHelp += "z-x    Prev-Next\n";
+		sHelp += "r      Recall\n";
+		sHelp += "s      Store\n";
 	}
 }
 
@@ -871,6 +871,8 @@ void ofxSurfingPBR::refreshGui() {
 		.getGroup(planeResolution.getName())
 		.minimize();
 
+	gui.getGroup(planeParams.getName()).minimize();
+
 	gui.getGroup(planeParams.getName())
 		.getGroup(planeMaterialParams.getName())
 		.getGroup(planeSettingsParams.getName())
@@ -887,6 +889,7 @@ void ofxSurfingPBR::refreshGui() {
 	gui.getGroup(testSceneParams.getName()).minimize();
 	gui.getGroup(cameraParams.getName()).minimize();
 	gui.getGroup(internalParams.getName()).minimize();
+	gui.getGroup(drawParams.getName()).minimize();
 
 	gui.getGroup(internalParams.getName())
 		.getGroup(advancedParams.getName())
