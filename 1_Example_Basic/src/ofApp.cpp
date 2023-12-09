@@ -4,6 +4,9 @@
 void ofApp::setup() {
 
 #if 1
+	// Theme
+	ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
+
 	// App window
 	{
 		ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.

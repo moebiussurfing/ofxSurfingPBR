@@ -1135,7 +1135,7 @@ void ofxSurfingPBR::drawDebug() {
 		l = ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
 
 		//TODO
-		// Set the preview box position related to help box layouot.
+		// Set the preview box position related to help box layout.
 
 		if (helpLayout == ofxSurfing::SURFING_LAYOUT_TOP_LEFT)
 			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT;
