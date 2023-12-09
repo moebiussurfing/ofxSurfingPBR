@@ -2,14 +2,14 @@
 
 //--------------------------------------------------------------
 SurfingMaterial::SurfingMaterial() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:constructor()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:constructor() " << name;
 
 	ofAddListener(ofEvents().update, this, &SurfingMaterial::update);
 }
 
 //--------------------------------------------------------------
 SurfingMaterial::~SurfingMaterial() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:destructor()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:destructor() "<<name;
 
 	ofRemoveListener(ofEvents().update, this, &SurfingMaterial::update);
 	ofRemoveListener(settingsParams.parameterChangedE(), this, &SurfingMaterial::ChangedSettings);

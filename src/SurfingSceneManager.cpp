@@ -85,7 +85,7 @@ void SurfingSceneManager::setupBuild() {
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup() added " << materials.size() << " materials";
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup() Done";
-	
+
 #ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:setup() added " << colors.size() << " colors";
 #endif
@@ -141,7 +141,7 @@ void SurfingSceneManager::setupParams() {
 	parameters.setName("SCENE_MANAGER");
 	parameters.add(lights.bGui);
 	parameters.add(bGui_Materials);
-	
+
 #ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 	parameters.add(bGui_Colors);
 #endif
@@ -172,6 +172,10 @@ void SurfingSceneManager::setupParams() {
 		refreshGui();
 	});
 #endif
+
+	listenerbGui_Materials = bGui_Materials.newListener([this](bool & b) {
+		refreshGuiMaterials();
+	});
 }
 
 //--------------------------------------------------------------
@@ -199,6 +203,15 @@ void SurfingSceneManager::setupGui() {
 #endif
 
 	refreshGui(true);
+}
+
+//--------------------------------------------------------------
+void SurfingSceneManager::refreshGuiMaterials() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingSceneManager:refreshGuiMaterials()";
+	if (bGui_Materials)
+		gui.getGroup(materialsControlParams.getName()).maximize();
+	else
+		gui.getGroup(materialsControlParams.getName()).minimize();
 }
 
 //--------------------------------------------------------------

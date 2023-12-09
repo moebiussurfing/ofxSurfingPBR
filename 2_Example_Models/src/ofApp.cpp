@@ -367,7 +367,7 @@ void ofApp::updateSceneTransforms() {
 	ofPushMatrix();
 
 	// Position
-	float yUnit = SURFING__SCENE_SIZE_UNIT / 2.f;
+	float yUnit = SURFING__PBR__SCENE_SIZE_UNIT / 2.f;
 	float y = ofMap(yPos, -1.f, 1.f,
 		-yUnit, yUnit, true);
 

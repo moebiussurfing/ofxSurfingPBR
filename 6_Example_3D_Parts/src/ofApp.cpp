@@ -42,8 +42,8 @@ void ofApp::setupParams() {
 	drawModeParams.add(bDrawOriginal);
 	drawModeParams.add(bDrawParts);
 	drawModeParams.add(bDrawOnePiece);
+	drawModeParams.add(bDrawTestBox);
 	drawParams.add(drawModeParams);
-	drawParams.add(bDrawTestBox);
 
 	flootParams.add(szFloor);
 	flootParams.add(bDrawFloor);
@@ -438,6 +438,9 @@ void ofApp::keyPressed(int key) {
 	else if (key == 'h')
 		bHelp = !bHelp;
 
+	else if (key == 'd')
+		sceneManager.toggleDebug();
+
 	else if (key == 'm') {
 		bMouseCamera = !bMouseCamera;
 	}
@@ -452,11 +455,9 @@ void ofApp::keyPressed(int key) {
 
 	else if (key == '1') {
 		bDrawOriginal = true;
-	}
-	else if (key == '2') {
+	} else if (key == '2') {
 		bDrawParts = true;
-	}
-	else if (key == '3') {
+	} else if (key == '3') {
 		bDrawOnePiece = true;
 	}
 }
@@ -636,6 +637,7 @@ void ofApp::ChangedDraw(ofAbstractParameter & e) {
 			if (bDrawParts) bDrawParts = false;
 			if (bDrawOnePiece) bDrawOnePiece = false;
 			if (bDrawTestBox) bDrawTestBox = false;
+			sceneManager.bGui_Materials = false;
 		}
 	}
 
@@ -644,6 +646,7 @@ void ofApp::ChangedDraw(ofAbstractParameter & e) {
 			if (bDrawOriginal) bDrawOriginal = false;
 			if (bDrawOnePiece) bDrawOnePiece = false;
 			if (bDrawTestBox) bDrawTestBox = false;
+			sceneManager.bGui_Materials = true;
 		}
 	}
 
@@ -652,6 +655,7 @@ void ofApp::ChangedDraw(ofAbstractParameter & e) {
 			if (bDrawOriginal) bDrawOriginal = false;
 			if (bDrawParts) bDrawParts = false;
 			if (bDrawTestBox) bDrawTestBox = false;
+			sceneManager.bGui_Materials = false;
 		}
 	}
 
@@ -660,6 +664,7 @@ void ofApp::ChangedDraw(ofAbstractParameter & e) {
 			if (bDrawParts) bDrawParts = false;
 			if (bDrawOriginal) bDrawOriginal = false;
 			if (bDrawOnePiece) bDrawOnePiece = false;
+			sceneManager.bGui_Materials = false;
 		}
 	}
 }

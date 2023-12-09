@@ -25,10 +25,12 @@ public:
 private:
 	void setupParams();
 	void setupGui();
-	void refreshGui(bool bHard=false);
 	void startup();
-
 	void draw();
+
+public:
+	void refreshGui(bool bHard=false);
+	void refreshGuiMaterials();
 
 public:
 	void drawGui();
@@ -47,8 +49,8 @@ public:
 
 	void addMaterial(string name = "");
 
-	void setColor(ofFloatColor color, int index);
-	void setColorMaterial(ofFloatColor color, int index);
+	void setColor(ofFloatColor color, int index);//TODO
+	void setColorMaterial(ofFloatColor color, int index);//TODO
 
 	void beginMaterial(int index);
 	void endMaterial(int index);
@@ -77,6 +79,7 @@ public:
 	ofParameter<int>indexMaterial;
 	ofParameter<string>nameIndexMaterial;
 	ofEventListener listenerIndexMaterial;
+	ofEventListener listenerbGui_Materials;
 
 private:
 	vector<std::unique_ptr<SurfingMaterial>> materials;

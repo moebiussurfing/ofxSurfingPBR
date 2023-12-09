@@ -23,7 +23,7 @@
 #include "ofMain.h"
 
 #define OFAPP__USE__OPTIONAL_SETUP 0
-#define SURFING__USE__MODELS_MANAGER
+//#define SURFING__USE__MODELS_MANAGER
 
 //--
 

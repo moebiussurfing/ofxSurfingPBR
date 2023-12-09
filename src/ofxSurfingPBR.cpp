@@ -1866,7 +1866,8 @@ void ofxSurfingPBR::saveAll() {
 	lights.save();
 #endif
 
-	if (bEnableCameraAutosave) doSaveCamera();
+	//if (bEnableCameraAutosave) doSaveCamera();
+	doSaveCamera();
 }
 
 //--------------------------------------------------------------
