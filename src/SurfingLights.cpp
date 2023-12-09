@@ -385,12 +385,12 @@ void SurfingLights::refreshGui(bool bHard) {
 		//	.minimize();
 	}
 
-	gui.getGroup(lightsParams.getName())
-		.getGroup(params_Extra.getName())
-		.minimize();
+	//gui.getGroup(lightsParams.getName())
+	//	.getGroup(lightsSettingsParams.getName())
+	//	.minimize();
 
 	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
+		.getGroup(params_Extra.getName())
 		.minimize();
 
 	//--

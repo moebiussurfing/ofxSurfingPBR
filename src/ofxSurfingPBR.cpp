@@ -1121,12 +1121,12 @@ void ofxSurfingPBR::drawDebug() {
 		s += "DEBUG\nSHADER\n\n";
 		s += "PLANE\n";
 		s += "Size: ";
-		s += ofToString(plane.getWidth(), 0) + "," + ofToString(plane.getHeight(), 0) + "\n";
+		s += ofToString(plane.getWidth(), 0) + "x" + ofToString(plane.getHeight(), 0) + "\n";
 		s += "Resolution: ";
-		s += ofToString(plane.getResolution().x) + "," + ofToString(plane.getResolution().y) + "\n\n";
+		s += ofToString(plane.getResolution().x) + "x" + ofToString(plane.getResolution().y) + "\n\n";
 		s += "IMAGE\n";
 		s += "Size: ";
-		s += ofToString(img.getWidth()) + "," + ofToString(img.getHeight()) + "\n\n";
+		s += ofToString(img.getWidth()) + "x" + ofToString(img.getHeight()) + "\n\n";
 		s += "WINDOW\n";
 		s += ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
 		s += ofToString(ofGetFrameRate(), 1) + " FPS";

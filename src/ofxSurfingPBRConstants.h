@@ -5,14 +5,11 @@
 // OPTIONAL
 
 // TODO: WIP: add another shader/material.
-//#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS 
+#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS 
 
 //----
 
 // DEBUG / WIP
-
-//#define SURFING__SHADER_DEBUG 
-// TODO: testing to improve performance.
 
 #define SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
 //TODO: disabled as is not finished yet.
