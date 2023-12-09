@@ -7,11 +7,12 @@ void ofApp::setup() {
 	// App window
 	{
 		ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
+
 		// Move and shape the window app.
 		// Customize settings: 60fps and vSync off.
-		//ofxSurfing::setWindowAtMonitor(); // Stay at main display (center in my setup) and landscape.
 		ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
 		//ofxSurfing::setWindowAtMonitor(1, true); // Move to right display and set portrait.
+		//ofxSurfing::setWindowAtMonitor(); // Stay at main display (center in my setup) and landscape.
 	}
 #endif
 
@@ -38,7 +39,7 @@ void ofApp::renderScene() {
 	// Plane floor (Material A / simple)
 	pbr.drawPlane();
 
-	// For other objects (Material B / full params)
+	// For other objects (Material B / full parameters)
 	pbr.beginMaterial();
 	{
 		drawYourScene();
@@ -59,4 +60,5 @@ void ofApp::keyPressed(int key) {
 
 //--------------------------------------------------------------
 void ofApp::exit() {
+	pbr.exit(); // Only required to save camera on exit
 }

@@ -16,11 +16,13 @@ SurfingLights::~SurfingLights() {
 	ofRemoveListener(brightsParams.parameterChangedE(), this, &SurfingLights::ChangedBrights);
 	ofRemoveListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
 
+#ifdef SURFING__PBR__USE_AUTO_CALL_EXIT_ON_DESTRUCTOR_IF_REQUIRED
 	if (!bDoneExit) {
 		ofLogWarning("ofxSurfingPBR") << "SurfingLights:~SurfingLights() Force calling exit() bc has not been called until now!";
 
 		exit();
 	}
+#endif
 }
 
 //--
@@ -1739,7 +1741,7 @@ void SurfingLights::exit() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:exit()";
 
 // Not required to be called bc it's using the auto saver!
-#if defined(SURFING__PBR__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE)
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	save();
 #endif
 

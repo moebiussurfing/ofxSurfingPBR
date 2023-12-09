@@ -4,7 +4,7 @@
 	`ofxSurfingPBR.h`.  
 
 	This class has multiple modules 
-	or commontly used features included by default:  
+	or commonly used features included by default:  
 
 	- Floor plane with a simple material  
 		and customizable size and transforms.  

@@ -30,10 +30,16 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 	ofRemoveListener(cubeMapParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCubeMaps);
 #endif
 
+	//--
+
+#ifdef SURFING__PBR__USE_AUTO_CALL_EXIT_ON_DESTRUCTOR_IF_REQUIRED
 	if (!bDoneExit) {
-		ofLogWarning("ofxSurfingPBR") << "Force calling exit() bc has not been called until now!";
+		ofLogWarning("ofxSurfingPBR") << "Force calling exit()!";
+		ofLogWarning("ofxSurfingPBR") << "That's bc has not been called until now!";
+
 		exit();
 	}
+#endif
 }
 
 //--------------------------------------------------------------
@@ -64,7 +70,7 @@ void ofxSurfingPBR::buildHelp() {
 	sHelp += "\n";
 	if (bKeys) {
 		sHelp += "h     Help\n";
-		sHelp += "L-l   Layout Help\n";
+		sHelp += "L-l   Help Layout\n";
 		//sHelp += "      " + nameHelpLayout.get() + "\n";
 		sHelp += "d     Debug\n";
 		sHelp += "i     Infinite Plane\n";
@@ -410,6 +416,13 @@ void ofxSurfingPBR::setupCallbacks() {
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	ofAddListener(cubeMapParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCubeMaps);
 #endif
+
+	//--
+
+	//TODO: not works
+	//#ifdef SURFING__PBR__USE_LIGHTS_CLASS
+	//		lights.bDebug.makeReferenceTo(bDebug);
+	//#endif
 }
 
 //--
@@ -618,13 +631,18 @@ void ofxSurfingPBR::setup() {
 
 	//--
 
-	// reset all except material to avoid do it twice and overwrite loaded settings!
-	doResetAll();
-	//doResetAll(true);
+	// reset all except material
+	// to avoid do it twice and overwrite loaded settings!
+	doResetAll(true);
+	//doResetAll();
+
+	//--
 
 	setupGui();
 
 	buildHelp();
+
+	//--
 
 	bDoneSetup = true;
 	ofLogNotice("ofxSurfingPBR") << "setup() Done!";
@@ -637,9 +655,9 @@ void ofxSurfingPBR::setup() {
 // Camera
 //--------------------------------------------------------------
 void ofxSurfingPBR::setup(ofCamera & camera_) {
-	this->setup();
-
 	setCameraPtr(dynamic_cast<ofCamera *>(&camera_));
+
+	this->setup();
 }
 //--------------------------------------------------------------
 void ofxSurfingPBR::setCameraPtr(ofCamera & camera_) {
@@ -722,11 +740,9 @@ ofParameterGroup & ofxSurfingPBR::getMaterialParameters() { //mainly to expose t
 void ofxSurfingPBR::startup() {
 	ofLogNotice("ofxSurfingPBR") << "startup() Begins!";
 
-	bool b = !load();
-	//bool b = !this->getSettingsFileFound();
+	bool b = load();
 
-	//TODO: need fix. some classes overwritte force settings here!
-	if (b) {
+	if (!b) {
 		ofLogWarning("ofxSurfingPBR") << "No file settings found!";
 		ofLogWarning("ofxSurfingPBR") << "Initialize settings for the first time!";
 		ofLogWarning("ofxSurfingPBR") << "Potential Newbie User Found!";
@@ -735,10 +751,8 @@ void ofxSurfingPBR::startup() {
 
 #if 1
 		// Initialize a Default Startup Scene!
-		{
-			ofLogWarning("ofxSurfingPBR") << "Forcing reset to a hardcoded Default Scene!";
-			doResetDefaultScene();
-		}
+		ofLogWarning("ofxSurfingPBR") << "Forcing reset to a hardcoded Default Scene!";
+		doResetDefaultScene();
 #endif
 
 		//--
@@ -746,41 +760,24 @@ void ofxSurfingPBR::startup() {
 		// Force enable Help and Debug states!
 		// Ready to a newbie user!
 		// All important/learning controls will be visible.
-		//if (0)
-		{
-			ofLogWarning("ofxSurfingPBR") << "Forcing states and some default stuff visible:";
-			ofLogWarning("ofxSurfingPBR") << "Enable help, debug, reset camera and settings, etc...";
+		ofLogWarning("ofxSurfingPBR") << "Forcing states and some default stuff visible:";
+		ofLogWarning("ofxSurfingPBR") << "Enable help, debug, reset camera and settings, etc...";
 
-			bGui = true;
-			bGui_ofxGui = true;
-			bHelp = true;
-			bDebug = true;
+		bGui = true;
+		bGui_ofxGui = true;
+		bHelp = true;
+		bDebug = true;
+	}
 
-			doResetCamera();
-		}
-
-		//--
-
-		//TODO: not works
-		//#ifdef SURFING__PBR__USE_LIGHTS_CLASS
-		//		lights.bDebug.makeReferenceTo(bDebug);
-		//#endif
-	} 
-	else 
-	{
-		ofLogNotice("ofxSurfingPBR") << "Located scene settings. Not opening for the first time!";
+	else {
+		ofLogNotice("ofxSurfingPBR") << "Located scene settings!";
+		ofLogNotice("ofxSurfingPBR") << "App has been opened before. Not the first time!";
 	}
 
 	//--
 
-	//if (!this->getSettingsFileFoundForCamera()) {
-	//	doResetCamera();
-	//}
-
-	//--
-
-	bDoneStartup = true;
 	ofLogNotice("ofxSurfingPBR") << "startup() Done! at frame number: " << ofGetFrameNum();
+	bDoneStartup = true;
 }
 
 //// Will be called on the first update frame.
@@ -789,14 +786,25 @@ void ofxSurfingPBR::startup() {
 void ofxSurfingPBR::startupDelayed() {
 	ofLogNotice("ofxSurfingPBR") << "startupDelayed() Start";
 
-	if (!this->getSettingsFileFoundForCamera()) {
-		doResetCamera();
-	} else if (camera != nullptr)
-		doLoadCamera();
+	//--
+
+#if 1
+	// camera settings
+	{
+		bool b = this->getSettingsFileFoundForCamera();
+		if (!b) {
+			doResetCamera();
+		} else if (camera != nullptr) {
+			if (bEnableCameraAutosave) doLoadCamera();
+		}
+	}
+#endif
+
+	//--
 
 //TODO fix crash callbacks
 // some bypassed callbacks that makes the app crash...
-#if 0
+#if 1
 	guiLayout = guiLayout.get(); //trig crashes..
 #else
 	if (guiLayout.get() == 0)
@@ -805,8 +813,12 @@ void ofxSurfingPBR::startupDelayed() {
 		nameGuiLayout.set(namesGuiLayouts[1]);
 #endif
 
+	//--
+
 	string s = ofxSurfing::getLayoutName(helpLayout.get());
 	nameHelpLayout.set(s);
+
+	//--
 
 	bDoneStartupDelayed = true;
 	ofLogNotice("ofxSurfingPBR") << "startupDelayed() Done! at frame number: " << ofGetFrameNum();
@@ -1564,6 +1576,9 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 		doLoadCamera();
 	} else if (name == vResetCamera.getName()) {
 		doResetCamera();
+
+		// workflow: save
+		if (bEnableCameraAutosave) doSaveCamera();
 	}
 }
 
@@ -1811,10 +1826,11 @@ void ofxSurfingPBR::drawPlane() {
 void ofxSurfingPBR::exit() {
 	ofLogNotice("ofxSurfingPBR") << "exit()";
 
+#ifndef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
+
 	// Should not mandatory as settings should be internally auto saved when changing.
 
 	// Not required to be called bc it's using the auto saver!
-#if defined(SURFING__PBR__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE)
 	save();
 
 	material.exit();
@@ -1823,6 +1839,7 @@ void ofxSurfingPBR::exit() {
 	#ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	lights.exit();
 	#endif
+
 #endif
 
 	if (bEnableCameraAutosave) doSaveCamera();
@@ -1910,7 +1927,7 @@ bool ofxSurfingPBR::loadAll() {
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	lights.load();
 #endif
-	
+
 	doLoadCamera();
 
 	//--
@@ -2197,7 +2214,6 @@ void ofxSurfingPBR::doResetPlane() {
 	if (bShaderToPlane) bShaderToPlane.set(false);
 	if (bDisplaceToMaterial) bDisplaceToMaterial.set(false);
 
-
 #endif
 }
 
@@ -2226,6 +2242,7 @@ void ofxSurfingPBR::doResetCubeMap() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doLoadCamera() {
+	if (camera == nullptr) return;
 	ofLogNotice("ofxSurfingPBR") << "doLoadCamera()";
 
 	ofxLoadCamera(*camera, pathCamera);
@@ -2233,6 +2250,7 @@ void ofxSurfingPBR::doLoadCamera() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doSaveCamera() {
+	if (camera == nullptr) return;
 	ofLogNotice("ofxSurfingPBR") << "doSaveCamera()";
 
 	ofxSaveCamera(*camera, pathCamera);
@@ -2240,6 +2258,7 @@ void ofxSurfingPBR::doSaveCamera() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetCamera() {
+	if (camera == nullptr) return;
 	ofLogNotice("ofxSurfingPBR") << "doResetCamera()";
 
 	ofEasyCam * easyCam = dynamic_cast<ofEasyCam *>(camera);
@@ -2250,10 +2269,6 @@ void ofxSurfingPBR::doResetCamera() {
 
 		easyCam->setPosition({ 8.35512, 581.536, 696.76 });
 		easyCam->setOrientation({ 0.940131, -0.340762, 0.00563653, 0.00204303 });
-
-		// save
-		//vSaveCamera.trigger();
-		doSaveCamera();
 	}
 }
 
@@ -2278,7 +2293,7 @@ void ofxSurfingPBR::doResetAll(bool bExcludeExtras) {
 	if (!bExcludeExtras) lights.doResetShadow();
 #endif
 
-	// shader displacer
+		// shader displacer
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 	doResetNoise();
 	doResetDisplace();
@@ -2291,11 +2306,9 @@ void ofxSurfingPBR::doResetAll(bool bExcludeExtras) {
 	if (!bExcludeExtras) surfingBg.doResetAll();
 
 	// test scene
-	//vResetTestScene.trigger();
 	doResetTestScene();
 
 	// camera
-	//vResetCamera.trigger();
 	doResetCamera();
 }
 

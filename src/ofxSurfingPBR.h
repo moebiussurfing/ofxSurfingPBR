@@ -25,6 +25,7 @@
 * TODO
 * 
 	- add save/load all.
+	- fix startup/exit loading all settings
 
 	- make some linking colors 
 		to fast set bg, floor, 
@@ -110,7 +111,7 @@ private:
 	void drawHelp();
 
 public:
-	void exit();
+	void exit();//only required to save camera on exit
 	void keyPressed(int key);
 
 private:

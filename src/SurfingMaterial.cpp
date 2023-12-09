@@ -17,10 +17,13 @@ SurfingMaterial::~SurfingMaterial() {
 	ofRemoveListener(helpersParams.parameterChangedE(), this, &SurfingMaterial::ChangedHelpers);
 	ofRemoveListener(globalParams.parameterChangedE(), this, &SurfingMaterial::ChangedGlobals);
 
+#ifdef SURFING__PBR__USE_AUTO_CALL_EXIT_ON_DESTRUCTOR_IF_REQUIRED
 	if (!bDoneExit) {
 		ofLogWarning("ofxSurfingPBR") << "SurfingMaterial:destructor() Force calling exit() bc has not been called until now!";
+
 		exit();
 	}
+#endif
 }
 
 //--------------------------------------------------------------
@@ -1332,7 +1335,7 @@ void SurfingMaterial::exit() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:exit()";
 	// Not required to be called bc it's using the auto saver!
 
-#if defined(SURFING__PBR__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE)
+#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	save();
 #endif
 

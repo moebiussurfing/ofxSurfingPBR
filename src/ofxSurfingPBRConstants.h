@@ -62,7 +62,8 @@
 #define SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE 
 // saving happens when each param/s change/s but delayed a second.
 
-#define SURFING__PBR__USE_AUTOSAVE_FORCE_ON_EXIT
+//#define SURFING__PBR__USE_AUTO_CALL_EXIT_ON_DESTRUCTOR_IF_REQUIRED
+// TODO: fails if enabled bc camera is destructed and saves a wrong json file!
 // TODO: fix to remove. to fix some unsaved settings bc calling order..
 
 //----

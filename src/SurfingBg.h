@@ -97,6 +97,7 @@ public:
 	//--
 
 public:
+	ofParameterGroup paramsRotate;
 	ofParameterGroup paramsScene;
 	ofParameter<float> sizeScene;
 

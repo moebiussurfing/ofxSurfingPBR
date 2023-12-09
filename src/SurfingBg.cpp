@@ -22,7 +22,7 @@ SurfingBg::~SurfingBg() {
 void SurfingBg::exit() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingBg: exit()";
 
-#if defined(SURFING__PBR__USE_AUTOSAVE_FORCE_ON_EXIT) || !defined(SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE)
+#ifdef SURFING__PBR__USE_AUTO_CALL_EXIT_ON_DESTRUCTOR_IF_REQUIRED
 	save();
 #endif
 }
@@ -134,7 +134,7 @@ void SurfingBg::setupParameters() {
 	vOpenTexture.set("Open Texture");
 
 	bSmoothLights.set("Smooth Lights", false);
-	// Default Low Poly
+	// Default low poly
 
 	vResetAll.set("Reset All");
 	vResetScene.set("Reset Scene");
@@ -147,8 +147,8 @@ void SurfingBg::setupParameters() {
 
 	paramsScene.setName("Scene");
 
-	paramsScene.add(bDrawObject);
 	paramsScene.add(bDrawBgColorPlain);
+	paramsScene.add(bDrawObject);
 
 	paramsObject.setName("Object");
 	paramsObject.add(bModeBox);
@@ -170,8 +170,10 @@ void SurfingBg::setupParameters() {
 	paramsExtra.add(bSmoothLights);
 	paramsScene.add(paramsExtra);
 
-	paramsScene.add(bRotate);
-	paramsScene.add(speedRotate);
+	paramsRotate.setName("Anim");
+	paramsRotate.add(bRotate);
+	paramsRotate.add(speedRotate);
+	paramsScene.add(paramsRotate);
 
 	paramsScene.add(vResetScene);
 
@@ -281,6 +283,10 @@ void SurfingBg::refreshGui() {
 		.getGroup(paramsExtra.getName())
 		.minimize();
 
+	gui.getGroup(paramsScene.getName())
+		.getGroup(paramsRotate.getName())
+		.minimize();
+
 	//gui.getGroup(paramsColorizers.getName()).minimize();
 
 	gui.getGroup(paramsColorizers.getName())
@@ -290,6 +296,16 @@ void SurfingBg::refreshGui() {
 	gui.getGroup(paramsColorizers.getName())
 		.getGroup(bgColorPlainParams.getName())
 		.minimize();
+
+	if (!bDrawObject) {
+		gui.getGroup(paramsScene.getName())
+			.getGroup(paramsObject.getName())
+			.minimize();
+	} else {
+		gui.getGroup(paramsScene.getName())
+			.getGroup(paramsObject.getName())
+			.maximize();
+	}
 }
 
 //--------------------------------------------------------------
@@ -720,7 +736,9 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 	else if (name == bDrawObject.getName()) {
 		if (bDrawObject) {
 			if (bDrawBgColorPlain) bDrawBgColorPlain.set(false);
+
 		}
+			refreshGui();
 	}
 #endif
 #if 0
@@ -748,6 +766,7 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 		if (bDrawBgColorPlain) {
 			if (bDrawObject) bDrawObject.set(false);
 		}
+		refreshGui();
 	}
 #endif
 
