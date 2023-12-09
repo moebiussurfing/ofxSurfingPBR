@@ -357,6 +357,7 @@ public:
 	ofParameter<int> cubeMapMode;
 	ofParameter<string> cubeMapModeName;
 	ofParameter<float> cubeMapprefilterRoughness;
+	ofParameter<float> cubeMapExposure;
 	ofParameter<bool> bDrawCubeMap;
 	ofParameter<void> vResetCubeMap;
 	ofParameter<void> vOpenCubeMap;

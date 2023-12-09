@@ -72,14 +72,14 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "Tab   Layout UI\n";
 		//sHelp += "      " + nameGuiLayout.get() + "\n";
 		sHelp += "\n";
-		sHelp += " DRAW\n";
+		sHelp += "DRAW\n";
 		sHelp += "p     Plane\n";
 		sHelp += "s     Shadow \n";
 		sHelp += "c     CubeMap\n";
 		sHelp += "b     BgAlt\n";
 		sHelp += "\n";
 	}
-	sHelp += "   WINDOW\n";
+	sHelp += "WINDOW\n";
 	sHelp += "      " + ofToString(ofGetFrameRate(), 1) + " FPS\n";
 	sHelp += "      " + ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
 	if (bKeys) {
@@ -90,21 +90,22 @@ void ofxSurfingPBR::buildHelp() {
 	}
 	if (bKeys) {
 		sHelp += "\n";
-		sHelp += "  HELPERS\n";
-		sHelp += "  MATERIAL RESET\n";
+		sHelp += "HELPERS MATERIAL\n";
+		sHelp += "\n";
+		sHelp += "RESET\n";
 		sHelp += "F1    Full\n";
 		sHelp += "\n";
-		sHelp += "  MATERIAL RANDOM\n";
+		sHelp += "RANDOM\n";
 		sHelp += "F2    Full\n";
 		sHelp += "F3    Settings\n";
 		sHelp += "\n";
-		sHelp += "  COLORS\n";
+		sHelp += "COLORS\n";
 		sHelp += "F4    GlobalNoAlpha\n";
 		sHelp += "F5    NoAlpha\n";
 		sHelp += "F6    WithAlpha\n";
 		sHelp += "F7    OnlyAlphas\n";
 		sHelp += "\n";
-		sHelp += "   HISTORY BROWSER\n";
+		sHelp += "HISTORY BROWSER\n";
 		sHelp += "z-x   Prev-Next\n";
 		sHelp += "r     Recall\n";
 		sHelp += "s     Store\n";
@@ -1259,6 +1260,8 @@ void ofxSurfingPBR::updateCubeMap() {
 				cubeMap.drawCubeMap();
 			}
 		}
+
+		cubeMap.setExposure(cubeMapExposure);
 	}
 }
 #endif
@@ -1652,6 +1655,10 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 		if (!bLoadedCubeMap) return; //skip
 		doResetCubeMap();
 	}
+
+	//else if (name == cubeMapExposure.getName()) {
+	//	cubeMap.setExposure(cubeMapExposure);
+	//}
 
 	else if (name == cubeMapMode.getName()) {
 		//TODO:
@@ -2054,7 +2061,8 @@ void ofxSurfingPBR::setupCubeMap() {
 	cubeMapMode.set("ModeC", 2, 1, 3);
 	cubeMapName.set("NameC", "NONE");
 	path_CubemapFileAbsPath.set("Path CubeMap", "NONE");
-	cubeMapprefilterRoughness.set("Roughness CubeMap", 0.25f, 0, 1.f);
+	cubeMapprefilterRoughness.set("Roughness", 0.25f, 0, 1.f);
+	cubeMapExposure.set("Exposure", 0.25, 0.0, 1.0);
 	vOpenCubeMap.set("Open File");
 	vResetCubeMap.set("Reset CubeMap");
 
@@ -2068,6 +2076,7 @@ void ofxSurfingPBR::setupCubeMap() {
 	cubeMapParams.add(bDrawCubeMap);
 	cubeMapParams.add(cubeMapMode); //index
 	cubeMapParams.add(cubeMapModeName); //display
+	cubeMapParams.add(cubeMapExposure);
 	cubeMapParams.add(cubeMapprefilterRoughness);
 	cubeMapParams.add(cubeMapName);
 	cubeMapParams.add(path_CubemapFileAbsPath);
@@ -2211,6 +2220,7 @@ void ofxSurfingPBR::doResetCubeMap() {
 
 	cubeMapMode = 2;
 	cubeMapprefilterRoughness = 0.25f;
+	cubeMapExposure = 0.25f;
 }
 #endif
 
