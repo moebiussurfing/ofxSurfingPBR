@@ -47,11 +47,6 @@ public:
 
 	void addMaterial(string name = "");
 
-#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
-	void clearColors();
-	void addColor(ofFloatColor color, string name = "");
-#endif
-
 	void setColor(ofFloatColor color, int index);
 	void setColorMaterial(ofFloatColor color, int index);
 
@@ -63,13 +58,6 @@ public:
 
 	ofParameterGroup materialsControlParams;
 	ofxPanel guiMaterials;
-
-#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
-private:
-	ofParameterGroup colorsControlParams;
-	ofxPanel guiColors;
-	ofParameterGroup colorsParams;
-#endif
 
 private:
 	ofParameterGroup materialsParams;
@@ -89,14 +77,6 @@ public:
 	ofParameter<int>indexMaterial;
 	ofParameter<string>nameIndexMaterial;
 	ofEventListener listenerIndexMaterial;
-
-#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
-	ofParameter<bool>bGui_Colors;
-	ofParameter<int> indexColor;
-	ofParameter<string>nameIndexColor;
-	ofEventListener listenerIndexColor;
-	vector<std::unique_ptr<ofParameter<ofFloatColor>>> colors;
-#endif
 
 private:
 	vector<std::unique_ptr<SurfingMaterial>> materials;

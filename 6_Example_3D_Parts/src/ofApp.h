@@ -41,7 +41,7 @@ private:
 	// The original textured model.
 	
 	const string pathParts_DEFAULT = "models\\nike\\parts"; 
-	// Must contain separated files parts without textures.
+	// Must contain separated files parts using materials instead of the original textures.
 
 	//--
 
@@ -133,11 +133,13 @@ private:
 	ofParameter<float> yRotate { "y Rotate", 0, -180, 180 };
 	ofParameter<float> yPos { "Pos y", 0, -1.f, 1.f };
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
-	ofParameter<float> szFloor { "Floor Size", 0, 0, 1.f };
 	ofParameter<void> vResetTransforms { "Reset" };
+
 	ofEventListener listenerReset;
 	void doResetTransforms();
 
+	ofParameterGroup flootParams { "Floor" };
+	ofParameter<float> szFloor { "Floor Size", 0, 0, 1.f };
 	ofParameter<bool> bDrawGrid { "Draw Grid", true };
 	ofParameter<bool> bDrawFloor { "Draw Floor", true };
 	void drawGrid();

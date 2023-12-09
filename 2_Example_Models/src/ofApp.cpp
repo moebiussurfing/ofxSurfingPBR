@@ -373,7 +373,7 @@ void ofApp::updateSceneTransforms() {
 
 	// Scale
 	float s = ofMap(scale, -1.f, 1.f,
-		1.f / SURFING__SCENE_TEST_UNIT_SCALE, SURFING__SCENE_TEST_UNIT_SCALE, true);
+		1.f / SURFING__PBR__SCENE_SIZE_UNIT, SURFING__PBR__SCENE_SIZE_UNIT, true);
 
 	// Rotation
 	int tmax = 30;

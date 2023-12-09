@@ -30,7 +30,7 @@ void ofApp::setupCamera() {
 	camera.setupPerspective();
 	camera.reset();
 	camera.setVFlip(false);
-	camera.setDistance(SURFING__SCENE_SIZE_UNIT);
+	camera.setDistance(SURFING__PBR__SCENE_SIZE_UNIT);
 }
 
 //--------------------------------------------------------------
@@ -44,9 +44,11 @@ void ofApp::setupParams() {
 	drawModeParams.add(bDrawOnePiece);
 	drawParams.add(drawModeParams);
 	drawParams.add(bDrawTestBox);
-	drawParams.add(szFloor);
-	drawParams.add(bDrawFloor);
-	drawParams.add(bDrawGrid);
+
+	flootParams.add(szFloor);
+	flootParams.add(bDrawFloor);
+	flootParams.add(bDrawGrid);
+	drawParams.add(flootParams);
 
 	transformsParams.add(scale);
 	transformsParams.add(yPos);
@@ -101,18 +103,12 @@ void ofApp::setupScene() {
 
 	// Queue one material per parts/model
 	// Queue one color per model
-	// but mainly to be accesssible to load palettes on the fly easily.
+	// but mainly to be accessible to load palettes on the fly easily.
 	for (size_t i = 0; i < models.size(); i++) {
 		string n = namesModels[i];
 
 		string nm = "M" + n;
 		sceneManager.addMaterial(nm);
-		
-#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
-		ofFloatColor c = palette[i];
-		string nc = "C" + n;
-		sceneManager.addColor(c, nc);
-#endif
 	}
 
 	//--
@@ -126,8 +122,10 @@ void ofApp::setupGui() {
 
 	gui.setup(parameters);
 
+	//refresh gui
 	gui.getGroup(cameraParams.getName()).minimize();
 	gui.getGroup(transformsParams.getName()).minimize();
+	gui.getGroup(drawParams.getName()).getGroup(flootParams.getName()).minimize();
 
 	buildHelp();
 }
@@ -232,13 +230,13 @@ void ofApp::pushTransforms() {
 	ofPushMatrix();
 
 	// Position
-	float yUnit = SURFING__SCENE_SIZE_UNIT / 2.f;
+	float yUnit = SURFING__PBR__SCENE_SIZE_UNIT / 2.f;
 	float y = ofMap(yPos, -1.f, 1.f, -yUnit, yUnit, true);
 
 	// Scale
 	float s = ofMap(scale, -1.f, 1.f,
-		1.f / SURFING__SCENE_TEST_UNIT_SCALE, SURFING__SCENE_TEST_UNIT_SCALE, true);
-	s *= (SURFING__SCENE_SIZE_UNIT * 0.05f); //tweak here to set max zoom.
+		1.f / SURFING__PBR__SCENE_SIZE_UNIT, SURFING__PBR__SCENE_TEST_UNIT_SCALE, true);
+	s *= (SURFING__PBR__SCENE_SIZE_UNIT * 0.05f); //tweak here to set max zoom.
 
 	// Rotation anim
 	int tmax = 30;
@@ -346,10 +344,6 @@ void ofApp::doRandomPalette() {
 		ofFloatColor c = c_;
 
 		palette[i].set(c);
-
-#ifndef SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
-		sceneManager.addColor(c);
-#endif
 	}
 }
 
@@ -363,7 +357,7 @@ void ofApp::drawFloor() {
 		// Floor thin box
 
 		float r = ofMap(szFloor, 0, 1, 1, 2, true);
-		float sz = SURFING__SCENE_SIZE_UNIT * r;
+		float sz = SURFING__PBR__SCENE_SIZE_UNIT * r;
 
 		ofPushMatrix();
 		{
@@ -387,7 +381,7 @@ void ofApp::drawGrid() {
 	ofSetLineWidth(2.f);
 
 	float r = ofMap(szFloor, 0, 1, 1, 2, true);
-	float sz = SURFING__SCENE_SIZE_UNIT * r;
+	float sz = SURFING__PBR__SCENE_SIZE_UNIT * r;
 
 	ofPushMatrix();
 	{
@@ -741,7 +735,7 @@ void ofApp::doResetCamera() {
 	camera.setupPerspective();
 	camera.reset();
 	camera.setVFlip(false);
-	camera.setDistance(SURFING__SCENE_SIZE_UNIT);
+	camera.setDistance(SURFING__PBR__SCENE_SIZE_UNIT);
 
 	rotateSpeed = 0.5f;
 
