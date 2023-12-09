@@ -164,19 +164,19 @@ void ofApp::renderScene()
 ## REQUERIMENTS 
 
 * Download and copy the content of `data.zip` to the examples or to your projects into `/bin/data`:  
-  * DATA FOR ANY: [bin/data.zip](https://mega.nz/file/cHkylJZY#sVdQpSF8IkvdmKdpMIbA4767kvBvfGL7R7GnU9g20ow)  
-  * DATA FOR `2_Example_Models`: [bin/data.zip](https://mega.nz/file/saMXjATJ#hCcfG5KWJrRnwX85Wy0MmH0JMViaToS1MyOejCIxSZY)  
-  * DATA FOR `6_Example_3D_Parts`: [bin/data.zip](https://mega.nz/file/5Klk0ZZA#nDyOPUj6tvw-g271pFeunr8EA7dBn5juWXZgrJkkOGk)  
-  * ONLY SHADERS: [bin/dataShaders.zip](https://mega.nz/file/gLMwXY6S#HjIfsu80ZIpPccaFbJKowE3qeoRZeK8jnfSrhUEeGQE)  
+  * Data for any: [bin/data.zip](https://mega.nz/file/cHkylJZY#sVdQpSF8IkvdmKdpMIbA4767kvBvfGL7R7GnU9g20ow)  
+  * Data for `2_Example_Models`: [bin/data.zip](https://mega.nz/file/saMXjATJ#hCcfG5KWJrRnwX85Wy0MmH0JMViaToS1MyOejCIxSZY)  
+  * Data for `6_Example_3D_Parts`: [bin/data.zip](https://mega.nz/file/5Klk0ZZA#nDyOPUj6tvw-g271pFeunr8EA7dBn5juWXZgrJkkOGk)  
+  * Only shaders: [bin/dataShaders.zip](https://mega.nz/file/gLMwXY6S#HjIfsu80ZIpPccaFbJKowE3qeoRZeK8jnfSrhUEeGQE)  
 
 bin  
 $~$ └ data  
-$~~~~~~$ ├ assets/fonts $~~~~$ ttf, otf $~~~~$ for ofxGui customize  
-$~~~~~~$ ├ cubemaps $~~~~$ exr, hdr, jpg $~~~~$ for CubeMaps  
-$~~~~~~$ ├ models $~~~~$ obj, ply, fbx $~~~~$ for 3d objects  
-$~~~~~~$ ├ images $~~~~$ jpg, png $~~~~$ for Bg sphere texture  
-$~~~~~~$ ├ shadersGL2 $~~~~$ frag, vert $~~~~$ used when enabled  
-$~~~~~~$ └ shadersGL3 $~~~~$ frag, vert $~~~~$ used when enabled  
+$~~~~~~$ ├ assets/fonts $~~~~~~$ ttf, otf $~~~~~~$ for ofxGui customize  
+$~~~~~~$ ├ cubemaps $~~~~~~$ exr, hdr, jpg $~~~~~~$ for CubeMaps  
+$~~~~~~$ ├ models $~~~~~~$ obj, ply, fbx $~~~~~~$ for 3d objects  
+$~~~~~~$ ├ images $~~~~~~$ jpg, png $~~~~~~$ for Bg sphere texture  
+$~~~~~~$ ├ shadersGL2 $~~~~~~$ frag, vert $~~~~~~$ used when enabled  
+$~~~~~~$ └ shadersGL3 $~~~~~~$ frag, vert $~~~~~~$ used when enabled  
 
 ## TESTED SYSTEMS
 * **Windows 11** / **VS 2022** / **OF 0.12+** @[GitHub master branch](https://github.com/openframeworks/openFrameworks)
