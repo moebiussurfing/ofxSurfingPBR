@@ -64,7 +64,7 @@ void ofApp::setupPBR() {
 	//--
 
 	// Optional
-#if OFAPP__USE__OPTIONAL_SETUP
+#if OF_APP__USE__OPTIONAL_SETUP
 	#if 1
 	// Set log level
 	pbr.setLogLevel(OF_LOG_VERBOSE);
@@ -341,8 +341,10 @@ void ofApp::drawModel() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+	ofEnableDepthTest();
 	pbr.draw();
 
+	ofDisableDepthTest();
 	drawGui();
 }
 

@@ -451,12 +451,10 @@ void ofApp::save() {
 void ofApp::buildHelp() {
 
 	stringstream ss;
-	ss << "HELP          ";
+	ss << "HELP         ";
 	ss << ofxSurfing::getProjectName() << endl
 	   << endl;
-
-	ss << "BACKSPACE     Reset materials" << endl;
-
+	ss << "BACKSPACE    Reset Materials" << endl;
 	if (!ofIsGLProgrammableRenderer()) {
 		ss << endl
 		   << "SHADOWS ONLY WORK WITH PROGRAMMABLE RENDERER!" << endl;
@@ -464,14 +462,15 @@ void ofApp::buildHelp() {
 		ss << endl
 		   << "SHADOWS NOT SUPPORTED ON THIS PLATFORM!" << endl;
 	} else {
-		ss << "SPACEBAR      Shadows " << (bEnableShadows ? "ON " : "OFF");
+		ss << "SPACEBAR     Shadows " << (bEnableShadows ? "ON " : "OFF");
 		ss << endl
-		   << "F             Draw frustums " << (bDrawFrustums ? "ON " : "OFF");
+		   << "F            Draw Frustums " << (bDrawFrustums ? "ON " : "OFF");
 		ss << endl
-		   << "LEFT RIGHT    Shadow Type " << ofShadow::getShadowTypeAsString(shadowType);
+		   << "LEFT RIGHT   Shadow Type " << ofShadow::getShadowTypeAsString(shadowType);
 		ss << endl
-		   << "UP DOWN       Sample Radius " << shadowSampleRadius;
+		   << "UP DOWN      Sample Radius " << shadowSampleRadius;
 	}
+	
 	sHelp = ss.str();
 }
 

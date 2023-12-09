@@ -4,11 +4,8 @@
 
 // OPTIONAL
 
-#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS 
 // TODO: WIP: add another shader/material.
-
-#define SURFING__PBR__USE__MODELS_MANAGER 
-// allow browse model files on the folder.
+//#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS 
 
 //----
 

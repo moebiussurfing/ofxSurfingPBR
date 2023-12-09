@@ -36,9 +36,9 @@ void ofApp::setup() {
 	// gui
 	g.setName("ofApp");
 	for (size_t i = 0; i < OFAPP_NUM_ITEMS; i++) {
-		ofParameterGroup g_ { "Item " + ofToString(i) };
-		g_.add(materials[i]->bGui);
+		ofParameterGroup g_ { "OBJECT " + ofToString(i) };
 		g_.add(objects[i]->bDraw);
+		g_.add(materials[i]->bGui);
 		g_.add(objects[i]->bGui);
 		g.add(g_);
 	}
