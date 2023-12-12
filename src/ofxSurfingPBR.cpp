@@ -1840,9 +1840,11 @@ void ofxSurfingPBR::drawPlane() {
 			beginShaderPlane();
 		else
 			beginMaterialPlane();
+
 		{
 			plane.draw();
 		}
+
 		if (bShaderToPlane)
 			endShaderPlane();
 		else

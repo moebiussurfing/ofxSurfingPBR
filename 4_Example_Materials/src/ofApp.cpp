@@ -47,17 +47,18 @@ void ofApp::setup() {
 
 	//--
 
-#ifdef SURFING__USE__LIGHTS
+#ifdef OF_APP__USE__LIGHTS
 	setupLights();
 #endif
 
-	ofxLoadCamera(camera, pathCamera);
+	if (1) // set to 0 to reset camera settings
+		ofxLoadCamera(camera, pathCamera);
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
 
-#ifdef SURFING__USE__LIGHTS
+#ifdef OF_APP__USE__LIGHTS
 	updateLights();
 #endif
 }
@@ -75,7 +76,7 @@ void ofApp::draw() {
 	gui.draw();
 }
 
-#ifdef SURFING__USE__LIGHTS
+#ifdef OF_APP__USE__LIGHTS
 //--------------------------------------------------------------
 void ofApp::buildHelp() {
 
@@ -88,15 +89,15 @@ void ofApp::buildHelp() {
 	string s = "";
 	s += "KEYS\n\n";
 	s += "HELP\n";
-	s += "H : " + string(bHelp ? "ON" : "OFF") + "\n\n";
+	s += "H " + string(bHelp ? "ON" : "OFF") + "\n\n";
 	s += "DEBUG LIGHTS\n";
-	s += "L : " + string(bEnableLights ? "ON" : "OFF") + "\n\n";
+	s += "L " + string(bEnableLights ? "ON" : "OFF") + "\n\n";
 	s += "ENABLE LIGHT\n";
-	s += "1 : " + string(b1 ? "ON" : "OFF") + "\n";
-	s += "2 : " + string(b2 ? "ON" : "OFF") + "\n";
-	s += "3 : " + string(b3 ? "ON" : "OFF") + "\n";
-	s += "4 : " + string(b4 ? "ON" : "OFF") + "\n";
-	s += "5 : " + string(b5 ? "ON" : "OFF");
+	s += "1 " + string(b1 ? "ON" : "OFF") + "\n";
+	s += "2 " + string(b2 ? "ON" : "OFF") + "\n";
+	s += "3 " + string(b3 ? "ON" : "OFF") + "\n";
+	s += "4 " + string(b4 ? "ON" : "OFF") + "\n";
+	s += "5 " + string(b5 ? "ON" : "OFF");
 
 	sHelp = s;
 }
@@ -116,7 +117,7 @@ void ofApp::drawGui() {
 		objects[i]->drawGui();
 	}
 
-#ifdef SURFING__USE__LIGHTS
+#ifdef OF_APP__USE__LIGHTS
 	if (bHelp) {
 		buildHelp();
 		ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
@@ -156,7 +157,7 @@ void ofApp::refreshGuiLinks() {
 //--------------------------------------------------------------
 void ofApp::drawScene() {
 
-#ifdef SURFING__USE__LIGHTS
+#ifdef OF_APP__USE__LIGHTS
 	if (bEnableLights) ofEnableLighting();
 #endif
 
@@ -166,7 +167,7 @@ void ofApp::drawScene() {
 
 		//--
 
-#ifdef SURFING__USE__LIGHTS
+#ifdef OF_APP__USE__LIGHTS
 		if (bEnableLights) {
 
 			ofDisableLighting();
@@ -215,7 +216,7 @@ void ofApp::windowResized(int w, int h) {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
-#ifdef SURFING__USE__LIGHTS
+#ifdef OF_APP__USE__LIGHTS
 	if (key == 'h' || key == 'H') {
 		bHelp = !bHelp;
 		return;
@@ -247,12 +248,14 @@ void ofApp::keyPressed(int key) {
 #endif
 }
 
-#ifdef SURFING__USE__LIGHTS
+#ifdef OF_APP__USE__LIGHTS
 //--------------------------------------------------------------
 void ofApp::setupLights() {
 	ofSetSmoothLighting(true);
 
 	float xdist = 600.0;
+	float ty = 300;
+	float tz = 300;
 
 	for (int i = 0; i < OFAPP_NUM_LIGHTS; i++) {
 		auto pointLight = make_shared<ofLight>();
@@ -263,8 +266,7 @@ void ofApp::setupLights() {
 		pointLight->setAmbientColor(ofFloatColor(0.2f));
 		pointLight->setSpecularColor(ofColor(255.f, 255.f, 255.f));
 		float tx = ofMap(i, 0, OFAPP_NUM_LIGHTS - 1, -xdist * 0.5, xdist * 0.5f);
-		pointLight->setPosition(tx, 300, 300);
-		pointLight->setAttenuation(1.0, 0.00001, 0.00001);
+		pointLight->setPosition(tx, ty, tz);
 		pointLight->setAttenuation(1.0, 0.00001, 0.00001);
 		pointLights.push_back(pointLight);
 	}
@@ -277,6 +279,7 @@ void ofApp::setupLights() {
 
 //--------------------------------------------------------------
 void ofApp::updateLights() {
+	float h = 150;
 
 	float deltaTime = ofClamp(ofGetLastFrameTime(), 1.f / 5000.f, 1.f / 5.f);
 	angle += deltaTime;
@@ -291,7 +294,6 @@ void ofApp::updateLights() {
 		auto & l = pointLights[i];
 		lightColor.setHue(ofWrap(colorHue + (float)i * 12.5, 0, 255.f));
 		l->setDiffuseColor(lightColor);
-		float h = 150;
 		float positionY = sin(angle + (float)i * cos(angle * 0.05) * 1.9f) * h;
 		l->setPosition(l->getX(), positionY, 200.0);
 	}

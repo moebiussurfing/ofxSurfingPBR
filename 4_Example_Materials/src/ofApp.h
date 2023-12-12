@@ -18,7 +18,7 @@
 #include "SurfingMeshSphereDisplaced.h"
 #include "ofxCameraSaveLoad.h"
 
-#define SURFING__USE__LIGHTS
+#define OF_APP__USE__LIGHTS
 
 class ofApp : public ofBaseApp {
 public:
@@ -45,7 +45,7 @@ public:
 	vector<std::unique_ptr<SurfingMaterial>> materials;
 	vector<std::unique_ptr<SurfingMeshSphereDisplaced>> objects;
 
-#ifdef SURFING__USE__LIGHTS
+#ifdef OF_APP__USE__LIGHTS
 	const int OFAPP_NUM_LIGHTS = 5;
 	bool bEnableLights = true;
 	vector<shared_ptr<ofLight>> pointLights;
