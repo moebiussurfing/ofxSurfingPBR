@@ -100,7 +100,7 @@ void ofxSurfingPBR::buildHelp() {
 	}
 	if (bKeys) {
 		sHelp += "\n";
-		sHelp += "HELPERS MATERIAL\n";
+		sHelp += "HELPERS\nMATERIAL\n";
 		sHelp += "\n";
 		sHelp += "RESET\n";
 		sHelp += "F1     Full\n";
