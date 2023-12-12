@@ -12,7 +12,7 @@ void ofApp::setup() {
 	//--
 
 	// create and queue materials
-	for (size_t i = 0; i < OFAPP_NUM_ITEMS; i++) {
+	for (size_t i = 0; i < OF_APP__NUM_ITEMS; i++) {
 		std::unique_ptr<SurfingMaterial> m;
 		m = std::make_unique<SurfingMaterial>();
 		string s = "MATERIAL_" + ofToString(i);
@@ -21,7 +21,7 @@ void ofApp::setup() {
 	}
 
 	// create and queue materials
-	for (size_t i = 0; i < OFAPP_NUM_ITEMS; i++) {
+	for (size_t i = 0; i < OF_APP__NUM_ITEMS; i++) {
 		std::unique_ptr<SurfingMeshSphereDisplaced> o;
 		o = std::make_unique<SurfingMeshSphereDisplaced>();
 		string s = ofToString(i);
@@ -35,13 +35,20 @@ void ofApp::setup() {
 
 	// gui
 	g.setName("ofApp");
-	for (size_t i = 0; i < OFAPP_NUM_ITEMS; i++) {
+	for (size_t i = 0; i < OF_APP__NUM_ITEMS; i++) {
 		ofParameterGroup g_ { "OBJECT " + ofToString(i) };
 		g_.add(objects[i]->bDraw);
 		g_.add(materials[i]->bGui);
 		g_.add(objects[i]->bGui);
 		g.add(g_);
 	}
+	vRandomMaterials.set("Random All");
+	g.add(vRandomMaterials);
+
+	listenerRandomMaterials = vRandomMaterials.newListener([this](void) {
+		randomMaterials();
+	});
+
 	gui.setup(g);
 	ofxSurfing::load(g);
 
@@ -88,11 +95,12 @@ void ofApp::buildHelp() {
 
 	string s = "";
 	s += "KEYS\n\n";
-	s += "HELP\n";
+	s += "HELP\n\n";
 	s += "H " + string(bHelp ? "ON" : "OFF") + "\n\n";
-	s += "DEBUG LIGHTS\n";
+	s += "LIGHTS\n\n";
+	s += "DEBUG\n";
 	s += "L " + string(bEnableLights ? "ON" : "OFF") + "\n\n";
-	s += "ENABLE LIGHT\n";
+	s += "ENABLE\n";
 	s += "1 " + string(b1 ? "ON" : "OFF") + "\n";
 	s += "2 " + string(b2 ? "ON" : "OFF") + "\n";
 	s += "3 " + string(b3 ? "ON" : "OFF") + "\n";
@@ -133,10 +141,10 @@ void ofApp::refreshGuiAnchors() {
 	ofxSurfing::SURFING_LAYOUT l;
 
 	l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
-	ofxSurfing::setGuiPositionToLayoutPanelsCentered(materials[0]->gui, OFAPP_NUM_ITEMS, l);
+	ofxSurfing::setGuiPositionToLayoutPanelsCentered(materials[0]->gui, OF_APP__NUM_ITEMS, l);
 
 	l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
-	ofxSurfing::setGuiPositionToLayoutPanelsCentered(objects[0]->gui, OFAPP_NUM_ITEMS, l);
+	ofxSurfing::setGuiPositionToLayoutPanelsCentered(objects[0]->gui, OF_APP__NUM_ITEMS, l);
 }
 
 //--------------------------------------------------------------
@@ -257,7 +265,7 @@ void ofApp::setupLights() {
 	float ty = 300;
 	float tz = 300;
 
-	for (int i = 0; i < OFAPP_NUM_LIGHTS; i++) {
+	for (int i = 0; i < OF_APP__NUM_LIGHTS; i++) {
 		auto pointLight = make_shared<ofLight>();
 		pointLight->setup();
 		pointLight->enable();
@@ -265,7 +273,7 @@ void ofApp::setupLights() {
 		pointLight->setDiffuseColor(ofColor(0.f, 255.f, 0.f));
 		pointLight->setAmbientColor(ofFloatColor(0.2f));
 		pointLight->setSpecularColor(ofColor(255.f, 255.f, 255.f));
-		float tx = ofMap(i, 0, OFAPP_NUM_LIGHTS - 1, -xdist * 0.5, xdist * 0.5f);
+		float tx = ofMap(i, 0, OF_APP__NUM_LIGHTS - 1, -xdist * 0.5, xdist * 0.5f);
 		pointLight->setPosition(tx, ty, tz);
 		pointLight->setAttenuation(1.0, 0.00001, 0.00001);
 		pointLights.push_back(pointLight);
@@ -299,6 +307,13 @@ void ofApp::updateLights() {
 	}
 }
 #endif
+
+//--------------------------------------------------------------
+void ofApp::randomMaterials() {
+	for (size_t i = 0; i < materials.size(); i++) {
+		materials[i]->doRandomMaterial();
+	}
+}
 
 //--------------------------------------------------------------
 void ofApp::exit() {

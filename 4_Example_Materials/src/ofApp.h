@@ -40,13 +40,13 @@ public:
 
 	void drawScene();
 
-	const size_t OFAPP_NUM_ITEMS = 4;
+	const size_t OF_APP__NUM_ITEMS = 4;
 
 	vector<std::unique_ptr<SurfingMaterial>> materials;
 	vector<std::unique_ptr<SurfingMeshSphereDisplaced>> objects;
 
 #ifdef OF_APP__USE__LIGHTS
-	const int OFAPP_NUM_LIGHTS = 5;
+	const int OF_APP__NUM_LIGHTS = 5;
 	bool bEnableLights = true;
 	vector<shared_ptr<ofLight>> pointLights;
 	float colorHue = 0.0f;
@@ -61,4 +61,8 @@ public:
 
 	ofxPanel gui;
 	ofParameterGroup g;
+
+	void randomMaterials();
+	ofParameter<void> vRandomMaterials;
+	ofEventListener listenerRandomMaterials;
 };
