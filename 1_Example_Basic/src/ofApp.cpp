@@ -11,8 +11,8 @@ void ofApp::setup() {
 	{
 		ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
 
+		// Auto customizes settings to 60fps and vSync off.
 		// Move and shape the window app.
-		// Customize settings: 60fps and vSync off.
 		ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
 		//ofxSurfing::setWindowAtMonitor(1, true); // Move to right display and set portrait.
 		//ofxSurfing::setWindowAtMonitor(); // Stay at main display (center in my setup) and landscape.
@@ -40,27 +40,28 @@ void ofApp::draw() {
 void ofApp::renderScene() {
 	// The camera is internal!
 
-	// Plane floor (Material A / simple)
+	// Floor 
+	// could be selected plane or box modes.
+	// Material A / simple parameters
 	// don't need to begin/end material manually.
 	pbr.drawFloor();
 
-	// For other objects (Material B / full parameters)
+	// For other objects 
+	// Material B / full parameters
 	pbr.beginMaterial();
 	{
-		drawYourScene();
+		drawScene();
 	}
 	pbr.endMaterial();
 }
 
 //--------------------------------------------------------------
-void ofApp::drawYourScene() {
-	// Draws an internal bundled testing scene with the three prims
-	pbr.drawTestScene();
-}
+void ofApp::drawScene() {
+	/* Put your scene drawing here! */
 
-//--------------------------------------------------------------
-void ofApp::keyPressed(int key) {
-	pbr.keyPressed(key);
+	// Draws an internal bundled 
+	// testing scene with the three prims:
+	pbr.drawTestScene();
 }
 
 //--------------------------------------------------------------

@@ -94,9 +94,9 @@ private:
 public:
 	void draw(); //main draw
 
-	void drawFloor();//plane or box floor
-	void drawPlane();//plane
-	void drawBoxFloor();//box floor
+	void drawFloor(); //plane or box floor
+	void drawPlane(); //plane floor
+	void drawBoxFloor(); //box floor
 
 	void drawBg();
 
@@ -104,8 +104,8 @@ public:
 	void drawTestScene(); //a simple scene with 3 prims for easy testing
 	void pushTestSceneTRansform();
 	void popTestSceneTRansform();
-	ofParameter<bool> bGui_DrawTestScene; 
-	
+	ofParameter<bool> bGui_DrawTestScene;
+
 	void drawGui();
 	void drawOfxGui();
 
@@ -115,10 +115,12 @@ private:
 	void drawHelp();
 
 public:
-	void exit();//only required to save camera on exit
-	void keyPressed(int key);
-
+	void exit(); //only required to save camera on exit
+	
 private:
+	void keyPressed(int key);
+	void keyPressed(ofKeyEventArgs & eventArgs);
+
 	void windowResized(ofResizeEventArgs & e);
 
 public:
@@ -222,7 +224,7 @@ private:
 
 	ofBoxPrimitive boxFloor; //floor
 	void refreshBoxFloor();
-	bool bFlagRefreshBoxFloor= false;
+	bool bFlagRefreshBoxFloor = false;
 	ofParameter<float> boxFloorDepth;
 
 	//--

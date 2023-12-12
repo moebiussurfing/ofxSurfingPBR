@@ -100,7 +100,7 @@ void ofApp::renderScene() {
 		ofSetSphereResolution(50);
 
 		// floor thin box
-		float szf = SURFING__SCENE_SIZE_UNIT * 2.0f;
+		float szf = SURFING__PBR__SCENE_SIZE_UNIT * 2.0f;
 		ofPushMatrix();
 		ofRotateXDeg(90);
 		ofDrawBox(glm::vec3(0, 0, 0), szf, szf, 1);

@@ -5,6 +5,7 @@ ofxSurfingPBR::ofxSurfingPBR() {
 
 	ofAddListener(ofEvents().update, this, &ofxSurfingPBR::update);
 	ofAddListener(ofEvents().windowResized, this, &ofxSurfingPBR::windowResized);
+	ofAddListener(ofEvents().keyPressed, this, &ofxSurfingPBR::keyPressed);
 }
 
 //--------------------------------------------------------------
@@ -13,6 +14,7 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 
 	ofRemoveListener(ofEvents().update, this, &ofxSurfingPBR::update);
 	ofRemoveListener(ofEvents().windowResized, this, &ofxSurfingPBR::windowResized);
+	ofRemoveListener(ofEvents().keyPressed, this, &ofxSurfingPBR::keyPressed);
 
 	//--
 
@@ -2183,6 +2185,21 @@ void ofxSurfingPBR::processOpenFileSelection(ofFileDialogResult openFileResult) 
 #endif
 
 //--------------------------------------------------------------
+void ofxSurfingPBR::keyPressed(ofKeyEventArgs & eventArgs) {
+	const int key = eventArgs.key;
+
+	// modifiers
+	bool mod_COMMAND = eventArgs.hasModifier(OF_KEY_COMMAND);
+	bool mod_CONTROL = eventArgs.hasModifier(OF_KEY_CONTROL);
+	bool mod_ALT = eventArgs.hasModifier(OF_KEY_ALT);
+	bool mod_SHIFT = eventArgs.hasModifier(OF_KEY_SHIFT);
+
+	ofLogVerbose("ofxSurfingPBR") << "keyPressed: " << key;
+
+	keyPressed(key);
+}
+
+//--------------------------------------------------------------
 void ofxSurfingPBR::keyPressed(int key) {
 	if (!bKeys) return;
 	ofLogNotice("ofxSurfingPBR") << "keyPressed(" << key << ")";
@@ -2274,9 +2291,12 @@ void ofxSurfingPBR::doResetPlaneTransform() {
 	ofLogNotice("ofxSurfingPBR") << "doResetPlaneTransform()";
 
 	planeSize.set(glm::vec2(0.12, 0.05));
-	planeResolution.set(glm::vec2(0.5f, 0.5f));
+
+	planeResolution.set(glm::vec2(0.01f, 0.01f));
+	//planeResolution.set(glm::vec2(0.5f, 0.5f));
 	
 	planePosition.set(0.f);
+	
 	planeRotation.set(0.f);
 	//planeRotation.set(10.f);
 

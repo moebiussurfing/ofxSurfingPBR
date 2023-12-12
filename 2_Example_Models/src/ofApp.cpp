@@ -582,10 +582,6 @@ void ofApp::refreshGui() {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
 
-	pbr.keyPressed(key);
-
-	//--
-
 	if (key == 'A')
 		bAnimZoom = !bAnimZoom;
 
