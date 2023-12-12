@@ -42,7 +42,7 @@ void ofApp::renderScene() {
 
 	// Plane floor (Material A / simple)
 	// don't need to begin/end material manually.
-	pbr.drawPlane();
+	pbr.drawFloor();
 
 	// For other objects (Material B / full parameters)
 	pbr.beginMaterial();

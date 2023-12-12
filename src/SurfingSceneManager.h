@@ -29,11 +29,13 @@ private:
 	void draw();
 
 public:
-	void refreshGui(bool bHard=false);
+	void refreshGui(bool bHard = false);
 	void refreshGuiMaterials();
 
 public:
 	void drawGui();
+	//void drawGui(ofxPanel * guiPtr = nullptr);
+
 	void exit();
 
 private:
@@ -49,8 +51,8 @@ public:
 
 	void addMaterial(string name = "");
 
-	void setColor(ofFloatColor color, int index);//TODO
-	void setColorMaterial(ofFloatColor color, int index);//TODO
+	void setColor(ofFloatColor color, int index); //TODO
+	void setColorMaterial(ofFloatColor color, int index); //TODO
 
 	void beginMaterial(int index);
 	void endMaterial(int index);
@@ -75,9 +77,9 @@ public:
 
 	void toggleDebug();
 
-	ofParameter<bool>bGui_Materials;
-	ofParameter<int>indexMaterial;
-	ofParameter<string>nameIndexMaterial;
+	ofParameter<bool> bGui_Materials;
+	ofParameter<int> indexMaterial;
+	ofParameter<string> nameIndexMaterial;
 	ofEventListener listenerIndexMaterial;
 	ofEventListener listenerbGui_Materials;
 

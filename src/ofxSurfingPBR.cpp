@@ -1,7 +1,7 @@
 #include "ofxSurfingPBR.h"
 //--------------------------------------------------------------
 ofxSurfingPBR::ofxSurfingPBR() {
-	ofLogNotice("ofxSurfingPBR") << "ofxSurfingPBR()";
+	ofLogNotice("ofxSurfingPBR") << "ofxSurfingPBR() Constructor";
 
 	ofAddListener(ofEvents().update, this, &ofxSurfingPBR::update);
 	ofAddListener(ofEvents().windowResized, this, &ofxSurfingPBR::windowResized);
@@ -9,7 +9,7 @@ ofxSurfingPBR::ofxSurfingPBR() {
 
 //--------------------------------------------------------------
 ofxSurfingPBR::~ofxSurfingPBR() {
-	ofLogNotice("ofxSurfingPBR") << "~ofxSurfingPBR()";
+	ofLogNotice("ofxSurfingPBR") << "~ofxSurfingPBR() Destructor";
 
 	ofRemoveListener(ofEvents().update, this, &ofxSurfingPBR::update);
 	ofRemoveListener(ofEvents().windowResized, this, &ofxSurfingPBR::windowResized);
@@ -185,6 +185,7 @@ void ofxSurfingPBR::setupParams() {
 	//--
 
 	bDrawPlane.set("Draw Plane", true);
+	bDrawBoxFloor.set("Draw BoxFloor", false);
 
 	//--
 
@@ -208,6 +209,7 @@ void ofxSurfingPBR::setupParams() {
 
 	drawParams.setName("DRAW");
 	drawParams.add(bDrawPlane);
+	drawParams.add(bDrawBoxFloor);
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	drawParams.add(lights.bDrawShadow);
@@ -247,7 +249,7 @@ void ofxSurfingPBR::setupParams() {
 	planeRotation.set("x Rotation", 0, -45, 135);
 	planePosition.set("y Position", 0, -1, 1);
 	planeShiness.set("Shiness", 0.85 * SURFING__PBR__MAX_SHININESS, 0, SURFING__PBR__MAX_SHININESS);
-
+	boxFloorDepth.set("BoxFloor Depth", 5, 1, 20);
 #ifdef SURFING__PBR__PLANE_COLORS_NO_ALPHA
 	planeGlobalColor.set("Global Color",
 		ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
@@ -269,6 +271,7 @@ void ofxSurfingPBR::setupParams() {
 	//--
 
 	planeParams.add(bDrawPlane);
+	planeParams.add(bDrawBoxFloor);
 	planeParams.add(bPlaneWireframe);
 
 	//--
@@ -290,6 +293,7 @@ void ofxSurfingPBR::setupParams() {
 	planeTransformParams.add(planePosition);
 	planeTransformParams.add(planeRotation);
 	planeTransformParams.add(planeSize);
+	planeTransformParams.add(boxFloorDepth);
 	planeTransformParams.add(bPlaneInfinite);
 	planeTransformParams.add(planeResolution);
 	planeTransformParams.add(vResetPlaneTransform);
@@ -949,6 +953,12 @@ void ofxSurfingPBR::update() {
 
 		refreshPlane();
 	}
+
+	if (bFlagRefreshBoxFloor) {
+		bFlagRefreshBoxFloor = false;
+
+		refreshBoxFloor();
+	}
 }
 
 //--------------------------------------------------------------
@@ -1356,6 +1366,36 @@ void ofxSurfingPBR::refreshPlane() {
 }
 
 //--------------------------------------------------------------
+void ofxSurfingPBR::refreshBoxFloor() {
+
+	int w, h;
+
+	if (bPlaneInfinite) {
+		// size hardcoded to a safety max!
+		w = SURFING__PBR__PLANE_SIZE_INFINITE_MODE;
+		h = SURFING__PBR__PLANE_SIZE_INFINITE_MODE;
+	} else {
+		// size from normalized param multiplied by a unit
+		int planeSizeUnit = SURFING__PBR__SCENE_SIZE_UNIT * SURFING__PBR__PLANE_SIZE_MULTIPLIER;
+		w = planeSize.get().x * planeSizeUnit;
+		h = planeSize.get().y * planeSizeUnit;
+	}
+
+	//--
+
+	int xResolution;
+	int yResolution;
+
+	xResolution = (int)ofMap(planeResolution.get().x, 0.f, 1.f,
+		(int)SURFING__PBR__PLANE_RESOLUTION_MIN, (int)SURFING__PBR__PLANE_RESOLUTION_MAX, true);
+
+	yResolution = (int)ofMap(planeResolution.get().y, 0.f, 1.f,
+		(int)SURFING__PBR__PLANE_RESOLUTION_MIN, (int)SURFING__PBR__PLANE_RESOLUTION_MAX, true);
+
+	boxFloor.set(w, h, boxFloorDepth, xResolution, yResolution, 1);
+}
+
+//--------------------------------------------------------------
 void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 
 	std::string name = e.getName();
@@ -1378,12 +1418,23 @@ void ofxSurfingPBR::ChangedPlane(ofAbstractParameter & e) {
 
 	//--
 
-	if (name == planeSize.getName()) {
+	 if (name == bDrawPlane.getName()) {
+		if (bDrawPlane)
+			if (bDrawBoxFloor) bDrawBoxFloor = false;
+	}
+
+	else if (name == bDrawBoxFloor.getName()) {
+		if (bDrawBoxFloor)
+			if (bDrawPlane) bDrawPlane = false;
+	}
+
+	else if(name == planeSize.getName()) {
 		static glm::vec2 planeSize_ = glm::vec2(-1, -1);
 		if (planeSize.get() != planeSize_) { // if changed
 			planeSize_ = planeSize.get();
 
 			bFlagRefreshPlane = true;
+			bFlagRefreshBoxFloor = true;
 		} else {
 			ofLogVerbose("ofxSurfingPBR") << "Plane size not Changed. Skipped refresh!";
 		}
@@ -1391,21 +1442,30 @@ void ofxSurfingPBR::ChangedPlane(ofAbstractParameter & e) {
 
 	else if (name == planeResolution.getName()) {
 		bFlagRefreshPlane = true;
+		bFlagRefreshBoxFloor = true;
 	}
 
 	else if (name == bPlaneInfinite.getName()) {
 		bFlagRefreshPlane = true;
+		bFlagRefreshBoxFloor = true;
+	}
+
+	else if (name == boxFloorDepth.getName()) {
+		bFlagRefreshBoxFloor = true;
 	}
 
 	else if (name == planeRotation.getName()) {
 		glm::vec3 axis(1.0f, 0.0f, 0.0f);
 		float angle = planeRotation.get() - 90;
 		glm::quat q = glm::angleAxis(glm::radians(angle), axis);
+
 		plane.setOrientation(q);
+		boxFloor.setOrientation(q);
 	}
 
 	else if (name == planePosition.getName()) {
 		plane.setPosition(0, planePosition.get() * SURFING__PBR__SCENE_SIZE_UNIT * 5.f, 0);
+		boxFloor.setPosition(0, planePosition.get() * SURFING__PBR__SCENE_SIZE_UNIT * 5.f, 0);
 	}
 
 	else if (name == planeShiness.getName()) {
@@ -1413,8 +1473,7 @@ void ofxSurfingPBR::ChangedPlane(ofAbstractParameter & e) {
 	}
 
 	else if (name == planeGlobalColor.getName()) {
-		//fix crash
-		if (!bDoneStartup) return;
+		if (!bDoneStartup) return;//fix crash
 
 		planeDiffuseColor.set(planeGlobalColor.get());
 		planeSpecularColor.set(planeGlobalColor.get());
@@ -1759,6 +1818,12 @@ void ofxSurfingPBR::popTestSceneTRansform() {
 }
 
 //--------------------------------------------------------------
+void ofxSurfingPBR::drawFloor() {
+	drawPlane();
+	drawBoxFloor();
+}
+
+//--------------------------------------------------------------
 void ofxSurfingPBR::drawPlane() {
 	if (!bDrawPlane) return;
 
@@ -1787,6 +1852,23 @@ void ofxSurfingPBR::drawPlane() {
 		}
 		endMaterialPlane();
 #endif
+	}
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::drawBoxFloor() {
+	if (!bDrawBoxFloor) return;
+
+	if (bPlaneWireframe) {
+		boxFloor.drawWireframe();
+	}
+
+	else {
+		beginMaterialPlane();
+		{
+			boxFloor.draw();
+		}
+		endMaterialPlane();
 	}
 }
 
@@ -2109,6 +2191,7 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 'G') bGui_ofxGui = !bGui_ofxGui;
 
 	if (key == 'p') bDrawPlane = !bDrawPlane;
+	if (key == 'b') bDrawBoxFloor = !bDrawBoxFloor;
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	if (key == 's') lights.bDrawShadow = !lights.bDrawShadow;
@@ -2192,9 +2275,13 @@ void ofxSurfingPBR::doResetPlaneTransform() {
 
 	planeSize.set(glm::vec2(0.12, 0.05));
 	planeResolution.set(glm::vec2(0.5f, 0.5f));
+	
 	planePosition.set(0.f);
 	planeRotation.set(0.f);
 	//planeRotation.set(10.f);
+
+	boxFloorDepth = 5;
+
 	bPlaneInfinite = false;
 }
 

@@ -93,7 +93,11 @@ private:
 
 public:
 	void draw(); //main draw
-	void drawPlane();
+
+	void drawFloor();//plane or box floor
+	void drawPlane();//plane
+	void drawBoxFloor();//box floor
+
 	void drawBg();
 
 #define DO_SCENE_TEST_TRANSFORMS 1
@@ -216,6 +220,11 @@ private:
 	void refreshPlane();
 	bool bFlagRefreshPlane = false;
 
+	ofBoxPrimitive boxFloor; //floor
+	void refreshBoxFloor();
+	bool bFlagRefreshBoxFloor= false;
+	ofParameter<float> boxFloorDepth;
+
 	//--
 
 private:
@@ -289,6 +298,7 @@ public:
 	ofParameter<void> vResetTestScene;
 
 	ofParameter<bool> bDrawPlane;
+	ofParameter<bool> bDrawBoxFloor;
 
 	ofParameterGroup planeParams;
 	ofParameterGroup planeMaterialParams;
@@ -403,6 +413,7 @@ private:
 public:
 	bool load();
 	void save();
+
 	bool loadAll();
 	void saveAll();
 	ofParameter<void> vLoadAll;
