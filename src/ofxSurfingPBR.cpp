@@ -2291,14 +2291,9 @@ void ofxSurfingPBR::doResetPlaneTransform() {
 	ofLogNotice("ofxSurfingPBR") << "doResetPlaneTransform()";
 
 	planeSize.set(glm::vec2(0.12, 0.05));
-
 	planeResolution.set(glm::vec2(0.01f, 0.01f));
-	//planeResolution.set(glm::vec2(0.5f, 0.5f));
-	
 	planePosition.set(0.f);
-	
 	planeRotation.set(0.f);
-	//planeRotation.set(10.f);
 
 	boxFloorDepth = 5;
 

@@ -18,13 +18,23 @@ the background generators and the cubeMap.
 */
 
 
+/*
+TODO
+
+fix transparent drawing
+fix box floor
+
+
+*/
+
 #pragma once
 
 #include "ofMain.h"
 
-// Optional: uses a helper
-#define SURFING__USE__MODELS_MANAGER
+// Optional: uses an internal class helper
+#define OF_APP__USE__MODELS_MANAGER
 
+//TODO: fix
 #define OF_APP__USE__OPTIONAL_SETUP 0
 
 //--
@@ -34,7 +44,7 @@ the background generators and the cubeMap.
 #include "ofVboMesh.h"
 #include "ofxAssimpModelLoader.h"
 
-#ifdef SURFING__USE__MODELS_MANAGER
+#ifdef OF_APP__USE__MODELS_MANAGER
 	#include "SurfingModelsManager.h"
 #endif
 
@@ -138,7 +148,7 @@ public:
 	//--
 
 	// Models files browser
-#ifdef SURFING__USE__MODELS_MANAGER
+#ifdef OF_APP__USE__MODELS_MANAGER
 	SurfingModelsManager modelsManager;
 	ofEventListener listenerIndexModel;//get class internal index changed
 #else

@@ -11,6 +11,7 @@ void ofApp::setup() {
 	ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
 	ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
 
+	// Verbose
 	pbr.setLogLevel(OF_LOG_VERBOSE);
 	ofSetLogLevel(OF_LOG_VERBOSE);
 #endif
@@ -25,7 +26,7 @@ void ofApp::setup() {
 
 	setupMesh();
 
-#ifdef SURFING__USE__MODELS_MANAGER
+#ifdef OF_APP__USE__MODELS_MANAGER
 
 	modelsManager.setup();
 
@@ -249,7 +250,7 @@ void ofApp::update() {
 	}
 }
 
-#ifndef SURFING__USE__MODELS_MANAGER
+#ifndef OF_APP__USE__MODELS_MANAGER
 //--------------------------------------------------------------
 void ofApp::setupModel() {
 
@@ -428,7 +429,7 @@ void ofApp::drawMyScene() {
 		// Scene 2: Model(s)
 
 		else if (indexScene == 2) {
-#ifdef SURFING__USE__MODELS_MANAGER
+#ifdef OF_APP__USE__MODELS_MANAGER
 			modelsManager.draw();
 #else
 			drawModel();
@@ -454,7 +455,7 @@ void ofApp::drawGui() {
 	if (pbr.bGui_ofxGui) {
 		gui.draw();
 
-#ifdef SURFING__USE__MODELS_MANAGER
+#ifdef OF_APP__USE__MODELS_MANAGER
 		if (indexScene == 2) {
 
 			// Attach/link both panels positions
@@ -481,7 +482,7 @@ void ofApp::drawHelp() {
 			ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
 	}
 
-#ifdef SURFING__USE__MODELS_MANAGER
+#ifdef OF_APP__USE__MODELS_MANAGER
 	if (indexScene == 2)
 		modelsManager.drawHelp();
 #endif
@@ -502,15 +503,13 @@ void ofApp::doReset() {
 	powZoom = 0.5;
 	zoomSpeed = 0.5;
 
+// Some PBR stuff to Reset:
 #if 1
-	// Some PBR stuff to Reset:
-	#if 1
 	// Reset the camera only.
 	pbr.doResetCamera();
-	#else
+#else
 	// Reset all PBR, including camera.
 	pbr.doResetAll();
-	#endif
 #endif
 }
 
@@ -565,7 +564,7 @@ void ofApp::refreshGui() {
 	if (layout == 1)
 		l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
 
-#ifdef SURFING__USE__MODELS_MANAGER
+#ifdef OF_APP__USE__MODELS_MANAGER
 
 	if (indexScene == 2) { // ofApp gui and models manager gui
 		ofxSurfing::setGuiPositionToLayoutBoth(gui, modelsManager.getGui(), l);
@@ -599,7 +598,7 @@ void ofApp::keyPressed(int key) {
 
 	//--
 
-#ifdef SURFING__USE__MODELS_MANAGER
+#ifdef OF_APP__USE__MODELS_MANAGER
 	modelsManager.keyPressed(key);
 #endif
 }
@@ -619,6 +618,7 @@ void ofApp::windowResized(ofResizeEventArgs & resize) {
 //--------------------------------------------------------------
 void ofApp::load() {
 	ofLogNotice("ofApp") << "load()";
+
 	autoSaver.pause();
 	ofxSurfing::loadSettings(parameters, pathSettings);
 	autoSaver.start();
@@ -627,6 +627,7 @@ void ofApp::load() {
 //--------------------------------------------------------------
 void ofApp::save() {
 	ofLogNotice("ofApp") << "save()";
+
 	ofxSurfing::saveSettings(parameters, pathSettings);
 }
 
