@@ -74,7 +74,7 @@ void SurfingLights::setupLights() {
 
 		light->setDirectional();
 
-		light->getShadow().setNearClip(SURFING__PBR__LIGHTS_NEAR);
+		//light->getShadow().setNearClip(SURFING__PBR__LIGHTS_NEAR);
 		light->getShadow().setFarClip(SURFING__PBR__LIGHTS_FAR);
 
 		//light->getShadow().setStrength(SURFING__PBR__SHADOW_DEFAULT_STRENGTH);
@@ -211,9 +211,13 @@ void SurfingLights::computeLights() {
 			lights[1]->setOrientation(q);
 		}
 
-		float v = ofMap(directionalSizeFar, 0, 1,
+		float vf = ofMap(directionalSizeFar, 0, 1,
 			SURFING__PBR__LIGHTS_FAR, SURFING__PBR__LIGHTS_FAR * SURFING__PBR__LIGHTS_FAR_RATIO_MAX, true);
-		lights[1]->getShadow().setFarClip(v);
+		lights[1]->getShadow().setFarClip(vf);
+
+		float vn = ofMap(directionalSizeNear, 0, 1,
+			SURFING__PBR__LIGHTS_NEAR, SURFING__PBR__LIGHTS_NEAR * SURFING__PBR__LIGHTS_FAR_RATIO_MAX, true);
+		lights[1]->getShadow().setNearClip(vn);
 	}
 
 	//--
@@ -693,6 +697,7 @@ void SurfingLights::setupParametersLights() {
 		ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
 #endif
 	directionalSizeFar.set("D Size Far", 0, 0, 1);
+	directionalSizeNear.set("D Size Near", 0, 0, 1);
 
 	//--
 
@@ -763,10 +768,10 @@ void SurfingLights::setupParametersLights() {
 	bSmoothLights.set("Smooth Lights", false); // Default Low poly
 
 	// Bright
-	pointBright.set("Brg Point", 0.1, 0, 1);
-	spotBright.set("Brg Spot", 0.1, 0, 1);
-	directionalBright.set("Brg Direct", 0.1, 0, 1);
-	areaBright.set("Brg Area", 0.1, 0, 1);
+	pointBright.set("B Point", 0.1, 0, 1);
+	spotBright.set("B Spot", 0.1, 0, 1);
+	directionalBright.set("B Direct", 0.1, 0, 1);
+	areaBright.set("B Area", 0.1, 0, 1);
 
 	//--
 
@@ -794,6 +799,7 @@ void SurfingLights::setupParametersLights() {
 	directionalParams.add(directionalPosition);
 	directionalParams.add(directionalOrientation);
 	directionalParams.add(directionalSizeFar);
+	directionalParams.add(directionalSizeNear);
 	directionalParams.add(bDirectionalShadow);
 	directionalParams.add(vDirectionalReset);
 
@@ -1299,6 +1305,7 @@ void SurfingLights::doResetDirectional(bool bHard) {
 	directionalOrientation.set(glm::vec3(-60, 0, 0));
 
 	directionalSizeFar = 0.5;
+	directionalSizeNear = 0.5;
 
 	if (bHard)
 		directionalBright = SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET;

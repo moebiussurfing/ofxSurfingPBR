@@ -5,7 +5,7 @@
 // OPTIONAL
 
 // TODO: WIP: add another shader/material.
-#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS 
+//#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS 
 
 //----
 

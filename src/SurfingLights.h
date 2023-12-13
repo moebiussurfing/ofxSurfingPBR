@@ -14,6 +14,7 @@
 /*
 	TODO
 
+	add look at draggable/moveable points
 	fix not saving bright settings
 		refresh bright after changing colors!
 		bc if not, do not reflects the bright/power of the light!
@@ -188,6 +189,7 @@ public:
 	ofParameter<glm::vec3> directionalOrientation;
 	ofParameter<glm::vec3> directionalPosition;
 	ofParameter<float> directionalSizeFar;
+	ofParameter<float> directionalSizeNear;
 
 	//--
 

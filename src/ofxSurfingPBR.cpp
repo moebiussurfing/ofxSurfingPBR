@@ -1420,17 +1420,18 @@ void ofxSurfingPBR::ChangedPlane(ofAbstractParameter & e) {
 
 	//--
 
-	 if (name == bDrawPlane.getName()) {
-		if (bDrawPlane)
-			if (bDrawBoxFloor) bDrawBoxFloor = false;
+	if (0) {
 	}
 
-	else if (name == bDrawBoxFloor.getName()) {
+	else if (name == bDrawPlane.getName()) {
+		if (bDrawPlane)
+			if (bDrawBoxFloor) bDrawBoxFloor = false;
+	} else if (name == bDrawBoxFloor.getName()) {
 		if (bDrawBoxFloor)
 			if (bDrawPlane) bDrawPlane = false;
 	}
 
-	else if(name == planeSize.getName()) {
+	else if (name == planeSize.getName()) {
 		static glm::vec2 planeSize_ = glm::vec2(-1, -1);
 		if (planeSize.get() != planeSize_) { // if changed
 			planeSize_ = planeSize.get();
@@ -1475,7 +1476,7 @@ void ofxSurfingPBR::ChangedPlane(ofAbstractParameter & e) {
 	}
 
 	else if (name == planeGlobalColor.getName()) {
-		if (!bDoneStartup) return;//fix crash
+		if (!bDoneStartup) return; //fix crash
 
 		planeDiffuseColor.set(planeGlobalColor.get());
 		planeSpecularColor.set(planeGlobalColor.get());

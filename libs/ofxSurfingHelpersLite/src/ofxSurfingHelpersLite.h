@@ -915,11 +915,13 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 		cText = ofColor(255);
 		cFill = ofColor(128);
 	#else
-		cHeadBg = ofColor(80);
+		cHeadBg = ofColor(70);
+		//cHeadBg = ofColor(80);
 		cBg = ofColor(50, 210);
 		cBorder = ofColor(120, 100);
 		cText = ofColor(255);
-		cFill = ofColor(120, 210);
+		cFill = ofColor(100, 210);
+		//cFill = ofColor(120, 210);
 	#endif
 #endif
 		ofxGuiSetHeaderColor(cHeadBg);
@@ -935,7 +937,7 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 		int defaultHeight;
 
 #if bDebugDefault
-		//Default
+		// Default
 		/*
 		int ofxBaseGui::textPadding = 4;
 		int ofxBaseGui::defaultWidth = 200;
