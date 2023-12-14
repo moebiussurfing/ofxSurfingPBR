@@ -16,6 +16,8 @@ void ofApp::setup() {
 		ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
 		//ofxSurfing::setWindowAtMonitor(1, true); // Move to right display and set portrait.
 		//ofxSurfing::setWindowAtMonitor(); // Stay at main display (center in my setup) and landscape.
+
+		//ofxSurfing::setWindowMaxFrameRate();
 	}
 #endif
 

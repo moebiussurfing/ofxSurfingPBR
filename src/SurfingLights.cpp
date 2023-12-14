@@ -32,7 +32,7 @@ void SurfingLights::setFunctionRenderScene(callback_t f) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:setFunctionRenderScene()";
 
 	if (f_RenderScene == nullptr) {
-		ofLogError("ofxSurfingPBR") << "SurfingLights:setFunctionRenderScene(). Wrong / empty callback_t";
+		ofLogError("ofxSurfingPBR") << "SurfingLights:setFunctionRenderScene(). Wrong callback_t nullptr";
 	}
 	f_RenderScene = f;
 }
@@ -810,11 +810,11 @@ void SurfingLights::setupParametersLights() {
 	spotColorsParams.add(spotDiffuseColor);
 	spotColorsParams.add(spotSpecularColor);
 	spotParams.add(spotColorsParams);
+	spotParams.add(spotCutOff);
+	spotParams.add(spotConcentration);
 	spotParams.add(spotPosition);
 	spotParams.add(spotOrientation);
 	spotParams.add(spotSizeFar);
-	spotParams.add(spotCutOff);
-	spotParams.add(spotConcentration);
 	spotParams.add(bSpotShadow);
 	spotParams.add(vSpotReset);
 
@@ -1027,31 +1027,31 @@ void SurfingLights::update() { // App flow controls
 	else if (bFlagDoResetAllLights) {
 		bFlagDoResetAllLights = false;
 
-		doResetAllLights();
+		doResetAllLights(true);
 	}
 
 	else if (bFlagDoResetPoint) {
 		bFlagDoResetPoint = false;
 
-		doResetPoint();
+		doResetPoint(true);
 	}
 
 	else if (bFlagDoResetDirectional) {
 		bFlagDoResetDirectional = false;
 
-		doResetDirectional();
+		doResetDirectional(true);
 	}
 
 	else if (bFlagDoResetSpot) {
 		bFlagDoResetSpot = false;
 
-		doResetSpot();
+		doResetSpot(true);
 	}
 
 	else if (bFlagDoResetArea) {
 		bFlagDoResetArea = false;
 
-		doResetArea();
+		doResetArea(true);
 	}
 
 	if (bFlagIndexFromColorToGlobal) {
@@ -1247,8 +1247,8 @@ void SurfingLights::doResetAllLights(bool bHard) {
 
 	if (bHard) {
 		if (!bPoint) bPoint = true; //enable
+		if (!bDirectional) bDirectional = true; //enable
 		if (bSpot) bSpot = false;
-		if (bDirectional) bDirectional = false;
 		if (bArea) bArea = false;
 	}
 
@@ -1278,9 +1278,9 @@ void SurfingLights::doResetPoint(bool bHard) {
 		SURFING__PBR__SCENE_SIZE_UNIT,
 		SURFING__PBR__SCENE_SIZE_UNIT * 0.3));
 
-	pointSizeFar = 0;
+	pointSizeFar = 1;
 
-	if (bHard) 
+	if (bHard)
 		pointBright = SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET;
 }
 
@@ -1304,8 +1304,8 @@ void SurfingLights::doResetDirectional(bool bHard) {
 
 	directionalOrientation.set(glm::vec3(-60, 0, 0));
 
-	directionalSizeFar = 0.5;
 	directionalSizeNear = 0.5;
+	directionalSizeFar = 1;
 
 	if (bHard)
 		directionalBright = SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET;
@@ -1330,9 +1330,9 @@ void SurfingLights::doResetSpot(bool bHard) {
 
 	spotOrientation.set(glm::vec3(-60, 0, 0));
 
-	spotCutOff.set(45);
-	//spotCutOff.set(90);
-	spotConcentration.set(30);
+	//spotCutOff.set(45);
+	spotCutOff.set(90);
+	spotConcentration.set(10);
 
 	spotSizeFar = 1;
 
@@ -1611,11 +1611,11 @@ void SurfingLights::ChangedShadow(ofAbstractParameter & e) {
 	}
 
 	else if (name == indexShadowType.getName()) {
-		int i = indexShadowType.get() + 1;
-		if (i == OF_SHADOW_TYPE_TOTAL) {
-			i = 0;
-		}
-		indexShadowType.set(i);
+		//int i = indexShadowType.get();
+		//if (i == OF_SHADOW_TYPE_TOTAL) {
+		//	i = 0;
+		//}
+		//indexShadowType.set(i);
 
 		switch (indexShadowType.get()) {
 		case 0:
@@ -1860,7 +1860,7 @@ void SurfingLights::doResetShadow() {
 	bDrawShadow.set(true);
 
 	shadowStrength.set(SURFING__PBR__SHADOW_DEFAULT_STRENGTH);
-	indexShadowType.set(0);
+	indexShadowType.set(2);
 	shadowBias.set(0.1);
 	shadowNormalBias.set(0.007);
 	shadowSampleRadius.set(2.f);

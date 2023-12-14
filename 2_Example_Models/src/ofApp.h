@@ -17,13 +17,9 @@ the background generators and the cubeMap.
 
 */
 
-
 /*
 TODO
-
-fix transparent drawing
-fix box floor
-
+move help text boxes left/right to gui panels
 
 */
 
@@ -112,7 +108,11 @@ public:
 	vector<string> namesScenes = {
 		"THREE-PRIMS",
 		"MESH",
+#ifdef OF_APP__USE__MODELS_MANAGER
 		"MODELS"
+#else
+		"MODEL"
+#endif
 	};
 	ofEventListener listenerIndexScene;
 
@@ -150,7 +150,7 @@ public:
 	// Models files browser
 #ifdef OF_APP__USE__MODELS_MANAGER
 	SurfingModelsManager modelsManager;
-	ofEventListener listenerIndexModel;//get class internal index changed
+	ofEventListener listenerIndexModel; //get class internal index changed
 #else
 	// One single model
 	void setupModel();

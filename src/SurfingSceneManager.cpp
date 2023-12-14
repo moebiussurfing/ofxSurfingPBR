@@ -50,7 +50,7 @@ void SurfingSceneManager::setFunctionRenderScene(callback_t f) {
 #endif
 
 	if (f_RenderScene == nullptr) {
-		ofLogError("ofxSurfingPBR") << "SurfingSceneManager:setFunctionRenderScene(). Wrong callback_t";
+		ofLogError("ofxSurfingPBR") << "SurfingSceneManager:setFunctionRenderScene(). Wrong callback_t nullptr";
 	}
 	f_RenderScene = f;
 

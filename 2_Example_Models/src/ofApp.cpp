@@ -65,6 +65,7 @@ void ofApp::setupPBR() {
 	//--
 
 	// Optional
+	// TODO
 #if OF_APP__USE__OPTIONAL_SETUP
 	#if 1
 	// Set log level
@@ -183,8 +184,9 @@ void ofApp::Changed(ofAbstractParameter & e) {
 
 //--------------------------------------------------------------
 void ofApp::startup() {
-
-	vReset.trigger();
+	
+	doReset();
+	//vReset.trigger();
 	//before loading settings or in the case that not settings file located
 	// aka app is opening for the first time.
 
@@ -342,18 +344,16 @@ void ofApp::drawModel() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-	ofEnableDepthTest();
 	pbr.draw();
 
-	ofDisableDepthTest();
 	drawGui();
 }
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
 
-	// Plane / floor
-	pbr.drawPlane();
+	// Floor
+	pbr.drawFloor();
 
 	// Other objects
 	pbr.beginMaterial();
@@ -367,7 +367,6 @@ void ofApp::renderScene() {
 
 //--------------------------------------------------------------
 void ofApp::updateSceneTransforms() {
-	ofPushMatrix();
 
 	// Position
 	float yUnit = SURFING__PBR__SCENE_SIZE_UNIT / 2.f;
@@ -376,7 +375,7 @@ void ofApp::updateSceneTransforms() {
 
 	// Scale
 	float s = ofMap(scale, -1.f, 1.f,
-		1.f / SURFING__PBR__SCENE_SIZE_UNIT, SURFING__PBR__SCENE_SIZE_UNIT, true);
+		1.f / SURFING__PBR__SCENE_TEST_UNIT_SCALE, SURFING__PBR__SCENE_TEST_UNIT_SCALE, true);
 
 	// Rotation
 	int tmax = 30;
@@ -399,6 +398,10 @@ void ofApp::drawMyScene() {
 		WE DRAW OUR SCENE HERE !
 	
 	*/
+	
+	ofPushMatrix();
+
+	//--
 
 	// Scene transforms
 	{
@@ -504,10 +507,11 @@ void ofApp::doReset() {
 	zoomSpeed = 0.5;
 
 // Some PBR stuff to Reset:
-#if 1
+#if 0
 	// Reset the camera only.
 	pbr.doResetCamera();
-#else
+#endif
+#if 0
 	// Reset all PBR, including camera.
 	pbr.doResetAll();
 #endif

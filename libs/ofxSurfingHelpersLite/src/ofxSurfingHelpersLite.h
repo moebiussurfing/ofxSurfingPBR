@@ -217,6 +217,12 @@ inline void setWindowAtMonitor(int pos = 0, bool bPortrait = false, int fps = 60
 }
 
 //--------------------------------------------------------------
+inline void setWindowMaxFrameRate() {
+	ofSetFrameRate(0);
+	ofSetVerticalSync(false);
+}
+
+//--------------------------------------------------------------
 inline string setWindowShapeSquared(int sz = 800) {
 	ofSetWindowShape(sz, sz);
 

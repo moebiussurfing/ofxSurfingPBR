@@ -84,13 +84,14 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "\n";
 		sHelp += "DRAW\n";
 		sHelp += "p      Plane\n";
+		sHelp += "b      Box Floor\n";
 		sHelp += "s      Shadow \n";
 		sHelp += "c      CubeMap\n";
 		sHelp += "b      BgAlt\n";
 		sHelp += "\n";
 	}
 	sHelp += "WINDOW\n";
-	sHelp += "       " + ofToString(ofGetFrameRate(), 1) + " FPS\n";
+	//sHelp += "       " + ofToString(ofGetFrameRate(), 1) + " FPS\n";
 	sHelp += "       " + ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
 	if (bKeys) {
 		sHelp += "f      FullScreen\n";
@@ -680,7 +681,7 @@ void ofxSurfingPBR::setCameraPtr(ofCamera * camera_) {
 	camera = camera_;
 
 	//FORCED
-	camera->setFarClip(SURFING__PBR__SCENE_CAMERA_FAR);
+	camera->setFarClip(SURFING__PBR__SCENE_CAMERA_FAR_CLIP);
 }
 //--------------------------------------------------------------
 ofCamera * ofxSurfingPBR::getOfCameraPtr() {
@@ -734,7 +735,7 @@ void ofxSurfingPBR::setFunctionRenderScene(callback_t f) {
 	ofLogNotice("ofxSurfingPBR") << "setFunctionRenderScene()";
 
 	if (f_RenderScene == nullptr) {
-		ofLogError("ofxSurfingPBR") << "setFunctionRenderScene(). Wrong callback_t";
+		ofLogError("ofxSurfingPBR") << "setFunctionRenderScene(). Wrong callback_t nullptr";
 	}
 	f_RenderScene = f;
 
@@ -1087,7 +1088,7 @@ void ofxSurfingPBR::drawDebugFPS() {
 		string s = "";
 
 		float fps = ofGetFrameRate();
-		s += ofToString(fps, 1);
+		s += ofToString(fps, fps > 100 ? 0 : 1);
 		s += " FPS";
 		s += "\n";
 
@@ -1779,8 +1780,11 @@ void ofxSurfingPBR::drawTestScene() {
 
 		// Box
 		ofPushMatrix();
-		float spd = 240;
-		ofRotateYDeg(360.f * (ofGetFrameNum() % (int)spd) / spd);
+		float spd = 10;//secs per lap
+		auto t = ofWrap(ofGetElapsedTimef(),0, spd);
+		auto d = ofMap(t, 0, spd, 0, 360, true);
+		ofRotateYDeg(d);
+
 		ofDrawBox(0, u, 0, u);
 		ofPopMatrix();
 
@@ -2280,6 +2284,8 @@ void ofxSurfingPBR::doResetPlane() {
 
 	bPlaneWireframe = false;
 
+	bDrawBoxFloor = true;
+
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 	// displacers
 	if (!bLimitImage) bLimitImage.set(true);
@@ -2339,7 +2345,9 @@ void ofxSurfingPBR::doResetCamera() {
 	if (easyCam != nullptr) {
 		easyCam->reset();
 
-		camera->setFarClip(SURFING__PBR__SCENE_CAMERA_FAR);
+		camera->setFarClip(SURFING__PBR__SCENE_CAMERA_FAR_CLIP);
+
+		//camera->setVFlip(true);
 
 		easyCam->setPosition({ 8.35512, 581.536, 696.76 });
 		easyCam->setOrientation({ 0.940131, -0.340762, 0.00563653, 0.00204303 });
