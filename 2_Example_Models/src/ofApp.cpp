@@ -14,7 +14,6 @@ void ofApp::setup() {
 
 	// Verbose
 	ofSetLogLevel(OF_LOG_VERBOSE);
-	pbr.setLogLevel(OF_LOG_VERBOSE);
 
 	//--
 
