@@ -654,6 +654,35 @@ inline void ofDrawBitmapStringBox(string s, int layout /* = 0*/) {
 	ofDrawBitmapStringBox(s, (SURFING_LAYOUT)layout);
 }
 
+//--------------------------------------------------------------
+inline void ofDrawBitmapStringBox(string s, ofxPanel * gui, SURFING_LAYOUT layout = SURFING_LAYOUT_TOP_LEFT) {
+	// Set text box position linked to the ofxPanel
+	// but setting the layout position.
+
+	glm::vec2 p { 0, 0 };
+
+	auto rgui = gui->getShape();
+	auto rbb = getBBBitmapStringBox(s);
+	int pad = SURFING__PAD_OFXGUI_BETWEEN_PANELS;
+
+	if (layout == SURFING_LAYOUT_TOP_LEFT) {
+		p = rgui.getTopLeft();
+		p += glm::vec2(-rbb.getWidth() - pad, 0);
+	} else if (layout == SURFING_LAYOUT_TOP_RIGHT) {
+		p = rgui.getTopRight();
+		p += glm::vec2(pad, 0);
+	} else if (layout == SURFING_LAYOUT_TOP_CENTER) {
+		p = rgui.getTopLeft();
+		p += glm::vec2(pad, -rbb.getHeight() - pad);
+	} else if (layout == SURFING_LAYOUT_BOTTOM_CENTER) {
+		p = rgui.getBottomLeft();
+		p += glm::vec2(pad, pad);
+	} else {
+	}
+
+	ofDrawBitmapStringBox(s, p.x, p.y);
+}
+
 /*
 	EXAMPLES
 
@@ -927,7 +956,7 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 		cBorder = ofColor(120, 100);
 		cText = ofColor(255);
 		cFill = ofColor(100, 210);
-		//cFill = ofColor(120, 210);
+			//cFill = ofColor(120, 210);
 	#endif
 #endif
 		ofxGuiSetHeaderColor(cHeadBg);
@@ -1039,7 +1068,7 @@ public:
 
 #include <functional>
 using callback_t = std::function<void()>;
-using callback_tb = std::function<void(bool)>;//TODO
+using callback_tb = std::function<void(bool)>; //TODO
 
 //--------------------------------------------------------------
 class SurfingAutoSaver {
@@ -1106,8 +1135,8 @@ public:
 
 private:
 	uint64_t timeLastChange = 0;
-	
-	const int timeSaveDelay = 500; 
+
+	const int timeSaveDelay = 500;
 	// save delayed x milliseconds.
 	// all the params that change will be saved all in one take, during the delay time.
 

@@ -65,7 +65,7 @@ public:
 
 	ofParameter<bool> bRotate;
 	ofParameter<float> speedRotate;
-	ofParameter<bool> bSmoothLights;
+	//ofParameter<bool> bSmoothLights;
 
 	ofParameterGroup parameters;
 
@@ -112,7 +112,7 @@ private:
 
 public:
 	ofParameterGroup paramsObject;
-	ofParameterGroup paramsExtra;
+	//ofParameterGroup paramsExtra;
 
 	ofParameter<bool> bDrawObject;
 	ofParameter<bool> bDrawWireframe;

@@ -24,6 +24,7 @@
 /*
 * TODO
 * 
+	- add simple scenes presets manager
 	- add save/load all.
 	- fix startup/exit loading all settings
 
@@ -41,7 +42,7 @@
 		- customize share plane divisions and img size/clamp.
 		- get mesh mods/shader example.
 
-	- queue cubemaps into a vector to browse easily
+	- queue cubeMaps into a vector to browse easily
 	- add ImGui mode.
 	- add presets manager 
 		to explore and save materials.
@@ -81,7 +82,9 @@ public:
 
 private:
 	void setupBg();
-	SurfingBg surfingBg;
+
+public:
+	SurfingBg bg;
 
 public:
 	void setup(); //use only one setup method! don't call two setup methods!
@@ -116,7 +119,7 @@ private:
 
 public:
 	void exit(); //only required to save camera on exit
-	
+
 private:
 	void keyPressed(int key);
 	void keyPressed(ofKeyEventArgs & eventArgs);
@@ -143,7 +146,7 @@ private:
 
 private:
 	void Changed(ofAbstractParameter & e);
-	void ChangedPlane(ofAbstractParameter & e);
+	void ChangedFloor(ofAbstractParameter & e);
 	void ChangedInternal(ofAbstractParameter & e);
 	void ChangedTestScene(ofAbstractParameter & e);
 	void ChangedDraw(ofAbstractParameter & e);
@@ -159,7 +162,7 @@ private:
 
 	//--
 
-	// material for other objects
+	// Material B for other objects
 public:
 	SurfingMaterial material;
 
@@ -169,13 +172,16 @@ public:
 
 	//--
 
-	//material for the plane floor
-private:
-	ofMaterial materialPlane;
-
+	// Material A for the floor plane or box
 public:
+	ofMaterial floorMaterial;
+
+	//legacy
 	void beginMaterialPlane();
 	void endMaterialPlane();
+	//new api
+	void beginMaterialFloor() { beginMaterialPlane(); }
+	void endMaterialFloor() { endMaterialPlane(); }
 
 	//--
 
@@ -184,8 +190,8 @@ public:
 	void setCameraPtr(ofCamera & camera_); //don't need use when camera is passed to setup function!
 	void setCameraPtr(ofCamera * camera_); //don't need use when camera is passed to setup function!
 
-	// For getting camera from the parent class/ofApp
-	// (TODO: Currently is not required bc the cam is instantiated on there!)
+	//For getting camera from the parent class/ofApp
+	//(TODO: Currently is not required bc the cam is instantiated on there!)
 	ofCamera * getOfCameraPtr();
 	ofEasyCam * getOfEasyCamPtr();
 
@@ -218,23 +224,23 @@ public:
 	//--
 
 private:
-	ofPlanePrimitive plane; //floor
-	void refreshPlane();
-	bool bFlagRefreshPlane = false;
+	ofPlanePrimitive floorPlane; //floor
+	void refreshFloorPlane();
+	bool bFlagRefreshFloorPlane = false;
 
-	ofBoxPrimitive boxFloor; //floor
-	void refreshBoxFloor();
-	bool bFlagRefreshBoxFloor = false;
-	ofParameter<float> boxFloorDepth;
+	ofBoxPrimitive floorBox; //floor
+	void refreshFloorBox();
+	bool bFlagRefreshFloorBox = false;
+	ofParameter<float> floorBoxDepth;
 
 	//--
 
 private:
-	//TODO fix crash callbacks
-	// To fix some settings
-	// that are not updated/refreshed correctly
-	// and/or app startup crashes!
-	// App flow controls
+	// TODO fix crash callbacks
+	//To fix some settings
+	//that are not updated/refreshed correctly
+	//and/or app startup crashes!
+	//App flow controls
 	bool bDisableCallbacks = false;
 	bool bDoneSetup = false;
 	bool bDoneSetupParams = false;
@@ -246,7 +252,7 @@ private:
 	//--
 
 public:
-	// Main container to expose to ui and to handle persistent settings.
+	//main container to expose to ui and to handle persistent settings.
 	ofParameterGroup parameters;
 
 	ofParameterGroup drawParams;
@@ -296,47 +302,48 @@ public:
 
 	ofParameterGroup testSceneParams;
 	ofParameter<float> scaleTestScene;
-	ofParameter<float> positionTestScene;
+	ofParameter<glm::vec3> positionTestScene;
 	ofParameter<void> vResetTestScene;
 
-	ofParameter<bool> bDrawPlane;
-	ofParameter<bool> bDrawBoxFloor;
+	ofParameter<bool> bDrawFloorPlane;
+	ofParameter<bool> bDrawFloorBox;
 
-	ofParameterGroup planeParams;
-	ofParameterGroup planeMaterialParams;
-	ofParameterGroup planeSettingsParams;
-	ofParameterGroup planeColorsParams;
-	ofParameterGroup planeTransformParams;
+	ofParameterGroup floorParams;
+	ofParameterGroup floorMaterialParams;
+	ofParameterGroup floorSettingsParams;
+	ofParameterGroup floorColorsParams;
+	ofParameterGroup floorTransformParams;
 
-	ofParameter<bool> bPlaneWireframe;
-	ofParameter<glm::vec2> planeSize; //normalized
-	ofParameter<glm::vec2> planeResolution;
-	ofParameter<bool> bPlaneInfinite;
-	// will ignore planeSize
-	// make the plane huge size to better "fit a full horizon line"
+	ofParameter<bool> bFloorWireframe;
+	ofParameter<glm::vec2> floorSize; //normalized
+	ofParameter<glm::vec2> floorResolution;
+	ofParameter<bool> bFloorInfinite;
+	//will ignore floorSize
+	//make the plane huge size to better "fit a full horizon line"
 
-	ofParameter<float> planeRotation; //x axis
-	ofParameter<float> planePosition; //y pos
+	ofParameter<float> floorRotation; //x axis
+	ofParameter<float> floorPosition; //y pos
 
-	ofParameter<ofFloatColor> planeGlobalColor; //linked (as master not target) to the other colors
-	ofParameter<ofFloatColor> planeDiffuseColor;
-	ofParameter<ofFloatColor> planeSpecularColor;
+	ofParameter<ofFloatColor> floorGlobalColor; //linked (as master not target) to the other colors
+	ofParameter<ofFloatColor> floorDiffuseColor;
+	ofParameter<ofFloatColor> floorSpecularColor;
 
-	ofParameter<float> planeShiness;
+	ofParameter<float> floorShiness;
+	ofParameter<float> floorRoughness;
 
-	ofParameter<void> vResetPlane;
-	ofParameter<void> vResetPlaneTransform;
+	ofParameter<void> vResetFloor;
+	ofParameter<void> vResetFloorTransform;
 	ofParameter<void> vResetAll;
 
 private:
 	ofxPanel gui;
 
 public:
-	// helper to improve layout with many gui panels.
+	//helper to improve layout with many gui panels.
 	ofRectangle getGuiShape() const;
 
-	// returns layout index
-	// each index would have different positions for help and debug windows
+	//returns layout index
+	//each index would have different positions for help and debug windows
 	const int getGuiLayout();
 
 	bool isVisibleDebugShader();
@@ -345,7 +352,7 @@ public:
 	void doPrevLayoutHelp();
 	void doNextLayouGui();
 
-	// For helping on responsive layouts
+	//for helping on responsive layouts
 	const ofxSurfing::SURFING_LAYOUT getLayoutHelp();
 
 	bool isWindowPortrait();
@@ -395,8 +402,8 @@ public:
 
 	void doResetDefaultScene();
 
-	void doResetPlane();
-	void doResetPlaneTransform();
+	void doResetFloor();
+	void doResetFloorTransform();
 	void doResetTestScene();
 
 	void doResetMaterial();
@@ -424,8 +431,8 @@ public:
 	ofEventListener listenerSaveAll;
 
 	bool getSettingsFileFound();
-	// To check if the app is opened for the first time
-	// this allows to force customize the scene from ofApp at startup!
+	//to check if the app is opened for the first time
+	//this allows to force customize the scene from ofApp at startup!
 	bool getSettingsFileFoundForScene();
 	bool getSettingsFileFoundForMaterial();
 	bool getSettingsFileFoundForCamera();

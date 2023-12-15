@@ -5,6 +5,7 @@
 // OPTIONAL
 
 // TODO: WIP: add another shader/material.
+// sometimes breaks/interferes with shadows...
 //#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS 
 
 //----
@@ -12,7 +13,7 @@
 // DEBUG / WIP
 
 #define SURFING__PBR__WIP__DISBALE_COLORS_EXTRA
-//TODO: disabled as is not finished yet.
+// TODO: disabled as is not finished yet.
 // The idea of this code is to have a palette of colors
 // linked to the materials easily.
 
@@ -31,7 +32,8 @@
 // size order magnitude for objects, 
 // lights and camera position, distances, etc...
 
-#define SURFING__PBR__PLANE_SIZE_MULTIPLIER 10.f
+#define SURFING__PBR__PLANE_SIZE_MULTIPLIER 2.f
+//#define SURFING__PBR__PLANE_SIZE_MULTIPLIER 10.f
 #define SURFING__PBR__PLANE_SIZE_INFINITE_MODE 200000.f
 
 #define SURFING__PBR__PLANE_RESOLUTION_MIN 2
@@ -44,7 +46,7 @@
 
 #define SURFING__PBR__SCENE_TEST_UNIT_SCALE 5.f
 
-//TODO
+// TODO
 // there's some problem rounding bright to white/black..
 #define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MIN 0.001f
 #define SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX 0.999f
@@ -56,8 +58,9 @@
 #define SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE 
 // saving happens when each param/s change/s but delayed a second.
 
+// TODO: fix
 //#define SURFING__PBR__USE_AUTO_CALL_EXIT_ON_DESTRUCTOR_IF_REQUIRED
-// TODO: fails if enabled bc camera is destructed and saves a wrong json file!
+// TODO: fails if enabled bc camera is destructed and saves a wrong JSON file!
 // TODO: fix to remove. to fix some unsaved settings bc calling order..
 
 //----
@@ -66,9 +69,11 @@
 
 #define SURFING__PBR__MAX_SHININESS 1.f
 //#define SURFING__PBR__MAX_SHININESS 128.f
+// TODO: I am not sure what's shininess the max range..
 
-#define SURFING__PBR__SHADOW_DEFAULT_STRENGTH 0.5f
-#define SURFING__PBR__SHADOW_DEFAULT_RESOLUTION 1024
+#define SURFING__PBR__SHADOW_DEFAULT_STRENGTH 1.f
+#define SURFING__PBR__SHADOW_DEFAULT_RESOLUTION 2048
+//#define SURFING__PBR__SHADOW_DEFAULT_RESOLUTION 1024
 
 static const float SURFING__PBR__LIGHTS_FAR = (float)SURFING__PBR__SCENE_SIZE_UNIT * 1.0f;
 static const float SURFING__PBR__LIGHTS_NEAR = (float)SURFING__PBR__SCENE_SIZE_UNIT * 0.1f;

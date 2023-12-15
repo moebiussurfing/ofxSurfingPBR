@@ -133,7 +133,7 @@ void SurfingBg::setupParameters() {
 	pathTexture.set("File Texture", "NONE");
 	vOpenTexture.set("Open Texture");
 
-	bSmoothLights.set("Smooth Lights", false);
+	//bSmoothLights.set("Smooth Lights", false);
 	// Default low poly
 
 	vResetAll.set("Reset All");
@@ -149,6 +149,31 @@ void SurfingBg::setupParameters() {
 
 	paramsScene.add(bDrawBgColorPlain);
 	paramsScene.add(bDrawObject);
+
+	paramsColorsGlobal.setName("Global");
+	paramsColorsGlobal.add(brightGlobal);
+	paramsColorsGlobal.add(globalColor);
+	//paramsColorsGlobal.add(colorGroup);
+
+	paramsColor.setName("Colors");
+	paramsColor.add(diffuse);
+	paramsColor.add(ambient);
+	paramsColor.add(specular);
+	paramsColor.add(emissive);
+
+	paramsColorizers.setName("Colorizers");
+	paramsColorizers.add(paramsColorsGlobal);
+	paramsColorizers.add(paramsColor);
+	paramsColorizers.add(shininess);
+	paramsColorizers.add(vResetColors);
+
+	bDrawBgColorPlain.set("Draw Bg Plain Color", false);
+	bgColorPlain.set("Bg Plain Color", ofFloatColor::darkGrey, ofFloatColor(0.f), ofFloatColor(1.f));
+	bgColorPlainParams.setName("BG Plain Color");
+	bgColorPlainParams.add(bDrawBgColorPlain);
+	bgColorPlainParams.add(bgColorPlain);
+	paramsColorizers.add(bgColorPlainParams);
+	paramsScene.add(paramsColorizers);
 
 	paramsObject.setName("Object");
 	paramsObject.add(bModeBox);
@@ -166,9 +191,9 @@ void SurfingBg::setupParameters() {
 	paramsScene.add(paramsObject);
 	//paramsScene.add(bDrawBgColorPlain);
 
-	paramsExtra.setName("Extra");
-	paramsExtra.add(bSmoothLights);
-	paramsScene.add(paramsExtra);
+	//paramsExtra.setName("Extra");
+	//paramsExtra.add(bSmoothLights);
+	//paramsScene.add(paramsExtra);
 
 	paramsRotate.setName("Anim");
 	paramsRotate.add(bRotate);
@@ -182,36 +207,9 @@ void SurfingBg::setupParameters() {
 	//paramsScene.add(Bg_AutoSetColorPick);//disabled bc break brightGlobal..
 	//paramsScene.add(bAnimLights);
 
-	paramsColorizers.setName("Colorizers");
-
-	paramsColorsGlobal.setName("Global");
-	paramsColorsGlobal.add(brightGlobal);
-	paramsColorsGlobal.add(globalColor);
-	//paramsColorsGlobal.add(colorGroup);
-	paramsColorizers.add(paramsColorsGlobal);
-
-	paramsColor.setName("Colors");
-	paramsColor.add(diffuse);
-	paramsColor.add(ambient);
-	paramsColor.add(specular);
-	paramsColor.add(emissive);
-	paramsColorizers.add(paramsColor);
-	paramsColorizers.add(shininess);
-
-	paramsColorizers.add(vResetColors);
-
-	// Bg
-	bDrawBgColorPlain.set("Draw Bg Plain Color", false);
-	bgColorPlain.set("Bg Plain Color", ofFloatColor::darkGrey, ofFloatColor(0.f), ofFloatColor(1.f));
-	bgColorPlainParams.setName("BG Plain Color");
-	bgColorPlainParams.add(bDrawBgColorPlain);
-	bgColorPlainParams.add(bgColorPlain);
-	paramsColorizers.add(bgColorPlainParams);
-
 	//parameters.add(bMini_Scene);
 
 	parameters.add(paramsScene);
-	parameters.add(paramsColorizers);
 	parameters.add(vResetAll);
 
 	listenerResetAll = vResetAll.newListener([this](void) {
@@ -279,21 +277,25 @@ void SurfingBg::refreshGui() {
 
 	//gui.getGroup(paramsScene.getName()).minimize();
 
-	gui.getGroup(paramsScene.getName())
-		.getGroup(paramsExtra.getName())
-		.minimize();
+	//gui.getGroup(paramsScene.getName())
+	//	.getGroup(paramsExtra.getName())
+	//	.minimize();
 
 	gui.getGroup(paramsScene.getName())
 		.getGroup(paramsRotate.getName())
 		.minimize();
 
-	//gui.getGroup(paramsColorizers.getName()).minimize();
+	gui.getGroup(paramsScene.getName())
+		.getGroup(paramsColorizers.getName())
+		.minimize();
 
-	gui.getGroup(paramsColorizers.getName())
+	gui.getGroup(paramsScene.getName())
+		.getGroup(paramsColorizers.getName())
 		.getGroup(paramsColor.getName())
 		.minimize();
 
-	gui.getGroup(paramsColorizers.getName())
+	gui.getGroup(paramsScene.getName())
+		.getGroup(paramsColorizers.getName())
 		.getGroup(bgColorPlainParams.getName())
 		.minimize();
 
@@ -511,7 +513,7 @@ void SurfingBg::doResetColors() {
 void SurfingBg::doResetScene() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingBg: doResetScene()";
 
-	ofSetSmoothLighting(bSmoothLights);
+	//ofSetSmoothLighting(bSmoothLights);
 
 	//force
 	if (pathTexture.get() == "" || pathTexture.get() == "NONE" || !img.isAllocated()) {
@@ -868,10 +870,10 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 	//--
 
 	////#ifdef SURFING__PBR__USE_CUBE_MAP
-	////	if (name == surfingBg.bDrawBgColorPlain.getName()) {
+	////	if (name == bg.bDrawBgColorPlain.getName()) {
 	////		if (!bLoadedCubeMap) return; //skip
 	////		//workflow
-	////		if (surfingBg.bDrawBgColorPlain)
+	////		if (bg.bDrawBgColorPlain)
 	////			if (bDrawCubeMap) bDrawCubeMap = false;
 	////	}
 	////#endif

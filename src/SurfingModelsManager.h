@@ -225,9 +225,11 @@ private:
 			scaleUnit = scaleUnit * (float)abs(scalePow + 1);
 		}
 
+		//const float dmax = 180;
+		const float dmax = 360;
 		float y = ofMap(filesBrowser.getTransformPos(), -1, 1, -yUnit, yUnit, true);
 		float s = ofMap(filesBrowser.getTransformScale(), -1, 1, 1.f / scaleUnit, scaleUnit, true);
-		float r = ofMap(filesBrowser.getTransformRotY(), -1, 1, -180, 180, true);
+		float r = ofMap(filesBrowser.getTransformRotY(), -1, 1, -dmax, dmax, true);
 
 		ofTranslate(0, y, 0);
 		ofScale(s, s, s);

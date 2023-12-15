@@ -1344,7 +1344,7 @@ void SurfingMaterial::load() {
 
 	refreshGlobals();
 
-	//fix
+	// fix
 	bFlagIndexFromColorToGlobal = true;
 }
 

@@ -431,14 +431,14 @@ private:
 	string sHelp;
 	void buildHelp() {
 		sHelp = "";
-		sHelp += "MODELS\n";
+		sHelp += "MODEL\n";
+		//sHelp += "\n";
+		sHelp += this->getFilename() + "\n";
 		sHelp += "\n";
-		sHelp += " " + this->getFilename() + "\n";
+		sHelp += "BROWSE MODELS\n";
 		sHelp += "\n";
-		sHelp += "BROWSE\n";
-		sHelp += "\n";
-		sHelp += "UP   Prev\n";
 		sHelp += "DOWN Next\n";
+		sHelp += "UP   Previous\n";
 		sHelp += "\n";
 		sHelp += this->getFilenamesList();
 	}
@@ -448,7 +448,9 @@ public:
 
 	void drawHelp() {
 		if (!bHelp) return;
-		ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
+	
+		//ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
+		ofxSurfing::ofDrawBitmapStringBox(sHelp, &gui, ofxSurfing::SURFING_LAYOUT_TOP_RIGHT);
 	}
 
 	//--

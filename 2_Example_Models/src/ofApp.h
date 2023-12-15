@@ -1,25 +1,20 @@
 /*
 
-This example uses the main class from the `ofxSurfingPBR.h` addon.
-The above class  bundles almost all the modules/features from the addon. 
-Many modules can be used as standalone, in a simpler and custom OF scene.
+This example uses the main class from the `ofxSurfingPBR.h` addon:
+ofxSurfingPBR
+The above class bundles almost all the modules/features from the addon. 
+Many modules can be used also as standalone, for other simpler and custom OF scenes.
 
-Also we are using the `SurfingSceneManager.h` class 
-how uses also `SurfingModelsFilesBrowser.h`.
+For rendering some 3d meshes,
+We are using also the `SurfingSceneManager.h` helper class, 
+who uses also `SurfingModelsFilesBrowser.h`.
 These classes are `3d models` helpers paired with the addon.
-With these classes we can easily browse the `3d models` files 
+With these classes we can easily browse the `3d models` files, 
 directly from our app `bin/data/` path.
 
 As we are using the full addon modules from `ofxSurfingPBR.h`,
-we can render the objects using the bundled materials,
-the plain floor, and all the `4 lights kit`, 
-the background generators and the cubeMap.
-
-*/
-
-/*
-TODO
-move help text boxes left/right to gui panels
+we can render the objects using the bundled materials, 
+the floor, all the `4 lights kit`, the background generators and the cubeMap.
 
 */
 
@@ -27,11 +22,23 @@ move help text boxes left/right to gui panels
 
 #include "ofMain.h"
 
-// Optional: uses an internal class helper
+// Optional: 
+// We will draw some meshes. 
+// Uncomment to use an internal class helper: SurfingModelsManager.h
 #define OF_APP__USE__MODELS_MANAGER
+// Comment to use more low level, raw/vanilla, OF core classes.
+ 
+// Optional: 
+//#define OF_APP__USE__OPTIONAL_SETUP
+// Uncomment to test some optional features:
+// - Change log level
+// - Check if the app is probably opened for the first time.
+// - Force some scene settings
 
-//TODO: fix
-#define OF_APP__USE__OPTIONAL_SETUP 0
+/*
+TODO
+move help text boxes left/right to gui panels
+*/
 
 //--
 
@@ -118,7 +125,7 @@ public:
 
 	ofParameter<void> vReset { "Reset Scene" };
 	ofParameter<void> vNextIndexScene { "Next" };
-	ofParameter<void> vPrevIndexScene { "Prev" };
+	ofParameter<void> vPrevIndexScene { "Previous" };
 
 	ofEventListener listenerReset;
 	ofEventListener listenerNext;

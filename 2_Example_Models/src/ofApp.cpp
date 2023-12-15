@@ -10,11 +10,11 @@ void ofApp::setup() {
 	// App window
 	ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
 	ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
+#endif
 
 	// Verbose
-	pbr.setLogLevel(OF_LOG_VERBOSE);
 	ofSetLogLevel(OF_LOG_VERBOSE);
-#endif
+	pbr.setLogLevel(OF_LOG_VERBOSE);
 
 	//--
 
@@ -27,18 +27,14 @@ void ofApp::setup() {
 	setupMesh();
 
 #ifdef OF_APP__USE__MODELS_MANAGER
-
 	modelsManager.setup();
 
 	listenerIndexModel = modelsManager.indexFile.newListener([this](int & i) {
 		buildHelp(); // refresh help info
 		//refreshGui(); // refresh gui layout
 	});
-
 #else
-
 	setupModel();
-
 #endif
 
 	//--
@@ -65,42 +61,56 @@ void ofApp::setupPBR() {
 	//--
 
 	// Optional
-	// TODO
-#if OF_APP__USE__OPTIONAL_SETUP
-	#if 1
-	// Set log level
+
+#ifdef OF_APP__USE__OPTIONAL_SETUP
+
+	// Set log level verbose
 	pbr.setLogLevel(OF_LOG_VERBOSE);
-	#endif
 
-	#if 0 //TODO fix
 	// Check if it's the first time opening the App.
+	// (that's true when a JSON scene file settings is not located.)
 	// If not, we will force some settings for the scene:
-	if (!pbr.getSettingsFileFound()) {
-		ofLogWarning("ofApp") << "Settings file for ofxSurfingPBR not found!";
-		ofLogWarning("ofApp") << "Forcing the ofxSurfingPBR initial scene.";
+	// Set to 1 to forcing overwrite scene always,
+	// even when a previous file settings found!
+	// Set to 0 to force settings only when opening for the first time,
+	// that means that there's no settings file located.
+	#define FORCE_OVERWRITE_SCENE_ALWAYS_EVEN_IF_LOCATED_FILE_SETTINGS 1
+	#if (!FORCE_OVERWRITE_SCENE_ALWAYS_EVEN_IF_LOCATED_FILE_SETTINGS)
+	if (!pbr.getSettingsFileFound())
+	#endif
+	{
+		ofLogWarning("ofApp") << "Settings file ofxSurfingPBR_Scene.json not found!";
+		ofLogWarning("ofApp") << "Forcing the ofxSurfingPBR initial scene with some settings.";
 
-		// Background alt
-		pbr.bDrawBg.set(true);
-		pbr.bgColor.set(ofFloatColor(0, 0.03, 0.3, 1));
+		// Background
+		pbr.bg.bDrawObject.set(true);
+		pbr.bg.globalColor.set(ofFloatColor { 0, 1, 1, 1 });
 
-		// Plane
-		pbr.planeGlobalColor.set(ofFloatColor(0.25, 0, 0.5, 1));
+		// Floor
+		pbr.bDrawFloorBox = true;
+		// Floor material
+		pbr.floorGlobalColor.set(ofFloatColor::white);
+		pbr.floorShiness = 0.5;
+		pbr.floorMaterial.setRoughness(0.5); //accessing the public ofMaterial
+		//pbr.floorRoughness = 0.5; //does the same that above line
 
-		// Material
+		// Other objects material
+		pbr.material.shininess = 0.5 * SURFING__PBR__MAX_SHININESS;
 		pbr.material.roughness = 0.5;
+		pbr.material.metallic = 0.5;
 		pbr.material.reflectance = 0.5;
-		pbr.material.globalColor.set(ofFloatColor::orange);
+		pbr.material.globalColor.set(ofFloatColor::yellow);
+		pbr.material.globalAlpha.set(0.9);
 
+		// Some internals
 		bHelp = true;
+		pbr.bDebug = true;
+		pbr.bHelp = true;
 	}
-	#endif
 
-	#if 0
-		#ifdef SURFING__USE_CUBE_MAP
-	// Force replace the default cubemap
+	// Force replace the default cubeMap
 	pbr.loadCubeMap("cubemaps/kloppenheim_06_puresky_1k.exr");
-		#endif
-	#endif
+
 #endif
 }
 
@@ -184,10 +194,9 @@ void ofApp::Changed(ofAbstractParameter & e) {
 
 //--------------------------------------------------------------
 void ofApp::startup() {
-	
+
 	doReset();
-	//vReset.trigger();
-	//before loading settings or in the case that not settings file located
+	// before loading settings or in the case that not settings file located
 	// aka app is opening for the first time.
 
 	//--
@@ -247,100 +256,11 @@ void ofApp::update() {
 		int unit = 600;
 		v = ofMap(v, -1, 1, unit, unit * a, true);
 
-		pbr.getOfEasyCamPtr()->setDistance(v);
-		//camera.setDistance(v);// Note that will does the same than the above line.
+		// Set the camera distance:
+		pbr.getOfEasyCamPtr()->setDistance(v); // We can access the internal ptr for the cam.
+		//camera.setDistance(v); // But note also that will does the same than the above line.
 	}
 }
-
-#ifndef OF_APP__USE__MODELS_MANAGER
-//--------------------------------------------------------------
-void ofApp::setupModel() {
-
-	// For scene 2
-
-	float scaled = 1.0f;
-
-	//--
-
-	pathModel = "models/head25k.obj";
-	scaled = 1.5;
-	// Note that this file model have problems with normals...
-	// We will need:
-	// glFrontFace(GL_CCW);
-
-	//pathModel = "models/basic_form.ply";
-	//scaled = 2.0;
-
-	//pathModel = "models/Fox_05.fbx";
-	//scaled = 0.05;
-
-	//--
-
-	bool b = loadModel(pathModel, scaled);
-	if (b)
-		ofLogNotice("ofApp") << "Successfully loaded model file: " << pathModel;
-	else
-		ofLogError("ofApp") << "Unable to load model file " << pathModel << ". Maybe not found!";
-}
-
-//--------------------------------------------------------------
-bool ofApp::loadModel(string path, float scaled) {
-
-	bool b = model.load(path, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
-
-	// hardcoded
-	model.setPosition(0, 2, 0); //TODO
-
-	// we can apply transforms to models
-	if (scaled != 1) model.setScale(scaled, scaled, scaled);
-
-	meshesModel.clear();
-	size_t sz = model.getMeshCount();
-	for (int j = 0; j < sz; j++) {
-		ofVboMesh vm = model.getMesh(j);
-		meshesModel.push_back(vm);
-	}
-
-	return b;
-}
-
-//--------------------------------------------------------------
-void ofApp::drawModel() {
-	glFrontFace(GL_CCW);
-	// fix for "transparent" for model head25k.obj with normals problems..
-
-	#define USE_MODEL_TRANSFORMS 1
-
-	#if (USE_MODEL_TRANSFORMS)
-	// Scene previous hardcoded transforms
-	ofPushMatrix();
-	ofTranslate(0, 50, 0);
-	ofScale(40.f);
-	ofRotateYDeg(-3 * 45.f);
-
-	// Model transforms
-	// Settled when loading the model,
-	// but requires apply here before draw!
-	ofScale(model.getScale().x, model.getScale().y, model.getScale().z);
-
-	//TODO:  would need to pass as argument like the above scale..
-	ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);
-	#endif
-
-	// Draw all the model queued meshes
-	{
-		if (meshesModel.size() > 0) {
-			for (int i = 0; i < meshesModel.size(); i++) {
-				meshesModel[i].drawFaces();
-			}
-		}
-	}
-
-	#if (USE_MODEL_TRANSFORMS)
-	ofPopMatrix();
-	#endif
-}
-#endif
 
 //--------------------------------------------------------------
 void ofApp::draw() {
@@ -398,7 +318,7 @@ void ofApp::drawMyScene() {
 		WE DRAW OUR SCENE HERE !
 	
 	*/
-	
+
 	ofPushMatrix();
 
 	//--
@@ -478,11 +398,13 @@ void ofApp::drawHelp() {
 
 	// Responsive layout
 	if (bHelp) {
-		auto l = pbr.getLayoutHelp();
-		if (l == ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT || l == ofxSurfing::SURFING_LAYOUT_CENTER_LEFT)
-			ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
-		else
-			ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
+		ofxSurfing::ofDrawBitmapStringBox(sHelp, &gui, ofxSurfing::SURFING_LAYOUT_TOP_LEFT);
+	
+		//auto l = pbr.getLayoutHelp();
+		//if (l == ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT || l == ofxSurfing::SURFING_LAYOUT_CENTER_LEFT)
+		//	ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
+		//else
+		//	ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
 	}
 
 #ifdef OF_APP__USE__MODELS_MANAGER
@@ -547,8 +469,8 @@ void ofApp::buildHelp() {
 	sHelp += "R Rotate\n";
 	sHelp += "A Zoom Anim\n";
 	sHelp += "\n";
-	sHelp += "LEFT  Prev\n";
 	sHelp += "RIGHT Next\n";
+	sHelp += "LEFT  Previous\n";
 	sHelp += "\n";
 	sHelp += "#" + ofToString(indexScene) + "\n";
 	sHelp += "SCENE\n";
@@ -640,4 +562,98 @@ void ofApp::exit() {
 	ofLogNotice("ofApp") << "exit()";
 
 	ofRemoveListener(parameters.parameterChangedE(), this, &ofApp::Changed);
+
+	pbr.exit();
 }
+
+//--
+
+#ifndef OF_APP__USE__MODELS_MANAGER
+//--------------------------------------------------------------
+void ofApp::setupModel() {
+
+	// For scene 2
+
+	float scaled = 1.0f;
+
+	//--
+
+	pathModel = "models/head25k.obj";
+	scaled = 1.5;
+	// Note that this file model have problems with normals...
+	// We will need:
+	// glFrontFace(GL_CCW);
+
+	//pathModel = "models/basic_form.ply";
+	//scaled = 2.0;
+
+	//pathModel = "models/Fox_05.fbx";
+	//scaled = 0.05;
+
+	//--
+
+	bool b = loadModel(pathModel, scaled);
+	if (b)
+		ofLogNotice("ofApp") << "Successfully loaded model file: " << pathModel;
+	else
+		ofLogError("ofApp") << "Unable to load model file " << pathModel << ". Maybe not found!";
+}
+
+//--------------------------------------------------------------
+bool ofApp::loadModel(string path, float scaled) {
+
+	bool b = model.load(path, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
+
+	// hardcoded
+	model.setPosition(0, 2, 0); //TODO
+
+	// we can apply transforms to models
+	if (scaled != 1) model.setScale(scaled, scaled, scaled);
+
+	meshesModel.clear();
+	size_t sz = model.getMeshCount();
+	for (int j = 0; j < sz; j++) {
+		ofVboMesh vm = model.getMesh(j);
+		meshesModel.push_back(vm);
+	}
+
+	return b;
+}
+
+//--------------------------------------------------------------
+void ofApp::drawModel() {
+	glFrontFace(GL_CCW);
+	// fix for "transparent" for model head25k.obj with normals problems..
+
+	#define USE_MODEL_TRANSFORMS 1
+
+	#if (USE_MODEL_TRANSFORMS)
+	// Scene previous hardcoded transforms
+	ofPushMatrix();
+	ofTranslate(0, 50, 0);
+	ofScale(40.f);
+	ofRotateYDeg(-3 * 45.f);
+
+	// Model transforms
+	// Settled when loading the model,
+	// but requires apply here before draw!
+	ofScale(model.getScale().x, model.getScale().y, model.getScale().z);
+
+	//TODO:  would need to pass as argument like the above scale..
+	ofTranslate(model.getPosition().x, model.getPosition().y, model.getPosition().z);
+	#endif
+
+	// Draw all the model queued meshes
+	{
+		if (meshesModel.size() > 0) {
+			for (int i = 0; i < meshesModel.size(); i++) {
+				meshesModel[i].drawFaces();
+			}
+		}
+	}
+
+	#if (USE_MODEL_TRANSFORMS)
+	ofPopMatrix();
+	#endif
+}
+#endif
