@@ -1244,6 +1244,8 @@ void ofxSurfingPBR::draw() {
 
 		//----
 
+		//TODO: fix faces
+
 		glEnable(GL_CULL_FACE);
 
 		glFrontFace(GL_CW);

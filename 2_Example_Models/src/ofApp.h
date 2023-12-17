@@ -20,8 +20,9 @@ the floor, all the `4 lights kit`, the background generators and the cubeMap.
 
 /*
 	TODO
+	fix faces
 	store gui position
-	add mode for auto refresh gui or not
+		add mode for auto refresh gui or not
 */
 
 #pragma once
