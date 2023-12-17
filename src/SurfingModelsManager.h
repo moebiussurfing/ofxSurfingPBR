@@ -51,7 +51,7 @@ public:
 			"obj"
 		};
 
-		filesBrowserModels.setFileExtension(extensions);
+		filesBrowserModels.setFileExtensions(extensions);
 		filesBrowserModels.setTitle("MODEL");
 		filesBrowserModels.setup("models"); //set path for files
 

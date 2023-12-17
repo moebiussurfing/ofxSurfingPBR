@@ -7,6 +7,10 @@
 	Then allows browsing them.
 
 	Another parent (scope) class would be able to load files easily.
+
+	This class can be derived to personalize a browser for different file types,
+	as we do with the SurfingFilesBrowserModels.h and his use into SurfingModelsManager.h class, 
+	that we use together to browse 3d models.
 */
 
 //--
@@ -59,6 +63,7 @@ public:
 
 public:
 	void setup(string path = "") { //set path for files. default is bin/data/files/
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:setup(" << path << ")";
 
 		setupDir(path);
 		setupParams();
@@ -77,6 +82,8 @@ public:
 
 private:
 	virtual void setupGui() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:setupGui()";
+
 		parameters.add(extraParams);
 		parameters.add(bHelp);
 
@@ -93,12 +100,16 @@ private:
 	};
 
 public:
-	void setFileExtension(vector<string> e) { 
+	void setFileExtensions(vector<string> e) {//call before setup
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:setFileExtensions()";
+		ofLogNotice("ofxSurfingPBR") << ofToString(e);
+
 		extensions = e;
 	}
-	
+
 public:
 	void setupDir(string path = "") {
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:setupDir(" << path << ")";
 
 		if (path == "") path = "files";
 		//bin/data/files/
@@ -113,7 +124,7 @@ public:
 		dir.sort();
 
 		if (dir.size() == 0) {
-			ofLogError("SurfingFilesBrowser") << "setupDir() path or files not found!";
+			ofLogError("ofxSurfingPBR") << "SurfingFilesBrowser:setupDir() path or files not found!";
 			return;
 		}
 
@@ -123,6 +134,8 @@ public:
 	}
 
 	void setupParams() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:setupParams()";
+
 		nameFile.setSerializable(false);
 
 		browseParams.setName("Files");
@@ -139,11 +152,6 @@ public:
 
 		parameters.setName(sTitle);
 		parameters.add(browseParams);
-		//parameters.add(extraParams);
-
-		//--
-
-		//parameters.add(bHelp);
 
 		//--
 
@@ -245,12 +253,17 @@ public:
 	}
 
 	void next() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:next()";
+
 		if (dir.size() > 0) {
 			indexFile.setWithoutEventNotifications(indexFile.get() + 1);
 			indexFile.set(indexFile % dir.size());
 		}
 	}
+
 	void previous() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:previous()";
+
 		if (dir.size() > 0) {
 			if (indexFile.get() > 0) {
 				indexFile.setWithoutEventNotifications(indexFile.get() - 1);
@@ -303,7 +316,7 @@ protected:
 
 		std::string name = e.getName();
 
-		ofLogNotice("ofxSurfingPBR") << "Changed " << name << ": " << e;
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:Changed " << name << ": " << e;
 
 		//if (name == bModeAll.getName()) {
 		//	//workflow
@@ -315,7 +328,7 @@ public:
 	const string getPathModels() {
 		string s = pathFiles;
 		if (s == "") {
-			ofLogError() << "Models path not settled properly or unknown!";
+			ofLogError("ofxSurfingPBR") << "SurfingFilesBrowser:Models path not settled properly or unknown!";
 			return s;
 		}
 		return s;
@@ -328,12 +341,12 @@ public:
 	string pathSettings = "SurfingFilesBrowser.json";
 
 	virtual void save() {
-		ofLogNotice("ofSurfingModelsApp") << "save()";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:save()";
 		ofxSurfing::saveSettings(parameters, pathSettings);
 	}
 
 	virtual void load() {
-		ofLogNotice("SurfingFilesBrowser") << "load()";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:load()";
 		autoSaver.pause();
 		ofxSurfing::loadSettings(parameters, pathSettings);
 		autoSaver.start();
@@ -356,7 +369,9 @@ public:
 		//gui.getGroup(extraParams.getName()).minimize();
 	}
 
-	void setTitle(string s) {
+	void setTitle(string s) {//call before setup
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:setTitle(" << s << ")";
+
 		sTitle = s;
 	}
 
@@ -365,6 +380,8 @@ private:
 	string sHelp;
 
 	void buildHelp() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:buildHelp()";
+
 		sHelp = "";
 		sHelp += sTitle + "\n";
 		sHelp += this->getFilename() + "\n";
@@ -383,7 +400,7 @@ public:
 	void drawHelp() {
 		if (!bHelp) return;
 
-		//ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
 		ofxSurfing::ofDrawBitmapStringBox(sHelp, &gui, ofxSurfing::SURFING_LAYOUT_TOP_RIGHT);
+		//ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
 	}
 };

@@ -16,8 +16,8 @@
 	TODO
 
 	add look at draggable/moveable points
-	fix not saving bright settings
-		refresh bright after changing colors!
+	fix not saving power settings?
+		refresh power after changing colors!
 		bc if not, do not reflects the bright/power of the light!
 	fix appeared visible rectangle when drawing area light?
 	create a cool init state.
@@ -288,26 +288,26 @@ private:
 
 	//--
 
-	// brights
+	// Powers
 private:
-	bool bFlagDoRefreshBrights = false;
-	bool bFlagDoRefreshBrightPoint = false;
-	bool bFlagDoRefreshBrightDirect = false;
-	bool bFlagDoRefreshBrightSpot = false;
-	bool bFlagDoRefreshBrightArea = false;
+	bool bFlagDoRefreshPowers = false;
+	bool bFlagDoRefreshPowerPoint = false;
+	bool bFlagDoRefreshPowerDirect = false;
+	bool bFlagDoRefreshPowerSpot = false;
+	bool bFlagDoRefreshPowerArea = false;
 
-	void doRefreshBrights();
-	void doRefreshBrightPoint();
-	void doRefreshBrightDirect();
-	void doRefreshBrightSpot();
-	void doRefreshBrightArea();
+	void doRefreshPowers();
+	void doRefreshPowerPoint();
+	void doRefreshPowerDirect();
+	void doRefreshPowerSpot();
+	void doRefreshPowerArea();
 
-	void ChangedBrights(ofAbstractParameter & e);
-	ofParameterGroup brightsParams;
-	ofParameter<float> pointBright;
-	ofParameter<float> spotBright;
-	ofParameter<float> directionalBright;
-	ofParameter<float> areaBright;
+	void ChangedPowers(ofAbstractParameter & e);
+	ofParameterGroup powersParams;
+	ofParameter<float> pointPower;
+	ofParameter<float> spotPower;
+	ofParameter<float> directionalPower;
+	ofParameter<float> areaPower;
 
 	//----
 

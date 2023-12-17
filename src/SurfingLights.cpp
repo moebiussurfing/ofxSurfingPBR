@@ -13,7 +13,7 @@ SurfingLights::~SurfingLights() {
 
 	ofRemoveListener(ofEvents().update, this, &SurfingLights::update);
 	ofRemoveListener(lightsParams.parameterChangedE(), this, &SurfingLights::ChangedLights);
-	ofRemoveListener(brightsParams.parameterChangedE(), this, &SurfingLights::ChangedBrights);
+	ofRemoveListener(powersParams.parameterChangedE(), this, &SurfingLights::ChangedPowers);
 	ofRemoveListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
 
 #ifdef SURFING__PBR__USE_AUTO_CALL_EXIT_ON_DESTRUCTOR_IF_REQUIRED
@@ -589,7 +589,7 @@ void SurfingLights::setupParameters() {
 	// Callbacks
 
 	ofAddListener(lightsParams.parameterChangedE(), this, &SurfingLights::ChangedLights);
-	ofAddListener(brightsParams.parameterChangedE(), this, &SurfingLights::ChangedBrights);
+	ofAddListener(powersParams.parameterChangedE(), this, &SurfingLights::ChangedPowers);
 	ofAddListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
 
 	//--
@@ -642,7 +642,7 @@ void SurfingLights::setupParametersLights() {
 	spotColorsParams.setName("S Colors");
 	areaColorsParams.setName("A Colors");
 
-	brightsParams.setName("Bright");
+	powersParams.setName("Powers");
 	globalColorsParams.setName("Global Colors");
 
 #ifdef SURFING__PBR__PLANE_COLORS_NO_ALPHA
@@ -767,18 +767,18 @@ void SurfingLights::setupParametersLights() {
 
 	bSmoothLights.set("Smooth Lights", false); // Default Low poly
 
-	// Bright
-	pointBright.set("B Point", 0.1, 0, 1);
-	spotBright.set("B Spot", 0.1, 0, 1);
-	directionalBright.set("B Direct", 0.1, 0, 1);
-	areaBright.set("B Area", 0.1, 0, 1);
+	// Powers
+	pointPower.set("P Point", 0.1, 0, 1);
+	spotPower.set("P Spot", 0.1, 0, 1);
+	directionalPower.set("P Direct", 0.1, 0, 1);
+	areaPower.set("P Area", 0.1, 0, 1);
 
 	//--
 
 	// Lights
 
 	// Point
-	pointParams.add(pointBright);
+	pointParams.add(pointPower);
 	pointParams.add(pointGlobalColor);
 	pointColorsParams.add(pointAmbientColor);
 	pointColorsParams.add(pointDiffuseColor);
@@ -790,7 +790,7 @@ void SurfingLights::setupParametersLights() {
 	pointParams.add(vPointReset);
 
 	// Directional
-	directionalParams.add(directionalBright);
+	directionalParams.add(directionalPower);
 	directionalParams.add(directionalGlobalColor);
 	directionalColorsParams.add(directionalAmbientColor);
 	directionalColorsParams.add(directionalDiffuseColor);
@@ -804,7 +804,7 @@ void SurfingLights::setupParametersLights() {
 	directionalParams.add(vDirectionalReset);
 
 	// Spot
-	spotParams.add(spotBright);
+	spotParams.add(spotPower);
 	spotParams.add(spotGlobalColor);
 	spotColorsParams.add(spotAmbientColor);
 	spotColorsParams.add(spotDiffuseColor);
@@ -819,7 +819,7 @@ void SurfingLights::setupParametersLights() {
 	spotParams.add(vSpotReset);
 
 	// Area
-	areaParams.add(areaBright);
+	areaParams.add(areaPower);
 	areaParams.add(areaGlobalColor);
 	areaColorsParams.add(areaAmbientColor);
 	areaColorsParams.add(areaDiffuseColor);
@@ -841,12 +841,12 @@ void SurfingLights::setupParametersLights() {
 	params_Enablers.add(bArea);
 	lightsParams.add(params_Enablers);
 
-	// Bright
-	brightsParams.add(pointBright);
-	brightsParams.add(directionalBright);
-	brightsParams.add(spotBright);
-	brightsParams.add(areaBright);
-	lightsParams.add(brightsParams);
+	// Powers
+	powersParams.add(pointPower);
+	powersParams.add(directionalPower);
+	powersParams.add(spotPower);
+	powersParams.add(areaPower);
+	lightsParams.add(powersParams);
 
 	//--
 
@@ -992,34 +992,34 @@ void SurfingLights::update() { // App flow controls
 
 	//--
 
-	if (bFlagDoRefreshBrights) {
-		bFlagDoRefreshBrights = false;
+	if (bFlagDoRefreshPowers) {
+		bFlagDoRefreshPowers = false;
 
-		doRefreshBrights();
+		doRefreshPowers();
 	}
 
-	else if (bFlagDoRefreshBrightPoint) {
-		bFlagDoRefreshBrightPoint = false;
+	else if (bFlagDoRefreshPowerPoint) {
+		bFlagDoRefreshPowerPoint = false;
 
-		doRefreshBrightPoint();
+		doRefreshPowerPoint();
 	}
 
-	else if (bFlagDoRefreshBrightDirect) {
-		bFlagDoRefreshBrightDirect = false;
+	else if (bFlagDoRefreshPowerDirect) {
+		bFlagDoRefreshPowerDirect = false;
 
-		doRefreshBrightDirect();
+		doRefreshPowerDirect();
 	}
 
-	else if (bFlagDoRefreshBrightSpot) {
-		bFlagDoRefreshBrightSpot = false;
+	else if (bFlagDoRefreshPowerSpot) {
+		bFlagDoRefreshPowerSpot = false;
 
-		doRefreshBrightSpot();
+		doRefreshPowerSpot();
 	}
 
-	else if (bFlagDoRefreshBrightArea) {
-		bFlagDoRefreshBrightArea = false;
+	else if (bFlagDoRefreshPowerArea) {
+		bFlagDoRefreshPowerArea = false;
 
-		doRefreshBrightArea();
+		doRefreshPowerArea();
 	}
 
 	//--
@@ -1257,7 +1257,7 @@ void SurfingLights::doResetAllLights(bool bHard) {
 	doResetSpot(bHard);
 	doResetArea(bHard);
 
-	doRefreshBrights();
+	doRefreshPowers();
 }
 
 // Point
@@ -1281,7 +1281,7 @@ void SurfingLights::doResetPoint(bool bHard) {
 	pointSizeFar = 1;
 
 	if (bHard)
-		pointBright = SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET;
+		pointPower = SURFING__PBR__HELPER_GLOBAL_POWER_RESET;
 }
 
 // Directional
@@ -1308,7 +1308,7 @@ void SurfingLights::doResetDirectional(bool bHard) {
 	directionalSizeFar = 1;
 
 	if (bHard)
-		directionalBright = SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET;
+		directionalPower = SURFING__PBR__HELPER_GLOBAL_POWER_RESET;
 }
 
 // Spot
@@ -1337,7 +1337,7 @@ void SurfingLights::doResetSpot(bool bHard) {
 	spotSizeFar = 1;
 
 	if (bHard)
-		spotBright = SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET;
+		spotPower = SURFING__PBR__HELPER_GLOBAL_POWER_RESET;
 }
 
 // Area
@@ -1364,7 +1364,7 @@ void SurfingLights::doResetArea(bool bHard) {
 	areaSizeFar = 1;
 
 	if (bHard)
-		areaBright = SURFING__PBR__HELPER_GLOBAL_BRIGHT_RESET;
+		areaPower = SURFING__PBR__HELPER_GLOBAL_POWER_RESET;
 }
 
 //--
@@ -1646,10 +1646,10 @@ void SurfingLights::ChangedShadow(ofAbstractParameter & e) {
 //--
 
 //--------------------------------------------------------------
-void SurfingLights::ChangedBrights(ofAbstractParameter & e) {
+void SurfingLights::ChangedPowers(ofAbstractParameter & e) {
 	string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:ChangedBrights " << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:ChangedPowers " << name << " : " << e;
 
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
@@ -1657,45 +1657,45 @@ void SurfingLights::ChangedBrights(ofAbstractParameter & e) {
 	}
 #endif
 
-	if (name == pointBright.getName()) {
-		bFlagDoRefreshBrightPoint = true;
+	if (name == pointPower.getName()) {
+		bFlagDoRefreshPowerPoint = true;
 	}
 
-	else if (name == directionalBright.getName()) {
-		bFlagDoRefreshBrightDirect = true;
+	else if (name == directionalPower.getName()) {
+		bFlagDoRefreshPowerDirect = true;
 	}
 
-	else if (name == spotBright.getName()) {
-		bFlagDoRefreshBrightSpot = true;
+	else if (name == spotPower.getName()) {
+		bFlagDoRefreshPowerSpot = true;
 	}
 
-	else if (name == areaBright.getName()) {
-		bFlagDoRefreshBrightArea = true;
+	else if (name == areaPower.getName()) {
+		bFlagDoRefreshPowerArea = true;
 	}
 }
 
 //--
 
 //--------------------------------------------------------------
-void SurfingLights::doRefreshBrights() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doRefreshBrights()";
+void SurfingLights::doRefreshPowers() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doRefreshPowers()";
 
-	doRefreshBrightPoint();
-	doRefreshBrightDirect();
-	doRefreshBrightSpot();
-	doRefreshBrightArea();
+	doRefreshPowerPoint();
+	doRefreshPowerDirect();
+	doRefreshPowerSpot();
+	doRefreshPowerArea();
 }
 
 //--------------------------------------------------------------
-void SurfingLights::doRefreshBrightPoint() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doRefreshBrightPoint()";
+void SurfingLights::doRefreshPowerPoint() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doRefreshPowerPoint()";
 
 	auto ca = pointAmbientColor.get();
 	auto cd = pointDiffuseColor.get();
 	auto cs = pointSpecularColor.get();
 
-	float brg = ofClamp(pointBright,
-		SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MIN, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX);
+	float brg = ofClamp(pointPower,
+		SURFING__PBR__HELPER_GLOBAL_POWER_LIMIT_MIN, SURFING__PBR__HELPER_GLOBAL_POWER_LIMIT_MAX);
 	ca.setBrightness(brg);
 	cd.setBrightness(brg);
 	cs.setBrightness(brg);
@@ -1706,15 +1706,15 @@ void SurfingLights::doRefreshBrightPoint() {
 }
 
 //--------------------------------------------------------------
-void SurfingLights::doRefreshBrightDirect() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doRefreshBrightDirect()";
+void SurfingLights::doRefreshPowerDirect() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doRefreshPowerDirect()";
 
 	auto ca = directionalAmbientColor.get();
 	auto cd = directionalDiffuseColor.get();
 	auto cs = directionalSpecularColor.get();
 
-	float brg = ofClamp(directionalBright,
-		SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MIN, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX);
+	float brg = ofClamp(directionalPower,
+		SURFING__PBR__HELPER_GLOBAL_POWER_LIMIT_MIN, SURFING__PBR__HELPER_GLOBAL_POWER_LIMIT_MAX);
 	ca.setBrightness(brg);
 	cd.setBrightness(brg);
 	cs.setBrightness(brg);
@@ -1725,15 +1725,15 @@ void SurfingLights::doRefreshBrightDirect() {
 }
 
 //--------------------------------------------------------------
-void SurfingLights::doRefreshBrightSpot() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doRefreshBrightSpot()";
+void SurfingLights::doRefreshPowerSpot() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doRefreshPowerSpot()";
 
 	auto ca = spotAmbientColor.get();
 	auto cd = spotDiffuseColor.get();
 	auto cs = spotSpecularColor.get();
 
-	float brg = ofClamp(spotBright,
-		SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MIN, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX);
+	float brg = ofClamp(spotPower,
+		SURFING__PBR__HELPER_GLOBAL_POWER_LIMIT_MIN, SURFING__PBR__HELPER_GLOBAL_POWER_LIMIT_MAX);
 	ca.setBrightness(brg);
 	cd.setBrightness(brg);
 	cs.setBrightness(brg);
@@ -1744,15 +1744,15 @@ void SurfingLights::doRefreshBrightSpot() {
 }
 
 //--------------------------------------------------------------
-void SurfingLights::doRefreshBrightArea() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doRefreshBrightArea()";
+void SurfingLights::doRefreshPowerArea() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:doRefreshPowerArea()";
 
 	auto ca = areaAmbientColor.get();
 	auto cd = areaDiffuseColor.get();
 	auto cs = areaSpecularColor.get();
 
-	float brg = ofClamp(areaBright,
-		SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MIN, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX);
+	float brg = ofClamp(areaPower,
+		SURFING__PBR__HELPER_GLOBAL_POWER_LIMIT_MIN, SURFING__PBR__HELPER_GLOBAL_POWER_LIMIT_MAX);
 	ca.setBrightness(brg);
 	cd.setBrightness(brg);
 	cs.setBrightness(brg);

@@ -106,7 +106,7 @@ void SurfingBg::setupParameters() {
 	//TODO: could be removed. We use main global only.
 	colorGroup.setSerializable(false);
 
-	brightGlobal.set("Bright", 0.5f, 0.05f, SURFING__PBR__HELPER_GLOBAL_BRIGHT_LIMIT_MAX); //avoid reset at black..
+	brightGlobal.set("Bright", 0.5f, 0.05f, SURFING__PBR__HELPER_GLOBAL_POWER_LIMIT_MAX); //avoid reset at black..
 
 	shininess.set("Shininess", 0.5, 0, SURFING__PBR__MAX_SHININESS);
 
