@@ -1,12 +1,31 @@
+/*
+	TODO
+
+	- make aux transform params with makeRef
+		to link to loaded object,
+		then avoiding to expose all the object 
+		transforms folders to the gui
+
+	- add bool draw to each object to allow all models mode arrange.
+*/
 
 /*
 * SurfingFilesBrowser.h
 * 
-	A class to help loading the many files
-	from a path directory (default bin/data/files/)
-	Then allows browsing them.
+	A class to help loading the many model files
+	from a path directory (default bin/data/models/)
+	Then allows browsing them and apply some basic transforms
+	that are persistent.
+
+	Transforms are stored as JSON paired to the model file name with a suffix.
+	So we can add and remove more files to the path 
+	without breaking persistent settings!
 
 	Another parent (scope) class would be able to load files easily.
+	It has help info and displays to debug selected browser,
+	get the path to be passed to the model/mesh loaders..etc
+
+	See the EXAMPLE at the bottom of this file.
 */
 
 //--

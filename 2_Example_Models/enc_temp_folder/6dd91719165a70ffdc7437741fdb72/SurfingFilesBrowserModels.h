@@ -24,6 +24,8 @@
 	Another parent (scope) class would be able to load files easily.
 	It has help info and displays to debug selected browser,
 	get the path to be passed to the model/mesh loaders..etc
+
+	See the EXAMPLE at the bottom of this file.
 */
 
 //--

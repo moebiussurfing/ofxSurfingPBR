@@ -267,7 +267,6 @@ private:
 		{
 			//TODO: fix  for "transparent" for model
 			// head25k.obj bc normals problems..
-
 			glFrontFace(GL_CCW);
 		}
 #endif
