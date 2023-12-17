@@ -115,11 +115,7 @@ public:
 	vector<string> namesScenes = {
 		"THREE-PRIMS",
 		"MESH",
-#ifdef OF_APP__USE__MODELS_MANAGER
-		"MODELS"
-#else
 		"MODEL"
-#endif
 	};
 	ofEventListener listenerIndexScene;
 

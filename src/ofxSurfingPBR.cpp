@@ -196,8 +196,12 @@ void ofxSurfingPBR::setupParams() {
 
 	vLoadAll.set("Load All");
 	vSaveAll.set("Save All");
+
+//TODO: make a full project save/load	
+#if 0
 	parameters.add(vLoadAll);
 	parameters.add(vSaveAll);
+	#endif
 
 	showGuiParams.setName("UI");
 	showGuiParams.add(material.bGui);

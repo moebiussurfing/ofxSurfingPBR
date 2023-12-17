@@ -125,7 +125,7 @@ public:
 	void setupParams() {
 		nameFile.setSerializable(false);
 
-		browseParams.setName("FILES");
+		browseParams.setName("Files");
 		browseParams.add(vNext);
 		browseParams.add(vPrev);
 		browseParams.add(indexFile);

@@ -13,7 +13,9 @@
 
 #define SURFING__STRING_BOX__DEFAULT_XPAD 20
 #define SURFING__STRING_BOX__DEFAULT_YPAD 20
-#define SURFING__STRING_BOX__DEFAULT_ROUND 5.f // 0.f to not rounded
+
+//#define SURFING__STRING_BOX__DEFAULT_ROUND 5.f
+#define SURFING__STRING_BOX__DEFAULT_ROUND 2.f // 0.f to not rounded rectangle
 
 //#define SURFING__STRING_BOX__INCLUDE_EXTRA_LAYOUTS // include mouse pos
 
