@@ -105,7 +105,7 @@ private:
 
 		gui.setup(parameters);
 
-		gui.getGroup(transformParams.getName()).minimize();
+		//gui.getGroup(transformParams.getName()).minimize();
 		gui.getGroup(extraParams.getName()).minimize();
 	}
 
@@ -233,7 +233,7 @@ private:
 	// passing the model index as argument:
 
 public:
-	float getTransformScale(int i = -1) {
+	float getTransformScale(int i = -1) const {
 		float v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
@@ -241,7 +241,7 @@ public:
 		return v;
 	}
 
-	float getTransformScalePow(int i = -1) {
+	float getTransformScalePow(int i = -1) const {
 		int v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
@@ -260,7 +260,7 @@ public:
 		}
 	}
 
-	glm::vec3 getTransformPosition(int i = -1) {
+	glm::vec3 getTransformPosition(int i = -1) const {
 		glm::vec3 v = glm::vec3(0);
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
@@ -268,7 +268,7 @@ public:
 		return v;
 	}
 
-	glm::vec3 getTransformRotation(int i = -1) {
+	glm::vec3 getTransformRotation(int i = -1) const {
 		glm::vec3 v = glm::vec3(0);
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
@@ -277,7 +277,7 @@ public:
 	}
 
 #else
-	float getTransformPosY(int i = -1) {
+	float getTransformPosY(int i = -1) const {
 		float v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
@@ -285,7 +285,7 @@ public:
 		return v;
 	}
 
-	float getTransformRotY(int i = -1) {
+	float getTransformRotY(int i = -1) const {
 		float v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())

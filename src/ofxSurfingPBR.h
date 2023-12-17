@@ -202,6 +202,9 @@ private:
 	ofParameter<void> vLoadCamera;
 	string pathCamera = "ofxSurfingPBR_Camera.txt";
 
+	ofEventListener listenerSaveGui;
+	ofEventListener listenerLoadGui;
+
 public:
 	ofParameter<void> vResetCamera;
 
@@ -298,6 +301,7 @@ public:
 	ofParameter<bool> bHelp;
 
 	ofParameter<bool> bDebug;
+	bool bUnlockFps=false;
 	ofParameter<bool> bKeys;
 
 	ofParameterGroup testSceneParams;

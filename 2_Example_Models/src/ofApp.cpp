@@ -30,7 +30,7 @@ void ofApp::setup() {
 
 	listenerIndexModel = modelsManager.indexFile.newListener([this](int & i) {
 		buildHelp(); // refresh help info
-		//refreshGui(); // refresh gui layout
+		modelsManager.refreshGui();
 	});
 #else
 	setupModel();
@@ -39,11 +39,7 @@ void ofApp::setup() {
 	//--
 
 	setupParams();
-
 	setupGui();
-
-	//--
-
 	startup();
 }
 
@@ -82,7 +78,7 @@ void ofApp::setupPBR() {
 		ofLogWarning("ofApp") << "Forcing the ofxSurfingPBR initial scene with some settings.";
 
 		// Background
-		pbr.bg.bDrawObject.set(true);
+		pbr.bg.bDrawBgObject.set(true);
 		pbr.bg.globalColor.set(ofFloatColor { 0, 1, 1, 1 });
 
 		// Floor
@@ -141,6 +137,7 @@ void ofApp::setupParams() {
 	parameters.add(vReset);
 	parameters.add(pbr.vResetCamera);
 
+	parameters.add(guiManager.bAutoLayout);
 	parameters.add(bHelp);
 
 	nameScene.setSerializable(false);
@@ -174,6 +171,7 @@ void ofApp::setupParams() {
 void ofApp::setupGui() {
 
 	gui.setup(parameters);
+	guiManager.setup(&gui);
 
 	gui.getGroup(animateParams.getName()).minimize();
 
@@ -181,6 +179,7 @@ void ofApp::setupGui() {
 	listenerGuiRefresh = pbr.guiLayout.newListener([this](int & i) {
 		refreshGui();
 	});
+
 	refreshGui();
 
 	buildHelp();
@@ -297,7 +296,7 @@ void ofApp::updateSceneTransforms() {
 		1.f / SURFING__PBR__SCENE_TEST_UNIT_SCALE, SURFING__PBR__SCENE_TEST_UNIT_SCALE, true);
 
 	// Rotation
-	int tmax = 30;
+	int tmax = 120;
 	// 30 seconds to complete 360deg
 	// at 60 fps, for the slower speed.
 	// faster speed is one second per 360deg.
@@ -313,8 +312,10 @@ void ofApp::updateSceneTransforms() {
 void ofApp::drawMyScene() {
 
 	/*
-		WE DRAW OUR SCENE HERE !
+		We draw our scene here!
 	*/
+
+	//----
 
 	ofPushMatrix();
 
@@ -327,7 +328,7 @@ void ofApp::drawMyScene() {
 
 	//--
 
-	// DRAW THE OBJECT
+	// Draw the object
 
 	{
 		// Scene 0: Three Prims
@@ -346,7 +347,7 @@ void ofApp::drawMyScene() {
 
 		//--
 
-		// Scene 2: Model(s)
+		// Scene 2: Model
 
 		else if (indexScene == 2) {
 #ifdef OF_APP__USE__MODELS_MANAGER
@@ -396,7 +397,8 @@ void ofApp::drawHelp() {
 	// Responsive layout
 	if (bHelp) {
 		ofxSurfing::ofDrawBitmapStringBox(sHelp, &gui, ofxSurfing::SURFING_LAYOUT_TOP_LEFT);
-	
+
+		// Responsive layout
 		//auto l = pbr.getLayoutHelp();
 		//if (l == ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT || l == ofxSurfing::SURFING_LAYOUT_CENTER_LEFT)
 		//	ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
@@ -418,22 +420,11 @@ void ofApp::doReset() {
 	// Scene
 	scale = -0.6;
 	yPos = 0;
-
 	rotateSpeed = 0.5;
 	bAnimRotate = false;
 	bAnimZoom = false;
 	powZoom = 0.5;
 	zoomSpeed = 0.5;
-
-// Some PBR stuff to Reset:
-#if 0
-	// Reset the camera only.
-	pbr.doResetCamera();
-#endif
-#if 0
-	// Reset all PBR, including camera.
-	pbr.doResetAll();
-#endif
 }
 
 //--------------------------------------------------------------
@@ -457,6 +448,7 @@ void ofApp::doPrevScene() {
 //--------------------------------------------------------------
 void ofApp::buildHelp() {
 	sHelp = "";
+
 	sHelp += "HELP\n";
 	sHelp += "ofApp\n";
 	sHelp += "\n";
@@ -466,29 +458,35 @@ void ofApp::buildHelp() {
 	sHelp += "R Rotate\n";
 	sHelp += "A Zoom Anim\n";
 	sHelp += "\n";
-	sHelp += "RIGHT Next\n";
-	sHelp += "LEFT  Previous\n";
-	sHelp += "\n";
+
 	sHelp += "#" + ofToString(indexScene) + "\n";
 	sHelp += "SCENE\n";
 	sHelp += namesScenes[indexScene] + "\n";
+	sHelp += "\n";
+	sHelp += "RIGHT Next\n";
+	sHelp += "LEFT  Previous\n";
 }
 
 //--------------------------------------------------------------
 void ofApp::refreshGui() {
+	if (!guiManager.bAutoLayout) return;
+
+	// Link and group all the gui panels and help text boxes.
 
 	// Center visible gui panels at the window top/bottom:
 	// Move gui/s to:
 	// layout 0: bottom-center.
 	// layout 1: top-center.
 	size_t layout = pbr.getGuiLayout();
-
-	ofxSurfing::SURFING_LAYOUT l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
-	if (layout == 1)
+	
+	ofxSurfing::SURFING_LAYOUT l;
+	if (layout == 1) {
 		l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
+	} else {
+		l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
+	}
 
 #ifdef OF_APP__USE__MODELS_MANAGER
-
 	if (indexScene == 2) { // ofApp gui and models manager gui
 		ofxSurfing::setGuiPositionToLayoutBoth(gui, modelsManager.getGui(), l);
 	}

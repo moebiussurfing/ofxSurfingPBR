@@ -117,7 +117,7 @@ void SurfingBg::setupParameters() {
 	bRotate.set("Rotate", true);
 	speedRotate.set("Speed", 0, -1, 1);
 
-	bDrawObject.set("Draw Bg Object", false);
+	bDrawBgObject.set("Draw Bg Object", false);
 	bDrawWireframe.set("Draw Wireframe", false);
 	wireColor.set("Wire Color",
 		ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
@@ -147,8 +147,8 @@ void SurfingBg::setupParameters() {
 
 	paramsScene.setName("Scene");
 
-	paramsScene.add(bDrawBgColorPlain);
-	paramsScene.add(bDrawObject);
+	paramsScene.add(bDrawBgPlainColor);
+	paramsScene.add(bDrawBgObject);
 
 	paramsColorsGlobal.setName("Global");
 	paramsColorsGlobal.add(brightGlobal);
@@ -165,17 +165,21 @@ void SurfingBg::setupParameters() {
 	paramsColorizers.add(paramsColorsGlobal);
 	paramsColorizers.add(paramsColor);
 	paramsColorizers.add(shininess);
+
+	paramsColorizers.add(bDrawWireframe);
+	paramsColorizers.add(wireColor);
+
 	paramsColorizers.add(vResetColors);
 
-	bDrawBgColorPlain.set("Draw Bg Plain Color", false);
+	bDrawBgPlainColor.set("Draw Bg Plain Color", false);
 	bgColorPlain.set("Bg Plain Color", ofFloatColor::darkGrey, ofFloatColor(0.f), ofFloatColor(1.f));
 	bgColorPlainParams.setName("BG Plain Color");
-	bgColorPlainParams.add(bDrawBgColorPlain);
+	bgColorPlainParams.add(bDrawBgPlainColor);
 	bgColorPlainParams.add(bgColorPlain);
 	paramsColorizers.add(bgColorPlainParams);
 	paramsScene.add(paramsColorizers);
 
-	paramsObject.setName("Object");
+	paramsObject.setName("BG Object");
 	paramsObject.add(bModeBox);
 	paramsObject.add(bModeSphere);
 	paramsObject.add(resolutionBox);
@@ -186,10 +190,8 @@ void SurfingBg::setupParameters() {
 	paramsObject.add(pathTexture);
 	paramsObject.add(vOpenTexture);
 
-	paramsObject.add(bDrawWireframe);
-	paramsObject.add(wireColor);
 	paramsScene.add(paramsObject);
-	//paramsScene.add(bDrawBgColorPlain);
+	//paramsScene.add(bDrawBgPlainColor);
 
 	//paramsExtra.setName("Extra");
 	//paramsExtra.add(bSmoothLights);
@@ -299,7 +301,7 @@ void SurfingBg::refreshGui() {
 		.getGroup(bgColorPlainParams.getName())
 		.minimize();
 
-	if (!bDrawObject) {
+	if (!bDrawBgObject) {
 		gui.getGroup(paramsScene.getName())
 			.getGroup(paramsObject.getName())
 			.minimize();
@@ -326,11 +328,11 @@ void SurfingBg::drawGui() {
 void SurfingBg::draw() {
 
 	// Plain color Bg
-	if (bDrawBgColorPlain) {
+	if (bDrawBgPlainColor) {
 		ofClear(bgColorPlain);
 	}
 
-	if (bDrawObject) drawScene();
+	if (bDrawBgObject) drawScene();
 }
 
 //--------------------------------------------------------------
@@ -503,7 +505,7 @@ void SurfingBg::doResetColors() {
 
 	bgColorPlain.set(ofFloatColor(0.2f));
 #ifdef SURFING__PBR__USE_CUBE_MAP
-	if (bDrawBgColorPlain) bDrawBgColorPlain = false;
+	if (bDrawBgPlainColor) bDrawBgPlainColor = false;
 #else
 	bDrawBg = true;
 #endif
@@ -737,38 +739,38 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 
 //workflow
 #if 1
-	else if (name == bDrawObject.getName()) {
-		if (bDrawObject) {
-			if (bDrawBgColorPlain) bDrawBgColorPlain.set(false);
+	else if (name == bDrawBgObject.getName()) {
+		if (bDrawBgObject) {
+			if (bDrawBgPlainColor) bDrawBgPlainColor.set(false);
 
 		}
 			refreshGui();
 	}
 #endif
 #if 0
-	else if (name == bDrawObject.getName()) {
-		if (bDrawObject) {
-			if (bDrawBgColorPlain) bDrawBgColorPlain.set(false);
+	else if (name == bDrawBgObject.getName()) {
+		if (bDrawBgObject) {
+			if (bDrawBgPlainColor) bDrawBgPlainColor.set(false);
 		} else {
-			if (!bDrawBgColorPlain) bDrawBgColorPlain.set(true);
+			if (!bDrawBgPlainColor) bDrawBgPlainColor.set(true);
 		}
 	}
 #endif
 
 //workflow
 #if 0
-	else if (name == bDrawBgColorPlain.getName()) {
-		if (bDrawBgColorPlain) {
-			if (bDrawObject) bDrawObject.set(false);
+	else if (name == bDrawBgPlainColor.getName()) {
+		if (bDrawBgPlainColor) {
+			if (bDrawBgObject) bDrawBgObject.set(false);
 		} else {
-			if (!bDrawObject) bDrawObject.set(true);
+			if (!bDrawBgObject) bDrawBgObject.set(true);
 		}
 	}
 #endif
 #if 1
-	else if (name == bDrawBgColorPlain.getName()) {
-		if (bDrawBgColorPlain) {
-			if (bDrawObject) bDrawObject.set(false);
+	else if (name == bDrawBgPlainColor.getName()) {
+		if (bDrawBgPlainColor) {
+			if (bDrawBgObject) bDrawBgObject.set(false);
 		}
 		refreshGui();
 	}
@@ -870,10 +872,10 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 	//--
 
 	////#ifdef SURFING__PBR__USE_CUBE_MAP
-	////	if (name == bg.bDrawBgColorPlain.getName()) {
+	////	if (name == bg.bDrawBgPlainColor.getName()) {
 	////		if (!bLoadedCubeMap) return; //skip
 	////		//workflow
-	////		if (bg.bDrawBgColorPlain)
+	////		if (bg.bDrawBgPlainColor)
 	////			if (bDrawCubeMap) bDrawCubeMap = false;
 	////	}
 	////#endif

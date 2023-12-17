@@ -146,6 +146,7 @@ public:
 
 	// Gui
 	ofxPanel gui;
+	SurfingOfxGuiPanelsManager guiManager;
 
 	void refreshGui();
 	// Refresh gui for minimize/collapse workflow

@@ -88,7 +88,7 @@ private:
 	// Bg color plain
 public:
 	ofParameterGroup bgColorPlainParams;
-	ofParameter<bool> bDrawBgColorPlain;
+	ofParameter<bool> bDrawBgPlainColor;
 	ofParameter<ofFloatColor> bgColorPlain;
 
 public:
@@ -114,7 +114,7 @@ public:
 	ofParameterGroup paramsObject;
 	//ofParameterGroup paramsExtra;
 
-	ofParameter<bool> bDrawObject;
+	ofParameter<bool> bDrawBgObject;
 	ofParameter<bool> bDrawWireframe;
 	ofParameter<ofFloatColor> wireColor;
 	ofParameter<bool> bModeBox;

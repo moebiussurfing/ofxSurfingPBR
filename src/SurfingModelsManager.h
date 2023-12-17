@@ -161,19 +161,19 @@ private:
 	}
 
 private:
-	void updateAnim() {
-		size_t i = filesBrowserModels.getIndexFile();
-		if (i < meshesModels.size()) {
+	void updateAnim(int i = -1) {
+		if (i == -1) i = filesBrowserModels.getIndexFile();
+		if (i > meshesModels.size() - 1) return;
 
-			models[i]->update();
+		models[i]->update();
 
-			if (models[i]->hasAnimations()) {
-				auto m = models[i]->getCurrentAnimatedMesh(0);
-				meshesModels[i].clear(); //slow?
-				meshesModels[i].push_back(m);
-			}
+		if (models[i]->hasAnimations()) {
+			auto m = models[i]->getCurrentAnimatedMesh(0);
+			meshesModels[i].clear(); //slow?
+			meshesModels[i].push_back(m);
 		}
-
+	}
+	void updateSwitcher() {
 		filesBrowserModels.updateAutoSwitch();
 	}
 
@@ -288,18 +288,14 @@ private:
 			ofPushMatrix();
 			updateTransform(i);
 
-			//TODO:
-			pushFixFaces();
-
 			{
+				updateAnim(i);
+
 				// draw all the model meshes
 				for (size_t j = 0; j < meshesModels[i].size(); j++) {
 					meshesModels[i][j].drawFaces();
 				}
 			}
-
-			//TODO:
-			popFixFaces();
 
 			ofPopMatrix();
 		}
@@ -313,18 +309,14 @@ private:
 				ofPushMatrix();
 				updateTransform(i);
 
-				//TODO:
-				pushFixFaces();
-
 				{
+					updateAnim(i);
+
 					// draw all the model meshes
 					for (size_t j = 0; j < meshesModels[i].size(); j++) {
 						meshesModels[i][j].drawFaces();
 					}
 				}
-
-				//TODO:
-				popFixFaces();
 
 				ofPopMatrix();
 			}
@@ -339,6 +331,9 @@ private:
 	float animationPosition;
 
 public:
+	void refreshGui() {
+		filesBrowserModels.refreshGui();
+	}
 	void drawGui() {
 		filesBrowserModels.drawGui();
 	}
@@ -365,11 +360,14 @@ public:
 
 	//--
 
+	/*
+	
 	//TODO:
-private:
-#define FIX_FACES 1
 	// A workaround trick to fix a model mesh normals,
 	// or non solid/transparent faces!
+
+private:
+#define FIX_FACES 0
 
 	GLint frontFaceMode = 0;
 
@@ -401,4 +399,5 @@ private:
 		}
 #endif
 	}
+	*/
 };

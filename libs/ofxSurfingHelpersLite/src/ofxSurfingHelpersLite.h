@@ -827,6 +827,7 @@ inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2, SURFING
 		gh += SURFING__PAD_TO_WINDOW_BORDERS;
 		int x = ofGetWidth() / 2 - gw / 2;
 		int y = ofGetHeight() - gh;
+		y = MAX(y, 0);
 		gui1.setPosition(x, y);
 	}
 
@@ -834,6 +835,7 @@ inline void setGuiPositionToLayoutBoth(ofxPanel & gui1, ofxPanel & gui2, SURFING
 		int gw = gui1.getShape().getWidth() + gui2.getShape().getWidth() + d;
 		int x = ofGetWidth() / 2 - gw / 2;
 		int y = SURFING__PAD_TO_WINDOW_BORDERS;
+		y = MAX(y, 0);
 		gui1.setPosition(x, y);
 	}
 
@@ -1001,12 +1003,51 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 }
 };
 
-//TODO:
+//--
+
+// This class store the ofxGui panel position.
 // queue ofxPanels.
 // set anchor panel
-// set position for linked
+// set position for linked.
 //--------------------------------------------------------------
 class SurfingOfxGuiPanelsManager {
+public:
+	ofxPanel * gui;
+
+	ofParameterGroup parameters;
+	ofParameter<glm::vec2> position { "Position", glm::vec2(0, 0),
+		glm::vec2(0, 0), glm::vec2(3840, 2160) };
+	ofParameter<bool> bAutoLayout { "AutoLayout", true };
+
+	string path;
+
+	void setup(ofxPanel * g) {
+		if (g == nullptr) return;
+
+		gui = g;
+		string n = gui->getName() + "_ofxGui";
+
+		parameters.setName(n);
+		parameters.add(bAutoLayout);
+		parameters.add(position);
+
+		path = n + ".json";
+		ofxSurfing::load(parameters, path);
+
+		gui->setPosition(position.get().x, position.get().y);
+	}
+
+	void exit() {
+		if (gui == nullptr) return;
+		position = gui->getPosition();
+		ofxSurfing::save(parameters, path);
+	}
+
+public:
+	SurfingOfxGuiPanelsManager() {};
+
+	~SurfingOfxGuiPanelsManager() { exit(); };
+
 	/*
 	//--------------------------------------------------------------
 void SurfingSceneManager::drawGui() {
@@ -1028,10 +1069,6 @@ void SurfingSceneManager::drawGui() {
 	}
 }
 	*/
-public:
-	SurfingOfxGuiPanelsManager() {};
-
-	~SurfingOfxGuiPanelsManager() {};
 };
 
 //------

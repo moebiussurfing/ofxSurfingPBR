@@ -77,17 +77,17 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "L-l    Help Layout\n";
 		//sHelp += "       " + nameHelpLayout.get() + "\n";
 		sHelp += "d      Debug\n";
-		sHelp += "i      Infinite Plane\n";
+		sHelp += "i      Floor Infinite\n";
 		sHelp += "g-G    Gui-ofxGui\n";
 		sHelp += "Tab    Layout UI\n";
 		//sHelp += "       " + nameGuiLayout.get() + "\n";
 		sHelp += "\n";
 		sHelp += "DRAW\n";
-		sHelp += "p      Plane\n";
-		sHelp += "b      Box Floor\n";
-		sHelp += "s      Shadow \n";
+		sHelp += "b      Background Mode\n";
+		sHelp += "p      Floor Plane\n";
+		sHelp += "B      Floor Box\n";
+		sHelp += "s      Shadows \n";
 		sHelp += "c      CubeMap\n";
-		sHelp += "b      BgAlt\n";
 		sHelp += "\n";
 	}
 	sHelp += "WINDOW\n";
@@ -95,6 +95,7 @@ void ofxSurfingPBR::buildHelp() {
 	sHelp += "       " + ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
 	if (bKeys) {
 		sHelp += "f      FullScreen\n";
+		sHelp += "u      Unlock FPS " + string(bUnlockFps ? "ON " : "OFF") + "\n";
 		sHelp += "q-Q    Squared\n";
 		sHelp += "1-5    Instagram Sizes\n";
 		sHelp += sWindowDimensions + "\n";
@@ -119,7 +120,7 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "HISTORY BROWSER\n";
 		sHelp += "z-x    Prev-Next\n";
 		sHelp += "r      Recall\n";
-		sHelp += "s      Store\n";
+		sHelp += "s-S    Store/Update\n";
 	}
 }
 
@@ -218,13 +219,13 @@ void ofxSurfingPBR::setupParams() {
 	drawParams.add(bDrawFloorPlane);
 	drawParams.add(bDrawFloorBox);
 
+	drawParams.add(bg.bDrawBgObject);
+	drawParams.add(bg.bDrawBgPlainColor);
+
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	bDrawCubeMap.set("Draw Bg CubeMap", true);
 	drawParams.add(bDrawCubeMap);
 #endif
-
-	drawParams.add(bg.bDrawObject);
-	drawParams.add(bg.bDrawBgColorPlain);
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	drawParams.add(lights.bDrawShadow);
@@ -846,12 +847,10 @@ void ofxSurfingPBR::setupGui() {
 	gui.setup(parameters);
 
 	// assign to ofxGui icons
-	static ofEventListener listenerSave;
-	static ofEventListener listenerLoad;
-	listenerSave = gui.savePressedE.newListener([this] {
+	listenerSaveGui = gui.savePressedE.newListener([this] {
 		save();
 	});
-	listenerLoad = gui.loadPressedE.newListener([this] {
+	listenerLoadGui = gui.loadPressedE.newListener([this] {
 		load();
 	});
 
@@ -970,13 +969,15 @@ void ofxSurfingPBR::update() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::updatePBRScene() {
 
-	//--
-
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 	if (bDisplaceToMaterial || bShaderToPlane) {
 		updateDisplace();
 	}
 #endif
+
+	//--
+
+	drawPBRScene();
 }
 
 //--------------------------------------------------------------
@@ -1228,8 +1229,6 @@ void ofxSurfingPBR::draw() {
 
 	updatePBRScene();
 
-	drawPBRScene();
-
 	//--
 
 	// camera
@@ -1242,28 +1241,29 @@ void ofxSurfingPBR::draw() {
 
 		drawBg();
 
-//----
+		//----
 
-//TODO: Fix faces
-#define FIX_TWEAK_FACES 0
-#if FIX_TWEAK_FACES
-		glEnable(GL_CULL_FACE);
+		////TODO: Fix faces
+		//#define FIX_TWEAK_FACES 0
+		//#if FIX_TWEAK_FACES
+		//		glEnable(GL_CULL_FACE);
+		//
+		//		glFrontFace(GL_CW);
+		//		// Maybe should fix bc makes some models non solid / "transparent"...
+		//		// sets the orientation for front-facing
+		//		// polygons1GL_CW means that polygons with vertices
+		//		// in clockwise order on the screen are considered front-facing1.
+		//
+		//		glCullFace(GL_BACK);
+		//#endif
 
-		glFrontFace(GL_CW);
-		// Maybe should fix bc makes some models non solid / "transparent"...
-		// sets the orientation for front-facing
-		// polygons1GL_CW means that polygons with vertices
-		// in clockwise order on the screen are considered front-facing1.
-
-		glCullFace(GL_BACK);
-#endif
 		{
 			f_RenderScene();
 		}
 
-#if FIX_TWEAK_FACES
-		glDisable(GL_CULL_FACE);
-#endif
+		//#if FIX_TWEAK_FACES
+		//		glDisable(GL_CULL_FACE);
+		//#endif
 
 		//----
 
@@ -1453,7 +1453,9 @@ void ofxSurfingPBR::ChangedFloor(ofAbstractParameter & e) {
 	else if (name == bDrawFloorPlane.getName()) {
 		if (bDrawFloorPlane)
 			if (bDrawFloorBox) bDrawFloorBox = false;
-	} else if (name == bDrawFloorBox.getName()) {
+	}
+
+	else if (name == bDrawFloorBox.getName()) {
 		if (bDrawFloorBox)
 			if (bDrawFloorPlane) bDrawFloorPlane = false;
 	}
@@ -1621,11 +1623,11 @@ void ofxSurfingPBR::ChangedDraw(ofAbstractParameter & e) {
 	//--
 
 	//workflow
-	if (name == bg.bDrawBgColorPlain.getName() && bg.bDrawBgColorPlain.get()) {
+	if (name == bg.bDrawBgPlainColor.getName() && bg.bDrawBgPlainColor.get()) {
 		if (bDrawCubeMap) bDrawCubeMap.set(false);
 	}
 
-	else if (name == bg.bDrawObject.getName() && bg.bDrawObject.get()) {
+	else if (name == bg.bDrawBgObject.getName() && bg.bDrawBgObject.get()) {
 		if (bDrawCubeMap) bDrawCubeMap.set(false);
 	}
 }
@@ -1773,17 +1775,17 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 	//workflow
 	#if 1
 		if (bDrawCubeMap) {
-			if (bg.bDrawBgColorPlain) bg.bDrawBgColorPlain.set(false);
-			if (bg.bDrawObject) bg.bDrawObject.set(false);
+			if (bg.bDrawBgPlainColor) bg.bDrawBgPlainColor.set(false);
+			if (bg.bDrawBgObject) bg.bDrawBgObject.set(false);
 		}
 	#endif
 	}
 
 	////#ifdef SURFING__PBR__USE_CUBE_MAP
-	////	if (name == bg.bDrawBgColorPlain.getName()) {
+	////	if (name == bg.bDrawBgPlainColor.getName()) {
 	////		if (!bLoadedCubeMap) return; //skip
 	////		//workflow
-	////		if (bg.bDrawBgColorPlain)
+	////		if (bg.bDrawBgPlainColor)
 	////			if (bDrawCubeMap) bDrawCubeMap = false;
 	////	}
 	////#endif
@@ -2247,19 +2249,39 @@ void ofxSurfingPBR::keyPressed(ofKeyEventArgs & eventArgs) {
 //--------------------------------------------------------------
 void ofxSurfingPBR::keyPressed(int key) {
 	if (!bKeys) return;
+
 	ofLogNotice("ofxSurfingPBR") << "keyPressed(" << key << ")";
 
 	if (key == 'g') bGui = !bGui;
 	if (key == 'G') bGui_ofxGui = !bGui_ofxGui;
 
 	if (key == 'p') bDrawFloorPlane = !bDrawFloorPlane;
-	if (key == 'b') bDrawFloorBox = !bDrawFloorBox;
+	if (key == 'B') bDrawFloorBox = !bDrawFloorBox;
+
+	if (key == 'b') {
+		if (bg.bDrawBgObject) {
+			bg.bDrawBgPlainColor = true;
+		}
+		
+		else if (bg.bDrawBgPlainColor) {
+			bDrawCubeMap = true;
+		} 
+		
+		else if (bDrawCubeMap) {
+			bDrawCubeMap = false;
+		}
+		
+		else if (!bDrawCubeMap && !bg.bDrawBgObject && !bg.bDrawBgPlainColor) {
+			bg.bDrawBgObject = true;
+		}
+	}
+
+	//if (key == 'b') bg.bDrawBgPlainColor = !bg.bDrawBgPlainColor;
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	if (key == 's') lights.bDrawShadow = !lights.bDrawShadow;
 #endif
 
-	if (key == 'b') bg.bDrawBgColorPlain = !bg.bDrawBgColorPlain;
 	if (key == 'w') bFloorWireframe = !bFloorWireframe;
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
@@ -2277,6 +2299,16 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 'L') doPrevLayoutHelp(); //prev layout help
 
 	if (key == 'f') ofToggleFullscreen();
+	if (key == 'u') {
+		bUnlockFps = !bUnlockFps;
+		if (bUnlockFps) {
+			ofSetVerticalSync(false);
+			ofSetFrameRate(0);
+		} else {
+			ofSetVerticalSync(true);
+			ofSetFrameRate(60);
+		}
+	}
 	if (key == 'q') sWindowDimensions = ofxSurfing::setWindowShapeSquared(); // 800
 	if (key == 'Q') sWindowDimensions = ofxSurfing::setWindowShapeSquared(ofGetWidth());
 	if (key == '1') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(0); // IGTV Cover Photo
@@ -2299,7 +2331,9 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 'x') material.doNextHistory();
 	if (key == 'r') material.doRecallState();
 	if (key == 's') material.doStoreNewState();
-	if (key == 'u') material.doSaveState();
+	if (key == 'S') material.doSaveState();
+
+	buildHelp();
 }
 
 //--------------------------------------------------------------
@@ -2499,7 +2533,7 @@ void ofxSurfingPBR::doResetDefaultScene() {
 	ofLogNotice("ofxSurfingPBR") << "doResetDefaultScene()";
 
 	// Background
-	bg.bDrawBgColorPlain.set(true);
+	bg.bDrawBgPlainColor.set(true);
 	bg.bgColorPlain.set(ofFloatColor(0, 0.03, 0.3, 1));
 
 	// Plane
