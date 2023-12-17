@@ -28,7 +28,7 @@ public:
 	}
 
 private:
-	SurfingFilesBrowserModels filesBrowser;
+	SurfingFilesBrowserModels filesBrowserModels;
 
 	ofEventListener listenerLoadModel;
 	ofEventListener listenerIndexModel;
@@ -44,41 +44,49 @@ public:
 	// when index from SurfingFilesBrowser changed.
 
 	void setup() {
+		//supported formats
+		vector<string> extensions = {
+			"ply",
+			"fbx",
+			"obj"
+		};
 
-		filesBrowser.setup();
+		filesBrowserModels.setFileExtension(extensions);
+		filesBrowserModels.setTitle("MODEL");
+		filesBrowserModels.setup("models");//set path for files
 
 		//--
 
 		// Callback to trig the model file loading.
-		// The model path is ready on filesBrowser.pathModel!
-		listenerLoadModel = filesBrowser.vLoad.newListener([this](void) {
+		// The model path is ready on filesBrowserModels.pathFile!
+		listenerLoadModel = filesBrowserModels.vLoad.newListener([this](void) {
 			// load has been triggered
 
-			size_t i = filesBrowser.getIndexFile();
+			size_t i = filesBrowserModels.getIndexFile();
 
 			if (models[i]->hasAnimations()) { // an animated model
 				int numAnims = models[i]->getAnimationCount();
 
-				filesBrowser.indexAnimation.setWithoutEventNotifications(0);
-				filesBrowser.indexAnimation.setMin(0);
-				filesBrowser.indexAnimation.setMax(numAnims - 1);
+				filesBrowserModels.indexAnimation.setWithoutEventNotifications(0);
+				filesBrowserModels.indexAnimation.setMin(0);
+				filesBrowserModels.indexAnimation.setMax(numAnims - 1);
 
 				models[i]->setLoopStateForAllAnimations(OF_LOOP_NORMAL);
-				models[i]->getAnimation(filesBrowser.indexAnimation.get()).play();
+				models[i]->getAnimation(filesBrowserModels.indexAnimation.get()).play();
 			} else { // a not animated model
-				filesBrowser.indexAnimation.set(-1);
-				filesBrowser.indexAnimation.setMin(-1);
-				filesBrowser.indexAnimation.setMin(-1);
+				filesBrowserModels.indexAnimation.set(-1);
+				filesBrowserModels.indexAnimation.setMin(-1);
+				filesBrowserModels.indexAnimation.setMin(-1);
 			}
 		});
 
-		indexFile.makeReferenceTo(filesBrowser.indexFile);
+		indexFile.makeReferenceTo(filesBrowserModels.indexFile);
 
-		listenerIndexModel = filesBrowser.indexFile.newListener([this](int & i) {
+		listenerIndexModel = filesBrowserModels.indexFile.newListener([this](int & i) {
 			// index model changed
 		});
 
-		listenerIndexAnim = filesBrowser.indexAnimation.newListener([this](int & i) {
+		listenerIndexAnim = filesBrowserModels.indexAnimation.newListener([this](int & i) {
 			// index animation changed
 			doLoadAnim(i);
 		});
@@ -90,7 +98,7 @@ public:
 
 private:
 	void loadModels() {
-		string p = filesBrowser.getPathModels();
+		string p = filesBrowserModels.getPathModels();
 
 		ofLogNotice("SurfingModelsManager") << "loadModels(" << p << ")";
 		ofLogNotice("SurfingModelsManager") << "Trying to load all the models files from the folder now.";
@@ -98,12 +106,12 @@ private:
 		models.clear();
 		meshesModels.clear();
 
-		size_t sz = filesBrowser.getAmountFiles();
+		size_t sz = filesBrowserModels.getAmountFiles();
 
 		for (size_t i = 0; i < sz; i++) {
 
 			// Models
-			string path = filesBrowser.getPathModel(i);
+			string path = filesBrowserModels.getPathModel(i);
 			if (path == "") {
 				ofLogError("SurfingModelsManager") << "Model path not settled properly or unknown!";
 				continue;
@@ -113,7 +121,7 @@ private:
 			bool b = m->load(path, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
 
 			if (m->hasAnimations()) {
-				filesBrowser.indexAnimation = 0;
+				filesBrowserModels.indexAnimation = 0;
 				m->setLoopStateForAllAnimations(OF_LOOP_NORMAL);
 				m->getAnimation(0).play();
 			}
@@ -133,7 +141,7 @@ private:
 #if 0
 				// workaround trick to fix a model mesh normals!
 				// flip the normals to fix ofLogoHollow.ply
-				string n = filesBrowser.getFilename(i);
+				string n = filesBrowserModels.getFilename(i);
 				if (n == "ofLogoHollow.ply") {
 					//vm.mergeDuplicateVertices();
 					for (size_t k = 0; k < vm.getNumNormals(); k++) {
@@ -154,7 +162,7 @@ private:
 
 private:
 	void updateAnim() {
-		size_t i = filesBrowser.getIndexFile();
+		size_t i = filesBrowserModels.getIndexFile();
 		if (i < meshesModels.size()) {
 
 			models[i]->update();
@@ -166,56 +174,56 @@ private:
 			}
 		}
 
-		filesBrowser.updateAutoSwitch();
+		filesBrowserModels.updateAutoSwitch();
 	}
 
 public:
 	void doLoadAnim(int index) {
 		if (index < 0) return;
-		if (index > filesBrowser.indexAnimation.getMax()) return;
+		if (index > filesBrowserModels.indexAnimation.getMax()) return;
 
-		size_t i = filesBrowser.getIndexFile();
+		size_t i = filesBrowserModels.getIndexFile();
 		if (i > models.size() - 1) return;
 
-		if (filesBrowser.indexAnimation.get() != index)
-			filesBrowser.indexAnimation.setWithoutEventNotifications(index);
+		if (filesBrowserModels.indexAnimation.get() != index)
+			filesBrowserModels.indexAnimation.setWithoutEventNotifications(index);
 
 		if (models[i]->hasAnimations()) {
 			models[i]->stopAllAnimations();
 
-			int j = filesBrowser.indexAnimation.get();
+			int j = filesBrowserModels.indexAnimation.get();
 			int numAnims = models[i]->getAnimationCount();
 
-			filesBrowser.indexAnimation.setMin(0);
-			filesBrowser.indexAnimation.setMax(numAnims - 1);
+			filesBrowserModels.indexAnimation.setMin(0);
+			filesBrowserModels.indexAnimation.setMax(numAnims - 1);
 
 			j %= numAnims;
-			j = ofClamp(j, filesBrowser.indexAnimation.getMin(), filesBrowser.indexAnimation.getMax());
-			filesBrowser.indexAnimation.set(j);
+			j = ofClamp(j, filesBrowserModels.indexAnimation.getMin(), filesBrowserModels.indexAnimation.getMax());
+			filesBrowserModels.indexAnimation.set(j);
 
-			models[i]->getAnimation(filesBrowser.indexAnimation.get()).play();
+			models[i]->getAnimation(filesBrowserModels.indexAnimation.get()).play();
 		}
 	}
 
 	void doNextAnim() {
-		size_t i = filesBrowser.getIndexFile();
+		size_t i = filesBrowserModels.getIndexFile();
 		if (models[i]->hasAnimations()) {
 			models[i]->stopAllAnimations();
 
-			int j = filesBrowser.indexAnimation.get();
+			int j = filesBrowserModels.indexAnimation.get();
 			j++;
 			j %= models[i]->getAnimationCount();
-			j = ofClamp(j, filesBrowser.indexAnimation.getMin(), filesBrowser.indexAnimation.getMax());
+			j = ofClamp(j, filesBrowserModels.indexAnimation.getMin(), filesBrowserModels.indexAnimation.getMax());
 
-			filesBrowser.indexAnimation.set(j);
-			models[i]->getAnimation(filesBrowser.indexAnimation).play();
+			filesBrowserModels.indexAnimation.set(j);
+			models[i]->getAnimation(filesBrowserModels.indexAnimation).play();
 		}
 	}
 
 private:
 	void updateTransform() {
 		const float yUnit = 500;
-		const float scalePow = filesBrowser.getTransformScalePow();
+		const float scalePow = filesBrowserModels.getTransformScalePow();
 		float scaleUnit = 1000;
 
 		if (scalePow == 0) {
@@ -227,9 +235,9 @@ private:
 
 		//const float dmax = 180;
 		const float dmax = 360;
-		float y = ofMap(filesBrowser.getTransformPos(), -1, 1, -yUnit, yUnit, true);
-		float s = ofMap(filesBrowser.getTransformScale(), -1, 1, 1.f / scaleUnit, scaleUnit, true);
-		float r = ofMap(filesBrowser.getTransformRotY(), -1, 1, -dmax, dmax, true);
+		float y = ofMap(filesBrowserModels.getTransformPos(), -1, 1, -yUnit, yUnit, true);
+		float s = ofMap(filesBrowserModels.getTransformScale(), -1, 1, 1.f / scaleUnit, scaleUnit, true);
+		float r = ofMap(filesBrowserModels.getTransformRotY(), -1, 1, -dmax, dmax, true);
 
 		ofTranslate(0, y, 0);
 		ofScale(s, s, s);
@@ -254,7 +262,7 @@ private:
 
 #if 1
 		// workaround trick to fix a model mesh normals!
-		string n = filesBrowser.getFilename();
+		string n = filesBrowserModels.getFilename();
 		if (n != "ofLogoHollow.ply") // exclude models from the fix
 		{
 			//TODO: fix  for "transparent" for model
@@ -264,11 +272,11 @@ private:
 		}
 #endif
 
-		if (!filesBrowser.bModeAll.get()) {
+		if (!filesBrowserModels.bModeAll.get()) {
 			// Draw selected model only
 			// all their queued meshes.
 			// Pick the selected model.
-			size_t i = filesBrowser.getIndexFile();
+			size_t i = filesBrowserModels.getIndexFile();
 			{
 				for (size_t j = 0; j < meshesModels[i].size(); j++) {
 					meshesModels[i][j].drawFaces();
@@ -292,26 +300,26 @@ private:
 
 public:
 	void drawGui() {
-		filesBrowser.drawGui();
+		filesBrowserModels.drawGui();
 	}
 
 	ofxPanel & getGui() {
-		return filesBrowser.gui;
+		return filesBrowserModels.gui;
 	}
 
 	void drawHelp() {
-		filesBrowser.drawHelp();
+		filesBrowserModels.drawHelp();
 	}
 
 	void setGuiPosition(glm::vec2 p) {
-		filesBrowser.setGuiPosition(p);
+		filesBrowserModels.setGuiPosition(p);
 	}
 
 	void keyPressed(int key) {
 		if (key == OF_KEY_DOWN) {
-			filesBrowser.next();
+			filesBrowserModels.next();
 		} else if (key == OF_KEY_UP) {
-			filesBrowser.previous();
+			filesBrowserModels.previous();
 		}
 	}
 };

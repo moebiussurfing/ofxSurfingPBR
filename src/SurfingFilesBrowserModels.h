@@ -113,7 +113,7 @@ public:
 		ofLogNotice("SurfingFilesBrowserModels") << "saveTransforms()";
 		for (size_t i = 0; i < transforms.size(); i++) {
 			ofJson j;
-			string p = pathModels + "\\" + getName(i) + extSuffixTransform;
+			string p = pathFiles + "\\" + getName(i) + extSuffixTransform;
 
 			ofJson settings;
 			ofSerialize(settings, transforms[i].parameters);
@@ -123,7 +123,7 @@ public:
 
 	void loadTransforms() {
 		for (size_t i = 0; i < transforms.size(); i++) {
-			string p = pathModels + "\\" + getName(i) + extSuffixTransform;
+			string p = pathFiles + "\\" + getName(i) + extSuffixTransform;
 
 			ofJson settings;
 			settings = ofLoadJson(p);

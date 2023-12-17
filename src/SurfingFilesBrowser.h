@@ -67,7 +67,6 @@ public:
 	ofParameter<int> indexFile { "FILE", -1, -1, -1 };
 	ofParameter<void> vNext { "Next" };
 	ofParameter<void> vPrev { "Previous" };
-
 	ofParameter<void> vReset { "Reset" };
 
 	ofParameterGroup extraParams;
@@ -77,13 +76,10 @@ public:
 	ofParameter<int> indexAnimation { "Index Anim", -1, -1, -1 };
 
 public:
-	void setup(string path = "") {
+	void setup(string path = "") { //set path for files. default is bin/data/files/
+
 		setupDir(path);
-
-		//--
-
 		setupParams();
-
 		setupGui();
 
 		//--
@@ -101,32 +97,35 @@ private:
 	virtual void setupGui() {
 		gui.setup(parameters);
 
-		//gui.getGroup(transformParams.getName()).minimize();
-
 		gui.getGroup(extraParams.getName()).minimize();
 	}
 
+	//supported formats. in this case for 3d models.
+	vector<string> extensions = {
+		"ply",
+		"fbx",
+		"obj"
+	};
+
+public:
+	void setFileExtension(vector<string> e) { 
+		extensions = e;
+	}
+	
 public:
 	void setupDir(string path = "") {
 
-		if (path == "") path = "models";
+		if (path == "") path = "files";
 
-		// bin/data/models/
+		//bin/data/files/
 
-		pathModels = path;
-
-		//supported formats
-		vector<string> extensions = {
-			"ply",
-			"fbx",
-			"obj"
-		};
+		pathFiles = path;
 
 		for (size_t i = 0; i < extensions.size(); i++) {
 			dir.allowExt(extensions[i]);
 		}
 
-		dir.listDir(pathModels);
+		dir.listDir(pathFiles);
 		dir.sort();
 
 		if (dir.size() == 0) {
@@ -142,7 +141,7 @@ public:
 	void setupParams() {
 		nameFile.setSerializable(false);
 
-		parameters.setName("MODELS");
+		parameters.setName("FILES");
 		parameters.add(vNext);
 		parameters.add(vPrev);
 		parameters.add(indexFile);
@@ -154,24 +153,6 @@ public:
 		extraParams.add(timeAutoSwitch);
 		extraParams.add(indexAnimation);
 		parameters.add(extraParams);
-
-		//--
-
-		//transformParams.setName("Transforms");
-		//transformParams.add(vReset);
-
-		//transforms.clear();
-		//for (size_t i = 0; i < dir.size(); i++) {
-		//	TransformSimple t = TransformSimple();
-		//	t.parameters.setName(getFilename(i));
-		//	transforms.emplace_back(t);
-
-		//	transformParams.add(t.parameters);
-		//}
-
-		//parameters.add(transformParams);
-
-		//transformParams.setSerializable(false);
 
 		//--
 
@@ -218,7 +199,7 @@ public:
 
 		nameFile = dir.getName(i);
 
-		pathModel = dir.getPath(i);
+		pathFile = dir.getPath(i);
 		vLoad.trigger();
 
 		timeIndexChanged = ofGetElapsedTimef();
@@ -305,13 +286,11 @@ public:
 		}
 	}
 
-	//private:
 protected:
 	ofDirectory dir;
 
 public:
 	virtual void doReset() {
-		//resetTransform();
 	}
 
 private:
@@ -325,10 +304,9 @@ public:
 	ofParameter<void> vLoad { "LoadBang" };
 	// to be listened from parent the scope!
 	// then will load the model getting the path:
-	// pathModel
+	// pathFile
 
 protected:
-	//private:
 	ofEventListener listenerIndexFile;
 	ofEventListener listenerNext;
 	ofEventListener listenerPrevious;
@@ -348,7 +326,7 @@ protected:
 
 public:
 	const string getPathModels() {
-		string s = pathModels;
+		string s = pathFiles;
 		if (s == "") {
 			ofLogError() << "Models path not settled properly or unknown!";
 			return s;
@@ -356,9 +334,8 @@ public:
 		return s;
 	}
 
-	string pathModel = ""; //to get the path for the model. ready to load!
-	string pathModels = ""; //for display only
-	//string extSuffixTransform = "__Transform.json";
+	string pathFile = ""; //to get the path for the FILE. ready to load!
+	string pathFiles = ""; //for display only
 
 	SurfingAutoSaver autoSaver;
 	string pathSettings = "SurfingFilesBrowser.json";
@@ -366,8 +343,6 @@ public:
 	virtual void save() {
 		ofLogNotice("ofSurfingModelsApp") << "save()";
 		ofxSurfing::saveSettings(parameters, pathSettings);
-
-		//saveTransforms();
 	}
 
 	virtual void load() {
@@ -375,31 +350,7 @@ public:
 		autoSaver.pause();
 		ofxSurfing::loadSettings(parameters, pathSettings);
 		autoSaver.start();
-
-		//loadTransforms();
 	}
-
-	//void saveTransforms() {
-	//	ofLogNotice("SurfingFilesBrowser") << "saveTransforms()";
-	//	for (size_t i = 0; i < transforms.size(); i++) {
-	//		ofJson j;
-	//		string p = pathModels + "\\" + getName(i) + extSuffixTransform;
-
-	//		ofJson settings;
-	//		ofSerialize(settings, transforms[i].parameters);
-	//		bool b = ofSavePrettyJson(p, settings);
-	//	}
-	//}
-
-	//void loadTransforms() {
-	//	for (size_t i = 0; i < transforms.size(); i++) {
-	//		string p = pathModels + "\\" + getName(i) + extSuffixTransform;
-
-	//		ofJson settings;
-	//		settings = ofLoadJson(p);
-	//		ofDeserialize(settings, transforms[i].parameters);
-	//	}
-	//}
 
 	//--
 
@@ -415,27 +366,23 @@ public:
 	}
 
 	virtual void refreshGui() {
-		//for (size_t i = 0; i < transforms.size(); i++) {
-		//	TransformSimple t = transforms[i];
-		//	string n = getFilename(i);
-		//	bool b = (i == indexFile); //selected
-		//	auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
-		//	b ? g.maximize() : g.minimize();
-		//	g.getGroup(t.rot.getName()).minimize();
-		//}
-
 		//gui.getGroup(extraParams.getName()).minimize();
 	}
 
+	void setTitle(string s) {
+		sTitle = s;
+	}
+
 private:
+	string sTitle = "FILE";
 	string sHelp;
+
 	void buildHelp() {
 		sHelp = "";
-		sHelp += "MODEL\n";
-		//sHelp += "\n";
+		sHelp += sTitle + "\n";
 		sHelp += this->getFilename() + "\n";
 		sHelp += "\n";
-		sHelp += "BROWSE MODELS\n";
+		sHelp += "BROWSE FILES\n";
 		sHelp += "\n";
 		sHelp += "DOWN Next\n";
 		sHelp += "UP   Previous\n";
@@ -452,63 +399,4 @@ public:
 		//ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
 		ofxSurfing::ofDrawBitmapStringBox(sHelp, &gui, ofxSurfing::SURFING_LAYOUT_TOP_RIGHT);
 	}
-
-	//--
-
-	//	// Store each model transforms for gizmo
-	//
-	//private:
-	//	vector<TransformSimple> transforms;
-	//
-	//	//TODO: move to SurfingModelsManager ?
-	//	//TODO: and make a more flexible class to be use with other file formats?
-	//public:
-	//	float getTransformScale(int i = -1) {
-	//		float v = 0;
-	//		if (i == -1) i = indexFile;
-	//		if (i < transforms.size())
-	//			v = transforms[i].scale;
-	//		return v;
-	//	}
-	//	float getTransformScalePow(int i = -1) {
-	//		int v = 0;
-	//		if (i == -1) i = indexFile;
-	//		if (i < transforms.size())
-	//			v = transforms[i].scalePow;
-	//		return v;
-	//	}
-	//	float getTransformPos(int i = -1) {
-	//		float v = 0;
-	//		if (i == -1) i = indexFile;
-	//		if (i < transforms.size())
-	//			v = transforms[i].yPos;
-	//		return v;
-	//	}
-	//	float getTransformRotY(int i = -1) {
-	//		float v = 0;
-	//		if (i == -1) i = indexFile;
-	//		if (i < transforms.size())
-	//			v = transforms[i].yRot;
-	//		return v;
-	//	}
-	//	glm::vec3 getTransformRotVec(int i = -1) {
-	//		glm::vec3 v = glm::vec3(0);
-	//		if (i == -1) i = indexFile;
-	//		if (i < transforms.size())
-	//			v = transforms[i].rot;
-	//		return v;
-	//	}
-	//
-	//	void resetTransform(int i = -1) {
-	//		if (i == -1) i = indexFile;
-	//		if (i < transforms.size()) {
-	//			transforms[i].scalePow = 0;
-	//			transforms[i].scale = 0;
-	//			transforms[i].yPos = 0;
-	//			transforms[i].yRot = 0;
-	//			transforms[i].rot = glm::vec3(0);
-	//		}
-	//	}
-	//
-	//	ofParameterGroup transformParams;
 };
