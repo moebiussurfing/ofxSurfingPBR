@@ -1,7 +1,7 @@
 /*
 * SurfingModelsManager.h
 * 
-	A class to improve the other SurfingModelsFilesBrowser.h class
+	A class to improve the other SurfingFilesBrowser.h class
 	and render the browsed/named model names, to load them and draw.
 	Also includes some transformations like y position, scale or y rotation.
 */
@@ -12,10 +12,10 @@
 
 #include "ofMain.h"
 
-#include "SurfingModelsFilesBrowser.h"
+#include "SurfingFilesBrowserModels.h"
+
 #include "ofVboMesh.h"
 #include "ofxAssimpModelLoader.h"
-#include "ofxSurfingPBRConstants.h"
 
 class SurfingModelsManager {
 public:
@@ -28,7 +28,7 @@ public:
 	}
 
 private:
-	SurfingModelsFilesBrowser filesBrowser;
+	SurfingFilesBrowserModels filesBrowser;
 
 	ofEventListener listenerLoadModel;
 	ofEventListener listenerIndexModel;
@@ -41,7 +41,7 @@ public:
 	ofParameter<int> indexFile;
 	// exposed/referenced to link a callback
 	// on the parent scope to be notified
-	// when index from SurfingModelsFilesBrowser changed.
+	// when index from SurfingFilesBrowser changed.
 
 	void setup() {
 

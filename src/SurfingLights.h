@@ -9,6 +9,7 @@
 * Bundled testing animations, mouse positioning and debug helpers,
 * for positioning or shadows.
 * All settings are persistent.
+* https://openframeworks.cc///documentation/gl/ofLight/
 */
 
 /*

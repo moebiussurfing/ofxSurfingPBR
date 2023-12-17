@@ -7,7 +7,7 @@ Many modules can be used also as standalone, for other simpler and custom OF sce
 
 For rendering some 3d meshes,
 We are using also the `SurfingSceneManager.h` helper class, 
-who uses also `SurfingModelsFilesBrowser.h`.
+who uses also `SurfingFilesBrowserModels.h`.
 These classes are `3d models` helpers paired with the addon.
 With these classes we can easily browse the `3d models` files, 
 directly from our app `bin/data/` path.

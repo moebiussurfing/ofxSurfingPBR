@@ -106,7 +106,7 @@ public:
 #define DO_SCENE_TEST_TRANSFORMS 1
 	void drawTestScene(); //a simple scene with 3 prims for easy testing
 	void pushTestSceneTRansform();
-	void popTestSceneTRansform();
+	void popTestSceneTransform();
 	ofParameter<bool> bGui_DrawTestScene;
 
 	void drawGui();

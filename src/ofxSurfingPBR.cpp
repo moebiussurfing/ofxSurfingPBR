@@ -1797,7 +1797,7 @@ void ofxSurfingPBR::drawTestScene() {
 		ofDrawSphere(2 * u, u, 0, u / 2.f);
 	}
 
-	popTestSceneTRansform();
+	popTestSceneTransform();
 
 	ofPopStyle();
 }
@@ -1825,7 +1825,7 @@ void ofxSurfingPBR::pushTestSceneTRansform() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::popTestSceneTRansform() {
+void ofxSurfingPBR::popTestSceneTransform() {
 #if DO_SCENE_TEST_TRANSFORMS
 	ofPopMatrix();
 #endif
