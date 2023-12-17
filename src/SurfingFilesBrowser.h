@@ -92,7 +92,7 @@ private:
 		gui.getGroup(extraParams.getName()).minimize();
 	}
 
-	//supported formats. in this case for 3d models.
+	// Default supported formats. in this case for 3d models.
 	vector<string> extensions = {
 		"ply",
 		"fbx",

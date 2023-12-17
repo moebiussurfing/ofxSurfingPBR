@@ -67,8 +67,8 @@
 
 // PBR CONSTANTS
 
-//#define SURFING__PBR__MAX_SHININESS 1.f
-#define SURFING__PBR__MAX_SHININESS 128.f
+#define SURFING__PBR__MAX_SHININESS 1.f
+//#define SURFING__PBR__MAX_SHININESS 128.f
 // TODO: I am not sure what's shininess the max range..?
 
 #define SURFING__PBR__SHADOW_DEFAULT_STRENGTH 1.f

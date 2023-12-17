@@ -221,95 +221,117 @@ public:
 	}
 
 private:
-	void updateTransform() {
-		const float yUnit = 500;
-		const float scalePow = filesBrowserModels.getTransformScalePow();
-		float scaleUnit = 1000;
+	void updateTransform(int i = -1) {
+		// define min/max or de normalized ranges
+		float sUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
+		const float dUnit = sUnit / 2.f; //distance unit
+		const float sPow = filesBrowserModels.getTransformScalePow(i); //scale power
+		//const float rMax = 180;//rotation max/min
+		const float rMax = 360; //rotation max/min
 
-		if (scalePow == 0) {
-		} else if (scalePow < 1) {
-			scaleUnit = scaleUnit / (float)abs(scalePow - 1);
-		} else if (scalePow > 1) {
-			scaleUnit = scaleUnit * (float)abs(scalePow + 1);
+		if (sPow == 0) {
+		} else if (sPow < 1) {
+			sUnit = sUnit / (float)abs(sPow - 1);
+		} else if (sPow > 1) {
+			sUnit = sUnit * (float)abs(sPow + 1);
 		}
 
-		//const float dmax = 180;
-		const float dmax = 360;
-		float y = ofMap(filesBrowserModels.getTransformPosY(), -1, 1, -yUnit, yUnit, true);
-		float s = ofMap(filesBrowserModels.getTransformScale(), -1, 1, 1.f / scaleUnit, scaleUnit, true);
-		float r = ofMap(filesBrowserModels.getTransformRotY(), -1, 1, -dmax, dmax, true);
+#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+		float s = ofMap(filesBrowserModels.getTransformScale(i), -1, 1, 1.f / sUnit, sUnit, true);
+		float x = ofMap(filesBrowserModels.getTransformPosition(i).x, -1, 1, -dUnit, dUnit, true);
+		float y = ofMap(filesBrowserModels.getTransformPosition(i).y, -1, 1, -dUnit, dUnit, true);
+		float z = ofMap(filesBrowserModels.getTransformPosition(i).z, -1, 1, -dUnit, dUnit, true);
+		float rx = filesBrowserModels.getTransformRotation(i).x;
+		float ry = filesBrowserModels.getTransformRotation(i).y;
+		float rz = filesBrowserModels.getTransformRotation(i).z;
+
+		ofTranslate(x, y, z);
+		ofScale(s, s, s);
+		ofRotateXDeg(rx);
+		ofRotateYDeg(ry);
+		ofRotateZDeg(rz);
+#else
+		float s = ofMap(filesBrowserModels.getTransformScale(i), -1, 1, 1.f / sUnit, sUnit, true);
+		float y = ofMap(filesBrowserModels.getTransformPosY(i), -1, 1, -dUnit, dUnit, true);
+		float r = ofMap(filesBrowserModels.getTransformRotY(i), -1, 1, -rMax, rMax, true);
 
 		ofTranslate(0, y, 0);
 		ofScale(s, s, s);
 		ofRotateYDeg(r);
+#endif
 	}
+
+	//--
 
 public:
 	void draw() {
 		updateAnim();
 
-		ofPushMatrix();
-		{
-			updateTransform();
-			drawModel();
-		}
-		ofPopMatrix();
+		drawModel();
 	}
 
 private:
 	void drawModel() {
-		if (meshesModels.size() == 0) return;
+		if (meshesModels.size() == 0) {
+			return;
+		}
 
 		//--
 
-//TODO:
-#define FIX_FACES 1
-#if FIX_FACES
-		// Push
-		GLint frontFaceMode;
-		// workaround trick to fix a model mesh normals!
-		string n = filesBrowserModels.getFilename();
-		if (n != "ofLogoHollow.ply") // exclude models from the fix
-		{
-			//TODO: fix  for "transparent" for model
-			// head25k.obj bc normals problems..
-			//glFrontFace(GL_CCW);
-
-			glGetIntegerv(GL_FRONT_FACE, &frontFaceMode); // Save current state
-			glFrontFace(GL_CCW); // Change state
-		}
-#endif
-
+		// Mode A
+		// Draw selected model only
+		// all their queued meshes.
 		if (!filesBrowserModels.bModeAll.get()) {
-			// Draw selected model only
-			// all their queued meshes.
 			// Pick the selected model.
 			size_t i = filesBrowserModels.getIndexFile();
+
+			ofPushMatrix();
+			updateTransform(i);
+
+			//TODO:
+			pushFixFaces();
+
 			{
+				// draw all the model meshes
 				for (size_t j = 0; j < meshesModels[i].size(); j++) {
 					meshesModels[i][j].drawFaces();
 				}
 			}
+
+			//TODO:
+			popFixFaces();
+
+			ofPopMatrix();
 		}
-		
+
 		else {
+			// Mode B
 			// Draw all the models:
 			// all their queued meshes.
+			// Iterate all the models, not only the selected!
 			for (size_t i = 0; i < meshesModels.size(); i++) {
-				for (size_t j = 0; j < meshesModels[i].size(); j++) {
-					meshesModels[i][j].drawFaces();
+				ofPushMatrix();
+				updateTransform(i);
+
+				//TODO:
+				pushFixFaces();
+
+				{
+					// draw all the model meshes
+					for (size_t j = 0; j < meshesModels[i].size(); j++) {
+						meshesModels[i][j].drawFaces();
+					}
 				}
+
+				//TODO:
+				popFixFaces();
+
+				ofPopMatrix();
 			}
 		}
-
-		//--
-
-#if FIX_FACES
-		// Pop
-		if (n != "ofLogoHollow.ply") // exclude models from the fix
-			glFrontFace(frontFaceMode); // Restore saved state
-#endif
 	}
+
+	//--
 
 private:
 	// for animated model
@@ -339,5 +361,44 @@ public:
 		} else if (key == OF_KEY_UP) {
 			filesBrowserModels.previous();
 		}
+	}
+
+	//--
+
+	//TODO:
+private:
+#define FIX_FACES 1
+	// A workaround trick to fix a model mesh normals,
+	// or non solid/transparent faces!
+
+	GLint frontFaceMode = 0;
+
+	// Push frontFaceMode
+	void pushFixFaces() {
+#if FIX_FACES
+		string n = filesBrowserModels.getFilename();
+		if (n != "ofLogoHollow.ply") // exclude models from the fix
+		{
+			//TODO: fix  for "transparent" for model
+			// head25k.obj bc normals problems..
+			//glFrontFace(GL_CCW);
+
+			glGetIntegerv(GL_FRONT_FACE, &frontFaceMode); // Save current state
+			glFrontFace(GL_CCW); // Change state
+		}
+#endif
+	}
+
+	//--
+
+	// Pop frontFaceMode
+	void popFixFaces() {
+#if FIX_FACES
+		string n = filesBrowserModels.getFilename();
+		if (n != "ofLogoHollow.ply") // exclude model/s from the fix
+		{
+			glFrontFace(frontFaceMode); // Restore saved state
+		}
+#endif
 	}
 };

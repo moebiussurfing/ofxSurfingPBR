@@ -34,8 +34,34 @@
 
 #include "SurfingFilesBrowser.h"
 
+#define SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+
 //--
 
+#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+class TransformNode {
+public:
+	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
+	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
+	ofParameter<glm::vec3> position { "Position", glm::vec3(0), glm::vec3(-1), glm::vec3(1) };
+	ofParameter<glm::vec3> rotation { "Rotation", glm::vec3(0), glm::vec3(-180), glm::vec3(180) };
+
+	ofParameterGroup parameters {
+		"Transform",
+		scalePow, scale, position, rotation
+	};
+
+	TransformNode() {
+	}
+
+	~TransformNode() {
+	}
+};
+
+//--
+
+#else
+// simpler mode using only y position and rotation.
 class TransformSimple {
 public:
 	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
@@ -54,27 +80,7 @@ public:
 	~TransformSimple() {
 	}
 };
-
-//--
-
-class TransformNode{
-public:
-	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
-	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
-	ofParameter<glm::vec3> position { "Position", glm::vec3(0), glm::vec3(-1), glm::vec3(1) };
-	ofParameter<glm::vec3> rotation { "Rotation", glm::vec3(0), glm::vec3(-180), glm::vec3(180) };
-
-	ofParameterGroup parameters {
-		"Transform",
-		scalePow, scale, position, rotation
-	};
-
-	TransformNode() {
-	}
-
-	~TransformNode() {
-	}
-};
+#endif
 
 //--
 
@@ -113,7 +119,12 @@ private:
 
 		transforms.clear();
 		for (size_t i = 0; i < dir.size(); i++) {
+
+#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+			TransformNode t = TransformNode();
+#else
 			TransformSimple t = TransformSimple();
+#endif
 			t.parameters.setName(getFilename(i));
 			transforms.emplace_back(t);
 
@@ -123,7 +134,6 @@ private:
 		transformParams.setSerializable(false);
 
 		parameters.add(transformParams);
-		//browseParams.add(transformParams);
 	}
 
 public:
@@ -186,13 +196,23 @@ public:
 		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:refreshGui()";
 
 		for (size_t i = 0; i < transforms.size(); i++) {
+
+#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+			TransformNode t = transforms[i];
+#else
 			TransformSimple t = transforms[i];
+#endif
 			string n = getFilename(i);
 			bool b = (i == indexFile); //selected
 			auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
 			b ? g.maximize() : g.minimize();
 
-			//g.getGroup(t.rot.getName()).minimize();
+#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+			//g.getGroup(t.position.getName()).minimize();
+			//g.getGroup(t.rotation.getName()).minimize();
+			g.getGroup(t.position.getName()).maximize();
+			g.getGroup(t.rotation.getName()).maximize();
+#endif
 		}
 	}
 
@@ -201,7 +221,16 @@ public:
 	// Store each model transforms for gizmo.
 
 private:
+#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+	vector<TransformNode> transforms;
+#else
 	vector<TransformSimple> transforms;
+#endif
+
+	//--
+
+	// Get the transforms for each model
+	// passing the model index as argument:
 
 public:
 	float getTransformScale(int i = -1) {
@@ -220,6 +249,34 @@ public:
 		return v;
 	}
 
+#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+	void resetTransform(int i = -1) {
+		if (i == -1) i = indexFile;
+		if (i < transforms.size()) {
+			transforms[i].scalePow = 0;
+			transforms[i].scale = 0;
+			transforms[i].position = glm::vec3(0);
+			transforms[i].rotation = glm::vec3(0);
+		}
+	}
+
+	glm::vec3 getTransformPosition(int i = -1) {
+		glm::vec3 v = glm::vec3(0);
+		if (i == -1) i = indexFile;
+		if (i < transforms.size())
+			v = transforms[i].position;
+		return v;
+	}
+
+	glm::vec3 getTransformRotation(int i = -1) {
+		glm::vec3 v = glm::vec3(0);
+		if (i == -1) i = indexFile;
+		if (i < transforms.size())
+			v = transforms[i].rotation;
+		return v;
+	}
+
+#else
 	float getTransformPosY(int i = -1) {
 		float v = 0;
 		if (i == -1) i = indexFile;
@@ -243,17 +300,9 @@ public:
 			transforms[i].scale = 0;
 			transforms[i].yPos = 0;
 			transforms[i].yRot = 0;
-			//transforms[i].rot = glm::vec3(0);
 		}
 	}
-
-	//glm::vec3 getTransformRotVec(int i = -1) {
-	//	glm::vec3 v = glm::vec3(0);
-	//	if (i == -1) i = indexFile;
-	//	if (i < transforms.size())
-	//		v = transforms[i].rot;
-	//	return v;
-	//}
+#endif
 
 	ofParameterGroup transformParams;
 };

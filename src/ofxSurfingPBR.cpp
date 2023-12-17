@@ -218,10 +218,6 @@ void ofxSurfingPBR::setupParams() {
 	drawParams.add(bDrawFloorPlane);
 	drawParams.add(bDrawFloorBox);
 
-#ifdef SURFING__PBR__USE_LIGHTS_CLASS
-	drawParams.add(lights.bDrawShadow);
-#endif
-
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	bDrawCubeMap.set("Draw Bg CubeMap", true);
 	drawParams.add(bDrawCubeMap);
@@ -229,6 +225,11 @@ void ofxSurfingPBR::setupParams() {
 
 	drawParams.add(bg.bDrawObject);
 	drawParams.add(bg.bDrawBgColorPlain);
+
+#ifdef SURFING__PBR__USE_LIGHTS_CLASS
+	drawParams.add(lights.bDrawShadow);
+#endif
+
 	parameters.add(drawParams);
 
 	//--

@@ -18,9 +18,17 @@ the floor, all the `4 lights kit`, the background generators and the cubeMap.
 
 */
 
+/*
+	TODO
+	store gui position
+	add mode for auto refresh gui or not
+*/
+
 #pragma once
 
 #include "ofMain.h"
+
+//--
 
 // Optional: 
 // We will draw some meshes. 
@@ -34,11 +42,6 @@ the floor, all the `4 lights kit`, the background generators and the cubeMap.
 // - Change log level
 // - Check if the app is probably opened for the first time.
 // - Force some scene settings
-
-/*
-TODO
-move help text boxes left/right to gui panels
-*/
 
 //--
 
