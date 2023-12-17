@@ -76,15 +76,6 @@ public:
 	ofParameter<float> timeAutoSwitch { "Time Switch", 2, 0.05, 10 };
 	ofParameter<int> indexAnimation { "Index Anim", -1, -1, -1 };
 
-private:
-	virtual void setupGui() {
-		gui.setup(parameters);
-
-		//gui.getGroup(transformParams.getName()).minimize();
-
-		gui.getGroup(extraParams.getName()).minimize();
-	}
-
 public:
 	void setup(string path = "") {
 		setupDir(path);
@@ -106,6 +97,16 @@ public:
 		load();
 	}
 
+private:
+	virtual void setupGui() {
+		gui.setup(parameters);
+
+		//gui.getGroup(transformParams.getName()).minimize();
+
+		gui.getGroup(extraParams.getName()).minimize();
+	}
+
+public:
 	void setupDir(string path = "") {
 
 		if (path == "") path = "models";

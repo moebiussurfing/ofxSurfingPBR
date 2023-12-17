@@ -72,9 +72,9 @@ public:
 
 private:
 	void setupGui() override {
-		gui.setup(parameters);
-
 		setupParamsTransforms();
+
+		gui.setup(parameters);
 		gui.getGroup(transformParams.getName()).minimize();
 
 		gui.getGroup(extraParams.getName()).minimize();
