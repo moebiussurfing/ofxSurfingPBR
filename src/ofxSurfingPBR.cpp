@@ -197,11 +197,11 @@ void ofxSurfingPBR::setupParams() {
 	vLoadAll.set("Load All");
 	vSaveAll.set("Save All");
 
-//TODO: make a full project save/load	
+//TODO: make a full project save/load
 #if 0
 	parameters.add(vLoadAll);
 	parameters.add(vSaveAll);
-	#endif
+#endif
 
 	showGuiParams.setName("UI");
 	showGuiParams.add(material.bGui);
@@ -1242,23 +1242,28 @@ void ofxSurfingPBR::draw() {
 
 		drawBg();
 
-		//----
+//----
 
-		//TODO: fix faces
-
+//TODO: Fix faces
+#define FIX_TWEAK_FACES 0
+#if FIX_TWEAK_FACES
 		glEnable(GL_CULL_FACE);
 
 		glFrontFace(GL_CW);
-		// Maybe should fix bc makes some models "transparent"...
+		// Maybe should fix bc makes some models non solid / "transparent"...
 		// sets the orientation for front-facing
 		// polygons1GL_CW means that polygons with vertices
 		// in clockwise order on the screen are considered front-facing1.
 
 		glCullFace(GL_BACK);
+#endif
 		{
 			f_RenderScene();
 		}
+
+#if FIX_TWEAK_FACES
 		glDisable(GL_CULL_FACE);
+#endif
 
 		//----
 
