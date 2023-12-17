@@ -162,7 +162,7 @@ public:
 
 		//transforms.clear();
 		//for (size_t i = 0; i < dir.size(); i++) {
-		//	Transform t = Transform();
+		//	TransformSimple t = TransformSimple();
 		//	t.parameters.setName(getFilename(i));
 		//	transforms.emplace_back(t);
 
@@ -416,7 +416,7 @@ public:
 
 	virtual void refreshGui() {
 		//for (size_t i = 0; i < transforms.size(); i++) {
-		//	Transform t = transforms[i];
+		//	TransformSimple t = transforms[i];
 		//	string n = getFilename(i);
 		//	bool b = (i == indexFile); //selected
 		//	auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
@@ -458,7 +458,7 @@ public:
 	//	// Store each model transforms for gizmo
 	//
 	//private:
-	//	vector<Transform> transforms;
+	//	vector<TransformSimple> transforms;
 	//
 	//	//TODO: move to SurfingModelsManager ?
 	//	//TODO: and make a more flexible class to be use with other file formats?

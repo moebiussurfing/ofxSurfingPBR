@@ -38,7 +38,7 @@
 
 //--
 
-class Transform {
+class TransformSimple {
 public:
 	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
@@ -51,10 +51,10 @@ public:
 		scalePow, scale, yPos, yRot, rot
 	};
 
-	Transform() {
+	TransformSimple() {
 	}
 
-	~Transform() {
+	~TransformSimple() {
 	}
 };
 
@@ -89,7 +89,7 @@ private:
 
 		transforms.clear();
 		for (size_t i = 0; i < dir.size(); i++) {
-			Transform t = Transform();
+			TransformSimple t = TransformSimple();
 			t.parameters.setName(getFilename(i));
 			transforms.emplace_back(t);
 
@@ -154,7 +154,7 @@ public:
 		ofLogNotice("SurfingFilesBrowserModels") << "refreshGui()";
 
 		for (size_t i = 0; i < transforms.size(); i++) {
-			Transform t = transforms[i];
+			TransformSimple t = transforms[i];
 			string n = getFilename(i);
 			bool b = (i == indexFile); //selected
 			auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
@@ -170,7 +170,7 @@ public:
 	// Store each model transforms for gizmo
 
 private:
-	vector<Transform> transforms;
+	vector<TransformSimple> transforms;
 
 public:
 	float getTransformScale(int i = -1) {
