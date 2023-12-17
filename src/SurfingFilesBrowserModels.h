@@ -90,10 +90,12 @@ public:
 
 private:
 	void setupGui() override {
-		ofLogNotice("SurfingFilesBrowserModels") << "setupGui()";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:setupGui()";
 
 		setupParamsTransforms();
+
 		parameters.add(extraParams);
+		parameters.add(bHelp);
 
 		gui.setup(parameters);
 
@@ -102,7 +104,7 @@ private:
 	}
 
 	void setupParamsTransforms() {
-		ofLogNotice("SurfingFilesBrowserModels") << "setupParamsTransforms()";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:setupParamsTransforms()";
 
 		vReset.setName("Reset Model");
 
@@ -126,7 +128,7 @@ private:
 
 public:
 	void doReset() override {
-		ofLogNotice("SurfingFilesBrowserModels") << "doReset()";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:doReset()";
 
 		resetTransform();
 	}
@@ -135,7 +137,7 @@ public:
 	string extSuffixTransform = "__Transform.json";
 
 	void saveTransforms() {
-		ofLogNotice("SurfingFilesBrowserModels") << "saveTransforms()";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:saveTransforms()";
 
 		for (size_t i = 0; i < transforms.size(); i++) {
 			ofJson j;
@@ -148,7 +150,7 @@ public:
 	}
 
 	void loadTransforms() {
-		ofLogNotice("SurfingFilesBrowserModels") << "loadTransforms()";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:loadTransforms()";
 
 		for (size_t i = 0; i < transforms.size(); i++) {
 			string p = pathFiles + "\\" + getName(i) + extSuffixTransform;
@@ -160,7 +162,7 @@ public:
 	}
 
 	void save() override {
-		ofLogNotice("SurfingFilesBrowserModels") << "save()";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:save()";
 
 		ofxSurfing::saveSettings(parameters, pathSettings);
 
@@ -168,7 +170,7 @@ public:
 	}
 
 	void load() override {
-		ofLogNotice("SurfingFilesBrowserModels") << "load()";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:load()";
 
 		autoSaver.pause();
 		ofxSurfing::loadSettings(parameters, pathSettings);
@@ -181,7 +183,7 @@ public:
 
 public:
 	void refreshGui() override {
-		ofLogNotice("SurfingFilesBrowserModels") << "refreshGui()";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:refreshGui()";
 
 		for (size_t i = 0; i < transforms.size(); i++) {
 			TransformSimple t = transforms[i];
@@ -189,15 +191,14 @@ public:
 			bool b = (i == indexFile); //selected
 			auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
 			b ? g.maximize() : g.minimize();
+
 			//g.getGroup(t.rot.getName()).minimize();
 		}
-
-		//gui.getGroup(extraParams.getName()).minimize();
 	}
 
 	//--
 
-	// Store each model transforms for gizmo
+	// Store each model transforms for gizmo.
 
 private:
 	vector<TransformSimple> transforms;
@@ -210,6 +211,7 @@ public:
 			v = transforms[i].scale;
 		return v;
 	}
+
 	float getTransformScalePow(int i = -1) {
 		int v = 0;
 		if (i == -1) i = indexFile;
@@ -217,13 +219,15 @@ public:
 			v = transforms[i].scalePow;
 		return v;
 	}
-	float getTransformPos(int i = -1) {
+
+	float getTransformPosY(int i = -1) {
 		float v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
 			v = transforms[i].yPos;
 		return v;
 	}
+
 	float getTransformRotY(int i = -1) {
 		float v = 0;
 		if (i == -1) i = indexFile;
@@ -231,13 +235,6 @@ public:
 			v = transforms[i].yRot;
 		return v;
 	}
-	//glm::vec3 getTransformRotVec(int i = -1) {
-	//	glm::vec3 v = glm::vec3(0);
-	//	if (i == -1) i = indexFile;
-	//	if (i < transforms.size())
-	//		v = transforms[i].rot;
-	//	return v;
-	//}
 
 	void resetTransform(int i = -1) {
 		if (i == -1) i = indexFile;
@@ -249,6 +246,14 @@ public:
 			//transforms[i].rot = glm::vec3(0);
 		}
 	}
+
+	//glm::vec3 getTransformRotVec(int i = -1) {
+	//	glm::vec3 v = glm::vec3(0);
+	//	if (i == -1) i = indexFile;
+	//	if (i < transforms.size())
+	//		v = transforms[i].rot;
+	//	return v;
+	//}
 
 	ofParameterGroup transformParams;
 };

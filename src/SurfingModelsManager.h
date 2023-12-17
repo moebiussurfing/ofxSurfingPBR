@@ -53,7 +53,7 @@ public:
 
 		filesBrowserModels.setFileExtension(extensions);
 		filesBrowserModels.setTitle("MODEL");
-		filesBrowserModels.setup("models");//set path for files
+		filesBrowserModels.setup("models"); //set path for files
 
 		//--
 
@@ -235,7 +235,7 @@ private:
 
 		//const float dmax = 180;
 		const float dmax = 360;
-		float y = ofMap(filesBrowserModels.getTransformPos(), -1, 1, -yUnit, yUnit, true);
+		float y = ofMap(filesBrowserModels.getTransformPosY(), -1, 1, -yUnit, yUnit, true);
 		float s = ofMap(filesBrowserModels.getTransformScale(), -1, 1, 1.f / scaleUnit, scaleUnit, true);
 		float r = ofMap(filesBrowserModels.getTransformRotY(), -1, 1, -dmax, dmax, true);
 
@@ -260,14 +260,23 @@ private:
 	void drawModel() {
 		if (meshesModels.size() == 0) return;
 
-#if 1
+		//--
+
+//TODO:
+#define FIX_FACES 1
+#if FIX_FACES
+		// Push
+		GLint frontFaceMode;
 		// workaround trick to fix a model mesh normals!
 		string n = filesBrowserModels.getFilename();
 		if (n != "ofLogoHollow.ply") // exclude models from the fix
 		{
 			//TODO: fix  for "transparent" for model
 			// head25k.obj bc normals problems..
-			glFrontFace(GL_CCW);
+			//glFrontFace(GL_CCW);
+
+			glGetIntegerv(GL_FRONT_FACE, &frontFaceMode); // Save current state
+			glFrontFace(GL_CCW); // Change state
 		}
 #endif
 
@@ -281,7 +290,9 @@ private:
 					meshesModels[i][j].drawFaces();
 				}
 			}
-		} else {
+		}
+		
+		else {
 			// Draw all the models:
 			// all their queued meshes.
 			for (size_t i = 0; i < meshesModels.size(); i++) {
@@ -290,6 +301,14 @@ private:
 				}
 			}
 		}
+
+		//--
+
+#if FIX_FACES
+		// Pop
+		if (n != "ofLogoHollow.ply") // exclude models from the fix
+			glFrontFace(frontFaceMode); // Restore saved state
+#endif
 	}
 
 private:

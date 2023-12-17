@@ -317,6 +317,7 @@ public:
 	ofParameter<bool> bFloorWireframe;
 	ofParameter<glm::vec2> floorSize; //normalized
 	ofParameter<glm::vec2> floorResolution;
+	ofParameter<bool> bFloorSquaredSize;
 	ofParameter<bool> bFloorInfinite;
 	//will ignore floorSize
 	//make the plane huge size to better "fit a full horizon line"

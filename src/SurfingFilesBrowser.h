@@ -78,6 +78,7 @@ public:
 private:
 	virtual void setupGui() {
 		parameters.add(extraParams);
+		parameters.add(bHelp);
 
 		gui.setup(parameters);
 
@@ -142,7 +143,7 @@ public:
 
 		//--
 
-		parameters.add(bHelp);
+		//parameters.add(bHelp);
 
 		//--
 

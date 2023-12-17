@@ -313,9 +313,7 @@ void ofApp::updateSceneTransforms() {
 void ofApp::drawMyScene() {
 
 	/*
-	
 		WE DRAW OUR SCENE HERE !
-	
 	*/
 
 	ofPushMatrix();

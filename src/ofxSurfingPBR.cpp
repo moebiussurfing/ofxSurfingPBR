@@ -247,27 +247,22 @@ void ofxSurfingPBR::setupParams() {
 
 	bFloorWireframe.set("Draw Wireframe", false);
 	bFloorInfinite.set("Infinite", true);
+	bFloorSquaredSize.set("Squared", false);
 	floorSize.set("Size", glm::vec2(0.5f, 0.5f), glm::vec2(0, 0), glm::vec2(1.f, 1.f));
 	floorResolution.set("Resolution", glm::vec2(0.5f, 0.5f), glm::vec2(0, 0), glm::vec2(1.f, 1.f));
 	floorRotation.set("x Rotation", 0, -45, 135);
 	floorPosition.set("y Position", 0, -1, 1);
 	floorShiness.set("Shiness", 0.85 * SURFING__PBR__MAX_SHININESS, 0, SURFING__PBR__MAX_SHININESS);
 	floorRoughness.set("Roughness", 0.5, 0, 1);
-	floorBoxDepth.set("BoxFloor Depth", 5, 1, 20);
+	floorBoxDepth.set("BoxFloor Depth", 5, 1, 100);
 #ifdef SURFING__PBR__PLANE_COLORS_NO_ALPHA
-	floorGlobalColor.set("Global Color",
-		ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
-	floorDiffuseColor.set("Diffuse Color",
-		ofFloatColor(0.f), ofFloatColor(0.f), ofFloatColor(1.f));
-	floorSpecularColor.set("Specular Color",
-		ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
+	floorGlobalColor.set("Global Color", ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
+	floorDiffuseColor.set("Diffuse Color", ofFloatColor(0.f), ofFloatColor(0.f), ofFloatColor(1.f));
+	floorSpecularColor.set("Specular Color", ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
 #else
-	floorGlobalColor.set("Global Color",
-		ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
-	floorDiffuseColor.set("Diffuse Color",
-		ofFloatColor(0.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
-	floorSpecularColor.set("Specular Color",
-		ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
+	floorGlobalColor.set("Global Color", ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
+	floorDiffuseColor.set("Diffuse Color", ofFloatColor(0.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
+	floorSpecularColor.set("Specular Color", ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
 #endif
 
 	floorGlobalColor.setSerializable(false);
@@ -298,6 +293,7 @@ void ofxSurfingPBR::setupParams() {
 	floorTransformParams.add(floorPosition);
 	floorTransformParams.add(floorRotation);
 	floorTransformParams.add(floorSize);
+	floorTransformParams.add(bFloorSquaredSize);
 	floorTransformParams.add(bFloorInfinite);
 	floorTransformParams.add(floorBoxDepth);
 	floorTransformParams.add(floorResolution);
@@ -1336,6 +1332,14 @@ void ofxSurfingPBR::drawPBRSceneDebug() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshFloorPlane() {
 
+	if (bFloorSquaredSize) {
+		float x = floorSize.get().x;
+		float y = floorSize.get().y;
+		if (y != x) {
+			floorSize.set(glm::vec2(x, x));
+		}
+	}
+
 	int w, h;
 
 	if (bFloorInfinite) {
@@ -1372,6 +1376,14 @@ void ofxSurfingPBR::refreshFloorPlane() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshFloorBox() {
+
+	if (bFloorSquaredSize) {
+		float x = floorSize.get().x;
+		float y = floorSize.get().y;
+		if (y != x) {
+			floorSize.set(glm::vec2(x, x));
+		}
+	}
 
 	int w, h;
 
@@ -1434,9 +1446,17 @@ void ofxSurfingPBR::ChangedFloor(ofAbstractParameter & e) {
 			if (bDrawFloorPlane) bDrawFloorPlane = false;
 	}
 
+	else if (name == bFloorSquaredSize.getName()) {
+		if (bFloorSquaredSize) {
+			bFlagRefreshFloorPlane = true;
+			bFlagRefreshFloorBox = true;
+		}
+	}
+
 	else if (name == floorSize.getName()) {
 		static glm::vec2 floorSize_ = glm::vec2(-1, -1);
 		if (floorSize.get() != floorSize_) { // if changed
+
 			floorSize_ = floorSize.get();
 
 			bFlagRefreshFloorPlane = true;
@@ -1476,8 +1496,7 @@ void ofxSurfingPBR::ChangedFloor(ofAbstractParameter & e) {
 
 	else if (name == floorShiness.getName()) {
 		floorMaterial.setShininess(floorShiness.get());
-	}
-	else if (name == floorRoughness.getName()) {
+	} else if (name == floorRoughness.getName()) {
 		floorMaterial.setRoughness(floorRoughness.get());
 	}
 
@@ -2314,6 +2333,7 @@ void ofxSurfingPBR::doResetFloorTransform() {
 
 	floorBoxDepth = 5;
 
+	bFloorSquaredSize = false;
 	bFloorInfinite = false;
 }
 
