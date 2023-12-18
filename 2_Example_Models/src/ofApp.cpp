@@ -80,11 +80,13 @@ void ofApp::setupPBR() {
 		// Background
 		pbr.bg.bDrawBgObject.set(true);
 		pbr.bg.globalColor.set(ofFloatColor { 0, 1, 1, 1 });
+		pbr.bg.bDrawWireframe.set(true);
+		pbr.bg.wireColor.set(ofFloatColor { 0, 0, 0, 0.5 });
 
 		// Floor
 		pbr.bDrawFloorBox = true;
 		// Floor material
-		pbr.floorGlobalColor.set(ofFloatColor::white);
+		pbr.floorGlobalColor.set(ofFloatColor { 0, 0.5, 0.25, 1 });
 		pbr.floorShiness = 0.5;
 		pbr.floorMaterial.setRoughness(0.5); //accessing the public ofMaterial
 		//pbr.floorRoughness = 0.5; //does the same that above line
@@ -94,8 +96,8 @@ void ofApp::setupPBR() {
 		pbr.material.roughness = 0.5;
 		pbr.material.metallic = 0.5;
 		pbr.material.reflectance = 0.5;
-		pbr.material.globalColor.set(ofFloatColor::yellow);
-		pbr.material.globalAlpha.set(0.9);
+		pbr.material.globalColor.set(ofFloatColor::orange);
+		pbr.material.globalAlpha.set(1.0);
 
 		// Some internals
 		bHelp = true;

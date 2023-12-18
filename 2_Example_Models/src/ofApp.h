@@ -18,31 +18,24 @@ the floor, all the `4 lights kit`, the background generators and the cubeMap.
 
 */
 
-/*
-	TODO
-	fix faces
-	store gui position
-		add mode for auto refresh gui or not
-*/
-
 #pragma once
 
 #include "ofMain.h"
 
 //--
 
-// Optional: 
+// OPTIONAL: 
 // We will draw some meshes. 
 // Uncomment to use an internal class helper: SurfingModelsManager.h
 #define OF_APP__USE__MODELS_MANAGER
 // Comment to use more low level, raw/vanilla, OF core classes.
  
-// Optional: 
+// OPTIONAL: 
 //#define OF_APP__USE__OPTIONAL_SETUP
 // Uncomment to test some optional features:
-// - Change log level
+// - Changes log level.
 // - Check if the app is probably opened for the first time.
-// - Force some scene settings
+// - Forces some scene settings.
 
 //--
 
@@ -117,9 +110,9 @@ public:
 	ofParameter<int> indexScene { "SCENE", 0, 0, 2 };
 	ofParameter<string> nameScene { "Name", "" };
 	vector<string> namesScenes = {
-		"THREE-PRIMS",
-		"MESH",
-		"MODEL"
+		"Test Scene",
+		"Mesh",
+		"Model"
 	};
 	ofEventListener listenerIndexScene;
 
