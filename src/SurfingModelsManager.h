@@ -265,8 +265,7 @@ private:
 
 public:
 	void draw() {
-		updateAnim();
-
+		updateSwitcher();
 		drawModel();
 	}
 

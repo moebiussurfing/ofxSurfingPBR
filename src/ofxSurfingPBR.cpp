@@ -77,15 +77,15 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "L-l    Help Layout\n";
 		//sHelp += "       " + nameHelpLayout.get() + "\n";
 		sHelp += "d      Debug\n";
-		sHelp += "i      Floor Infinite\n";
 		sHelp += "g-G    Gui-ofxGui\n";
-		sHelp += "Tab    Layout UI\n";
+		//sHelp += "Tab    Layout UI\n";
 		//sHelp += "       " + nameGuiLayout.get() + "\n";
 		sHelp += "\n";
 		sHelp += "DRAW\n";
-		sHelp += "b      Background Mode\n";
 		sHelp += "p      Floor Plane\n";
 		sHelp += "B      Floor Box\n";
+		sHelp += "i      Floor Infinite\n";
+		sHelp += "b      Background Mode\n";
 		sHelp += "s      Shadows \n";
 		sHelp += "c      CubeMap\n";
 		sHelp += "\n";
@@ -361,6 +361,7 @@ void ofxSurfingPBR::setupParams() {
 	//advancedParams.add(material.bGuiHelpers);
 
 	guiParams.setName("Gui");
+	guiParams.add(guiManager.bAutoLayout);
 	guiParams.add(vMinimizeAllGui);
 	guiParams.add(vMaximizeAllGui);
 	guiParams.add(guiLayout);
@@ -846,6 +847,9 @@ void ofxSurfingPBR::setupGui() {
 
 	gui.setup(parameters);
 
+	refreshGui();
+	guiManager.setup(&gui);
+
 	// assign to ofxGui icons
 	listenerSaveGui = gui.savePressedE.newListener([this] {
 		save();
@@ -853,12 +857,12 @@ void ofxSurfingPBR::setupGui() {
 	listenerLoadGui = gui.loadPressedE.newListener([this] {
 		load();
 	});
-
-	refreshGui();
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshGui() {
+	if (!guiManager.bAutoLayout) return;
+	
 	ofLogNotice("ofxSurfingPBR") << "refreshGui()";
 
 	// top-left
@@ -892,13 +896,10 @@ void ofxSurfingPBR::refreshGui() {
 		.getGroup(floorColorsParams.getName())
 		.minimize();
 
-	//gui.getGroup(lightParams.getName()).minimize();
-	//gui.getGroup(shadowParams.getName()).minimize();
-	//gui.getGroup(bgColorPlainParams.getName()).minimize();
 	gui.getGroup(testSceneParams.getName()).minimize();
 	gui.getGroup(cameraParams.getName()).minimize();
 	gui.getGroup(internalParams.getName()).minimize();
-	gui.getGroup(drawParams.getName()).minimize();
+	//gui.getGroup(drawParams.getName()).minimize();
 
 	gui.getGroup(internalParams.getName())
 		.getGroup(advancedParams.getName())
@@ -1879,7 +1880,8 @@ void ofxSurfingPBR::drawPlane() {
 		floorPlane.drawWireframe();
 	}
 
-	else {
+	//else 
+	{
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 		if (bShaderToPlane)
 			beginShaderPlane();
@@ -1912,7 +1914,8 @@ void ofxSurfingPBR::drawBoxFloor() {
 		floorBox.drawWireframe();
 	}
 
-	else {
+	//else 
+	{
 		beginMaterialPlane();
 		{
 			floorBox.draw();
@@ -2276,8 +2279,6 @@ void ofxSurfingPBR::keyPressed(int key) {
 		}
 	}
 
-	//if (key == 'b') bg.bDrawBgPlainColor = !bg.bDrawBgPlainColor;
-
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	if (key == 's') lights.bDrawShadow = !lights.bDrawShadow;
 #endif
@@ -2293,7 +2294,7 @@ void ofxSurfingPBR::keyPressed(int key) {
 
 	if (key == 'i') bFloorInfinite = !bFloorInfinite;
 
-	if (key == OF_KEY_TAB) doNextLayouGui(); //next layout gui
+	//if (key == OF_KEY_TAB) doNextLayouGui(); //next layout gui
 
 	if (key == 'l') doNextLayoutHelp(); //next layout help
 	if (key == 'L') doPrevLayoutHelp(); //prev layout help

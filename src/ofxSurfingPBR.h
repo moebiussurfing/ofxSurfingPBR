@@ -342,6 +342,7 @@ public:
 
 private:
 	ofxPanel gui;
+	SurfingOfxGuiPanelsManager guiManager;
 
 public:
 	//helper to improve layout with many gui panels.

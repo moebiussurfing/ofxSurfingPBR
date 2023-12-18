@@ -1009,6 +1009,28 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 // queue ofxPanels.
 // set anchor panel
 // set position for linked.
+/*
+
+EXAMPLE
+
+ofxPanel gui;
+SurfingOfxGuiPanelsManager guiManager;
+	
+void ofApp::setup() {
+	parameters.add(guiManager.bAutoLayout);
+	parameters.add(bHelp);
+	
+	gui.setup(parameters);
+	refreshGui();//apply folder minimizes here
+	guiManager.setup(&gui);
+
+}
+
+void refreshGui() {
+	if (!guiManager.bAutoLayout) return;
+}
+
+*/
 //--------------------------------------------------------------
 class SurfingOfxGuiPanelsManager {
 public:
