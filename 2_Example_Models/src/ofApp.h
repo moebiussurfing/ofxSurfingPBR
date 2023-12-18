@@ -25,10 +25,10 @@ the floor, all the `4 lights kit`, the background generators and the cubeMap.
 //--
 
 // OPTIONAL: 
+#define OF_APP__USE__MODELS_MANAGER
 // We will draw some meshes. 
 // Uncomment to use an internal class helper: SurfingModelsManager.h
-#define OF_APP__USE__MODELS_MANAGER
-// Comment to use more low level, raw/vanilla, OF core classes.
+// Comment to use more low level (raw/vanilla) OF core classes.
  
 // OPTIONAL: 
 //#define OF_APP__USE__OPTIONAL_SETUP
@@ -153,7 +153,7 @@ public:
 	SurfingModelsManager modelsManager;
 	ofEventListener listenerIndexModel; //get class internal index changed
 #else
-	// One single model
+	// One single model using OF core
 	void setupModel();
 	ofxAssimpModelLoader model;
 	vector<ofVboMesh> meshesModel;

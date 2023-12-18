@@ -281,6 +281,8 @@ private:
 		// Draw selected model only
 		// all their queued meshes.
 		if (!filesBrowserModels.bModeAll.get()) {
+			if (!filesBrowserModels.isEnabled()) return;
+
 			// Pick the selected model.
 			size_t i = filesBrowserModels.getIndexFile();
 
@@ -305,6 +307,8 @@ private:
 			// all their queued meshes.
 			// Iterate all the models, not only the selected!
 			for (size_t i = 0; i < meshesModels.size(); i++) {
+				if (!filesBrowserModels.isEnabled(i)) continue;
+
 				ofPushMatrix();
 				updateTransform(i);
 

@@ -4,9 +4,10 @@
 //--
 
 /*
-	An OpenFrameworks addon 
+	An openFrameworks addon 
 	to easily test, learn, and use 
-	the new PBR CORE features from the new OF 0.12+ releases.
+	the new PBR OF CORE features 
+	from the new 0.12+ releases.
 
 	You should use the GitHub master branch: 
 		https://github.com/openframeworks/openFrameworks
@@ -14,7 +15,7 @@
 	All this code is copied from or/and hardly based on this OF forum topic:
 		https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
 
-	Original authors:  
+	Original inspiration code authors:  
 		@NickHardeman https://github.com/NickHardeman
 		and @paolo-scoppola https://github.com/paolo-scoppola.
 */
@@ -22,8 +23,8 @@
 //--
 
 /*
-* TODO
-* 
+	TODO
+
 	- add simple scenes presets manager
 	- add save/load all.
 	- fix startup/exit loading all settings
@@ -50,7 +51,6 @@
 		to queue many actors/ofNodes, materials 
 		and lights on a std::vector.
 		something like ofxPBR or ofxPBRHelper.
-		
 */
 
 //--
@@ -301,7 +301,7 @@ public:
 	ofParameter<bool> bHelp;
 
 	ofParameter<bool> bDebug;
-	bool bUnlockFps=false;
+	bool bUnlockFps = false;
 	ofParameter<bool> bKeys;
 
 	ofParameterGroup testSceneParams;

@@ -1,3 +1,13 @@
+/*
+	TODO
+
+	- make aux transform params with makeRef
+		to link to loaded object,
+		then avoiding to expose all the object 
+		transforms folders to the gui
+
+	- add bool draw to each object to allow all models mode arrange.
+*/
 
 /*
 * SurfingFilesBrowserModels.h
@@ -18,18 +28,6 @@
 
 //--
 
-/*
-	TODO
-
-	- make aux transform params with makeRef
-		to link to loaded object,
-		then avoiding to expose all the object 
-		transforms folders to the gui
-		and show only the selected object!
-*/
-
-//--
-
 #pragma once
 
 #include "ofMain.h"
@@ -44,10 +42,13 @@
 class TransformNode {
 public:
 	ofParameter<bool> bEnable{ "Enable", true };
+
 	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
+
 	ofParameter<glm::vec3> position { "Position", glm::vec3(0), 
 		glm::vec3(-1), glm::vec3(1) };
+
 	ofParameter<glm::vec3> rotation { "Rotation", glm::vec3(0), 
 		glm::vec3(-180), glm::vec3(180) };
 
