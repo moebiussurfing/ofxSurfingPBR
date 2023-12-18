@@ -348,8 +348,8 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	parameters.add(testSceneParams);
 	parameters.add(cameraParams);
+	parameters.add(testSceneParams);
 
 	//internalParams.add(bDebug);
 
