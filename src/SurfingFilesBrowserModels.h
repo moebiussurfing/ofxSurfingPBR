@@ -163,10 +163,10 @@ public:
 			b ? g.maximize() : g.minimize();
 
 #ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
-			//g.getGroup(t.position.getName()).minimize();
-			//g.getGroup(t.rotation.getName()).minimize();
 			g.getGroup(t.position.getName()).maximize();
 			g.getGroup(t.rotation.getName()).maximize();
+			//g.getGroup(t.position.getName()).minimize();
+			//g.getGroup(t.rotation.getName()).minimize();
 #endif
 		}
 	}

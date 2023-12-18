@@ -222,11 +222,10 @@ public:
 
 private:
 	void updateTransform(int i = -1) {
-		// define min/max or de normalized ranges
+		// define min/max or de-normalized ranges
 		float sUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
 		const float dUnit = sUnit / 2.f; //distance unit
 		const float sPow = filesBrowserModels.getTransformScalePow(i); //scale power
-		//const float rMax = 180;//rotation max/min
 		const float rMax = 360; //rotation max/min
 
 		if (sPow == 0) {

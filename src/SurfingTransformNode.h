@@ -8,44 +8,58 @@
 	and apply transformation when drawing.
 */
 
+// OPTIONAL:
+#define SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+// Set commented to use a simpler transform mode,
+// with y postion and rotation only.
+
 //--
 
 #pragma once
 
 #include "ofMain.h"
 
-#define SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+#include "ofxSurfingPBRConstants.h"
 
 //--
 
 #ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
 class TransformNode {
 public:
-	ofParameter<bool> bEnable{ "Enable", true };
+	ofParameter<bool> bEnable { "Enable", true };
 	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
-	ofParameter<glm::vec3> position { "Position", glm::vec3(0), 
+	ofParameter<glm::vec3> position { "Position", glm::vec3(0),
 		glm::vec3(-1), glm::vec3(1) };
-	ofParameter<glm::vec3> rotation { "Rotation", glm::vec3(0), 
+	ofParameter<glm::vec3> rotation { "Rotation", glm::vec3(0),
 		glm::vec3(-180), glm::vec3(180) };
+	ofParameter<void> vReset { "Reset" };
 
 	ofParameterGroup parameters {
 		"Transform",
-		bEnable, scalePow, scale, position, rotation
+		bEnable, scalePow, scale, position, rotation, vReset
 	};
 
+	ofEventListener e_vReset;
+
 	TransformNode() {
+		e_vReset = vReset.newListener([this](void) {
+			reset();
+		});
 	}
 
-	~TransformNode() {
-	}
+	~TransformNode() { }
 
-	//--
+	//----
 
-	//TODO:
-
+	// TODO:
+	// Bounding box.
+	//
 	//#define SURFING__WIP_BOUNDING_BOX
-	// Bounding box
+	//
+	// Receive a passed ptr of the mesh or vector mesh
+	// that we are "associating" to this node
+	// and help calculate and draw the bounding box corners.
 
 	#ifdef SURFING__WIP_BOUNDING_BOX
 	//vector<MeshNode> meshNodes;
@@ -213,7 +227,80 @@ public:
 		p = (meshMax - meshMin);
 		return p;
 	}
+
 	#endif
+
+	//--
+
+	// Get the transforms for each model
+	// passing the model index as argument:
+
+public:
+	bool isEnabled() const {
+		return bEnable;
+	}
+
+	float getScale() const {
+		return scale;
+	}
+
+	float getScalePow() const {
+		return scalePow;
+	}
+
+	glm::vec3 getPosition() const {
+		return position;
+	}
+
+	glm::vec3 getRotation() const {
+		return rotation;
+	}
+
+	void reset() {
+		scalePow = 0;
+		scale = 0;
+		position = glm::vec3(0);
+		rotation = glm::vec3(0);
+	}
+
+	//--
+
+public:
+	//#ifndef SURFING__PBR__SCENE_SIZE_UNIT
+	//	#define SURFING__PBR__SCENE_SIZE_UNIT 1000.f
+	//#endif
+
+	void update() {
+		// define min/max or de-normalized ranges unit
+		float szUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
+		float sUnit = szUnit; //scale unit
+		const float dUnit = szUnit / 2.f; //distance unit
+		const float sPow = scalePow; //scale power
+		const float rMax = 360; //rotation max/min. could be 180...
+
+		if (sPow == 0) {
+		} else if (sPow < 1) {
+			sUnit = sUnit / (float)abs(sPow - 1);
+		} else if (sPow > 1) {
+			sUnit = sUnit * (float)abs(sPow + 1);
+		}
+
+		float s = ofMap(scale, -1, 1, 1.f / sUnit, sUnit, true);
+
+		float x = ofMap(position.get().x, -1, 1, -dUnit, dUnit, true);
+		float y = ofMap(position.get().y, -1, 1, -dUnit, dUnit, true);
+		float z = ofMap(position.get().z, -1, 1, -dUnit, dUnit, true);
+
+		float rx = rotation.get().x;
+		float ry = rotation.get().y;
+		float rz = rotation.get().z;
+
+		ofTranslate(x, y, z);
+		ofScale(s, s, s);
+		ofRotateXDeg(rx);
+		ofRotateYDeg(ry);
+		ofRotateZDeg(rz);
+	}
 };
 
 //--
@@ -236,6 +323,48 @@ public:
 	}
 
 	~TransformSimple() {
+	}
+
+	//--
+
+	float getPositionY() const {
+		return yPos;
+	}
+
+	float getRotationY() const {
+		return = yRot;
+	}
+
+	void reset() {
+		scalePow = 0;
+		scale = 0;
+		yPos = 0;
+		yRot = 0;
+	}
+
+	//--
+
+	void update() {
+		// define min/max or de-normalized ranges
+		float sUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
+		const float dUnit = sUnit / 2.f; //distance unit
+		const float sPow = scalePow; //scale power
+		const float rMax = 360; //rotation max/min
+
+		if (sPow == 0) {
+		} else if (sPow < 1) {
+			sUnit = sUnit / (float)abs(sPow - 1);
+		} else if (sPow > 1) {
+			sUnit = sUnit * (float)abs(sPow + 1);
+		}
+
+		float s = ofMap(scale, -1, 1, 1.f / sUnit, sUnit, true);
+		float y = ofMap(yPos, -1, 1, -dUnit, dUnit, true);
+		float r = ofMap(yRot, -1, 1, -rMax, rMax, true);
+
+		ofTranslate(0, y, 0);
+		ofScale(s, s, s);
+		ofRotateYDeg(r);
 	}
 };
 #endif

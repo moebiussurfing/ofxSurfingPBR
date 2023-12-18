@@ -1009,6 +1009,11 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 // queue ofxPanels.
 // set anchor panel
 // set position for linked.
+//
+// TODO:
+// make derived from ofxPanel?
+// add bGui
+
 /*
 
 EXAMPLE

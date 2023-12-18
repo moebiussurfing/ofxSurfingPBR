@@ -243,10 +243,11 @@ public:
 		string s = "";
 		for (size_t i = 0; i < dir.size(); i++) {
 			bool b = (i == indexFile);
-			s += b ? ">" : " ";
+			s += b ? ">" : " ";//left
 			s += ofToString(i);
 			s += " ";
 			s += dir.getName(i);
+			//s += b ? " <" : "  ";//right
 			s += "\n";
 		}
 		return s;
