@@ -152,19 +152,22 @@ public:
 
 		for (size_t i = 0; i < transforms.size(); i++) {
 
-#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
-			TransformNode t = transforms[i];
-#else
-			TransformSimple t = transforms[i];
-#endif
+//#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+//			TransformNode t = transforms[i];
+//#else
+//			TransformSimple t = transforms[i];
+//#endif
 			string n = getFilename(i);
 			bool b = (i == indexFile); //selected
 			auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
 			b ? g.maximize() : g.minimize();
 
 #ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
-			g.getGroup(t.position.getName()).maximize();
-			g.getGroup(t.rotation.getName()).maximize();
+			g.getGroup(transforms[i].position.getName()).maximize();
+			g.getGroup(transforms[i].rotation.getName()).maximize();
+
+			//g.getGroup(t.position.getName()).maximize();
+			//g.getGroup(t.rotation.getName()).maximize();
 			//g.getGroup(t.position.getName()).minimize();
 			//g.getGroup(t.rotation.getName()).minimize();
 #endif

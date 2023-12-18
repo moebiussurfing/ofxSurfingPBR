@@ -40,12 +40,20 @@ public:
 		bEnable, scalePow, scale, position, rotation, vReset
 	};
 
+	#if 0
 	ofEventListener e_vReset;
+	//TODO: this make fails some instances.. 
+	// make needs emplace_back or unique_ptr?  
+	//Severity	Code	Description	Project	File	Line	Suppression State	Details
+	//Error C2280 'TransformNode::TransformNode(const TransformNode &)' : attempting to reference a deleted function 2_Example_Models K :\Documents\of_12\openFrameworks\addons\ofxSurfingPBR\src\SurfingFilesBrowserModels.h 156
+	#endif
 
 	TransformNode() {
+	#if 0
 		e_vReset = vReset.newListener([this](void) {
 			reset();
 		});
+	#endif
 	}
 
 	~TransformNode() { }
