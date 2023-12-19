@@ -77,9 +77,6 @@ private:
 
 		for (size_t i = 0; i < dir.size(); i++) {
 
-			//TransformNode t = TransformNode();
-			//transforms.emplace_back(t);
-
 			transforms.push_back(std::make_unique<TransformNode>());
 			transforms.back()->parameters.setName(getFilename(i));
 

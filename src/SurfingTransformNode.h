@@ -11,7 +11,7 @@
 // OPTIONAL:
 #define SURFING__PBR__USE_MODELS_TRANSFORM_NODES
 // Set commented to use a simpler transform mode,
-// with y postion and rotation only.
+// with y position and rotation only.
 
 //--
 
@@ -19,7 +19,14 @@
 
 #include "ofMain.h"
 
+//OPTIONAL: comment the below line
+// if you are using this class standalone,
+// without the whole ofxSurfingPBR
 #include "ofxSurfingPBRConstants.h"
+
+#ifndef SURFING__PBR__SCENE_SIZE_UNIT
+	#define SURFING__PBR__SCENE_SIZE_UNIT 1000.f
+#endif
 
 //--
 
@@ -28,8 +35,16 @@ class TransformNode {
 public:
 	ofParameter<bool> bEnable { "Enable", true };
 
-	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
+	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
+
+private:
+	float powRatio = 1.f;
+
+public:
+	void setPowRatio(float r) {
+		powRatio = r;
+	}
 
 	ofParameter<glm::vec3> position { "Position", glm::vec3(0),
 		glm::vec3(-1), glm::vec3(1) };
@@ -44,14 +59,7 @@ public:
 		bEnable, scalePow, scale, position, rotation, vReset
 	};
 
-	#if 1
-	//ofEventListener e_vReset;
 	std::unique_ptr<ofEventListener> e_vReset;
-	#endif
-	//TODO: this make fails some instances..
-	// make needs emplace_back or unique_ptr?
-	//Severity	Code	Description	Project	File	Line	Suppression State	Details
-	//Error C2280 'TransformNode::TransformNode(const TransformNode &)' : attempting to reference a deleted function 2_Example_Models K :\Documents\of_12\openFrameworks\addons\ofxSurfingPBR\src\SurfingFilesBrowserModels.h 156
 
 	TransformNode() {
 		setup();
@@ -60,6 +68,7 @@ public:
 	TransformNode(const TransformNode & other)
 		: bEnable(other.bEnable)
 		, scalePow(other.scalePow)
+		, powRatio(other.powRatio)
 		, scale(other.scale)
 		, position(other.position)
 		, rotation(other.rotation)
@@ -71,15 +80,9 @@ public:
 	~TransformNode() { }
 
 	void setup() {
-	#if 1
-		//e_vReset = vReset.newListener([this](void) {
-		//	reset();
-		//});
-
 		e_vReset = std::make_unique<ofEventListener>(vReset.newListener([this](void) {
 			reset();
 		}));
-	#endif
 	}
 
 	//----
@@ -289,7 +292,7 @@ public:
 	}
 
 	void reset() {
-		scalePow = 0;
+		//scalePow = 0;
 		scale = 0;
 		position = glm::vec3(0);
 		rotation = glm::vec3(0);
@@ -298,25 +301,15 @@ public:
 	//--
 
 public:
-	//#ifndef SURFING__PBR__SCENE_SIZE_UNIT
-	//	#define SURFING__PBR__SCENE_SIZE_UNIT 1000.f
-	//#endif
-
 	void update() {
 		// define min/max or de-normalized ranges unit
 		float szUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
-		float sUnit = szUnit; //scale unit
-		const float dUnit = szUnit / 2.f; //distance unit
-		const float sPow = scalePow; //scale power
+		float sUnit; //scale unit
+		const float dUnit = szUnit; //distance unit
+		const float sPow = scalePow /** powRatio*/; //scale power
 		const float rMax = 360; //rotation max/min. could be 180...
 
-		if (sPow == 0) {
-		} else if (sPow < 1) {
-			sUnit = sUnit / (float)abs(sPow - 1);
-		} else if (sPow > 1) {
-			sUnit = sUnit * (float)abs(sPow + 1);
-		}
-
+		sUnit = ofMap(scalePow, -100, 100, 0.02 * szUnit, 0.2 * szUnit, true);
 		float s = ofMap(scale, -1, 1, 1.f / sUnit, sUnit, true);
 
 		float x = ofMap(position.get().x, -1, 1, -dUnit, dUnit, true);
@@ -341,8 +334,19 @@ public:
 // simpler mode using only y position and rotation.
 class TransformNode {
 public:
-	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
+	ofParameter<bool> bEnable { "Enable", true };
+
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
+	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
+
+private:
+	float powRatio = 1.f;
+
+public:
+	void setPowRatio(float r) {
+		powRatio = r;
+	}
+
 	ofParameter<float> yPos { "y Pos", 0, -1.f, 1.f };
 	ofParameter<float> yRot { "y Rot", 0, -1.f, 1.f };
 
@@ -364,7 +368,7 @@ public:
 	}
 
 	float getRotationY() const {
-		return = yRot;
+		return yRot;
 	}
 
 	void reset() {
@@ -374,23 +378,30 @@ public:
 		yRot = 0;
 	}
 
+	bool isEnabled() const {
+		return bEnable;
+	}
+
+	float getScale() const {
+		return scale;
+	}
+
+	float getScalePow() const {
+		return scalePow;
+	}
+
 	//--
 
 	void update() {
 		// define min/max or de-normalized ranges
 		float sUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
-		const float dUnit = sUnit / 2.f; //distance unit
-		const float sPow = scalePow; //scale power
+		const float dUnit = sUnit; //distance unit
+		const float sPow = scalePow * powRatio; //scale power
 		const float rMax = 360; //rotation max/min
 
-		if (sPow == 0) {
-		} else if (sPow < 1) {
-			sUnit = sUnit / (float)abs(sPow - 1);
-		} else if (sPow > 1) {
-			sUnit = sUnit * (float)abs(sPow + 1);
-		}
-
+		sUnit = ofMap(scalePow, -100, 100, 0.02 * szUnit, 0.2 * szUnit, true);
 		float s = ofMap(scale, -1, 1, 1.f / sUnit, sUnit, true);
+
 		float y = ofMap(yPos, -1, 1, -dUnit, dUnit, true);
 		float r = ofMap(yRot, -1, 1, -rMax, rMax, true);
 
