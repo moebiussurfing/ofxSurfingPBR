@@ -27,12 +27,16 @@
 class TransformNode {
 public:
 	ofParameter<bool> bEnable { "Enable", true };
+
 	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
+
 	ofParameter<glm::vec3> position { "Position", glm::vec3(0),
 		glm::vec3(-1), glm::vec3(1) };
+
 	ofParameter<glm::vec3> rotation { "Rotation", glm::vec3(0),
 		glm::vec3(-180), glm::vec3(180) };
+
 	ofParameter<void> vReset { "Reset" };
 
 	ofParameterGroup parameters {
@@ -40,23 +44,43 @@ public:
 		bEnable, scalePow, scale, position, rotation, vReset
 	};
 
-	#if 0
-	ofEventListener e_vReset;
-	//TODO: this make fails some instances.. 
-	// make needs emplace_back or unique_ptr?  
+	#if 1
+	//ofEventListener e_vReset;
+	std::unique_ptr<ofEventListener> e_vReset;
+	#endif
+	//TODO: this make fails some instances..
+	// make needs emplace_back or unique_ptr?
 	//Severity	Code	Description	Project	File	Line	Suppression State	Details
 	//Error C2280 'TransformNode::TransformNode(const TransformNode &)' : attempting to reference a deleted function 2_Example_Models K :\Documents\of_12\openFrameworks\addons\ofxSurfingPBR\src\SurfingFilesBrowserModels.h 156
-	#endif
 
 	TransformNode() {
-	#if 0
-		e_vReset = vReset.newListener([this](void) {
-			reset();
-		});
-	#endif
+		setup();
+	}
+
+	TransformNode(const TransformNode & other)
+		: bEnable(other.bEnable)
+		, scalePow(other.scalePow)
+		, scale(other.scale)
+		, position(other.position)
+		, rotation(other.rotation)
+		, vReset(other.vReset)
+		, parameters(other.parameters) {
+		setup();
 	}
 
 	~TransformNode() { }
+
+	void setup() {
+	#if 1
+		//e_vReset = vReset.newListener([this](void) {
+		//	reset();
+		//});
+
+		e_vReset = std::make_unique<ofEventListener>(vReset.newListener([this](void) {
+			reset();
+		}));
+	#endif
+	}
 
 	//----
 
@@ -315,7 +339,7 @@ public:
 
 #else
 // simpler mode using only y position and rotation.
-class TransformSimple {
+class TransformNode {
 public:
 	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
 	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
@@ -327,10 +351,10 @@ public:
 		scalePow, scale, yPos, yRot
 	};
 
-	TransformSimple() {
+	TransformNode() {
 	}
 
-	~TransformSimple() {
+	~TransformNode() {
 	}
 
 	//--

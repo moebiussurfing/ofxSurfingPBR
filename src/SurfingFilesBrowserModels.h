@@ -69,21 +69,22 @@ private:
 
 		vReset.setName("Reset Model");
 
+		transformParams.clear();
 		transformParams.setName("Transforms");
 		transformParams.add(vReset);
 
-		transforms.clear();
+		transforms.clear();//clear all objects nodes
+
 		for (size_t i = 0; i < dir.size(); i++) {
 
-#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
-			TransformNode t = TransformNode();
-#else
-			TransformSimple t = TransformSimple();
-#endif
-			t.parameters.setName(getFilename(i));
-			transforms.emplace_back(t);
+			//TransformNode t = TransformNode();
+			//transforms.emplace_back(t);
 
-			transformParams.add(t.parameters);
+			transforms.push_back(std::make_unique<TransformNode>());
+			transforms.back()->parameters.setName(getFilename(i));
+
+			// queue all objects nodes params
+			transformParams.add(transforms.back()->parameters);
 		}
 
 		transformParams.setSerializable(false);
@@ -109,7 +110,7 @@ public:
 			string p = pathFiles + "\\" + getName(i) + extSuffixTransform;
 
 			ofJson settings;
-			ofSerialize(settings, transforms[i].parameters);
+			ofSerialize(settings, transforms[i]->parameters);
 			bool b = ofSavePrettyJson(p, settings);
 		}
 	}
@@ -122,7 +123,7 @@ public:
 
 			ofJson settings;
 			settings = ofLoadJson(p);
-			ofDeserialize(settings, transforms[i].parameters);
+			ofDeserialize(settings, transforms[i]->parameters);
 		}
 	}
 
@@ -152,19 +153,16 @@ public:
 
 		for (size_t i = 0; i < transforms.size(); i++) {
 
-//#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
 //			TransformNode t = transforms[i];
-//#else
-//			TransformSimple t = transforms[i];
-//#endif
+		
 			string n = getFilename(i);
 			bool b = (i == indexFile); //selected
 			auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
 			b ? g.maximize() : g.minimize();
 
 #ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
-			g.getGroup(transforms[i].position.getName()).maximize();
-			g.getGroup(transforms[i].rotation.getName()).maximize();
+			g.getGroup(transforms[i]->position.getName()).maximize();
+			g.getGroup(transforms[i]->rotation.getName()).maximize();
 
 			//g.getGroup(t.position.getName()).maximize();
 			//g.getGroup(t.rotation.getName()).maximize();
@@ -179,11 +177,8 @@ public:
 	// Store each model transforms for gizmo.
 
 private:
-#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
-	vector<TransformNode> transforms;
-#else
-	vector<TransformSimple> transforms;
-#endif
+	//vector<TransformNode> transforms;
+	std::vector<std::unique_ptr<TransformNode>> transforms;
 
 	//--
 
@@ -195,7 +190,7 @@ public:
 		bool b;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			b = transforms[i].bEnable;
+			b = transforms[i]->bEnable;
 		return b;
 	}
 
@@ -203,7 +198,7 @@ public:
 		float v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			v = transforms[i].scale;
+			v = transforms[i]->scale;
 		return v;
 	}
 
@@ -211,7 +206,7 @@ public:
 		int v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			v = transforms[i].scalePow;
+			v = transforms[i]->scalePow;
 		return v;
 	}
 
@@ -219,10 +214,10 @@ public:
 	void resetTransform(int i = -1) {
 		if (i == -1) i = indexFile;
 		if (i < transforms.size()) {
-			transforms[i].scalePow = 0;
-			transforms[i].scale = 0;
-			transforms[i].position = glm::vec3(0);
-			transforms[i].rotation = glm::vec3(0);
+			transforms[i]->scalePow = 0;
+			transforms[i]->scale = 0;
+			transforms[i]->position = glm::vec3(0);
+			transforms[i]->rotation = glm::vec3(0);
 		}
 	}
 
@@ -230,7 +225,7 @@ public:
 		glm::vec3 v = glm::vec3(0);
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			v = transforms[i].position;
+			v = transforms[i]->position;
 		return v;
 	}
 
@@ -238,7 +233,7 @@ public:
 		glm::vec3 v = glm::vec3(0);
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			v = transforms[i].rotation;
+			v = transforms[i]->rotation;
 		return v;
 	}
 
@@ -247,7 +242,7 @@ public:
 		float v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			v = transforms[i].yPos;
+			v = transforms[i]->yPos;
 		return v;
 	}
 
@@ -255,17 +250,17 @@ public:
 		float v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			v = transforms[i].yRot;
+			v = transforms[i]->yRot;
 		return v;
 	}
 
 	void resetTransform(int i = -1) {
 		if (i == -1) i = indexFile;
 		if (i < transforms.size()) {
-			transforms[i].scalePow = 0;
-			transforms[i].scale = 0;
-			transforms[i].yPos = 0;
-			transforms[i].yRot = 0;
+			transforms[i]->scalePow = 0;
+			transforms[i]->scale = 0;
+			transforms[i]->yPos = 0;
+			transforms[i]->yRot = 0;
 		}
 	}
 #endif
