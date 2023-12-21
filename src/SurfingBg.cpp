@@ -106,7 +106,7 @@ void SurfingBg::setupParameters() {
 	//TODO: could be removed. We use main global only.
 	colorGroup.setSerializable(false);
 
-	brightGlobal.set("Bright", 0.5f, 0.05f, SURFING__PBR__HELPER_GLOBAL_POWER_LIMIT_MAX); //avoid reset at black..
+	//brightGlobal.set("Bright", 0.5f, 0.05f, SURFING__PBR__HELPER_GLOBAL_POWER_LIMIT_MAX); //avoid reset at black..
 
 	shininess.set("Shininess", 0.5, 0, SURFING__PBR__MAX_SHININESS);
 
@@ -137,7 +137,7 @@ void SurfingBg::setupParameters() {
 	// Default low poly
 
 	vResetAll.set("Reset All");
-	vResetScene.set("Reset Scene");
+	vResetScene.set("Reset BG Scene");
 	vResetColors.set("Reset Colors");
 
 	//-
@@ -145,13 +145,14 @@ void SurfingBg::setupParameters() {
 	// Bg Scene Object
 	// sphere/box with or (colored) without textured
 
-	paramsScene.setName("Scene");
+	paramsScene.setName("BG Scene");
 
-	paramsScene.add(bDrawBgPlainColor);
+	paramsScene.add(bDrawBgColorPlain);
 	paramsScene.add(bDrawBgObject);
+	paramsScene.add(bDrawWireframe);
 
 	paramsColorsGlobal.setName("Global");
-	paramsColorsGlobal.add(brightGlobal);
+	//paramsColorsGlobal.add(brightGlobal);
 	paramsColorsGlobal.add(globalColor);
 	//paramsColorsGlobal.add(colorGroup);
 
@@ -164,34 +165,32 @@ void SurfingBg::setupParameters() {
 	paramsColorizers.setName("Colorizers");
 	paramsColorizers.add(paramsColorsGlobal);
 	paramsColorizers.add(paramsColor);
-	paramsColorizers.add(shininess);
 
-	paramsColorizers.add(bDrawWireframe);
 	paramsColorizers.add(wireColor);
 
 	paramsColorizers.add(vResetColors);
 
-	bDrawBgPlainColor.set("Draw Bg Plain Color", false);
-	bgColorPlain.set("Bg Plain Color", ofFloatColor::darkGrey, ofFloatColor(0.f), ofFloatColor(1.f));
-	bgColorPlainParams.setName("BG Plain Color");
-	bgColorPlainParams.add(bDrawBgPlainColor);
+	bDrawBgColorPlain.set("Draw Bg Color Plain", false);
+	bgColorPlain.set("Bg Color Plain", ofFloatColor::darkGrey, ofFloatColor(0.f), ofFloatColor(1.f));
+	bgColorPlainParams.setName("BG Color Plain ");
+	bgColorPlainParams.add(bDrawBgColorPlain);
 	bgColorPlainParams.add(bgColorPlain);
 	paramsColorizers.add(bgColorPlainParams);
 	paramsScene.add(paramsColorizers);
 
-	paramsObject.setName("BG Object");
+	paramsObject.setName("BG Color Object");
 	paramsObject.add(bModeBox);
 	paramsObject.add(bModeSphere);
 	paramsObject.add(resolutionBox);
 	paramsObject.add(resolutionSphere);
 	paramsObject.add(sizeScene);
-
+	paramsObject.add(shininess);
 	paramsObject.add(bUseTexture);
 	paramsObject.add(pathTexture);
 	paramsObject.add(vOpenTexture);
 
 	paramsScene.add(paramsObject);
-	//paramsScene.add(bDrawBgPlainColor);
+	//paramsScene.add(bDrawBgColorPlain);
 
 	//paramsExtra.setName("Extra");
 	//paramsExtra.add(bSmoothLights);
@@ -328,7 +327,7 @@ void SurfingBg::drawGui() {
 void SurfingBg::draw() {
 
 	// Plain color Bg
-	if (bDrawBgPlainColor) {
+	if (bDrawBgColorPlain) {
 		ofClear(bgColorPlain);
 	}
 
@@ -347,19 +346,19 @@ void SurfingBg::update(ofEventArgs & args) {
 
 		setColorBgGroup(colorGroup.get());
 
-#if 1
-		//workflow
-		//TODO
-		//setBrightToColorGroup(brightGlobal);
-		bFlagSetBrightToColorGroup = true;
-#endif
+//#if 1
+//		//workflow
+//		//TODO
+//		//setBrightToColorGroup(brightGlobal);
+//		bFlagSetBrightToColorGroup = true;
+//#endif
 	}
 
-	if (bFlagSetBrightToColorGroup) {
-		bFlagSetBrightToColorGroup = false;
+	//if (bFlagSetBrightToColorGroup) {
+	//	bFlagSetBrightToColorGroup = false;
 
-		setBrightToColorGroup(brightGlobal.get());
-	}
+	//	setBrightToColorGroup(brightGlobal.get());
+	//}
 }
 
 //--------------------------------------------------------------
@@ -489,8 +488,8 @@ void SurfingBg::doResetAll() {
 void SurfingBg::doResetColors() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingBg: doResetColors()";
 
-	if (brightGlobal != 0.15f) brightGlobal = 0.15f;
-	setBrightToColorGroup(brightGlobal);
+	//if (brightGlobal != 0.15f) brightGlobal = 0.15f;
+	//setBrightToColorGroup(brightGlobal);
 
 	//if (materials.size() > 0)
 	//	if (bAutoSetColor) {
@@ -505,7 +504,7 @@ void SurfingBg::doResetColors() {
 
 	bgColorPlain.set(ofFloatColor(0.2f));
 #ifdef SURFING__PBR__USE_CUBE_MAP
-	if (bDrawBgPlainColor) bDrawBgPlainColor = false;
+	if (bDrawBgColorPlain) bDrawBgColorPlain = false;
 #else
 	bDrawBg = true;
 #endif
@@ -580,60 +579,60 @@ void SurfingBg::setColorBgGroup(ofFloatColor c) {
 	bgColorPlain.set(c);
 }
 
-//--------------------------------------------------------------
-void SurfingBg::setBrightToColorGroup(float brg) {
-//TODO fix
-// bypass some callbacks
-#if 0
-	if (brightGlobal.get() != brg)
-		brightGlobal.set(brg);
-	else {
-		ofLogNotice("ofxSurfingPBR")<<" SurfingBg: Skip setBrightToColorGroup(" << brg << ")";
-		return;
-	}
-#endif
+////--------------------------------------------------------------
+//void SurfingBg::setBrightToColorGroup(float brg) {
+////TODO fix
+//// bypass some callbacks
+//#if 0
+//	if (brightGlobal.get() != brg)
+//		brightGlobal.set(brg);
+//	else {
+//		ofLogNotice("ofxSurfingPBR")<<" SurfingBg: Skip setBrightToColorGroup(" << brg << ")";
+//		return;
+//	}
+//#endif
 
-//TODO fix
-// bypass some callbacks
-#if 0
-	if (brightGlobal.get() != brightGlobal_) {
-		brightGlobal_ = brightGlobal.get();
-	} else {
-		ofLogNotice("ofxSurfingPBR")<<" SurfingBg: Skip setBrightToColorGroup(" << brg << ")";
-		return;
-	}
-#endif
-
-	//--
-
-	ofLogNotice("ofxSurfingPBR") << "SurfingBg: setBrightToColorGroup(" << brg << ")";
-
-	auto cc = colorGroup.get();
-
-	auto cd = diffuse.get();
-	auto ca = ambient.get();
-	auto cs = specular.get();
-	auto ce = emissive.get();
-
-	cc.setBrightness(brightGlobal);
-
-	ca.setBrightness(brightGlobal);
-	cd.setBrightness(brightGlobal);
-	cs.setBrightness(brightGlobal * 0.75f);
-	ce.setBrightness(brightGlobal * 0.75f);
-
-	colorGroup.setWithoutEventNotifications(cc); //fix callbacks/feedback
-	//colorGroup.set(cc);
-
-	diffuse.set(cd);
-	ambient.set(ca);
-	specular.set(cs);
-	emissive.set(ce);
+////TODO fix
+//// bypass some callbacks
+//#if 0
+//	if (brightGlobal.get() != brightGlobal_) {
+//		brightGlobal_ = brightGlobal.get();
+//	} else {
+//		ofLogNotice("ofxSurfingPBR")<<" SurfingBg: Skip setBrightToColorGroup(" << brg << ")";
+//		return;
+//	}
+//#endif
 
 	//--
 
-	bgColorPlain.set(cc);
-}
+	//ofLogNotice("ofxSurfingPBR") << "SurfingBg: setBrightToColorGroup(" << brg << ")";
+
+	//auto cc = colorGroup.get();
+
+	//auto cd = diffuse.get();
+	//auto ca = ambient.get();
+	//auto cs = specular.get();
+	//auto ce = emissive.get();
+
+	//cc.setBrightness(brightGlobal);
+
+	//ca.setBrightness(brightGlobal);
+	//cd.setBrightness(brightGlobal);
+	//cs.setBrightness(brightGlobal * 0.75f);
+	//ce.setBrightness(brightGlobal * 0.75f);
+
+	//colorGroup.setWithoutEventNotifications(cc); //fix callbacks/feedback
+	////colorGroup.set(cc);
+
+	//diffuse.set(cd);
+	//ambient.set(ca);
+	//specular.set(cs);
+	//emissive.set(ce);
+
+	////--
+
+	//bgColorPlain.set(cc);
+//}
 
 //--------------------------------------------------------------
 void SurfingBg::Changed(ofAbstractParameter & e) {
@@ -682,9 +681,9 @@ void SurfingBg::ChangedColors(ofAbstractParameter & e) {
 	//	bFlagSetColorBgGroup = true;
 	//}
 
-	else if (name == brightGlobal.getName()) {
-		bFlagSetBrightToColorGroup = true;
-	}
+	//else if (name == brightGlobal.getName()) {
+	//	bFlagSetBrightToColorGroup = true;
+	//}
 
 	//--
 
@@ -741,7 +740,7 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 #if 1
 	else if (name == bDrawBgObject.getName()) {
 		if (bDrawBgObject) {
-			if (bDrawBgPlainColor) bDrawBgPlainColor.set(false);
+			if (bDrawBgColorPlain) bDrawBgColorPlain.set(false);
 
 		}
 			refreshGui();
@@ -750,17 +749,17 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 #if 0
 	else if (name == bDrawBgObject.getName()) {
 		if (bDrawBgObject) {
-			if (bDrawBgPlainColor) bDrawBgPlainColor.set(false);
+			if (bDrawBgColorPlain) bDrawBgColorPlain.set(false);
 		} else {
-			if (!bDrawBgPlainColor) bDrawBgPlainColor.set(true);
+			if (!bDrawBgColorPlain) bDrawBgColorPlain.set(true);
 		}
 	}
 #endif
 
 //workflow
 #if 0
-	else if (name == bDrawBgPlainColor.getName()) {
-		if (bDrawBgPlainColor) {
+	else if (name == bDrawBgColorPlain.getName()) {
+		if (bDrawBgColorPlain) {
 			if (bDrawBgObject) bDrawBgObject.set(false);
 		} else {
 			if (!bDrawBgObject) bDrawBgObject.set(true);
@@ -768,8 +767,8 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 	}
 #endif
 #if 1
-	else if (name == bDrawBgPlainColor.getName()) {
-		if (bDrawBgPlainColor) {
+	else if (name == bDrawBgColorPlain.getName()) {
+		if (bDrawBgColorPlain) {
 			if (bDrawBgObject) bDrawBgObject.set(false);
 		}
 		refreshGui();
@@ -872,10 +871,10 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 	//--
 
 	////#ifdef SURFING__PBR__USE_CUBE_MAP
-	////	if (name == bg.bDrawBgPlainColor.getName()) {
+	////	if (name == bg.bDrawBgColorPlain.getName()) {
 	////		if (!bLoadedCubeMap) return; //skip
 	////		//workflow
-	////		if (bg.bDrawBgPlainColor)
+	////		if (bg.bDrawBgColorPlain)
 	////			if (bDrawCubeMap) bDrawCubeMap = false;
 	////	}
 	////#endif

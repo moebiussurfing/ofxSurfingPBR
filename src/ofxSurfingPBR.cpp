@@ -206,11 +206,11 @@ void ofxSurfingPBR::setupParams() {
 
 	showGuiParams.setName("UI");
 	showGuiParams.add(material.bGui);
+	showGuiParams.add(floorMaterial.bGui);
 	showGuiParams.add(bg.bGui);
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	showGuiParams.add(lights.bGui);
-	//showGuiParams.add(lights.bGui_Shadows);
 #endif
 
 	parameters.add(showGuiParams);
@@ -220,7 +220,7 @@ void ofxSurfingPBR::setupParams() {
 	drawParams.add(bDrawFloorBox);
 
 	drawParams.add(bg.bDrawBgObject);
-	drawParams.add(bg.bDrawBgPlainColor);
+	drawParams.add(bg.bDrawBgColorPlain);
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	bDrawCubeMap.set("Draw Bg CubeMap", true);
@@ -236,9 +236,6 @@ void ofxSurfingPBR::setupParams() {
 	//--
 
 	floorParams.setName("Floor");
-	floorMaterialParams.setName("Floor Material");
-	floorSettingsParams.setName("Settings");
-	floorColorsParams.setName("Colors");
 	floorTransformParams.setName("Transform");
 	internalParams.setName("Internal");
 	advancedParams.setName("Advanced");
@@ -258,20 +255,6 @@ void ofxSurfingPBR::setupParams() {
 	floorResolution.set("Resolution", glm::vec2(0.5f, 0.5f), glm::vec2(0, 0), glm::vec2(1.f, 1.f));
 	floorRotation.set("x Rotation", 0, -45, 135);
 	floorPosition.set("y Position", 0, -1, 1);
-	floorShiness.set("Shiness", 0.85 * SURFING__PBR__MAX_SHININESS, 0, SURFING__PBR__MAX_SHININESS);
-	floorRoughness.set("Roughness", 0.5, 0, 1);
-	floorBoxDepth.set("BoxFloor Depth", 5, 1, 100);
-#ifdef SURFING__PBR__PLANE_COLORS_NO_ALPHA
-	floorGlobalColor.set("Global Color", ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
-	floorDiffuseColor.set("Diffuse Color", ofFloatColor(0.f), ofFloatColor(0.f), ofFloatColor(1.f));
-	floorSpecularColor.set("Specular Color", ofFloatColor(1.f), ofFloatColor(0.f), ofFloatColor(1.f));
-#else
-	floorGlobalColor.set("Global Color", ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
-	floorDiffuseColor.set("Diffuse Color", ofFloatColor(0.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
-	floorSpecularColor.set("Specular Color", ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
-#endif
-
-	floorGlobalColor.setSerializable(false);
 
 	//--
 
@@ -281,20 +264,7 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	floorMaterialParams.add(floorGlobalColor);
-
-	//TODO: add more..
-	floorColorsParams.add(floorDiffuseColor);
-	floorColorsParams.add(floorSpecularColor);
-	floorMaterialParams.add(floorColorsParams);
-
-	floorSettingsParams.add(floorShiness);
-	floorSettingsParams.add(floorRoughness);
-	floorMaterialParams.add(floorSettingsParams);
-
-	floorParams.add(floorMaterialParams);
-
-	//--
+	floorMaterial.setup("MATERIAL FLOOR");
 
 	floorTransformParams.add(floorPosition);
 	floorTransformParams.add(floorRotation);
@@ -614,7 +584,7 @@ void ofxSurfingPBR::setup() {
 	ofLogNotice("ofxSurfingPBR") << "setup() Start";
 
 	// for using on any objects
-	material.setup();
+	material.setup("MATERIAL AUX");
 
 	//--
 
@@ -862,7 +832,7 @@ void ofxSurfingPBR::setupGui() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshGui() {
 	if (!guiManager.bAutoLayout) return;
-	
+
 	ofLogNotice("ofxSurfingPBR") << "refreshGui()";
 
 	// top-left
@@ -886,15 +856,7 @@ void ofxSurfingPBR::refreshGui() {
 
 	gui.getGroup(floorParams.getName()).minimize();
 
-	gui.getGroup(floorParams.getName())
-		.getGroup(floorMaterialParams.getName())
-		.getGroup(floorSettingsParams.getName())
-		.minimize();
-
-	gui.getGroup(floorParams.getName())
-		.getGroup(floorMaterialParams.getName())
-		.getGroup(floorColorsParams.getName())
-		.minimize();
+	floorMaterial.refreshGui();
 
 	gui.getGroup(testSceneParams.getName()).minimize();
 	gui.getGroup(cameraParams.getName()).minimize();
@@ -1055,6 +1017,12 @@ void ofxSurfingPBR::drawOfxGui() {
 			lights.drawGui();
 		}
 #endif
+
+		//--
+
+		floorMaterial.drawGui();
+
+		//--
 	}
 }
 
@@ -1242,29 +1210,7 @@ void ofxSurfingPBR::draw() {
 
 		drawBg();
 
-		//----
-
-		////TODO: Fix faces
-		//#define FIX_TWEAK_FACES 0
-		//#if FIX_TWEAK_FACES
-		//		glEnable(GL_CULL_FACE);
-		//
-		//		glFrontFace(GL_CW);
-		//		// Maybe should fix bc makes some models non solid / "transparent"...
-		//		// sets the orientation for front-facing
-		//		// polygons1GL_CW means that polygons with vertices
-		//		// in clockwise order on the screen are considered front-facing1.
-		//
-		//		glCullFace(GL_BACK);
-		//#endif
-
-		{
-			f_RenderScene();
-		}
-
-		//#if FIX_TWEAK_FACES
-		//		glDisable(GL_CULL_FACE);
-		//#endif
+		f_RenderScene();
 
 		//----
 
@@ -1273,8 +1219,6 @@ void ofxSurfingPBR::draw() {
 #endif
 
 		//--
-
-		//ofDisableDepthTest();
 
 		drawPBRSceneDebug();
 	}
@@ -1509,27 +1453,6 @@ void ofxSurfingPBR::ChangedFloor(ofAbstractParameter & e) {
 		floorBox.setPosition(0, floorPosition.get() * SURFING__PBR__SCENE_SIZE_UNIT * 5.f, 0);
 	}
 
-	else if (name == floorShiness.getName()) {
-		floorMaterial.setShininess(floorShiness.get());
-	} else if (name == floorRoughness.getName()) {
-		floorMaterial.setRoughness(floorRoughness.get());
-	}
-
-	else if (name == floorGlobalColor.getName()) {
-		if (!bDoneStartup) return; //fix crash
-
-		floorDiffuseColor.set(floorGlobalColor.get());
-		floorSpecularColor.set(floorGlobalColor.get());
-	}
-
-	else if (name == floorDiffuseColor.getName()) {
-		floorMaterial.setDiffuseColor(floorDiffuseColor.get());
-	}
-
-	else if (name == floorSpecularColor.getName()) {
-		floorMaterial.setSpecularColor(floorSpecularColor.get());
-	}
-
 	else if (name == vResetFloor.getName()) {
 		doResetFloor();
 	}
@@ -1624,7 +1547,7 @@ void ofxSurfingPBR::ChangedDraw(ofAbstractParameter & e) {
 	//--
 
 	//workflow
-	if (name == bg.bDrawBgPlainColor.getName() && bg.bDrawBgPlainColor.get()) {
+	if (name == bg.bDrawBgColorPlain.getName() && bg.bDrawBgColorPlain.get()) {
 		if (bDrawCubeMap) bDrawCubeMap.set(false);
 	}
 
@@ -1741,10 +1664,6 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 		doResetCubeMap();
 	}
 
-	//else if (name == cubeMapExposure.getName()) {
-	//	cubeMap.setExposure(cubeMapExposure);
-	//}
-
 	else if (name == cubeMapMode.getName()) {
 		//TODO:
 		//return;//fix crash
@@ -1776,22 +1695,15 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 	//workflow
 	#if 1
 		if (bDrawCubeMap) {
-			if (bg.bDrawBgPlainColor) bg.bDrawBgPlainColor.set(false);
+			if (bg.bDrawBgColorPlain) bg.bDrawBgColorPlain.set(false);
 			if (bg.bDrawBgObject) bg.bDrawBgObject.set(false);
 		}
 	#endif
 	}
-
-	////#ifdef SURFING__PBR__USE_CUBE_MAP
-	////	if (name == bg.bDrawBgPlainColor.getName()) {
-	////		if (!bLoadedCubeMap) return; //skip
-	////		//workflow
-	////		if (bg.bDrawBgPlainColor)
-	////			if (bDrawCubeMap) bDrawCubeMap = false;
-	////	}
-	////#endif
 }
 #endif
+
+//--
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawTestScene() {
@@ -1880,7 +1792,7 @@ void ofxSurfingPBR::drawPlane() {
 		floorPlane.drawWireframe();
 	}
 
-	//else 
+	//else
 	{
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 		if (bShaderToPlane)
@@ -1914,7 +1826,7 @@ void ofxSurfingPBR::drawBoxFloor() {
 		floorBox.drawWireframe();
 	}
 
-	//else 
+	//else
 	{
 		beginMaterialPlane();
 		{
@@ -1929,7 +1841,6 @@ void ofxSurfingPBR::exit() {
 	ofLogNotice("ofxSurfingPBR") << "exit()";
 
 #ifndef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
-
 	// Should not mandatory as settings should be internally auto saved when changing.
 
 	// Not required to be called bc it's using the auto saver!
@@ -1941,7 +1852,6 @@ void ofxSurfingPBR::exit() {
 	#ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	lights.exit();
 	#endif
-
 #endif
 
 	if (bEnableCameraAutosave) doSaveCamera();
@@ -1973,7 +1883,7 @@ bool ofxSurfingPBR::load() {
 
 	b = ofxSurfing::loadSettings(parameters, path);
 
-	//CubeMap
+	// CubeMap
 	loadCubeMap(path_CubemapFileAbsPath.get());
 
 	//--
@@ -1989,10 +1899,10 @@ bool ofxSurfingPBR::load() {
 void ofxSurfingPBR::saveAll() {
 	ofLogNotice("ofxSurfingPBR") << "saveAll -> " << path;
 
-	//save scene
+	// save scene
 	ofxSurfing::saveSettings(parameters, path);
 
-	//save all: material, bg, lights and camera.
+	// save all: material, bg, lights and camera.
 	material.save();
 	bg.save();
 
@@ -2020,7 +1930,7 @@ bool ofxSurfingPBR::loadAll() {
 
 	b = ofxSurfing::loadSettings(parameters, path);
 
-	//CubeMap
+	// CubeMap
 	loadCubeMap(path_CubemapFileAbsPath.get());
 
 	//load all: material, bg, lights and camera.
@@ -2045,7 +1955,8 @@ bool ofxSurfingPBR::loadAll() {
 //--------------------------------------------------------------
 bool ofxSurfingPBR::getSettingsFileFoundForScene() {
 
-	// search for the mandatory settings file to consider if the app is opened for the first time.
+	// search for the mandatory settings file 
+	// to consider if the app is opened for the first time.
 	bool b = ofxSurfing::checkFileExist(path);
 	if (b) {
 		ofLogNotice("ofxSurfingPBR") << "getSettingsFileFound(): Found file settings!";
@@ -2068,10 +1979,10 @@ bool ofxSurfingPBR::getSettingsFileFound() {
 
 	//--
 
-	//not required, but we log if it's located or not.
+	// not required, but we log if it's located or not.
 	getSettingsFileFoundForMaterial();
 
-	//not required, but we log if it's located or not.
+	// not required, but we log if it's located or not.
 	getSettingsFileFoundForCamera();
 
 	//--
@@ -2263,18 +2174,18 @@ void ofxSurfingPBR::keyPressed(int key) {
 
 	if (key == 'b') {
 		if (bg.bDrawBgObject) {
-			bg.bDrawBgPlainColor = true;
+			bg.bDrawBgColorPlain = true;
 		}
-		
-		else if (bg.bDrawBgPlainColor) {
+
+		else if (bg.bDrawBgColorPlain) {
 			bDrawCubeMap = true;
-		} 
-		
+		}
+
 		else if (bDrawCubeMap) {
 			bDrawCubeMap = false;
 		}
-		
-		else if (!bDrawCubeMap && !bg.bDrawBgObject && !bg.bDrawBgPlainColor) {
+
+		else if (!bDrawCubeMap && !bg.bDrawBgObject && !bg.bDrawBgColorPlain) {
 			bg.bDrawBgObject = true;
 		}
 	}
@@ -2294,10 +2205,9 @@ void ofxSurfingPBR::keyPressed(int key) {
 
 	if (key == 'i') bFloorInfinite = !bFloorInfinite;
 
-	//if (key == OF_KEY_TAB) doNextLayouGui(); //next layout gui
-
 	if (key == 'l') doNextLayoutHelp(); //next layout help
 	if (key == 'L') doPrevLayoutHelp(); //prev layout help
+	//if (key == OF_KEY_TAB) doNextLayouGui(); //next layout gui
 
 	if (key == 'f') ofToggleFullscreen();
 	if (key == 'u') {
@@ -2350,11 +2260,7 @@ void ofxSurfingPBR::doResetFloor() {
 
 	doResetFloorTransform();
 
-	floorShiness.set(0.85 * SURFING__PBR__MAX_SHININESS);
-	floorRoughness.set(0.5);
-
-	ofFloatColor c = ofFloatColor(0.5f, 1.f);
-	floorGlobalColor.set(c);
+	floorMaterial.doResetMaterial();
 
 	bFloorWireframe = false;
 
@@ -2450,7 +2356,7 @@ void ofxSurfingPBR::doResetAll(bool bExcludeExtras) {
 	if (!bExcludeExtras) lights.doResetShadow();
 #endif
 
-		// shader displacer
+	// shader displacer
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 	doResetNoise();
 	doResetDisplace();
@@ -2534,12 +2440,10 @@ void ofxSurfingPBR::doResetDefaultScene() {
 	ofLogNotice("ofxSurfingPBR") << "doResetDefaultScene()";
 
 	// Background
-	bg.bDrawBgPlainColor.set(true);
+	bg.bDrawBgColorPlain.set(true);
 	bg.bgColorPlain.set(ofFloatColor(0, 0.03, 0.3, 1));
 
-	// Plane
-	floorGlobalColor.set(ofFloatColor::red);
-	//floorGlobalColor.set(ofFloatColor(0.25, 0, 0.5, 1));
+	floorMaterial.doResetMaterial();
 
 	// Material
 	material.roughness = 0.5;

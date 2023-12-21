@@ -174,7 +174,7 @@ public:
 
 	// Material A for the floor plane or box
 public:
-	ofMaterial floorMaterial;
+	SurfingMaterial floorMaterial;
 
 	//legacy
 	void beginMaterialPlane();
@@ -313,9 +313,6 @@ public:
 	ofParameter<bool> bDrawFloorBox;
 
 	ofParameterGroup floorParams;
-	ofParameterGroup floorMaterialParams;
-	ofParameterGroup floorSettingsParams;
-	ofParameterGroup floorColorsParams;
 	ofParameterGroup floorTransformParams;
 
 	ofParameter<bool> bFloorWireframe;
@@ -328,13 +325,6 @@ public:
 
 	ofParameter<float> floorRotation; //x axis
 	ofParameter<float> floorPosition; //y pos
-
-	ofParameter<ofFloatColor> floorGlobalColor; //linked (as master not target) to the other colors
-	ofParameter<ofFloatColor> floorDiffuseColor;
-	ofParameter<ofFloatColor> floorSpecularColor;
-
-	ofParameter<float> floorShiness;
-	ofParameter<float> floorRoughness;
 
 	ofParameter<void> vResetFloor;
 	ofParameter<void> vResetFloorTransform;

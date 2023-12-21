@@ -88,7 +88,7 @@ private:
 	// Bg color plain
 public:
 	ofParameterGroup bgColorPlainParams;
-	ofParameter<bool> bDrawBgPlainColor;
+	ofParameter<bool> bDrawBgColorPlain;
 	ofParameter<ofFloatColor> bgColorPlain;
 
 public:
@@ -148,18 +148,18 @@ public:
 
 	ofParameter<float> shininess;
 
-	ofParameter<float> brightGlobal;
+	//ofParameter<float> brightGlobal;
 
 private:
 	float brightGlobal_ = -1;
 
 public:
 	void setColorBgGroup(ofFloatColor color);
-	void setBrightToColorGroup(float brg);
+	//void setBrightToColorGroup(float brg);
 
 private:
 	bool bFlagSetColorBgGroup = false;
-	bool bFlagSetBrightToColorGroup = false;
+	//bool bFlagSetBrightToColorGroup = false;
 
 public:
 	void doResetAll();
