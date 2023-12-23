@@ -246,7 +246,17 @@ public:
 	void setEmissiveColor(ofFloatColor c) {
 		emissiveColor.set(c);
 	}
+
 	void setShininess(float shininess) {
 		this->shininess.set(shininess);
+	}
+	void setRoughness(float shininess) {
+		this->roughness.set(shininess);
+	}
+	void setMetallic(float shininess) {
+		this->metallic.set(shininess);
+	}
+	void setReflectance(float shininess) {
+		this->reflectance.set(shininess);
 	}
 };

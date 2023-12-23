@@ -206,7 +206,7 @@ void ofxSurfingPBR::setupParams() {
 
 	showGuiParams.setName("UI");
 	showGuiParams.add(material.bGui);
-	showGuiParams.add(floorMaterial.bGui);
+	showGuiParams.add(materialFloor.bGui);
 	showGuiParams.add(bg.bGui);
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
@@ -264,7 +264,7 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	floorMaterial.setup("MATERIAL FLOOR");
+	materialFloor.setup("MATERIAL FLOOR");
 
 	floorTransformParams.add(floorPosition);
 	floorTransformParams.add(floorRotation);
@@ -551,13 +551,13 @@ void ofxSurfingPBR::updateDisplace() {
 
 	// apply displace to material plane
 	if (bDisplaceToMaterial) {
-		floorMaterial.setDisplacementTexture(img.getTexture());
+		materialFloor.setDisplacementTexture(img.getTexture());
 
-		floorMaterial.setDisplacementStrength(displacementStrength);
-		floorMaterial.setDisplacementNormalsStrength(displacementNormalsStrength);
-		floorMaterial.setNormalGeomToNormalMapMix(normalGeomToNormalMapMix);
+		materialFloor.setDisplacementStrength(displacementStrength);
+		materialFloor.setDisplacementNormalsStrength(displacementNormalsStrength);
+		materialFloor.setNormalGeomToNormalMapMix(normalGeomToNormalMapMix);
 
-		//floorMaterial.setTexCoordScale(scaleX, scaleY);
+		//materialFloor.setTexCoordScale(scaleX, scaleY);
 	}
 }
 
@@ -826,7 +826,7 @@ void ofxSurfingPBR::setupGui() {
 
 	guiManager.add(&gui, bGui);
 	guiManager.add(&material.gui, material.bGui);
-	guiManager.add(&floorMaterial.gui, floorMaterial.bGui);
+	guiManager.add(&materialFloor.gui, materialFloor.bGui);
 	guiManager.add(&bg.gui, bg.bGui);
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	guiManager.add(&lights.gui, lights.bGui);
@@ -872,7 +872,7 @@ void ofxSurfingPBR::refreshGui() {
 
 	gui.getGroup(floorParams.getName()).minimize();
 
-	floorMaterial.refreshGui();
+	materialFloor.refreshGui();
 
 	gui.getGroup(testSceneParams.getName()).minimize();
 	gui.getGroup(cameraParams.getName()).minimize();
@@ -970,11 +970,11 @@ void ofxSurfingPBR::endMaterial() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::beginMaterialPlane() {
-	floorMaterial.begin();
+	materialFloor.begin();
 }
 //--------------------------------------------------------------
 void ofxSurfingPBR::endMaterialPlane() {
-	floorMaterial.end();
+	materialFloor.end();
 }
 
 //--------------------------------------------------------------
@@ -1040,7 +1040,7 @@ void ofxSurfingPBR::drawOfxGui() {
 
 		//--
 
-		floorMaterial.drawGui();
+		materialFloor.drawGui();
 
 #endif
 
@@ -1639,9 +1639,9 @@ void ofxSurfingPBR::ChangedDisplacers(ofAbstractParameter & e) {
 		if (bDisplaceToMaterial) { //workflow
 			if (bShaderToPlane) bShaderToPlane = false;
 		} else { //release mods
-			floorMaterial.setDisplacementStrength(0);
-			floorMaterial.setDisplacementNormalsStrength(0);
-			floorMaterial.setNormalGeomToNormalMapMix(0);
+			materialFloor.setDisplacementStrength(0);
+			materialFloor.setDisplacementNormalsStrength(0);
+			materialFloor.setNormalGeomToNormalMapMix(0);
 		}
 	}
 
@@ -2282,7 +2282,7 @@ void ofxSurfingPBR::doResetFloor() {
 
 	doResetFloorTransform();
 
-	floorMaterial.doResetMaterial();
+	materialFloor.doResetMaterial();
 
 	bFloorWireframe = false;
 
@@ -2465,7 +2465,7 @@ void ofxSurfingPBR::doResetDefaultScene() {
 	bg.bDrawBgColorPlain.set(true);
 	bg.bgColorPlain.set(ofFloatColor(0, 0.03, 0.3, 1));
 
-	floorMaterial.doResetMaterial();
+	materialFloor.doResetMaterial();
 
 	// Material
 	material.roughness = 0.5;

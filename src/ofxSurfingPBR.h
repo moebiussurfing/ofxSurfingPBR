@@ -174,7 +174,7 @@ public:
 
 	// Material A for the floor plane or box
 public:
-	SurfingMaterial floorMaterial;
+	SurfingMaterial materialFloor;
 
 	//legacy
 	void beginMaterialPlane();

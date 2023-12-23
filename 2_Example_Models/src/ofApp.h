@@ -33,9 +33,9 @@ the floor, all the `4 lights kit`, the background generators and the cubeMap.
 // OPTIONAL:
 //#define OF_APP__USE__OPTIONAL_SETUP
 // Uncomment to test some optional features:
-// - Changes log level.
-// - Check if the app is probably opened for the first time.
-// - Forces some scene settings.
+// 1. Changes log level to verbose.
+// 2. Check if the app is probably opened for the first time.
+// 3. Forces some scene settings.
 
 //--
 

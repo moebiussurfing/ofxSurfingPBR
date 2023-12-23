@@ -56,6 +56,7 @@ void ofApp::setupPBR() {
 
 #ifdef OF_APP__USE__OPTIONAL_SETUP
 
+	// 1. 
 	// Set log level verbose
 	pbr.setLogLevel(OF_LOG_VERBOSE);
 
@@ -68,9 +69,11 @@ void ofApp::setupPBR() {
 	// that means that there's no settings file located.
 	#define FORCE_OVERWRITE_SCENE_ALWAYS_EVEN_IF_LOCATED_FILE_SETTINGS 1
 	#if (!FORCE_OVERWRITE_SCENE_ALWAYS_EVEN_IF_LOCATED_FILE_SETTINGS)
+	// 2.
 	if (!pbr.getSettingsFileFound())
 	#endif
 	{
+		// 3.
 		ofLogWarning("ofApp") << "Settings file ofxSurfingPBR_Scene.json not found!";
 		ofLogWarning("ofApp") << "Forcing the ofxSurfingPBR initial scene with some settings.";
 
@@ -82,11 +85,10 @@ void ofApp::setupPBR() {
 
 		// Floor
 		pbr.bDrawFloorBox = true;
+
 		// Floor material
-		pbr.floorGlobalColor.set(ofFloatColor { 0, 0.5, 0.25, 1 });
-		pbr.floorShiness = 0.5;
-		pbr.floorMaterial.setRoughness(0.5); //accessing the public ofMaterial
-		//pbr.floorRoughness = 0.5; //does the same that above line
+		pbr.materialFloor.globalColor.set(ofFloatColor { 0, 0.5, 0.25, 1 });
+		pbr.materialFloor.setRoughness(0.5); //accessing the public ofMaterial
 
 		// Other objects material
 		pbr.material.shininess = 0.5 * SURFING__PBR__MAX_SHININESS;
@@ -173,7 +175,9 @@ void ofApp::setupGui() {
 
 	guiManager.setup(&gui);
 	guiManager.add(&gui);
+#ifdef OF_APP__USE__MODELS_MANAGER
 	guiManager.add(modelsManager.getGuiPtr());
+#endif
 	guiManager.startup();
 
 	gui.getGroup(animateParams.getName()).minimize();
