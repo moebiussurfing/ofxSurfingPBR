@@ -4,10 +4,7 @@
 void ofApp::setup() {
 
 #if 1
-	// Theme
 	ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
-
-	// App window
 	ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
 	ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
 #endif
@@ -78,7 +75,7 @@ void ofApp::setupPBR() {
 		ofLogWarning("ofApp") << "Forcing the ofxSurfingPBR initial scene with some settings.";
 
 		// Background
-		pbr.bg.bDrawBgObject.set(true);
+		pbr.bg.bDrawBgColorObject.set(true);
 		pbr.bg.globalColor.set(ofFloatColor { 0, 1, 1, 1 });
 		pbr.bg.bDrawWireframe.set(true);
 		pbr.bg.wireColor.set(ofFloatColor { 0, 0, 0, 0.5 });
@@ -173,7 +170,11 @@ void ofApp::setupParams() {
 void ofApp::setupGui() {
 
 	gui.setup(parameters);
+
 	guiManager.setup(&gui);
+	guiManager.add(&gui);
+	guiManager.add(modelsManager.getGuiPtr());
+	guiManager.startup();
 
 	gui.getGroup(animateParams.getName()).minimize();
 
@@ -376,15 +377,14 @@ void ofApp::drawGui() {
 	//--
 
 	if (pbr.bGui_ofxGui) {
-		gui.draw();
 
 #ifdef OF_APP__USE__MODELS_MANAGER
 		if (indexScene == 2) {
-
-			// Attach/link both panels positions
-			ofxSurfing::setGuiPositionRightTo(modelsManager.getGui(), gui);
-			modelsManager.drawGui();
-		}
+			guiManager.draw();
+		} else
+			gui.draw();
+#else
+		gui.draw();
 #endif
 	}
 
@@ -399,13 +399,6 @@ void ofApp::drawHelp() {
 	// Responsive layout
 	if (bHelp) {
 		ofxSurfing::ofDrawBitmapStringBox(sHelp, &gui, ofxSurfing::SURFING_LAYOUT_TOP_LEFT);
-
-		// Responsive layout
-		//auto l = pbr.getLayoutHelp();
-		//if (l == ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT || l == ofxSurfing::SURFING_LAYOUT_CENTER_LEFT)
-		//	ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
-		//else
-		//	ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
 	}
 
 #ifdef OF_APP__USE__MODELS_MANAGER
@@ -449,8 +442,8 @@ void ofApp::doPrevScene() {
 
 //--------------------------------------------------------------
 void ofApp::buildHelp() {
-	sHelp = "";
 
+	sHelp = "";
 	sHelp += "HELP\n";
 	sHelp += "ofApp\n";
 	sHelp += "\n";
@@ -460,7 +453,6 @@ void ofApp::buildHelp() {
 	sHelp += "R Rotate\n";
 	sHelp += "A Zoom Anim\n";
 	sHelp += "\n";
-
 	sHelp += "#" + ofToString(indexScene) + "\n";
 	sHelp += "SCENE\n";
 	sHelp += namesScenes[indexScene] + "\n";
@@ -471,34 +463,8 @@ void ofApp::buildHelp() {
 
 //--------------------------------------------------------------
 void ofApp::refreshGui() {
-	if (!guiManager.bAutoLayout) return;
 
-	// Link and group all the gui panels and help text boxes.
-
-	// Center visible gui panels at the window top/bottom:
-	// Move gui/s to:
-	// layout 0: bottom-center.
-	// layout 1: top-center.
-	size_t layout = pbr.getGuiLayout();
-	
-	ofxSurfing::SURFING_LAYOUT l;
-	if (layout == 1) {
-		l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
-	} else {
-		l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
-	}
-
-#ifdef OF_APP__USE__MODELS_MANAGER
-	if (indexScene == 2) { // ofApp gui and models manager gui
-		ofxSurfing::setGuiPositionToLayoutBoth(gui, modelsManager.getGui(), l);
-	}
-
-	else { // ofApp gui
-		ofxSurfing::setGuiPositionToLayout(gui, l);
-	}
-#else
-	ofxSurfing::setGuiPositionToLayout(gui, l);
-#endif
+	guiManager.refreshGui();
 }
 
 //--------------------------------------------------------------
@@ -540,6 +506,7 @@ void ofApp::windowResized(ofResizeEventArgs & resize) {
 
 //--------------------------------------------------------------
 void ofApp::load() {
+	//return;
 	ofLogNotice("ofApp") << "load()";
 
 	autoSaver.pause();

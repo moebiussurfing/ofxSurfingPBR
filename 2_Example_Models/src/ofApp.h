@@ -24,13 +24,13 @@ the floor, all the `4 lights kit`, the background generators and the cubeMap.
 
 //--
 
-// OPTIONAL: 
+// OPTIONAL:
 #define OF_APP__USE__MODELS_MANAGER
-// We will draw some meshes. 
+// We will draw some meshes.
 // Uncomment to use an internal class helper: SurfingModelsManager.h
 // Comment to use more low level (raw/vanilla) OF core classes.
- 
-// OPTIONAL: 
+
+// OPTIONAL:
 //#define OF_APP__USE__OPTIONAL_SETUP
 // Uncomment to test some optional features:
 // - Changes log level.
@@ -109,11 +109,7 @@ public:
 
 	ofParameter<int> indexScene { "SCENE", 0, 0, 2 };
 	ofParameter<string> nameScene { "Name", "" };
-	vector<string> namesScenes = {
-		"Test Scene",
-		"Mesh",
-		"Model"
-	};
+	vector<string> namesScenes = { "Test Scene", "Mesh", "Model" };
 	ofEventListener listenerIndexScene;
 
 	ofParameter<void> vReset { "Reset Scene" };

@@ -362,7 +362,7 @@ void SurfingLights::drawGui() {
 		glm::vec2 p;
 		if (bGui) {
 			p = gui.getShape().getTopRight();
-			p += glm::vec2 { (float)SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0.f };
+			p += glm::vec2 { (float)SURFING__OFXGUI__PAD_BETWEEN_PANELS, 0.f };
 		} else {
 			p = gui.getPosition();
 		}
@@ -624,7 +624,7 @@ void SurfingLights::setupParametersLights() {
 
 	// Groups
 
-	parameters.setName("PBR_LIGHTS");
+	parameters.setName("LIGHTS");
 
 	lightsParams.setName("Lights");
 	lightsSettingsParams.setName("Lights Settings");

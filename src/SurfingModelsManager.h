@@ -344,6 +344,10 @@ public:
 		return filesBrowserModels.gui;
 	}
 
+	ofxPanel * getGuiPtr() {
+		return &filesBrowserModels.gui;
+	}
+
 	void drawHelp() {
 		filesBrowserModels.drawHelp();
 	}

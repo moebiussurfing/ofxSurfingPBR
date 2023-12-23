@@ -56,6 +56,9 @@ private:
 
 public:
 	ofxPanel gui;
+private:
+	ofEventListener listenerSaveOfxGui;
+	ofEventListener listenerLoadOfxGui;
 
 private:
 	void startup();
@@ -75,7 +78,8 @@ private:
 private:
 	void Changed(ofAbstractParameter & e);
 	void ChangedScene(ofAbstractParameter & e);
-	void ChangedColors(ofAbstractParameter & e);
+	void ChangedBgColor(ofAbstractParameter & e);
+	void ChangedBgColorObject(ofAbstractParameter & e);
 
 	//--
 
@@ -87,7 +91,7 @@ private:
 
 	// Bg color plain
 public:
-	ofParameterGroup bgColorPlainParams;
+	ofParameterGroup paramsColorPlain;
 	ofParameter<bool> bDrawBgColorPlain;
 	ofParameter<ofFloatColor> bgColorPlain;
 
@@ -111,10 +115,10 @@ private:
 	void loadTexture(string path);
 
 public:
-	ofParameterGroup paramsObject;
+	ofParameterGroup paramsColorObject;
 	//ofParameterGroup paramsExtra;
 
-	ofParameter<bool> bDrawBgObject;
+	ofParameter<bool> bDrawBgColorObject;
 	ofParameter<bool> bDrawWireframe;
 	ofParameter<ofFloatColor> wireColor;
 	ofParameter<bool> bModeBox;
@@ -130,9 +134,9 @@ public:
 	ofParameter<void> vResetScene;
 	ofParameter<void> vResetColors;
 
-	ofParameterGroup paramsColor;
-	ofParameterGroup paramsColorizers;
-	ofParameterGroup paramsColorsGlobal;
+	ofParameterGroup paramsColorMaterial;
+	ofParameterGroup paramsBgColor;
+	//ofParameterGroup paramsColorsGlobal;
 
 	ofParameter<ofFloatColor> globalColor;
 
@@ -148,29 +152,17 @@ public:
 
 	ofParameter<float> shininess;
 
-	//ofParameter<float> brightGlobal;
-
 private:
 	float brightGlobal_ = -1;
 
 public:
 	void setColorBgGroup(ofFloatColor color);
-	//void setBrightToColorGroup(float brg);
 
 private:
 	bool bFlagSetColorBgGroup = false;
-	//bool bFlagSetBrightToColorGroup = false;
 
 public:
 	void doResetAll();
 	void doResetScene();
 	void doResetColors();
-
-	//public:
-	//ofParameter<bool> bAutoSetColor;
-	//ofParameter<bool> Bg_AutoSetColorPick;
-	//ofParameter<bool> bInCam;
-
-	//private:
-	//	bool bAttendingRefreshColor = false;
 };

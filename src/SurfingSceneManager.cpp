@@ -276,7 +276,7 @@ void SurfingSceneManager::draw() {
 //void SurfingSceneManager::drawGui(ofxPanel * guiPtr) {
 //	if (guiPtr != nullptr) {
 //		glm::vec3 p;
-//		p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0);
+//		p = gui.getShape().getTopRight() + glm::vec2(SURFING__OFXGUI__PAD_BETWEEN_PANELS, 0);
 //	}
 //}
 

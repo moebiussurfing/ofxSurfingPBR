@@ -193,7 +193,7 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	parameters.setName("PBR_SCENE");
+	parameters.setName("SCENE");
 
 	vLoadAll.set("Load All");
 	vSaveAll.set("Save All");
@@ -219,7 +219,7 @@ void ofxSurfingPBR::setupParams() {
 	drawParams.add(bDrawFloorPlane);
 	drawParams.add(bDrawFloorBox);
 
-	drawParams.add(bg.bDrawBgObject);
+	drawParams.add(bg.bDrawBgColorObject);
 	drawParams.add(bg.bDrawBgColorPlain);
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
@@ -584,7 +584,7 @@ void ofxSurfingPBR::setup() {
 	ofLogNotice("ofxSurfingPBR") << "setup() Start";
 
 	// for using on any objects
-	material.setup("MATERIAL AUX");
+	material.setup("MATERIAL");
 
 	//--
 
@@ -766,6 +766,7 @@ void ofxSurfingPBR::startup() {
 
 	ofLogNotice("ofxSurfingPBR") << "startup() Done! at frame number: " << ofGetFrameNum();
 	bDoneStartup = true;
+	;
 }
 
 //// Will be called on the first update frame.
@@ -818,7 +819,22 @@ void ofxSurfingPBR::setupGui() {
 	gui.setup(parameters);
 
 	refreshGui();
+
+	//--
+
 	guiManager.setup(&gui);
+
+	guiManager.add(&gui, bGui);
+	guiManager.add(&material.gui, material.bGui);
+	guiManager.add(&floorMaterial.gui, floorMaterial.bGui);
+	guiManager.add(&bg.gui, bg.bGui);
+#ifdef SURFING__PBR__USE_LIGHTS_CLASS
+	guiManager.add(&lights.gui, lights.bGui);
+#endif
+
+	guiManager.startup();
+
+	//--
 
 	// assign to ofxGui icons
 	listenerSaveGui = gui.savePressedE.newListener([this] {
@@ -969,18 +985,22 @@ void ofxSurfingPBR::drawOfxGui() {
 
 		//--
 
+		guiManager.draw();
+
+#if 0
+
 		if (material.bGui) {
 			// Force position for material gui
 			glm::vec3 p;
-#if 1
-			p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0);
-#else
+	#if 1
+			p = gui.getShape().getTopRight() + glm::vec2(SURFING__OFXGUI__PAD_BETWEEN_PANELS, 0);
+	#else
 			if (isWindowPortrait()) {
-				p = gui.getShape().getBottomLeft() + glm::vec2(0, SURFING__PAD_OFXGUI_BETWEEN_PANELS);
+				p = gui.getShape().getBottomLeft() + glm::vec2(0, SURFING__OFXGUI__PAD_BETWEEN_PANELS);
 			} else {
-				p = gui.getShape().getTopRight() + glm::vec2(SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0);
+				p = gui.getShape().getTopRight() + glm::vec2(SURFING__OFXGUI__PAD_BETWEEN_PANELS, 0);
 			}
-#endif
+	#endif
 			material.setGuiPosition(p);
 
 			material.drawGui();
@@ -994,7 +1014,7 @@ void ofxSurfingPBR::drawOfxGui() {
 				p = material.gui.getShape().getTopRight();
 			else
 				p = gui.getShape().getTopRight();
-			p += glm::vec2 { (float)SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0.f };
+			p += glm::vec2 { (float)SURFING__OFXGUI__PAD_BETWEEN_PANELS, 0.f };
 			bg.setGuiPosition(p);
 
 			bg.drawGui();
@@ -1002,7 +1022,7 @@ void ofxSurfingPBR::drawOfxGui() {
 
 		//--
 
-#ifdef SURFING__PBR__USE_LIGHTS_CLASS
+	#ifdef SURFING__PBR__USE_LIGHTS_CLASS
 		if (lights.bGui) {
 			glm::vec2 p;
 			if (bg.bGui)
@@ -1011,16 +1031,18 @@ void ofxSurfingPBR::drawOfxGui() {
 				p = material.gui.getShape().getTopRight();
 			else
 				p = gui.getShape().getTopRight();
-			p += glm::vec2 { (float)SURFING__PAD_OFXGUI_BETWEEN_PANELS, 0.f };
+			p += glm::vec2 { (float)SURFING__OFXGUI__PAD_BETWEEN_PANELS, 0.f };
 			lights.setGuiPosition(p);
 
 			lights.drawGui();
 		}
-#endif
+	#endif
 
 		//--
 
 		floorMaterial.drawGui();
+
+#endif
 
 		//--
 	}
@@ -1551,7 +1573,7 @@ void ofxSurfingPBR::ChangedDraw(ofAbstractParameter & e) {
 		if (bDrawCubeMap) bDrawCubeMap.set(false);
 	}
 
-	else if (name == bg.bDrawBgObject.getName() && bg.bDrawBgObject.get()) {
+	else if (name == bg.bDrawBgColorObject.getName() && bg.bDrawBgColorObject.get()) {
 		if (bDrawCubeMap) bDrawCubeMap.set(false);
 	}
 }
@@ -1696,7 +1718,7 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 	#if 1
 		if (bDrawCubeMap) {
 			if (bg.bDrawBgColorPlain) bg.bDrawBgColorPlain.set(false);
-			if (bg.bDrawBgObject) bg.bDrawBgObject.set(false);
+			if (bg.bDrawBgColorObject) bg.bDrawBgColorObject.set(false);
 		}
 	#endif
 	}
@@ -1955,7 +1977,7 @@ bool ofxSurfingPBR::loadAll() {
 //--------------------------------------------------------------
 bool ofxSurfingPBR::getSettingsFileFoundForScene() {
 
-	// search for the mandatory settings file 
+	// search for the mandatory settings file
 	// to consider if the app is opened for the first time.
 	bool b = ofxSurfing::checkFileExist(path);
 	if (b) {
@@ -2173,7 +2195,7 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 'B') bDrawFloorBox = !bDrawFloorBox;
 
 	if (key == 'b') {
-		if (bg.bDrawBgObject) {
+		if (bg.bDrawBgColorObject) {
 			bg.bDrawBgColorPlain = true;
 		}
 
@@ -2185,8 +2207,8 @@ void ofxSurfingPBR::keyPressed(int key) {
 			bDrawCubeMap = false;
 		}
 
-		else if (!bDrawCubeMap && !bg.bDrawBgObject && !bg.bDrawBgColorPlain) {
-			bg.bDrawBgObject = true;
+		else if (!bDrawCubeMap && !bg.bDrawBgColorObject && !bg.bDrawBgColorPlain) {
+			bg.bDrawBgColorObject = true;
 		}
 	}
 
@@ -2356,7 +2378,7 @@ void ofxSurfingPBR::doResetAll(bool bExcludeExtras) {
 	if (!bExcludeExtras) lights.doResetShadow();
 #endif
 
-	// shader displacer
+		// shader displacer
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 	doResetNoise();
 	doResetDisplace();
