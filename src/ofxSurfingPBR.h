@@ -105,7 +105,7 @@ public:
 
 #define DO_SCENE_TEST_TRANSFORMS 1
 	void drawTestScene(); //a simple scene with 3 prims for easy testing
-	void pushTestSceneTRansform();
+	void pushTestSceneTransform();
 	void popTestSceneTransform();
 	ofParameter<bool> bGui_DrawTestScene;
 
@@ -176,12 +176,8 @@ public:
 public:
 	SurfingMaterial materialFloor;
 
-	//legacy
-	void beginMaterialPlane();
-	void endMaterialPlane();
-	//new api
-	void beginMaterialFloor() { beginMaterialPlane(); }
-	void endMaterialFloor() { endMaterialPlane(); }
+	void beginMaterialFloor();
+	void endMaterialFloor();
 
 	//--
 

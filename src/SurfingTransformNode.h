@@ -53,13 +53,19 @@ public:
 		glm::vec3(-180), glm::vec3(180) };
 
 	ofParameter<void> vReset { "Reset" };
+	ofParameter<void> vResetScale { "Reset Scale" };
+	ofParameter<void> vResetPosition{ "Reset Position" };
+	ofParameter<void> vResetRotation{ "Reset Rotation" };
 
 	ofParameterGroup parameters {
 		"Transform",
-		bEnable, scalePow, scale, position, rotation, vReset
+		bEnable, scalePow, scale, position, rotation, vReset, vResetScale, vResetPosition, vResetRotation
 	};
 
 	std::unique_ptr<ofEventListener> e_vReset;
+	std::unique_ptr<ofEventListener> e_vResetScale;
+	std::unique_ptr<ofEventListener> e_vResetRotation;
+	std::unique_ptr<ofEventListener> e_vResetPosition;
 
 	TransformNode() {
 		setup();
@@ -73,6 +79,9 @@ public:
 		, position(other.position)
 		, rotation(other.rotation)
 		, vReset(other.vReset)
+		, vResetScale(other.vResetScale)
+		, vResetPosition(other.vResetPosition)
+		, vResetRotation(other.vResetRotation)
 		, parameters(other.parameters) {
 		setup();
 	}
@@ -82,6 +91,15 @@ public:
 	void setup() {
 		e_vReset = std::make_unique<ofEventListener>(vReset.newListener([this](void) {
 			reset();
+		}));
+		e_vResetScale = std::make_unique<ofEventListener>(vResetScale.newListener([this](void) {
+			resetScale();
+		}));
+		e_vResetPosition = std::make_unique<ofEventListener>(vResetPosition.newListener([this](void) {
+			resetPosition();
+		}));
+		e_vResetRotation = std::make_unique<ofEventListener>(vResetRotation.newListener([this](void) {
+			resetRotation();
 		}));
 	}
 
@@ -292,25 +310,39 @@ public:
 	}
 
 	void reset() {
-		//scalePow = 0;
+		resetScale();
+		resetPosition();
+		resetRotation();
+	}
+	void resetScale() {
+		scalePow = 0;
 		scale = 0;
+	}
+	void resetPosition() {
 		position = glm::vec3(0);
+		//position = glm::vec3(0, 0.1, 0);
+	}
+	void resetRotation() {
 		rotation = glm::vec3(0);
 	}
 
 	//--
 
 public:
+	void push() {
+		ofPushMatrix();
+		update();
+	}
+	void pop() {
+		ofPopMatrix();
+	}
+
 	void update() {
 		// define min/max or de-normalized ranges unit
 		float szUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
-		float sUnit; //scale unit
 		const float dUnit = szUnit; //distance unit
 		const float sPow = scalePow /** powRatio*/; //scale power
 		const float rMax = 360; //rotation max/min. could be 180...
-
-		sUnit = ofMap(scalePow, -100, 100, 0.02 * szUnit, 0.2 * szUnit, true);
-		float s = ofMap(scale, -1, 1, 1.f / sUnit, sUnit, true);
 
 		float x = ofMap(position.get().x, -1, 1, -dUnit, dUnit, true);
 		float y = ofMap(position.get().y, -1, 1, -dUnit, dUnit, true);
@@ -319,6 +351,20 @@ public:
 		float rx = rotation.get().x;
 		float ry = rotation.get().y;
 		float rz = rotation.get().z;
+
+		//TODO: fine tweak
+		//float sUnit; //scale unit
+		//const float r = 0.005;
+		//sUnit = ofMap(scalePow, -100, 100, r * szUnit, 0.5 * r * szUnit, true);
+		//float s = ofMap(scale, -1, 1, 1.f / sUnit, sUnit, true);
+		float s;
+		if (scale == 0) {
+			s = scalePow;
+		} else if (scale > 0) {
+			s = ofMap(scale, 0, 1, scalePow, scalePow * 10, true);
+		} else if (scale < 0) {
+			s = ofMap(scale, 0, -1, scalePow,scalePow / 10.f, true);
+		}
 
 		ofTranslate(x, y, z);
 		ofScale(s, s, s);

@@ -393,8 +393,12 @@ private:
 	vector<ofParameter<bool>> bGuis;
 
 	ofParameterGroup parameters;
-	ofParameter<glm::vec2> position { "Position", glm::vec2(0, 0),
-		glm::vec2(0, 0), glm::vec2(3840, 2160) }; //4k
+
+
+	ofParameter<glm::vec2> position { "Position", 
+		glm::vec2(SURFING__OFXGUI__PAD_TO_WINDOW_BORDERS, SURFING__OFXGUI__PAD_TO_WINDOW_BORDERS),
+		glm::vec2(0, 0), 
+		glm::vec2(3840, 2160) }; //4k
 
 public:
 	ofParameter<bool> bAutoLayout { "AutoLayout", true };

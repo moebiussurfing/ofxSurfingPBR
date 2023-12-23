@@ -969,11 +969,11 @@ void ofxSurfingPBR::endMaterial() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::beginMaterialPlane() {
+void ofxSurfingPBR::beginMaterialFloor() {
 	materialFloor.begin();
 }
 //--------------------------------------------------------------
-void ofxSurfingPBR::endMaterialPlane() {
+void ofxSurfingPBR::endMaterialFloor() {
 	materialFloor.end();
 }
 
@@ -1739,7 +1739,7 @@ void ofxSurfingPBR::drawTestScene() {
 
 	//--
 
-	pushTestSceneTRansform();
+	pushTestSceneTransform();
 
 	{
 		float u = SURFING__PBR__SCENE_SIZE_UNIT / 10.f;
@@ -1771,7 +1771,7 @@ void ofxSurfingPBR::drawTestScene() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::pushTestSceneTRansform() {
+void ofxSurfingPBR::pushTestSceneTransform() {
 #if (DO_SCENE_TEST_TRANSFORMS)
 	// Scene transforms
 	ofPushMatrix();
@@ -1820,7 +1820,7 @@ void ofxSurfingPBR::drawPlane() {
 		if (bShaderToPlane)
 			beginShaderPlane();
 		else
-			beginMaterialPlane();
+			beginMaterialFloor();
 
 		{
 			floorPlane.draw();
@@ -1829,13 +1829,13 @@ void ofxSurfingPBR::drawPlane() {
 		if (bShaderToPlane)
 			endShaderPlane();
 		else
-			endMaterialPlane();
+			endMaterialFloor();
 #else
-		beginMaterialPlane();
+		beginMaterialFloor();
 		{
 			floorPlane.draw();
 		}
-		endMaterialPlane();
+		endMaterialFloor();
 #endif
 	}
 }
@@ -1850,11 +1850,11 @@ void ofxSurfingPBR::drawBoxFloor() {
 
 	//else
 	{
-		beginMaterialPlane();
+		beginMaterialFloor();
 		{
 			floorBox.draw();
 		}
-		endMaterialPlane();
+		endMaterialFloor();
 	}
 }
 
