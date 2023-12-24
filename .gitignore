@@ -643,3 +643,5 @@ MigrationBackup/
 6_Example_3D_Parts/bin/data/models/nike/original/nike1.fbm - Copy/Retro_1001_Roughness.png
 6_Example_3D_Parts/bin/data/models/nike/original/nike1.fbm - Copy/Retro_1001_Normal.png
 6_Example_3D_Parts/bin/data/models/nike/original/nike1.fbm - Copy/Retro_1001_BaseColor.png
+1_Example_Basic/bin/dataClearListToDelete
+1_Example_Basic/bin/pbr1

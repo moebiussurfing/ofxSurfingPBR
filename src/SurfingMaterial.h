@@ -126,8 +126,18 @@ public:
 	ofxPanel guiHelpers;
 	ofParameter<bool> bGui;
 	ofParameter<bool> bGuiHelpers;
+	ofParameter<bool> bKeys;
+	void keyPressed(int key);
 
 	ofParameter<int> & getIndexStateParam();
+
+	void doResetMaterialUser();//TODO: duplicated
+	void doRandomUser();//TODO: duplicated
+	void doRandomSettingsUser();
+	void doRandomColorGlobalUser();
+	void doRandomColorsUser();
+	void doRandomColorsAlphaUser();
+	void doRandomAlphasUser();
 
 public:
 	string path = "";

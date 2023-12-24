@@ -1,8 +1,8 @@
 #pragma once
 #include "ofMain.h"
 
-#include "ofxSurfingSerializers.h"
 #include "ofxGui.h"
+#include "ofxSurfingSerializers.h"
 
 //------
 
@@ -29,7 +29,6 @@
 //#define SURFING__OFXGUI__FONT_DEFAULT_PATH "assets/fonts/JetBrainsMono-Bold.ttf"
 
 namespace ofxSurfing {
-
 
 enum SURFING_LAYOUT {
 	SURFING_LAYOUT_TOP_LEFT = 0,
@@ -377,9 +376,37 @@ void refreshGui() {
 }
 
 */
+#define SURFING_USE_GUI_EXTRA 0 //TODO
+
+//TODO
+namespace ofxSurfing {
+enum SURFING__OFXGUI__LAYOUT_ALIGN {
+	SURFING__OFXGUI__LAYOUT_ALIGN_HORIZONTAL = 0,
+	SURFING__OFXGUI__LAYOUT_ALIGN_VERTICAL
+};
+
+enum SURFING__OFXGUI__MODE {
+	SURFING__OFXGUI__MODE_DRAW_AND_POSITION = 0,
+	SURFING__OFXGUI__MODE_ONLY_POSITION,
+	SURFING__OFXGUI__MODE_ONLY_DRAW
+};
+}
+
 //--------------------------------------------------------------
 class SurfingOfxGuiPanelsManager {
-#define SURFING_USE_GUI_EXTRA 0
+
+public:
+public:
+	SurfingOfxGuiPanelsManager() {
+		name = "";
+		path = "";
+		bDoneStartup = false;
+	};
+
+	~SurfingOfxGuiPanelsManager() {
+		//TODO: kind of bad practice..
+		exit();
+	};
 
 #if (SURFING_USE_GUI_EXTRA)
 public:
@@ -389,26 +416,24 @@ public:
 
 private:
 	ofxPanel * guiAnchor; //act as anchor
+
+	//data
+	//TODO: make a struct
 	vector<ofxPanel *> guis;
 	vector<ofParameter<bool>> bGuis;
+	vector<ofxSurfing::SURFING__OFXGUI__MODE> modes;
 
 	ofParameterGroup parameters;
 
-
-	ofParameter<glm::vec2> position { "Position", 
+	ofParameter<glm::vec2> position { "Position",
 		glm::vec2(SURFING__OFXGUI__PAD_TO_WINDOW_BORDERS, SURFING__OFXGUI__PAD_TO_WINDOW_BORDERS),
-		glm::vec2(0, 0), 
+		glm::vec2(0, 0),
 		glm::vec2(3840, 2160) }; //4k
 
 public:
 	ofParameter<bool> bAutoLayout { "AutoLayout", true };
 
 private:
-	enum SURFING_LAYOUT_ALIGN {
-		SURFING_LAYOUT_ALIGN_HORIZONTAL = 0,
-		SURFING_LAYOUT_ALIGN_VERTICAL
-	};
-
 #if (SURFING_USE_GUI_EXTRA)
 	ofParameterGroup bGuiParams;
 	ofParameterGroup & getParametersGui() {
@@ -419,19 +444,15 @@ private:
 
 	string name;
 	string path;
-	bool bDoneStartup = false;
+	bool bDoneStartup;
 
 public:
-	void setup(ofxPanel * g) {
-		if (g == nullptr) return;
-
-		guiAnchor = g;
+	void setup(ofxPanel * gAnchor) {
+		guiAnchor = gAnchor;
 		name = guiAnchor->getName();
 
 		parameters.setName(name);
 		parameters.add(position);
-
-		//add(g); //auto add
 	}
 
 #if (SURFING_USE_GUI_EXTRA)
@@ -440,25 +461,28 @@ public:
 	}
 #endif
 
-	void add(ofxPanel * g, ofParameter<bool> & b) {
-		if (g == nullptr) return;
-
+	void add(ofxPanel * g, ofParameter<bool> & b, ofxSurfing::SURFING__OFXGUI__MODE mode) {
+		modes.push_back(mode);
 		bGuis.emplace_back(b);
-
 		guis.push_back(g);
+	}
 
-#if (SURFING_USE_GUI_EXTRA)
-		bGuiParams.add(bGuiParams);
-#endif
+	void add(ofxPanel * g, ofParameter<bool> & b) {
+		bGuis.emplace_back(b);
+		guis.push_back(g);
+		modes.push_back(ofxSurfing::SURFING__OFXGUI__MODE_DRAW_AND_POSITION);
 	}
 
 	void add(ofxPanel * g) {
-		if (g == nullptr) return;
-
 		ofParameter<bool> b;
 		b.set(g->getName(), true);
-
 		add(g, b);
+		bGuis.emplace_back(b);
+		guis.push_back(g);
+#if (SURFING_USE_GUI_EXTRA)
+		bGuiParams.add(bGuiParams);
+#endif
+		modes.push_back(ofxSurfing::SURFING__OFXGUI__MODE_DRAW_AND_POSITION);
 	}
 
 	void startup() {
@@ -505,8 +529,6 @@ public:
 
 			ofxSurfing::setGuiPositionToLayout(*guiAnchor, l);
 			//ofxSurfing::setGuiPositionToLayoutBoth(gui, modelsManager.getGui(), l);
-		} else {
-			//return;
 		}
 	}
 
@@ -514,9 +536,9 @@ private:
 	void update() {
 		if (!bDoneStartup) {
 			startup();
-		} 
+		}
 
-		int i_= 0;// last visible
+		int i_ = 0; // last visible
 		for (size_t i = 1; i < guis.size(); i++) {
 			if (!bGuis[i]) continue;
 			ofxSurfing::setGuiPositionRightTo(*guis[i], *guis[i_]);
@@ -533,7 +555,7 @@ public:
 
 		for (size_t i = 0; i < guis.size(); i++) {
 			if (!bGuis[i]) continue;
-			if (bGuis[i]) guis[i]->draw();
+			if (bGuis[i] && modes[i] == ofxSurfing::SURFING__OFXGUI__MODE_DRAW_AND_POSITION) guis[i]->draw();
 		}
 #if (SURFING_USE_GUI_EXTRA)
 		if (bGui && bUseGuiVisibles) gui.draw();
@@ -547,11 +569,6 @@ private:
 
 		ofxSurfing::save(parameters, path);
 	}
-
-public:
-	SurfingOfxGuiPanelsManager() {};
-
-	~SurfingOfxGuiPanelsManager() { exit(); };
 
 	/*
 	* NOTES / SNIPPETS
@@ -581,5 +598,18 @@ public:
 		//else
 		//	ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT);
 
+
+				// Force position for material gui
+			glm::vec3 p;
+	#if 1
+			p = gui.getShape().getTopRight() + glm::vec2(SURFING__OFXGUI__PAD_BETWEEN_PANELS, 0);
+	#else
+			if (isWindowPortrait()) {
+				p = gui.getShape().getBottomLeft() + glm::vec2(0, SURFING__OFXGUI__PAD_BETWEEN_PANELS);
+			} else {
+				p = gui.getShape().getTopRight() + glm::vec2(SURFING__OFXGUI__PAD_BETWEEN_PANELS, 0);
+			}
+	#endif
+			material.setGuiPosition(p);
 	*/
 };

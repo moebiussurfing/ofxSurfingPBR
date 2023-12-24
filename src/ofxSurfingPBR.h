@@ -328,7 +328,9 @@ public:
 
 private:
 	ofxPanel gui;
+	ofxPanel guiFloor;
 	SurfingOfxGuiPanelsManager guiManager;
+	ofParameter<bool> bGuiFloor;
 
 public:
 	//helper to improve layout with many gui panels.
@@ -398,18 +400,11 @@ public:
 	void doResetFloorTransform();
 	void doResetTestScene();
 
-	void doResetMaterial();
-	void doRandomMaterial();
-	void doRandomMaterialSettings();
-	void doRandomMaterialColorGlobal();
-	void doRandomMaterialColors();
-	void doRandomMaterialColorsAlpha();
-	void doRandomMaterialAlphas();
-
 	//--
 
 private:
 	string path = "ofxSurfingPBR_Scene.json";
+	string pathFloor = "ofxSurfingPBR_Floor.json";
 
 public:
 	bool load();

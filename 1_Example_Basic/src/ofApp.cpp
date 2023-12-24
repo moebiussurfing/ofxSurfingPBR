@@ -4,21 +4,13 @@
 void ofApp::setup() {
 
 #if 1
-	// Theme
 	ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
 
 	// App window
-	{
-		ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
-
-		// Auto customizes settings to 60fps and vSync off.
-		// Move and shape the window app.
-		ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
-		//ofxSurfing::setWindowAtMonitor(1, true); // Move to right display and set portrait.
-		//ofxSurfing::setWindowAtMonitor(); // Stay at main display (center in my setup) and landscape.
-
-		//ofxSurfing::setWindowMaxFrameRate();
-	}
+	ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
+	// Auto customizes settings to 60fps and vSync off.
+	ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
+	//ofxSurfing::setWindowMaxFrameRate();
 #endif
 
 	//--
@@ -40,16 +32,15 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
-	// The camera is internal!
+	// The camera is auto handled internally.
 
-	// Floor 
-	// could be selected plane or box modes.
-	// Material A / simple parameters
-	// don't need to begin/end material manually.
+	// Floor
+	// plane or box modes.
+	// draw without requiring to use begin/end material manually, 
 	pbr.drawFloor();
 
-	// For other objects 
-	// Material B / full parameters
+	// Material B
+	// for other objects
 	pbr.beginMaterial();
 	{
 		drawScene();
@@ -61,8 +52,8 @@ void ofApp::renderScene() {
 void ofApp::drawScene() {
 	/* Put your scene drawing here! */
 
-	// Draws an internal bundled 
-	// testing scene with the three prims:
+	// we can easy draw an internal
+	// testing scene with three prims:
 	pbr.drawTestScene();
 }
 

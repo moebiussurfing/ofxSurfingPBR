@@ -9,7 +9,7 @@ SurfingMaterial::SurfingMaterial() {
 
 //--------------------------------------------------------------
 SurfingMaterial::~SurfingMaterial() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:destructor() "<<name;
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:destructor() " << name;
 
 	ofRemoveListener(ofEvents().update, this, &SurfingMaterial::update);
 	ofRemoveListener(settingsParams.parameterChangedE(), this, &SurfingMaterial::ChangedSettings);
@@ -59,7 +59,7 @@ void SurfingMaterial::setupParams() {
 
 	string nameParams;
 
-	if (name == "") { // default workflow. when using one single material instance
+	if (name == "") { // default workflow. when using one single instance
 		path = pathRoot + ext;
 
 		nameParams = "PBR_MATERIAL";
@@ -145,6 +145,7 @@ void SurfingMaterial::setupParams() {
 	parameters.add(globalParams);
 	nameSourceGlobal.setSerializable(false);
 
+	bKeys.set("Keys", false);//TODO: not stored
 	bGuiHelpers.set("UI HELPERS", false);
 	bGuiHelpers.setSerializable(false);
 	// workflow: required to exclude from states/snapshots.
@@ -224,7 +225,7 @@ void SurfingMaterial::refreshGui() {
 	gui.getGroup(colorParams.getName()).minimize();
 	gui.getGroup(globalParams.getName()).getGroup(globalLinksParams.getName()).minimize();
 	gui.getGroup(moreParams.getName()).minimize();
-	
+
 	guiHelpers.getGroup(randomizersParams.getName()).minimize();
 }
 
@@ -825,7 +826,7 @@ void SurfingMaterial::doResetMaterialOfMaterial() {
 }
 
 //--------------------------------------------------------------
-void SurfingMaterial::doResetMaterial(bool bHard ) {
+void SurfingMaterial::doResetMaterial(bool bHard) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doResetMaterial()";
 
 	if (bHard) {
@@ -1028,6 +1029,7 @@ void SurfingMaterial::setupHistoryManager() {
 	historyParams.add(vRemoveState);
 	historyParams.add(vRefeshHistory);
 	historyParams.add(vClearHistory);
+	historyParams.add(bKeys);
 
 	helpersParams.add(historyParams);
 
@@ -1331,10 +1333,9 @@ void SurfingMaterial::load() {
 	// Load
 	{
 		//doResetMaterialOfMaterial();//TODO fix coherence with OF vanilla.. it looks darker..
-		bool b=ofxSurfing::loadSettings(parameters, path);
+		bool b = ofxSurfing::loadSettings(parameters, path);
 		if (b) {
-			ofLogNotice("ofxSurfingPBR") << "Successful loading "<<path;
-
+			ofLogNotice("ofxSurfingPBR") << "Successful loading " << path;
 		}
 	}
 
@@ -1363,4 +1364,79 @@ void SurfingMaterial::exit() {
 //--------------------------------------------------------------
 ofParameter<int> & SurfingMaterial::getIndexStateParam() {
 	return indexHistory;
+}
+
+//--------------------------------------------------------------
+void SurfingMaterial::keyPressed(int key) {
+	if (!bKeys) return;
+
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial::keyPressed(" << key << ") " << name;
+
+	
+	// Randomizers
+	if (key == OF_KEY_F1) doResetMaterial();
+	if (key == OF_KEY_F2) doRandomMaterial();
+	if (key == OF_KEY_F3) doRandomSettingsUser();
+	if (key == OF_KEY_F4) doRandomColorGlobalUser();
+	if (key == OF_KEY_F5) doRandomColorsUser();
+	if (key == OF_KEY_F6) doRandomColorsAlphaUser();
+	if (key == OF_KEY_F7) doRandomAlphasUser();
+
+	// History
+	if (key == 'z') doPrevHistory();
+	if (key == 'x') doNextHistory();
+	if (key == 'r') doRecallState();
+	if (key == 's') doStoreNewState();
+	if (key == 'S') doSaveState();
+}
+//--
+
+//--------------------------------------------------------------
+void SurfingMaterial::doResetMaterialUser() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial::doResetMaterialUser()";
+
+	doResetMaterial();
+	doStoreNewState();
+}
+//--------------------------------------------------------------
+void SurfingMaterial::doRandomUser() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial::doRandomUser()";
+
+	doRandomMaterial();
+	doStoreNewState();
+}
+//--------------------------------------------------------------
+void SurfingMaterial::doRandomSettingsUser() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial::doRandomSettingsUser()";
+
+	doRandomSettings();
+	doStoreNewState();
+}
+//--------------------------------------------------------------
+void SurfingMaterial::doRandomColorGlobalUser() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial::doRandomColorGlobalUser()";
+
+	doRandomColorGlobal();
+	doStoreNewState();
+}
+//--------------------------------------------------------------
+void SurfingMaterial::doRandomColorsUser() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial::doRandomColorsUser()";
+
+	doRandomColors();
+	doStoreNewState();
+};
+//--------------------------------------------------------------
+void SurfingMaterial::doRandomColorsAlphaUser() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial::doRandomColorsAlphaUser()";
+
+	doRandomColorsAlpha();
+	doStoreNewState();
+}
+//--------------------------------------------------------------
+void SurfingMaterial::doRandomAlphasUser() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial::doRandomAlphasUser()";
+
+	doRandomAlphas();
+	doStoreNewState();
 }
