@@ -74,12 +74,12 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "g-G    Gui-ofxGui\n";
 		sHelp += "\n";
 		sHelp += "DRAW\n";
+		sHelp += "b      BG Mode\n";
+		sHelp += "c      BG CubeMap\n";
 		sHelp += "p      Floor Plane\n";
 		sHelp += "B      Floor Box\n";
 		sHelp += "i      Floor Infinite\n";
-		sHelp += "b      Background Mode\n";
 		sHelp += "s      Shadows \n";
-		sHelp += "c      CubeMap\n";
 		sHelp += "\n";
 	}
 	sHelp += "WINDOW\n";
@@ -603,7 +603,7 @@ void ofxSurfingPBR::setupGui() {
 	guiManager.add(&floor.gui, floor.bGui);
 	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_ONLY_POSITION);
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
-	guiManager.add(&lights.gui, lights.bGui);
+	guiManager.add(&lights.gui, lights.bGui, ofxSurfing::SURFING__OFXGUI__MODE_ONLY_POSITION);
 #endif
 
 	guiManager.startup();
@@ -701,6 +701,8 @@ void ofxSurfingPBR::drawOfxGui() {
 		material.drawGui();
 
 		floor.drawGui();
+
+		lights.drawGui();
 	}
 }
 
@@ -1693,7 +1695,8 @@ void ofxSurfingPBR::doResetDefaultScene() {
 #else
 
 	// Background
-	bg.bDrawBgColorPlain.set(true);
+	bg.bDrawBgColorObject.set(true);
+	bg.bDrawWireframe.set(true);
 	bg.setColorGlobal(ofFloatColor::darkKhaki);
 
 	// Floor

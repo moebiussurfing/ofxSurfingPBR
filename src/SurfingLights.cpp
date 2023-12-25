@@ -366,6 +366,7 @@ void SurfingLights::drawGui() {
 		} else {
 			p = gui.getPosition();
 		}
+
 		guiShadows.setPosition(p.x, p.y);
 		guiShadows.draw();
 	}
@@ -913,7 +914,7 @@ void SurfingLights::setupParametersShadows() {
 
 	nameShadowType.setSerializable(false);
 
-	shadowParams.setName("PBR_SHADOWS");
+	shadowParams.setName("SHADOWS");
 	shadowParams.add(bDrawShadow);
 	shadowParams.add(shadowStrength);
 	shadowParams.add(indexShadowType);
