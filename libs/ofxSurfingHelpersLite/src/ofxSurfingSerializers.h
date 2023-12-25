@@ -119,7 +119,7 @@ inline bool save(ofParameterGroup & parameters, string path = "") {
 	callback_t f = std::bind(&ofxSurfingPBR::save, this);
 	autoSaver.setFunctionSaver(f);
 	//autoSaver.setName("ofApp");//for debug
-	internalParams.add(autoSaver.bEnable);
+	paramsInternal.add(autoSaver.bEnable);
 
 	void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 		// ...	

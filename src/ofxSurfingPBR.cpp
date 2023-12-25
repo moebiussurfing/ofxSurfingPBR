@@ -20,18 +20,13 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 
 	ofRemoveListener(parameters.parameterChangedE(), this, &ofxSurfingPBR::Changed);
 
-	ofRemoveListener(drawParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
-	ofRemoveListener(floorParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedFloor);
-	ofRemoveListener(internalParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
-	ofRemoveListener(testSceneParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
-	ofRemoveListener(cameraParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
-
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	ofRemoveListener(displacersParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDisplacers);
-#endif
+	ofRemoveListener(paramsDraw.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
+	ofRemoveListener(paramsInternal.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
+	ofRemoveListener(paramsTestScene.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
+	ofRemoveListener(paramsCamera.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
-	ofRemoveListener(cubeMapParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCubeMaps);
+	ofRemoveListener(paramsCubeMap.parameterChangedE(), this, &ofxSurfingPBR::ChangedCubeMaps);
 #endif
 
 	//--
@@ -75,11 +70,8 @@ void ofxSurfingPBR::buildHelp() {
 	if (bKeys) {
 		sHelp += "h      Help\n";
 		sHelp += "L-l    Help Layout\n";
-		//sHelp += "       " + nameHelpLayout.get() + "\n";
 		sHelp += "d      Debug\n";
 		sHelp += "g-G    Gui-ofxGui\n";
-		//sHelp += "Tab    Layout UI\n";
-		//sHelp += "       " + nameGuiLayout.get() + "\n";
 		sHelp += "\n";
 		sHelp += "DRAW\n";
 		sHelp += "p      Floor Plane\n";
@@ -91,7 +83,14 @@ void ofxSurfingPBR::buildHelp() {
 		sHelp += "\n";
 	}
 	sHelp += "WINDOW\n";
-	//sHelp += "       " + ofToString(ofGetFrameRate(), 1) + " FPS\n";
+#if 0 //will require build every frame!
+	string s = "";
+	float fps = ofGetFrameRate();
+	s += ofToString(fps, fps > 100 ? 0 : 1);
+	s += " FPS";
+	s += "\n";
+	sHelp += "       " + s;
+#endif
 	sHelp += "       " + ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
 	if (bKeys) {
 		sHelp += "f      FullScreen\n";
@@ -152,12 +151,12 @@ void ofxSurfingPBR::doPrevLayoutHelp() {
 void ofxSurfingPBR::doNextLayouGui() {
 	ofLogNotice("ofxSurfingPBR") << "doNextLayouGui()";
 
-	int i = guiLayout.get();
-	i = ofClamp(i, guiLayout.getMin(), guiLayout.getMax());
+	int i = indexGuiLayout.get();
+	i = ofClamp(i, indexGuiLayout.getMin(), indexGuiLayout.getMax());
 	i++;
-	//i = i % guiLayout.getMax();
-	if (i > guiLayout.getMax()) i = 0;
-	guiLayout.set(i);
+	//i = i % indexGuiLayout.getMax();
+	if (i > indexGuiLayout.getMax()) i = 0;
+	indexGuiLayout.set(i);
 
 	buildHelp();
 }
@@ -167,8 +166,7 @@ void ofxSurfingPBR::setupParams() {
 	ofLogNotice("ofxSurfingPBR") << "setupParams()";
 
 	bGui.set("PBR", true);
-	bGui_ofxGui.set("PBR ofxGui", true);
-	bGuiFloor.set("UI FLOOR", false);
+	bGuiOfxGui.set("PBR ofxGui", true);
 
 	bDebug.set("Debug", false);
 	bKeys.set("Keys", true);
@@ -176,21 +174,15 @@ void ofxSurfingPBR::setupParams() {
 
 	vMinimizeAllGui.set("Gui Minimize");
 	vMaximizeAllGui.set("Gui Maximize");
-	guiLayout.set("Gui Layout", 0, 0, 1);
+	indexGuiLayout.set("Gui Layout", 0, 0, 1);
 	nameGuiLayout.set("Gui LN ", "NONE");
 
 	int imax = (int)ofxSurfing::SURFING_LAYOUT_AMOUNT - 1;
 	int idef = (int)ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
 	helpLayout.set("Help Layout", idef, 0, imax);
 	nameHelpLayout.set("Help LN", "NONE");
-
 	nameGuiLayout.setSerializable(false);
 	nameHelpLayout.setSerializable(false);
-
-	//--
-
-	bDrawFloorPlane.set("Draw Floor Plane", true);
-	bDrawFloorBox.set("Draw Floor Box", false);
 
 	//--
 
@@ -205,89 +197,42 @@ void ofxSurfingPBR::setupParams() {
 	parameters.add(vSaveAll);
 #endif
 
-	showGuiParams.setName("UI");
-	showGuiParams.add(bg.bGui);
-	showGuiParams.add(bGuiFloor);
-	showGuiParams.add(material.bGui);
+	floor.helpLayout.makeReferenceTo(helpLayout);
+	floor.bDebug.makeReferenceTo(bDebug);
 
+	paramsShowGui.setName("UI");
+	paramsShowGui.add(bg.bGui);
+	paramsShowGui.add(floor.bGui);
+	paramsShowGui.add(material.bGui);
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
-	showGuiParams.add(lights.bGui);
+	paramsShowGui.add(lights.bGui);
 #endif
+	parameters.add(paramsShowGui);
 
-	parameters.add(showGuiParams);
-
-	drawParams.setName("DRAW");
-	drawParams.add(bg.bDrawBgColorObject);
-	drawParams.add(bg.bDrawBgColorPlain);
-
-	drawParams.add(bDrawFloorPlane);
-	drawParams.add(bDrawFloorBox);
-
+	bDrawBg.set("Draw Bg", true);
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	bDrawCubeMap.set("Draw Bg CubeMap", true);
-	drawParams.add(bDrawCubeMap);
 #endif
 
+	paramsDraw.setName("DRAW");
+
+	paramsDraw.add(bDrawBg);
+	paramsDrawBg.setName("BG");
+#if 1
+	paramsDrawBg.add(bg.bDrawBgColorObject);
+	paramsDrawBg.add(bg.bDrawBgColorPlain);
+
+	#ifdef SURFING__PBR__USE_CUBE_MAP
+	paramsDrawBg.add(bDrawCubeMap);
+	#endif
+#endif
+	paramsDraw.add(paramsDrawBg);
+
+	paramsDraw.add(floor.bDraw);
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
-	drawParams.add(lights.bDrawShadow);
+	paramsDraw.add(lights.bDrawShadow);
 #endif
-
-	parameters.add(drawParams);
-
-	//--
-
-	floorParams.setName("FLOOR");
-	floorTransformParams.setName("Transform");
-	internalParams.setName("Internal");
-	advancedParams.setName("Advanced");
-
-	//--
-
-	vResetFloor.set("Reset Floor");
-	vResetFloorTransform.set("Reset Transform");
-	vResetAll.set("Reset All");
-
-	//--
-
-	bFloorWireframe.set("Draw Wireframe", false);
-	bFloorInfinite.set("Infinite", true);
-	bFloorSquaredSize.set("Squared", false);
-	floorSize.set("Size", glm::vec2(0.5f, 0.5f), glm::vec2(0, 0), glm::vec2(1.f, 1.f));
-	floorResolution.set("Resolution", glm::vec2(0.5f, 0.5f), glm::vec2(0, 0), glm::vec2(1.f, 1.f));
-	floorRotation.set("x Rotation", 0, -45, 135);
-	floorPosition.set("y Position", 0, -1, 1);
-	floorBoxDepth.set("Box Depth", 0, 1, 100);
-
-	//--
-
-	floorParams.add(materialFloor.bGui);
-	floorParams.add(bDrawFloorPlane);
-	floorParams.add(bDrawFloorBox);
-	floorParams.add(bFloorWireframe);
-
-	//--
-
-	materialFloor.setup("MATERIAL FLOOR");
-
-	floorTransformParams.add(floorPosition);
-	floorTransformParams.add(floorRotation);
-	floorTransformParams.add(floorSize);
-	floorTransformParams.add(bFloorSquaredSize);
-	floorTransformParams.add(bFloorInfinite);
-	floorTransformParams.add(floorBoxDepth);
-	floorTransformParams.add(floorResolution);
-	floorTransformParams.add(vResetFloorTransform);
-	floorParams.add(floorTransformParams);
-
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	setupParamsDisplace();
-#endif
-
-	floorParams.add(vResetFloor);
-
-	//--
-
-	//parameters.add(floorParams);
+	parameters.add(paramsDraw);
 
 	//--
 
@@ -297,58 +242,60 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	testSceneParams.setName("Test Scene");
-	bGui_DrawTestScene.set("Draw Scene", true);
+	paramsTestScene.setName("Test Scene");
+	bGuiDrawTestScene.set("Draw Scene", true);
 	scaleTestScene.set("Scale", 0, -1.f, 1.f);
 	positionTestScene.set("Pos", { 0, 0, 0 }, { -1, -1, -1 }, { 1, 1, 1 });
 	vResetTestScene.set("Reset TestScene");
-	testSceneParams.add(bGui_DrawTestScene);
-	testSceneParams.add(scaleTestScene);
-	testSceneParams.add(positionTestScene);
-	testSceneParams.add(vResetTestScene);
+	paramsTestScene.add(bGuiDrawTestScene);
+	paramsTestScene.add(scaleTestScene);
+	paramsTestScene.add(positionTestScene);
+	paramsTestScene.add(vResetTestScene);
 
 	//--
 
-	cameraParams.setName("Camera");
+	paramsCamera.setName("Camera");
 	vLoadCamera.set("Load");
 	vSaveCamera.set("Save");
 	bEnableCameraAutosave.set("Auto Save", true);
 	vResetCamera.set("Reset Camera");
-	cameraParams.add(vLoadCamera);
-	cameraParams.add(vSaveCamera);
-	cameraParams.add(bEnableCameraAutosave);
-	cameraParams.add(vResetCamera);
+	paramsCamera.add(vLoadCamera);
+	paramsCamera.add(vSaveCamera);
+	paramsCamera.add(bEnableCameraAutosave);
+	paramsCamera.add(vResetCamera);
 
 	//--
 
-	parameters.add(cameraParams);
-	parameters.add(testSceneParams);
+	parameters.add(paramsCamera);
+	parameters.add(paramsTestScene);
 
-	//internalParams.add(bDebug);
+	//paramsInternal.add(bDebug);
 
 	//--
 
-	//advancedParams.add(bGui); //workflow: added to add to settings. could hide the toggle..
-	//advancedParams.add(material.getIndexStateParam());//to include and store history index
-	//advancedParams.add(material.bGuiHelpers);
+	//paramsAdvanced.add(bGui); //workflow: added to add to settings. could hide the toggle..
 
-	guiParams.setName("Gui");
-	guiParams.add(guiManager.bAutoLayout);
-	guiParams.add(vMinimizeAllGui);
-	guiParams.add(vMaximizeAllGui);
-	guiParams.add(guiLayout);
-	guiParams.add(nameGuiLayout);
-	guiParams.add(helpLayout);
-	guiParams.add(nameHelpLayout);
-	guiParams.add(bGui);
-	guiParams.add(bGui_ofxGui);
-	guiParams.add(material.bGui);
-	advancedParams.add(guiParams);
+	paramsAdvanced.setName("Advanced");
+	paramsInternal.setName("Internal");
 
-	internalParams.add(advancedParams);
+	paramsGui.setName("Gui");
+	paramsGui.add(guiManager.bAutoLayout);
+	paramsGui.add(vMinimizeAllGui);
+	paramsGui.add(vMaximizeAllGui);
+	paramsGui.add(indexGuiLayout);
+	paramsGui.add(nameGuiLayout);
+	paramsGui.add(helpLayout);
+	paramsGui.add(nameHelpLayout);
+	paramsGui.add(bGui);
+	paramsGui.add(bGuiOfxGui);
+	paramsGui.add(material.bGui);
+	paramsAdvanced.add(paramsGui);
 
-	internalParams.add(bKeys);
-	parameters.add(internalParams);
+	paramsInternal.add(paramsAdvanced);
+	paramsInternal.add(bKeys);
+	parameters.add(paramsInternal);
+
+	vResetAll.set("Reset All");
 
 	parameters.add(vResetAll);
 	parameters.add(bDebug);
@@ -368,36 +315,50 @@ void ofxSurfingPBR::setupParams() {
 void ofxSurfingPBR::setupCallbacks() {
 	ofLogNotice("ofxSurfingPBR") << "setupCallbacks()";
 
-	listenerResetAll = vResetAll.newListener([this](void) {
-		doResetAll();
+	eResetAll = vResetAll.newListener([this](void) {
+		doResetAll(true);
 	});
 
-	listenerDebug = bDebug.newListener([this](bool) {
+	eDebug = bDebug.newListener([this](bool) {
 		lights.bDebug = bDebug;
 	});
 
-	listenerSaveAll = vSaveAll.newListener([this](void) {
+	eSaveAll = vSaveAll.newListener([this](void) {
 		saveAll();
 	});
-
-	listenerLoadAll = vLoadAll.newListener([this](void) {
+	eLoadAll = vLoadAll.newListener([this](void) {
 		loadAll();
+	});
+
+	// draw bg
+	e_bDrawBgColorPlain = bg.bDrawBgColorPlain.newListener([this](bool & b) {
+		if (bg.bDrawBgColorPlain) {
+			if (bDrawCubeMap) bDrawCubeMap.set(false);
+		}
+	});
+	e_bDrawBgColorObject = bg.bDrawBgColorObject.newListener([this](bool & b) {
+		if (bg.bDrawBgColorObject) {
+			if (bDrawCubeMap) bDrawCubeMap.set(false);
+		}
+	});
+	// draw cubeMap
+	e_bDrawCubeMap = bDrawCubeMap.newListener([this](bool & b) {
+		if (!bLoadedCubeMap) return; //skip
+		if (bDrawCubeMap) {
+			if (bg.bDrawBgColorPlain) bg.bDrawBgColorPlain.set(false);
+			if (bg.bDrawBgColorObject) bg.bDrawBgColorObject.set(false);
+		}
 	});
 
 	ofAddListener(parameters.parameterChangedE(), this, &ofxSurfingPBR::Changed);
 
-	ofAddListener(drawParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
-	ofAddListener(floorParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedFloor);
-	ofAddListener(internalParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
-	ofAddListener(testSceneParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
-	ofAddListener(cameraParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
-
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	ofAddListener(displacersParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedDisplacers);
-#endif
+	ofAddListener(paramsDraw.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
+	ofAddListener(paramsInternal.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
+	ofAddListener(paramsTestScene.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
+	ofAddListener(paramsCamera.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
-	ofAddListener(cubeMapParams.parameterChangedE(), this, &ofxSurfingPBR::ChangedCubeMaps);
+	ofAddListener(paramsCubeMap.parameterChangedE(), this, &ofxSurfingPBR::ChangedCubeMaps);
 #endif
 
 	//--
@@ -407,171 +368,6 @@ void ofxSurfingPBR::setupCallbacks() {
 	//		lights.bDebug.makeReferenceTo(bDebug);
 	//#endif
 }
-
-//--
-
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-//--------------------------------------------------------------
-void ofxSurfingPBR::refreshImgShaderPlane() {
-	ofLogNotice("ofxSurfingPBR") << "refreshImgShaderPlane()";
-
-	int w = floorPlane.getWidth();
-	int h = floorPlane.getHeight();
-
-	if (bLimitImage) {
-		w = ofClamp(w, 0, SURFING__PBR__SHADER_LIMIT_IMAGE_MIN);
-		h = ofClamp(h, 0, SURFING__PBR__SHADER_LIMIT_IMAGE_MIN);
-	} else {
-		w = ofClamp(w, 0, SURFING__PBR__SHADER_LIMIT_IMAGE_MAX);
-		h = ofClamp(h, 0, SURFING__PBR__SHADER_LIMIT_IMAGE_MAX);
-	}
-
-	{
-
-	#ifdef TARGET_OPENGLES
-		OPENGL ES supports GL_RGBA32F but not GL_R32F
-			img.allocate(80, 60, OF_IMAGE_COLOR_ALPHA);
-	#else
-		//img.clear();
-
-		img.allocate(w, h, OF_IMAGE_GRAYSCALE);
-
-		ofLogNotice("ofxSurfingPBR") << "Allocated img: " << w << "," << h;
-	#endif
-
-		//TODO: seems breaking some plane colors/materials props..
-		//apply to plane
-		floorPlane.mapTexCoordsFromTexture(img.getTexture());
-
-		ofLogNotice("ofxSurfingPBR") << "mapTexCoordsFromTexture(img.getTexture()";
-	}
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::setupShaderPlane() {
-	ofLogNotice("ofxSurfingPBR") << "setupShaderPlane()";
-
-	ofDisableArbTex();
-
-	bLoadedShaderPlane = shaderPlane.load("shadersGL3/shader");
-
-	refreshImgShaderPlane();
-
-	doResetNoise();
-	doResetDisplace();
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::setupParamsDisplace() {
-	ofLogNotice("ofxSurfingPBR") << "setupParamsDisplace()";
-
-	vResetDisplace.set("Reset Displace");
-	vResetNoise.set("Reset Noise");
-
-	bShaderToPlane.set("ShaderToPlane", false);
-	bDisplaceToMaterial.set("DispToMaterial", false);
-	bLimitImage.set("Limit IMG", true);
-
-	noiseParams.setName("Noise Generator");
-	noiseParams.add(noiseAmplitude.set("Noise Amp D", 0.0f, 0.0f, 2.f));
-	noiseParams.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
-	noiseParams.add(noiseSpeed.set("Noise Speed", 0.0f, 0.0f, 1.0f));
-	noiseParams.add(vResetNoise);
-
-	displaceMaterialParams.setName("Material Disp");
-	displaceMaterialParams.add(displacementStrength.set("D Strength", 0.0, 0.0, 500.0));
-	displaceMaterialParams.add(displacementNormalsStrength.set("D Normals Strength", 0.0, 0.0, 1.0));
-	displaceMaterialParams.add(normalGeomToNormalMapMix.set("NGeom NMapMix", 0.0, 0.0, 1.0));
-	displaceMaterialParams.add(vResetDisplace);
-
-	displacersParams.setName("Displacers");
-	displacersParams.add(bLimitImage);
-	displacersParams.add(bDisplaceToMaterial);
-	displacersParams.add(bShaderToPlane);
-	displacersParams.add(noiseParams);
-	displacersParams.add(displaceMaterialParams);
-
-	floorParams.add(displacersParams);
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::doResetNoise() {
-	ofLogNotice("ofxSurfingPBR") << "doResetNoise()";
-
-	noiseAmplitude.set(1.f);
-	noiseScale.set(0.05f);
-	noiseSpeed.set(0.5f);
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::doResetDisplace() {
-	ofLogNotice("ofxSurfingPBR") << "doResetDisplace()";
-
-	// reduce callbacks amount a bit not updating params if not required..
-
-	float displacementStrength_ = 100;
-	//float displacementStrength_ = displacementStrength.getMax() * 0.75;
-	float displacementNormalsStrength_ = displacementNormalsStrength.getMax() / 2;
-	float normalGeomToNormalMapMix_ = normalGeomToNormalMapMix.getMax() / 2;
-
-	if (displacementStrength.get() != displacementStrength_)
-		displacementStrength.set(displacementStrength_);
-
-	if (displacementNormalsStrength.get() != displacementNormalsStrength_)
-		displacementNormalsStrength.set(displacementNormalsStrength_);
-
-	if (normalGeomToNormalMapMix.get() != normalGeomToNormalMapMix_)
-		normalGeomToNormalMapMix.set(normalGeomToNormalMapMix_);
-
-	//if (!bLimitImage) bLimitImage.set(true);
-	//if (bShaderToPlane) bShaderToPlane.set(false);
-	//if (bDisplaceToMaterial) bDisplaceToMaterial.set(false);
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::updateDisplace() {
-
-	// compute noise
-	// note that this makes drop the FPS a lot!
-	float n = noiseSpeed * ofGetElapsedTimef();
-
-	auto & pixels = img.getPixels();
-	int numChannels = pixels.getNumChannels();
-	int w = img.getWidth();
-	int h = img.getHeight();
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			int i = y * w + x;
-			float value = noiseAmplitude * ofNoise(x * noiseScale, y * noiseScale, n);
-			for (int k = 0; k < numChannels; k++) {
-				pixels[i * numChannels + k] = value;
-			}
-		}
-	}
-
-	img.update();
-
-	// apply displace to material plane
-	if (bDisplaceToMaterial) {
-		materialFloor.material.setDisplacementTexture(img.getTexture());
-
-		materialFloor.material.setDisplacementStrength(displacementStrength);
-		materialFloor.material.setDisplacementNormalsStrength(displacementNormalsStrength);
-		materialFloor.material.setNormalGeomToNormalMapMix(normalGeomToNormalMapMix);
-		//materialFloor.material.setTexCoordScale(scaleX, scaleY);
-	}
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::beginShaderPlane() {
-	shaderPlane.begin();
-	shaderPlane.setUniformTexture("displacement", img.getTexture(), 1);
-}
-//--------------------------------------------------------------
-void ofxSurfingPBR::endShaderPlane() {
-	shaderPlane.end();
-}
-#endif
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::setupBg() {
@@ -586,6 +382,8 @@ void ofxSurfingPBR::setup() {
 
 	// for using on any objects
 	material.setup("MATERIAL");
+
+	floor.setup();
 
 	//--
 
@@ -604,19 +402,6 @@ void ofxSurfingPBR::setup() {
 	setupBg();
 
 	setupParams();
-
-	//--
-
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	setupShaderPlane();
-#endif
-
-	//--
-
-	// reset all except material
-	// to avoid do it twice and overwrite loaded settings!
-	doResetAll(true);
-	//doResetAll();
 
 	//--
 
@@ -683,22 +468,11 @@ ofRectangle ofxSurfingPBR::getGuiShape() const {
 }
 //--------------------------------------------------------------
 const int ofxSurfingPBR::getGuiLayout() {
-	return guiLayout.get();
+	return indexGuiLayout.get();
 }
 //--------------------------------------------------------------
 const ofxSurfing::SURFING_LAYOUT ofxSurfingPBR::getLayoutHelp() {
 	return ofxSurfing::SURFING_LAYOUT(helpLayout.get());
-}
-//--------------------------------------------------------------
-bool ofxSurfingPBR::isVisibleDebugShader() {
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	if (bDebug && (bShaderToPlane || bDisplaceToMaterial))
-		return true;
-	else
-		return false;
-#else
-	return false;
-#endif
 }
 
 //--------------------------------------------------------------
@@ -737,10 +511,10 @@ void ofxSurfingPBR::startup() {
 		ofLogWarning("ofxSurfingPBR") << "Potential Newbie User Found!";
 
 		//--
-
 #if 1
 		// Initialize a Default Startup Scene!
 		ofLogWarning("ofxSurfingPBR") << "Forcing reset to a hardcoded Default Scene!";
+
 		doResetDefaultScene();
 #endif
 
@@ -753,7 +527,7 @@ void ofxSurfingPBR::startup() {
 		ofLogWarning("ofxSurfingPBR") << "Enable help, debug, reset camera and settings, etc...";
 
 		bGui = true;
-		bGui_ofxGui = true;
+		bGuiOfxGui = true;
 		bHelp = true;
 		bDebug = true;
 	}
@@ -767,11 +541,10 @@ void ofxSurfingPBR::startup() {
 
 	ofLogNotice("ofxSurfingPBR") << "startup() Done! at frame number: " << ofGetFrameNum();
 	bDoneStartup = true;
-	;
 }
 
-//// Will be called on the first update frame.
-///	Use this pattern carefully, as could be a bad practice in some scenarios!
+// Will be called on the first update frame.
+// Use this pattern carefully, as could be a bad practice in some scenarios!
 //--------------------------------------------------------------
 void ofxSurfingPBR::startupDelayed() {
 	ofLogNotice("ofxSurfingPBR") << "startupDelayed(). Start at frame number: " << ofGetFrameNum();
@@ -795,11 +568,11 @@ void ofxSurfingPBR::startupDelayed() {
 //TODO fix crash callbacks
 // some bypassed callbacks that makes the app crash...
 #if 1
-	guiLayout = guiLayout.get(); //trig crashes..
+	indexGuiLayout = indexGuiLayout.get(); //trig crashes..
 #else
-	if (guiLayout.get() == 0)
+	if (indexGuiLayout.get() == 0)
 		nameGuiLayout.set(namesGuiLayouts[0]);
-	else if (guiLayout.get() == 1)
+	else if (indexGuiLayout.get() == 1)
 		nameGuiLayout.set(namesGuiLayouts[1]);
 #endif
 
@@ -818,30 +591,30 @@ void ofxSurfingPBR::startupDelayed() {
 void ofxSurfingPBR::setupGui() {
 
 	gui.setup(parameters);
-	guiFloor.setup(floorParams);
-
 	refreshGui();
 
 	//--
 
-	// all ofxPanels positions and/or drawing are handled by guiManager
 	guiManager.setup(&gui);
+
+	// all ofxPanels positions and/or drawing are handled by guiManager
 	guiManager.add(&gui, bGui);
-	guiManager.add(&guiFloor, bGuiFloor);
-	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_ONLY_POSITION);
 	guiManager.add(&bg.gui, bg.bGui);
+	guiManager.add(&floor.gui, floor.bGui);
+	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_ONLY_POSITION);
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	guiManager.add(&lights.gui, lights.bGui);
 #endif
+
 	guiManager.startup();
 
 	//--
 
 	// assign to ofxGui icons
-	listenerSaveOfxGui = gui.savePressedE.newListener([this] {
+	eSaveOfxGui = gui.savePressedE.newListener([this] {
 		save();
 	});
-	listenerLoadOfxGui = gui.loadPressedE.newListener([this] {
+	eLoadOfxGui = gui.loadPressedE.newListener([this] {
 		load();
 	});
 }
@@ -857,42 +630,20 @@ void ofxSurfingPBR::refreshGui() {
 
 	// minimize
 
-	guiFloor.getGroup(floorTransformParams.getName())
+	gui.getGroup(paramsTestScene.getName()).minimize();
+	gui.getGroup(paramsCamera.getName()).minimize();
+	gui.getGroup(paramsInternal.getName()).minimize();
+
+	gui.getGroup(paramsInternal.getName())
+		.getGroup(paramsAdvanced.getName())
 		.minimize();
 
-	guiFloor.getGroup(floorTransformParams.getName())
-		.getGroup(floorSize.getName())
-		.minimize();
-
-	guiFloor.getGroup(floorTransformParams.getName())
-		.getGroup(floorResolution.getName())
-		.minimize();
-
-	materialFloor.refreshGui();
-
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	guiFloor.getGroup(displacersParams.getName())
-		.minimize();
-
-	guiFloor.getGroup(displacersParams.getName())
-		.getGroup(displaceMaterialParams.getName())
-		.minimize();
-
-	guiFloor.getGroup(displacersParams.getName())
-		.getGroup(noiseParams.getName())
-		.minimize();
-#endif
-
-	gui.getGroup(testSceneParams.getName()).minimize();
-	gui.getGroup(cameraParams.getName()).minimize();
-	gui.getGroup(internalParams.getName()).minimize();
-
-	gui.getGroup(internalParams.getName())
-		.getGroup(advancedParams.getName())
+	gui.getGroup(paramsDraw.getName())
+		.getGroup(paramsDrawBg.getName())
 		.minimize();
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
-	gui.getGroup(cubeMapParams.getName()).minimize();
+	gui.getGroup(paramsCubeMap.getName()).minimize();
 #endif
 }
 
@@ -921,34 +672,12 @@ void ofxSurfingPBR::update() {
 			startupDelayed();
 		}
 	}
-
-	//--
-
-	if (bFlagRefreshFloorPlane) {
-		bFlagRefreshFloorPlane = false;
-
-		refreshFloorPlane();
-	}
-
-	if (bFlagRefreshFloorBox) {
-		bFlagRefreshFloorBox = false;
-
-		refreshFloorBox();
-	}
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::updatePBRScene() {
+void ofxSurfingPBR::updateScene() {
 
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	if (bDisplaceToMaterial || bShaderToPlane) {
-		updateDisplace();
-	}
-#endif
-
-	//--
-
-	drawPBRScene();
+	drawScene();
 }
 
 //--------------------------------------------------------------
@@ -961,18 +690,9 @@ void ofxSurfingPBR::endMaterial() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::beginMaterialFloor() {
-	materialFloor.begin();
-}
-//--------------------------------------------------------------
-void ofxSurfingPBR::endMaterialFloor() {
-	materialFloor.end();
-}
-
-//--------------------------------------------------------------
 void ofxSurfingPBR::drawOfxGui() {
 
-	if (bGui_ofxGui) {
+	if (bGuiOfxGui) {
 		gui.draw();
 
 		guiManager.draw();
@@ -980,10 +700,7 @@ void ofxSurfingPBR::drawOfxGui() {
 		// all ofxPanels positions and/or drawing are handled by guiManager
 		material.drawGui();
 
-		if (bGuiFloor) {
-			ofxSurfing::setGuiPositionBelowTo(materialFloor.gui, guiFloor);
-			materialFloor.drawGui();
-		}
+		floor.drawGui();
 	}
 }
 
@@ -1015,12 +732,12 @@ void ofxSurfingPBR::drawHelp() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawDebugFPS() {
+	//TODO
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	if (!bShaderToPlane && !bDisplaceToMaterial)
+	if (!floor.bShaderToPlane && !floor.bDisplaceToMaterial)
 #endif
 	{
 		string s = "";
-
 		float fps = ofGetFrameRate();
 		s += ofToString(fps, fps > 100 ? 0 : 1);
 		s += " FPS";
@@ -1033,9 +750,9 @@ void ofxSurfingPBR::drawDebugFPS() {
 
 		ofxSurfing::SURFING_LAYOUT l = ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT;
 #if 0
-		if (guiLayout.get() == 0)
+		if (indexGuiLayout.get() == 0)
 			l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
-		else if (guiLayout.get() == 1)
+		else if (indexGuiLayout.get() == 1)
 			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
 		else
 			l = ofxSurfing::SURFING_LAYOUT_CENTER;
@@ -1051,102 +768,23 @@ void ofxSurfingPBR::drawDebug() {
 	// Fps and window size
 	drawDebugFPS();
 
-	//--
-
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	// Shader and displacer info
-	if (bShaderToPlane || bDisplaceToMaterial) {
-		// layout is responsive
-
-		int x, y, w, h;
-
-		float r = img.getHeight() / (float)img.getWidth();
-
-		// info
-		string s = "";
-		s += " \n";
-		s += "DEBUG\nSHADER\n\n";
-		s += "FLOOR PLANE\n";
-		s += "Size: ";
-		s += ofToString(floorPlane.getWidth(), 0) + "x" + ofToString(floorPlane.getHeight(), 0) + "\n";
-		s += "Resolution: ";
-		s += ofToString(floorPlane.getResolution().x) + "x" + ofToString(floorPlane.getResolution().y) + "\n\n";
-		s += "IMAGE\n";
-		s += "Size: ";
-		s += ofToString(img.getWidth()) + "x" + ofToString(img.getHeight()) + "\n\n";
-		s += "WINDOW\n";
-		s += ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
-		s += ofToString(ofGetFrameRate(), 1) + " FPS";
-
-		ofxSurfing::SURFING_LAYOUT l;
-		l = ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
-
-		//TODO
-		// Set the preview box position related to help box layout.
-
-		if (helpLayout == ofxSurfing::SURFING_LAYOUT_TOP_LEFT)
-			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT;
-		else if (helpLayout == ofxSurfing::SURFING_LAYOUT_TOP_CENTER)
-			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
-		else if (helpLayout == ofxSurfing::SURFING_LAYOUT_TOP_RIGHT)
-			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
-
-		if (helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT)
-			l = ofxSurfing::SURFING_LAYOUT_TOP_LEFT;
-		else if (helpLayout == ofxSurfing::SURFING_LAYOUT_CENTER_RIGHT)
-			l = ofxSurfing::SURFING_LAYOUT_CENTER_LEFT;
-		else if (helpLayout == ofxSurfing::SURFING_LAYOUT_CENTER_LEFT)
-			l = ofxSurfing::SURFING_LAYOUT_CENTER_RIGHT;
-
-		else if (helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT)
-			l = ofxSurfing::SURFING_LAYOUT_TOP_LEFT;
-		else if (helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER)
-			l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
-		else if (helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT)
-			l = ofxSurfing::SURFING_LAYOUT_TOP_RIGHT;
-
-		ofxSurfing::ofDrawBitmapStringBox(s, l);
-
-		auto bb = ofxSurfing::getBBBitmapStringBoxToLayout(s, l);
-
-		//image preview
-		w = bb.getWidth();
-		h = w * r;
-		x = bb.getTopLeft().x;
-
-		//fix to avoid empty pixels on the union..
-		float round = (float)SURFING__STRING_BOX__DEFAULT_ROUND;
-		bool isRound = round > 0;
-
-		// set image pos above text box
-		y = bb.getTopLeft().y - h;
-
-		//move image below the text box
-		if (helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT)
-			y = bb.getBottomLeft().y; //TOP_LEFT;
-		else if (helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER)
-			y = bb.getBottomLeft().y; //TOP_CENTER;
-		else if (helpLayout == ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT)
-			y = bb.getBottomLeft().y; //TOP_RIGHT;
-
-		img.draw(x, y, w, h);
-
-		// border rect line
-		x += 1;
-		w -= 2;
-		ofRectangle rbb = ofRectangle(x, y, w, h);
-		ofPushStyle();
-		ofNoFill();
-		ofSetColor(0, 255);
-		ofDrawRectangle(rbb);
-		ofPopStyle();
-	}
-#endif
+	floor.drawDebug();
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawBg() {
+	if (!bDrawBg) return;
+
 	bg.draw();
+
+#ifdef SURFING__PBR__USE_CUBE_MAP
+	drawCubeMap();
+#endif
+}
+
+//--------------------------------------------------------------
+void ofxSurfingPBR::drawFloor() {
+	floor.draw();
 }
 
 //--------------------------------------------------------------
@@ -1157,7 +795,7 @@ void ofxSurfingPBR::draw() {
 
 	//--
 
-	updatePBRScene();
+	updateScene();
 
 	//--
 
@@ -1181,14 +819,14 @@ void ofxSurfingPBR::draw() {
 
 		//--
 
-		drawPBRSceneDebug();
+		drawDebugScene();
 	}
 	camera->end();
 }
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
 //--------------------------------------------------------------
-void ofxSurfingPBR::updateCubeMap() {
+void ofxSurfingPBR::drawCubeMap() {
 
 	if (bDrawCubeMap && bLoadedCubeMap) {
 		// Update debug cubeMap
@@ -1216,7 +854,7 @@ void ofxSurfingPBR::updateCubeMap() {
 #endif
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::drawPBRScene() {
+void ofxSurfingPBR::drawScene() {
 
 	/*
 		Usually to be called with ofEnableDepthTest() and before camera.begin() 
@@ -1232,13 +870,13 @@ void ofxSurfingPBR::drawPBRScene() {
 
 	//--
 
-#ifdef SURFING__PBR__USE_CUBE_MAP
-	updateCubeMap();
-#endif
+	//#ifdef SURFING__PBR__USE_CUBE_MAP
+	//	drawCubeMap();
+	//#endif
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::drawPBRSceneDebug() {
+void ofxSurfingPBR::drawDebugScene() {
 	if (!bGui) return;
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
@@ -1248,94 +886,11 @@ void ofxSurfingPBR::drawPBRSceneDebug() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::refreshFloorPlane() {
-
-	if (bFloorSquaredSize) {
-		float x = floorSize.get().x;
-		float y = floorSize.get().y;
-		if (y != x) {
-			floorSize.set(glm::vec2(x, x));
-		}
-	}
-
-	int w, h;
-
-	if (bFloorInfinite) {
-		// size hardcoded to a safety max!
-		w = SURFING__PBR__PLANE_SIZE_INFINITE_MODE;
-		h = SURFING__PBR__PLANE_SIZE_INFINITE_MODE;
-	} else {
-		// size from normalized param multiplied by a unit
-		int planeSizeUnit = SURFING__PBR__SCENE_SIZE_UNIT * SURFING__PBR__PLANE_SIZE_MULTIPLIER;
-		w = floorSize.get().x * planeSizeUnit;
-		h = floorSize.get().y * planeSizeUnit;
-	}
-
-	//--
-
-	int xResolution;
-	int yResolution;
-
-	xResolution = (int)ofMap(floorResolution.get().x, 0.f, 1.f,
-		(int)SURFING__PBR__PLANE_RESOLUTION_MIN, (int)SURFING__PBR__PLANE_RESOLUTION_MAX, true);
-
-	yResolution = (int)ofMap(floorResolution.get().y, 0.f, 1.f,
-		(int)SURFING__PBR__PLANE_RESOLUTION_MIN, (int)SURFING__PBR__PLANE_RESOLUTION_MAX, true);
-
-	floorPlane.set(w, h, xResolution, yResolution);
-
-	//--
-
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	if (bDisplaceToMaterial || bShaderToPlane)
-		refreshImgShaderPlane();
-#endif
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::refreshFloorBox() {
-
-	if (bFloorSquaredSize) {
-		float x = floorSize.get().x;
-		float y = floorSize.get().y;
-		if (y != x) {
-			floorSize.set(glm::vec2(x, x));
-		}
-	}
-
-	int w, h;
-
-	if (bFloorInfinite) {
-		// size hardcoded to a safety max!
-		w = SURFING__PBR__PLANE_SIZE_INFINITE_MODE;
-		h = SURFING__PBR__PLANE_SIZE_INFINITE_MODE;
-	} else {
-		// size from normalized param multiplied by a unit
-		int planeSizeUnit = SURFING__PBR__SCENE_SIZE_UNIT * SURFING__PBR__PLANE_SIZE_MULTIPLIER;
-		w = floorSize.get().x * planeSizeUnit;
-		h = floorSize.get().y * planeSizeUnit;
-	}
-
-	//--
-
-	int xResolution;
-	int yResolution;
-
-	xResolution = (int)ofMap(floorResolution.get().x, 0.f, 1.f,
-		(int)SURFING__PBR__PLANE_RESOLUTION_MIN, (int)SURFING__PBR__PLANE_RESOLUTION_MAX, true);
-
-	yResolution = (int)ofMap(floorResolution.get().y, 0.f, 1.f,
-		(int)SURFING__PBR__PLANE_RESOLUTION_MIN, (int)SURFING__PBR__PLANE_RESOLUTION_MAX, true);
-
-	floorBox.set(w, h, floorBoxDepth, xResolution, yResolution, 1);
-}
-
-//--------------------------------------------------------------
 void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 
 	std::string name = e.getName();
 
-	ofLogVerbose("ofxSurfingPBR") << "Changed " << name << ": " << e;
+	ofLogVerbose("ofxSurfingPBR") << "Changed: " << name << ": " << e;
 
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
@@ -1345,87 +900,8 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::ChangedFloor(ofAbstractParameter & e) {
-
-	std::string name = e.getName();
-
-	ofLogNotice("ofxSurfingPBR") << "ChangedFloor " << name << ": " << e;
-
-	//--
-
-	if (0) {
-	}
-
-	else if (name == bDrawFloorPlane.getName()) {
-		if (bDrawFloorPlane)
-			if (bDrawFloorBox) bDrawFloorBox = false;
-	}
-
-	else if (name == bDrawFloorBox.getName()) {
-		if (bDrawFloorBox)
-			if (bDrawFloorPlane) bDrawFloorPlane = false;
-	}
-
-	else if (name == bFloorSquaredSize.getName()) {
-		if (bFloorSquaredSize) {
-			bFlagRefreshFloorPlane = true;
-			bFlagRefreshFloorBox = true;
-		}
-	}
-
-	else if (name == floorSize.getName()) {
-		static glm::vec2 floorSize_ = glm::vec2(-1, -1);
-		if (floorSize.get() != floorSize_) { // if changed
-
-			floorSize_ = floorSize.get();
-
-			bFlagRefreshFloorPlane = true;
-			bFlagRefreshFloorBox = true;
-		} else {
-			ofLogVerbose("ofxSurfingPBR") << "Floor Plane size not Changed. Skipped refresh!";
-		}
-	}
-
-	else if (name == floorResolution.getName()) {
-		bFlagRefreshFloorPlane = true;
-		bFlagRefreshFloorBox = true;
-	}
-
-	else if (name == bFloorInfinite.getName()) {
-		bFlagRefreshFloorPlane = true;
-		bFlagRefreshFloorBox = true;
-	}
-
-	else if (name == floorBoxDepth.getName()) {
-		bFlagRefreshFloorBox = true;
-	}
-
-	else if (name == floorRotation.getName()) {
-		glm::vec3 axis(1.0f, 0.0f, 0.0f);
-		float angle = floorRotation.get() - 90;
-		glm::quat q = glm::angleAxis(glm::radians(angle), axis);
-
-		floorPlane.setOrientation(q);
-		floorBox.setOrientation(q);
-	}
-
-	else if (name == floorPosition.getName()) {
-		floorPlane.setPosition(0, floorPosition.get() * SURFING__PBR__SCENE_SIZE_UNIT * 5.f, 0);
-		floorBox.setPosition(0, floorPosition.get() * SURFING__PBR__SCENE_SIZE_UNIT * 5.f, 0);
-	}
-
-	else if (name == vResetFloor.getName()) {
-		doResetFloor();
-	}
-
-	else if (name == vResetFloorTransform.getName()) {
-		doResetFloorTransform();
-	}
-}
-
-//--------------------------------------------------------------
 void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
-	if (bDisableCallbacks) return;
+	//if (bDisableCallbacks) return;
 
 	std::string name = e.getName();
 
@@ -1435,7 +911,7 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 	//// Exclude to avoid crashes..
 	//if (name == nameGuiLayout.getName()) return;
 
-	ofLogNotice("ofxSurfingPBR") << "ChangedInternal " << name << ": " << e;
+	ofLogNotice("ofxSurfingPBR") << "ChangedInternal: " << name << ": " << e;
 
 	//--
 
@@ -1450,15 +926,15 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 		//if (nameHelpLayout.get() != s) nameHelpLayout.setWithoutEventNotifications(s);
 	}
 
-	else if (name == guiLayout.getName()) {
+	else if (name == indexGuiLayout.getName()) {
 		//do not updates the gui!
-		if (guiLayout.get() == 0) {
+		if (indexGuiLayout.get() == 0) {
 			string n = namesGuiLayouts[0];
 			if (nameGuiLayout.get() != n)
 				nameGuiLayout.setWithoutEventNotifications(n);
 		}
 
-		else if (guiLayout.get() == 1) {
+		else if (indexGuiLayout.get() == 1) {
 			string n = namesGuiLayouts[1];
 			if (nameGuiLayout.get() != n)
 				nameGuiLayout.setWithoutEventNotifications(n);
@@ -1471,13 +947,13 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 
 		//--
 
-		if (guiLayout.get() == 0) {
+		if (indexGuiLayout.get() == 0) {
 			string n = namesGuiLayouts[0];
 			if (nameGuiLayout.get() != n)
 				nameGuiLayout.set(n);
 		}
 
-		else if (guiLayout.get() == 1) {
+		else if (indexGuiLayout.get() == 1) {
 			string n = namesGuiLayouts[1];
 			if (nameGuiLayout.get() != n)
 				nameGuiLayout.set(n);
@@ -1500,21 +976,30 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::ChangedDraw(ofAbstractParameter & e) {
+	//if (bDisableCallbacks) return;
 
 	std::string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << "ChangedDraw " << name << ": " << e;
+	//if (name == bDrawCubeMap.getName()) return;
+
+	ofLogNotice("ofxSurfingPBR") << "ChangedDraw: " << name << ": " << e;
 
 	//--
 
+#if 0
 	//workflow
-	if (name == bg.bDrawBgColorPlain.getName() && bg.bDrawBgColorPlain.get()) {
+	if (name == bg.bDrawBgColorPlain.getName() && bg.bDrawBgColorPlain) {
+		//bDisableCallbacks = 1;
 		if (bDrawCubeMap) bDrawCubeMap.set(false);
+		//bDisableCallbacks = 0;
 	}
 
-	else if (name == bg.bDrawBgColorObject.getName() && bg.bDrawBgColorObject.get()) {
+	else if (name == bg.bDrawBgColorObject.getName() && bg.bDrawBgColorObject) {
+		//bDisableCallbacks = 1;
 		if (bDrawCubeMap) bDrawCubeMap.set(false);
+		//bDisableCallbacks = 0;
 	}
+#endif
 }
 
 //--------------------------------------------------------------
@@ -1522,7 +1007,7 @@ void ofxSurfingPBR::ChangedTestScene(ofAbstractParameter & e) {
 
 	std::string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << "ChangedTestScene " << name << ": " << e;
+	ofLogNotice("ofxSurfingPBR") << "ChangedTestScene: " << name << ": " << e;
 
 	//--
 
@@ -1536,7 +1021,7 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 
 	std::string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << "ChangedCamera " << name << ": " << e;
+	ofLogNotice("ofxSurfingPBR") << "ChangedCamera: " << name << ": " << e;
 
 	//--
 
@@ -1552,51 +1037,14 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 	}
 }
 
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-//--------------------------------------------------------------
-void ofxSurfingPBR::ChangedDisplacers(ofAbstractParameter & e) {
-	std::string name = e.getName();
-
-	ofLogNotice("ofxSurfingPBR") << "ChangedDisplacers " << name << ": " << e;
-
-	//--
-
-	if (name == vResetDisplace.getName()) {
-		doResetDisplace();
-	} else if (name == vResetNoise.getName()) {
-		doResetNoise();
-	}
-
-	else if (name == bShaderToPlane.getName()) {
-		if (bShaderToPlane) { //workflow
-			if (bDisplaceToMaterial) bDisplaceToMaterial = false;
-		} else {
-		}
-	}
-
-	else if (name == bDisplaceToMaterial.getName()) {
-		if (bDisplaceToMaterial) { //workflow
-			if (bShaderToPlane) bShaderToPlane = false;
-		} else { //release mods
-			materialFloor.material.setDisplacementStrength(0);
-			materialFloor.material.setDisplacementNormalsStrength(0);
-			materialFloor.material.setNormalGeomToNormalMapMix(0);
-		}
-	}
-
-	else if (name == bLimitImage.getName()) {
-		//refreshFloorPlane();
-		bFlagRefreshFloorPlane = true;
-	}
-}
-#endif
-
 #ifdef SURFING__PBR__USE_CUBE_MAP
 //--------------------------------------------------------------
 void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
+	//if (bDisableCallbacks) return;
+
 	std::string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << "ChangedCubeMaps " << name << ": " << e;
+	ofLogNotice("ofxSurfingPBR") << "ChangedCubeMaps: " << name << ": " << e;
 
 	//--
 
@@ -1650,17 +1098,21 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 
 	//--
 
+	//workflow:
+	#if 0
 	else if (name == bDrawCubeMap.getName()) {
+		//bDisableCallbacks = 1;
+
 		if (!bLoadedCubeMap) return; //skip
 
-	//workflow
-	#if 1
 		if (bDrawCubeMap) {
 			if (bg.bDrawBgColorPlain) bg.bDrawBgColorPlain.set(false);
 			if (bg.bDrawBgColorObject) bg.bDrawBgColorObject.set(false);
 		}
-	#endif
+
+		//bDisableCallbacks = 0;
 	}
+	#endif
 }
 #endif
 
@@ -1668,7 +1120,7 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawTestScene() {
-	if (!bGui_DrawTestScene) return;
+	if (!bGuiDrawTestScene) return;
 
 	//----
 
@@ -1739,65 +1191,6 @@ void ofxSurfingPBR::popTestSceneTransform() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::drawFloor() {
-	drawPlane();
-	drawBoxFloor();
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::drawPlane() {
-	if (!bDrawFloorPlane) return;
-
-	// plane
-	if (bFloorWireframe) {
-		floorPlane.drawWireframe();
-	}
-
-	//else
-	{
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-		if (bShaderToPlane)
-			beginShaderPlane();
-		else
-			beginMaterialFloor();
-
-		{
-			floorPlane.draw();
-		}
-
-		if (bShaderToPlane)
-			endShaderPlane();
-		else
-			endMaterialFloor();
-#else
-		beginMaterialFloor();
-		{
-			floorPlane.draw();
-		}
-		endMaterialFloor();
-#endif
-	}
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::drawBoxFloor() {
-	if (!bDrawFloorBox) return;
-
-	if (bFloorWireframe) {
-		floorBox.drawWireframe();
-	}
-
-	//else
-	{
-		beginMaterialFloor();
-		{
-			floorBox.draw();
-		}
-		endMaterialFloor();
-	}
-}
-
-//--------------------------------------------------------------
 void ofxSurfingPBR::exit() {
 	ofLogNotice("ofxSurfingPBR") << "exit()";
 
@@ -1823,17 +1216,14 @@ void ofxSurfingPBR::exit() {
 //--------------------------------------------------------------
 void ofxSurfingPBR::save() {
 	ofLogNotice("ofxSurfingPBR") << "Save Scene -> " << path;
-	ofLogNotice("ofxSurfingPBR") << "Save Floor -> " << pathFloor;
 
-	//save scene
+	// save scene
 	ofxSurfing::saveSettings(parameters, path);
-	ofxSurfing::saveSettings(floorParams, pathFloor);
 }
 
 //--------------------------------------------------------------
 bool ofxSurfingPBR::load() {
 	ofLogNotice("ofxSurfingPBR") << "Load Scene -> " << path;
-	ofLogNotice("ofxSurfingPBR") << "Load Floor  -> " << pathFloor;
 
 	bool b;
 
@@ -1845,8 +1235,8 @@ bool ofxSurfingPBR::load() {
 
 	//--
 
+	// load scene
 	b = ofxSurfing::loadSettings(parameters, path);
-	ofxSurfing::loadSettings(floorParams, pathFloor);
 
 	// CubeMap
 	loadCubeMap(path_CubemapFileAbsPath.get());
@@ -1875,7 +1265,6 @@ void ofxSurfingPBR::saveAll() {
 	lights.save();
 #endif
 
-	//if (bEnableCameraAutosave) doSaveCamera();
 	doSaveCamera();
 }
 
@@ -1898,7 +1287,7 @@ bool ofxSurfingPBR::loadAll() {
 	// CubeMap
 	loadCubeMap(path_CubemapFileAbsPath.get());
 
-	//load all: material, bg, lights and camera.
+	// Load all: material, bg, lights and camera.
 	material.load();
 	bg.load();
 
@@ -1940,6 +1329,7 @@ bool ofxSurfingPBR::getSettingsFileFound() {
 		ofxSurfingPBR_Material.json -> optional
 		ofxSurfingPBR_Camera.json -> optional
 	*/
+
 	bool b = getSettingsFileFoundForScene();
 
 	//--
@@ -2067,19 +1457,19 @@ void ofxSurfingPBR::setupCubeMap() {
 
 	//--
 
-	cubeMapParams.setName("CubeMap");
+	paramsCubeMap.setName("CubeMap");
 
-	cubeMapParams.add(bDrawCubeMap);
-	cubeMapParams.add(cubeMapMode); //index
-	cubeMapParams.add(cubeMapModeName); //display
-	cubeMapParams.add(cubeMapExposure);
-	cubeMapParams.add(cubeMapprefilterRoughness);
-	cubeMapParams.add(cubeMapName);
-	cubeMapParams.add(path_CubemapFileAbsPath);
-	cubeMapParams.add(vOpenCubeMap);
-	cubeMapParams.add(vResetCubeMap);
+	paramsCubeMap.add(bDrawCubeMap);
+	paramsCubeMap.add(cubeMapMode); //index
+	paramsCubeMap.add(cubeMapModeName); //display
+	paramsCubeMap.add(cubeMapExposure);
+	paramsCubeMap.add(cubeMapprefilterRoughness);
+	paramsCubeMap.add(cubeMapName);
+	paramsCubeMap.add(path_CubemapFileAbsPath);
+	paramsCubeMap.add(vOpenCubeMap);
+	paramsCubeMap.add(vResetCubeMap);
 
-	parameters.add(cubeMapParams);
+	parameters.add(paramsCubeMap);
 }
 
 //--------------------------------------------------------------
@@ -2132,10 +1522,9 @@ void ofxSurfingPBR::keyPressed(int key) {
 	ofLogNotice("ofxSurfingPBR") << "keyPressed(" << key << ")";
 
 	if (key == 'g') bGui = !bGui;
-	if (key == 'G') bGui_ofxGui = !bGui_ofxGui;
+	if (key == 'G') bGuiOfxGui = !bGuiOfxGui;
 
-	if (key == 'p') bDrawFloorPlane = !bDrawFloorPlane;
-	if (key == 'B') bDrawFloorBox = !bDrawFloorBox;
+	floor.keyPressed(key);
 
 	if (key == 'b') {
 		if (bg.bDrawBgColorObject) {
@@ -2159,16 +1548,12 @@ void ofxSurfingPBR::keyPressed(int key) {
 	if (key == 's') lights.bDrawShadow = !lights.bDrawShadow;
 #endif
 
-	if (key == 'w') bFloorWireframe = !bFloorWireframe;
-
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	if (key == 'c') bDrawCubeMap = !bDrawCubeMap;
 #endif
 
 	if (key == 'h') bHelp = !bHelp;
 	if (key == 'd') bDebug = !bDebug;
-
-	if (key == 'i') bFloorInfinite = !bFloorInfinite;
 
 	if (key == 'l') doNextLayoutHelp(); //next layout help
 	if (key == 'L') doPrevLayoutHelp(); //prev layout help
@@ -2187,16 +1572,15 @@ void ofxSurfingPBR::keyPressed(int key) {
 	}
 
 	sWindowDimensions = ofxSurfing::keyPressedToSetWindowShape(key);
-	//if (key == 'q') sWindowDimensions = ofxSurfing::setWindowShapeSquared(); // 800
-	//if (key == 'Q') sWindowDimensions = ofxSurfing::setWindowShapeSquared(ofGetWidth());
-	//if (key == '1') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(0); // IGTV Cover Photo
-	//if (key == '2') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(1); // IG Landscape Photo
-	//if (key == '3') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(2); // IG Portrait
-	//if (key == '4') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(3); // IG Story
-	//if (key == '5') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(4); // IG Square
+	// 'q' 800 x 800
+	// 'Q' w x w
+	// '1' IGTV Cover Photo
+	// '2' IG Landscape Photo
+	// '3' IG Portrait
+	// '4' IG Story
+	// '5' IG Square
 
 	material.keyPressed(key);
-	materialFloor.keyPressed(key);
 
 	buildHelp();
 }
@@ -2206,42 +1590,6 @@ void ofxSurfingPBR::setLogLevel(ofLogLevel logLevel) {
 	ofLogNotice("ofxSurfingPBR") << "setLogLevel(" << logLevel << ")";
 
 	ofSetLogLevel("ofxSurfingPBR", logLevel);
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::doResetFloor() {
-	ofLogNotice("ofxSurfingPBR") << "doResetFloor()";
-
-	doResetFloorTransform();
-
-	materialFloor.doResetMaterial();
-
-	bFloorWireframe = false;
-
-	bDrawFloorBox = true;
-
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	// displacers
-	if (!bLimitImage) bLimitImage.set(true);
-	if (bShaderToPlane) bShaderToPlane.set(false);
-	if (bDisplaceToMaterial) bDisplaceToMaterial.set(false);
-	if (!bDrawFloorPlane) bDrawFloorPlane = true;
-#endif
-}
-
-//--------------------------------------------------------------
-void ofxSurfingPBR::doResetFloorTransform() {
-	ofLogNotice("ofxSurfingPBR") << "doResetFloorTransform()";
-
-	floorSize.set(glm::vec2(0.5, 0.2));
-	floorResolution.set(glm::vec2(0.01f, 0.01f));
-	floorPosition.set(0.f);
-	floorRotation.set(0.f);
-
-	floorBoxDepth = 5;
-
-	bFloorSquaredSize = false;
-	bFloorInfinite = false;
 }
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
@@ -2277,6 +1625,7 @@ void ofxSurfingPBR::doResetCamera() {
 	ofLogNotice("ofxSurfingPBR") << "doResetCamera()";
 
 	ofEasyCam * easyCam = dynamic_cast<ofEasyCam *>(camera);
+
 	if (easyCam != nullptr) {
 		easyCam->reset();
 
@@ -2290,43 +1639,38 @@ void ofxSurfingPBR::doResetCamera() {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::doResetAll(bool bExcludeExtras) {
+void ofxSurfingPBR::doResetAll(bool bHard) {
 	ofLogNotice("ofxSurfingPBR") << "doResetAll()";
 
 	bDebug = false;
 
-	// plane
-	doResetFloor();
-
-	// cubemap
+	// cubeMap
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	doResetCubeMap();
 #endif
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	// lights
-	if (!bExcludeExtras) lights.doResetAllLights();
+	lights.doResetAllLights(bHard);
+
 	// shadows
-	if (!bExcludeExtras) lights.doResetShadow();
+	lights.doResetShadow();
 #endif
 
-		// shader displacer
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	doResetNoise();
-	doResetDisplace();
-#endif
+	// shader displacer
+	floor.doResetAll();
 
 	// material
-	if (!bExcludeExtras) material.doResetMaterial();
-
-	// bg
-	if (!bExcludeExtras) bg.doResetAll();
+	material.doResetMaterial(bHard);
 
 	// test scene
 	doResetTestScene();
 
 	// camera
 	doResetCamera();
+
+	// bg
+	if (bHard) bg.doResetAll();
 }
 
 //--------------------------------------------------------------
@@ -2341,14 +1685,27 @@ void ofxSurfingPBR::doResetTestScene() {
 void ofxSurfingPBR::doResetDefaultScene() {
 	ofLogNotice("ofxSurfingPBR") << "doResetDefaultScene()";
 
+#if 0
+	doResetAll(true);
+	//bg.doResetAll();
+	//floor.doResetAll();
+	//material.doResetAll();
+#else
+
 	// Background
 	bg.bDrawBgColorPlain.set(true);
-	bg.bgColorPlain.set(ofFloatColor(0, 0.03, 0.3, 1));
+	bg.setColorGlobal(ofFloatColor::darkKhaki);
 
-	materialFloor.doResetMaterial();
+	// Floor
+	floor.doResetAll();
+	floor.setColorGlobal(ofFloatColor::darkSeaGreen);
 
 	// Material
 	material.roughness = 0.5;
 	material.reflectance = 0.5;
 	material.globalColor.set(ofFloatColor::orange);
+
+	// Scene
+	doResetTestScene();
+#endif
 }

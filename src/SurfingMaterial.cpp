@@ -129,7 +129,7 @@ void SurfingMaterial::setupParams() {
 	randomizersParams.add(vRandomColorsAlpha.set("Random ColorsAlpha"));
 	randomizersParams.add(vRandomAlphas.set("Random Alphas"));
 	helpersParams.add(randomizersParams);
-	
+
 	//--
 
 	//TODO
@@ -147,7 +147,7 @@ void SurfingMaterial::setupParams() {
 	parameters.add(globalParams);
 	nameSourceGlobal.setSerializable(false);
 
-	bKeys.set("Keys", false);//TODO: not stored
+	bKeys.set("Keys", false); //TODO: not stored
 	bGuiHelpers.set("UI HELPERS", false);
 	bGuiHelpers.setSerializable(false);
 	// workflow: required to exclude from states/snapshots.
@@ -201,10 +201,10 @@ void SurfingMaterial::setupGui() {
 	gui.setup(parameters);
 
 #if 1
-	listenerSaveOfxGui = gui.savePressedE.newListener([this] {
+	eSaveOfxGui = gui.savePressedE.newListener([this] {
 		save();
 	});
-	listenerLoadOfxGui = gui.loadPressedE.newListener([this] {
+	eLoadOfxGui = gui.loadPressedE.newListener([this] {
 		load();
 	});
 #endif
@@ -825,6 +825,12 @@ void SurfingMaterial::doResetMaterialOfMaterial() {
 }
 
 //--------------------------------------------------------------
+void SurfingMaterial::doResetAll(bool bHard) {
+	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doResetMaterial(" << bHard << ")";
+	doResetMaterial(bHard);
+}
+
+//--------------------------------------------------------------
 void SurfingMaterial::doResetMaterial(bool bHard) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:doResetMaterial()";
 
@@ -1369,7 +1375,7 @@ void SurfingMaterial::keyPressed(int key) {
 	if (!bKeys) return;
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial::keyPressed(" << key << ") " << name;
-	
+
 	// Randomizers
 	if (key == OF_KEY_F1) doResetMaterial();
 	if (key == OF_KEY_F2) doRandomMaterial();

@@ -62,6 +62,7 @@
 #endif
 
 #include "SurfingBg.h"
+#include "SurfingFloor.h"
 
 #include "ofxCameraSaveLoad.h"
 #include "ofxGui.h"
@@ -85,10 +86,13 @@ private:
 
 public:
 	SurfingBg bg;
+	SurfingFloor floor;
+	
+	ofParameter<bool> bDrawBg;
 
 public:
-	void setup(); //use only one setup method! don't call two setup methods!
-	void setup(ofCamera & camera_); //use only one setup method! don't call two setup methods!
+	void setup(); // use only one setup method! don't call two setup methods!
+	void setup(ofCamera & camera_); // use only one setup method! don't call two setup methods!
 
 private:
 	void startup();
@@ -96,18 +100,14 @@ private:
 
 public:
 	void draw(); //main draw
-
 	void drawFloor(); //plane or box floor
-	void drawPlane(); //plane floor
-	void drawBoxFloor(); //box floor
-
 	void drawBg();
 
 #define DO_SCENE_TEST_TRANSFORMS 1
-	void drawTestScene(); //a simple scene with 3 prims for easy testing
+	void drawTestScene(); // a simple scene with 3 prims for easy testing
 	void pushTestSceneTransform();
 	void popTestSceneTransform();
-	ofParameter<bool> bGui_DrawTestScene;
+	ofParameter<bool> bGuiDrawTestScene;
 
 	void drawGui();
 	void drawOfxGui();
@@ -118,7 +118,7 @@ private:
 	void drawHelp();
 
 public:
-	void exit(); //only required to save camera on exit
+	void exit(); // only required to save camera on exit
 
 private:
 	void keyPressed(int key);
@@ -134,30 +134,30 @@ private:
 	void setupCallbacks();
 	void setupGui();
 	void refreshGui();
+
 	void update();
 	void update(ofEventArgs & args);
 
 	//--
 
 private:
-	void updatePBRScene();
-	void drawPBRScene();
-	void drawPBRSceneDebug();
+	void updateScene();
+	void drawScene();
+	void drawDebugScene();
 
 private:
 	void Changed(ofAbstractParameter & e);
-	void ChangedFloor(ofAbstractParameter & e);
 	void ChangedInternal(ofAbstractParameter & e);
 	void ChangedTestScene(ofAbstractParameter & e);
 	void ChangedDraw(ofAbstractParameter & e);
 	void ChangedCamera(ofAbstractParameter & e);
+	
+	ofEventListener e_bDrawBgColorPlain;
+	ofEventListener e_bDrawBgColorObject;
+	ofEventListener e_bDrawCubeMap;
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	void ChangedCubeMaps(ofAbstractParameter & e);
-#endif
-
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	void ChangedDisplacers(ofAbstractParameter & e);
 #endif
 
 	//--
@@ -172,34 +172,25 @@ public:
 
 	//--
 
-	// Material A for the floor plane or box
-public:
-	SurfingMaterial materialFloor;
-
-	void beginMaterialFloor();
-	void endMaterialFloor();
-
-	//--
-
 	// Camera
 public:
 	void setCameraPtr(ofCamera & camera_); //don't need use when camera is passed to setup function!
 	void setCameraPtr(ofCamera * camera_); //don't need use when camera is passed to setup function!
 
-	//For getting camera from the parent class/ofApp
-	//(TODO: Currently is not required bc the cam is instantiated on there!)
+	// For getting camera from the parent class/ofApp
+	// (TODO: Currently is not required bc the cam is instantiated on there!)
 	ofCamera * getOfCameraPtr();
 	ofEasyCam * getOfEasyCamPtr();
 
 private:
-	ofParameterGroup cameraParams;
+	ofParameterGroup paramsCamera;
 	ofParameter<bool> bEnableCameraAutosave;
 	ofParameter<void> vSaveCamera;
 	ofParameter<void> vLoadCamera;
 	string pathCamera = "ofxSurfingPBR_Camera.txt";
 
-	ofEventListener listenerSaveOfxGui;
-	ofEventListener listenerLoadOfxGui;
+	ofEventListener eSaveOfxGui;
+	ofEventListener eLoadOfxGui;
 
 public:
 	ofParameter<void> vResetCamera;
@@ -223,24 +214,12 @@ public:
 	//--
 
 private:
-	ofPlanePrimitive floorPlane; //floor
-	void refreshFloorPlane();
-	bool bFlagRefreshFloorPlane = false;
-
-	ofBoxPrimitive floorBox; //floor
-	void refreshFloorBox();
-	bool bFlagRefreshFloorBox = false;
-	ofParameter<float> floorBoxDepth;
-
-	//--
-
-private:
 	// TODO fix crash callbacks
-	//To fix some settings
-	//that are not updated/refreshed correctly
-	//and/or app startup crashes!
-	//App flow controls
-	bool bDisableCallbacks = false;
+	// To fix some settings
+	// that are not updated/refreshed correctly
+	// and/or app startup crashes!
+	// App flow controls
+	//bool bDisableCallbacks = false;
 	bool bDoneSetup = false;
 	bool bDoneSetupParams = false;
 	bool bDoneStartup = false;
@@ -251,11 +230,13 @@ private:
 	//--
 
 public:
-	//main container to expose to ui and to handle persistent settings.
+	// main container to expose to ui 
+	// and to handle the persistence of the settings.
 	ofParameterGroup parameters;
 
-	ofParameterGroup drawParams;
-	ofParameterGroup showGuiParams;
+	ofParameterGroup paramsDraw;
+	ofParameterGroup paramsDrawBg;
+	ofParameterGroup paramsShowGui;
 
 	//--
 
@@ -263,19 +244,19 @@ public:
 	ofParameterGroup & getMaterialParameters();
 
 	ofParameter<bool> bGui; //for global ui
-	ofParameter<bool> bGui_ofxGui; //for ofxGui
+	ofParameter<bool> bGuiOfxGui; //for ofxGui
 
-	ofParameterGroup internalParams;
-	ofParameterGroup guiParams;
+	ofParameterGroup paramsInternal;
+	ofParameterGroup paramsGui;
 
-	ofParameterGroup advancedParams;
+	ofParameterGroup paramsAdvanced;
 	//we would like to hide these params from the ui,
 	//bc they are only included to add to settings group!
 
 	ofParameter<void> vMinimizeAllGui;
 	ofParameter<void> vMaximizeAllGui;
 
-	ofParameter<int> guiLayout; //TODO notify
+	ofParameter<int> indexGuiLayout; //TODO notify
 	ofParameter<string> nameGuiLayout; //TODO notify
 
 private:
@@ -300,47 +281,24 @@ public:
 	bool bUnlockFps = false;
 	ofParameter<bool> bKeys;
 
-	ofParameterGroup testSceneParams;
+	ofParameterGroup paramsTestScene;
 	ofParameter<float> scaleTestScene;
 	ofParameter<glm::vec3> positionTestScene;
 	ofParameter<void> vResetTestScene;
-
-	ofParameter<bool> bDrawFloorPlane;
-	ofParameter<bool> bDrawFloorBox;
-
-	ofParameterGroup floorParams;
-	ofParameterGroup floorTransformParams;
-
-	ofParameter<bool> bFloorWireframe;
-	ofParameter<glm::vec2> floorSize; //normalized
-	ofParameter<glm::vec2> floorResolution;
-	ofParameter<bool> bFloorSquaredSize;
-	ofParameter<bool> bFloorInfinite;
-	//will ignore floorSize
-	//make the plane huge size to better "fit a full horizon line"
-
-	ofParameter<float> floorRotation; //x axis
-	ofParameter<float> floorPosition; //y pos
-
-	ofParameter<void> vResetFloor;
-	ofParameter<void> vResetFloorTransform;
+	
 	ofParameter<void> vResetAll;
 
 private:
 	ofxPanel gui;
-	ofxPanel guiFloor;
 	SurfingOfxGuiPanelsManager guiManager;
-	ofParameter<bool> bGuiFloor;
 
 public:
-	//helper to improve layout with many gui panels.
+	// helper to improve layout with many gui panels.
 	ofRectangle getGuiShape() const;
 
-	//returns layout index
-	//each index would have different positions for help and debug windows
+	// returns layout index
+	// each index would have different positions for help and debug windows
 	const int getGuiLayout();
-
-	bool isVisibleDebugShader();
 
 	void doNextLayoutHelp();
 	void doPrevLayoutHelp();
@@ -358,7 +316,7 @@ private:
 	ofCubeMap cubeMap;
 
 	void setupCubeMap();
-	void updateCubeMap();
+	void drawCubeMap();
 	string path_CubemapsFolder = "cubemaps"; //bin/data/cubemaps/
 	string path_CubemapFilenameDefaultData = "modern_buildings_2_1k.exr"; //TODO: store path on settings
 	bool bLoadedCubeMap = false;
@@ -367,7 +325,7 @@ public:
 	ofParameter<string> path_CubemapFileAbsPath;
 
 public:
-	ofParameterGroup cubeMapParams;
+	ofParameterGroup paramsCubeMap;
 	ofParameter<string> cubeMapName;
 	ofParameter<int> cubeMapMode;
 	ofParameter<string> cubeMapModeName;
@@ -388,23 +346,18 @@ public:
 	//--
 
 private:
-	ofEventListener listenerResetAll;
-	ofEventListener listenerDebug;
+	ofEventListener eResetAll;
+	ofEventListener eDebug;
 
 public:
-	void doResetAll(bool bExcludeExtras = false);
-
+	void doResetAll(bool bHard = false);
 	void doResetDefaultScene();
-
-	void doResetFloor();
-	void doResetFloorTransform();
 	void doResetTestScene();
 
 	//--
 
 private:
 	string path = "ofxSurfingPBR_Scene.json";
-	string pathFloor = "ofxSurfingPBR_Floor.json";
 
 public:
 	bool load();
@@ -414,12 +367,12 @@ public:
 	void saveAll();
 	ofParameter<void> vLoadAll;
 	ofParameter<void> vSaveAll;
-	ofEventListener listenerLoadAll;
-	ofEventListener listenerSaveAll;
+	ofEventListener eLoadAll;
+	ofEventListener eSaveAll;
 
 	bool getSettingsFileFound();
-	//to check if the app is opened for the first time
-	//this allows to force customize the scene from ofApp at startup!
+	// to check if the app is opened for the first time
+	// this allows to force customize the scene from ofApp at startup!
 	bool getSettingsFileFoundForScene();
 	bool getSettingsFileFoundForMaterial();
 	bool getSettingsFileFoundForCamera();
@@ -427,44 +380,5 @@ public:
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 private:
 	SurfingAutoSaver autoSaver;
-#endif
-
-	//--
-
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-private:
-	ofShader shaderPlane;
-	bool bLoadedShaderPlane = false;
-	void setupShaderPlane();
-	ofFloatImage img;
-	ofParameter<bool> bLimitImage;
-
-	ofParameterGroup displacersParams;
-	ofParameterGroup displaceMaterialParams;
-	ofParameterGroup noiseParams;
-
-	ofParameter<bool> bShaderToPlane;
-	ofParameter<bool> bDisplaceToMaterial;
-
-	ofParameter<float> noiseAmplitude;
-	ofParameter<float> noiseScale;
-	ofParameter<float> noiseSpeed;
-
-	ofParameter<float> displacementStrength;
-	ofParameter<float> displacementNormalsStrength;
-	ofParameter<float> normalGeomToNormalMapMix;
-
-	ofParameter<void> vResetDisplace;
-	ofParameter<void> vResetNoise;
-	void doResetNoise();
-	void doResetDisplace();
-
-	void setupParamsDisplace();
-	void updateDisplace();
-	void refreshImgShaderPlane();
-
-public:
-	void beginShaderPlane();
-	void endShaderPlane();
 #endif
 };

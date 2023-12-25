@@ -27,6 +27,7 @@ private:
 private:
 	void setupGui();
 	void setupParameters();
+	void setupCallbacks();
 
 public:
 	void exit();
@@ -34,6 +35,7 @@ public:
 	//app flow
 	bool bDoneStartup = false;
 	bool bAppRunning = false;
+	//bool bDisableCallbacks = false;
 
 public:
 	void draw();
@@ -57,8 +59,8 @@ private:
 public:
 	ofxPanel gui;
 private:
-	ofEventListener listenerSaveOfxGui;
-	ofEventListener listenerLoadOfxGui;
+	ofEventListener eSaveOfxGui;
+	ofEventListener eLoadOfxGui;
 
 private:
 	void startup();
@@ -97,6 +99,7 @@ public:
 
 public:
 	void setBgColorPlain(ofFloatColor c);
+	void setColorGlobal(ofFloatColor color);
 
 	//--
 
@@ -129,10 +132,12 @@ public:
 	float resolutionBox_=1;
 
 	ofParameter<void> vResetAll;
-	ofEventListener listenerResetAll;
-
 	ofParameter<void> vResetScene;
 	ofParameter<void> vResetColors;
+
+	ofEventListener eResetAll;
+	ofEventListener eResetScene;
+	ofEventListener eResetColors;
 
 	ofParameterGroup paramsColorMaterial;
 	ofParameterGroup paramsBgColor;

@@ -165,9 +165,9 @@ inline string setWindowShapeForInstagram(size_t i = 0, bool bForcePos = false) {
 inline string keyPressedToSetWindowShape(int key) {
 	string sWindowDimensions = "";
 	if (key == 'q')
-		sWindowDimensions = ofxSurfing::setWindowShapeSquared(); // 800
+		sWindowDimensions = ofxSurfing::setWindowShapeSquared(); // 800 x 800
 	else if (key == 'Q')
-		sWindowDimensions = ofxSurfing::setWindowShapeSquared(ofGetWidth());
+		sWindowDimensions = ofxSurfing::setWindowShapeSquared(ofGetWidth()); // w x w
 	else if (key == '1')
 		sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(0); // IGTV Cover Photo
 	else if (key == '2')
@@ -178,7 +178,7 @@ inline string keyPressedToSetWindowShape(int key) {
 		sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(3); // IG Story
 	else if (key == '5')
 		sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(4); // IG Square
-	else sWindowDimensions = ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px";
+	//else sWindowDimensions = ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px";
 	return sWindowDimensions;
 }
 

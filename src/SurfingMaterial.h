@@ -120,8 +120,8 @@ public:
 
 	ofxPanel gui;
 	void setGuiPosition(glm::vec2 pos);
-	ofEventListener listenerSaveOfxGui;
-	ofEventListener listenerLoadOfxGui;
+	ofEventListener eSaveOfxGui;
+	ofEventListener eLoadOfxGui;
 
 	ofxPanel guiHelpers;
 	ofParameter<bool> bGui;
@@ -158,6 +158,7 @@ public:
 #endif
 
 public:
+	void doResetAll(bool bHard=true);
 	void doResetMaterial(bool bHard=true);
 	void doResetMaterialOfMaterial();
 	void doRandomMaterial();

@@ -34,13 +34,13 @@ void ofApp::draw() {
 void ofApp::renderScene() {
 	// The camera is auto handled internally.
 
-	// Floor
-	// plane or box modes.
-	// draw without requiring to use begin/end material manually, 
+	// Floor 
+	// Plane or box modes. 
+	// Draw without requiring to use begin/end material manually, 
 	pbr.drawFloor();
 
-	// Material B
-	// for other objects
+	// Material 
+	// One pre created material for other objects
 	pbr.beginMaterial();
 	{
 		drawScene();
@@ -52,7 +52,7 @@ void ofApp::renderScene() {
 void ofApp::drawScene() {
 	/* Put your scene drawing here! */
 
-	// we can easy draw an internal
+	// We can easy draw an internal
 	// testing scene with three prims:
 	pbr.drawTestScene();
 }

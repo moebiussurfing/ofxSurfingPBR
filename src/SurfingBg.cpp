@@ -62,7 +62,7 @@ void SurfingBg::setup() {
 	//--
 
 	setupParameters();
-
+	setupCallbacks();
 	setupGui();
 
 	startup();
@@ -108,8 +108,8 @@ void SurfingBg::setupParameters() {
 	bRotate.set("Rotate", true);
 	speedRotate.set("Speed", 0, -1, 1);
 
-	bDrawBgColorObject.set("Draw Bg Color Object", false);
-	bDrawWireframe.set("Draw Wireframe", false);
+	bDrawBgColorObject.set("Draw BG Color Object", false);
+	bDrawWireframe.set("Draw BG Wireframe", false);
 	wireColor.set("Wire Color",
 		ofFloatColor(1.f, 1.f), ofFloatColor(0.f, 0.f), ofFloatColor(1.f, 1.f));
 
@@ -133,7 +133,7 @@ void SurfingBg::setupParameters() {
 	// Bg Scene Object
 	// sphere/box with or (colored) without textured
 
-	bDrawBgColorPlain.set("Draw Bg Color Plain", false);
+	bDrawBgColorPlain.set("Draw BG Color Plain", false);
 	bgColorPlain.set("Color Plain", ofFloatColor::darkGrey, ofFloatColor(0.f), ofFloatColor(1.f));
 
 	paramsScene.setName("BG Scene");
@@ -141,11 +141,7 @@ void SurfingBg::setupParameters() {
 	paramsScene.add(bDrawBgColorObject);
 	paramsScene.add(bDrawWireframe);
 
-	//paramsColorsGlobal.setName("Global");
-	//paramsColorsGlobal.add(globalColor);
-
 	paramsBgColor.setName("BG Color");
-	//paramsBgColor.add(paramsColorsGlobal);
 	paramsBgColor.add(globalColor);
 	paramsBgColor.add(wireColor);
 	paramsBgColor.add(vResetColors);
@@ -185,9 +181,20 @@ void SurfingBg::setupParameters() {
 
 	parameters.add(paramsScene);
 	parameters.add(vResetAll);
+}
 
-	listenerResetAll = vResetAll.newListener([this](void) {
+//--------------------------------------------------------------
+void SurfingBg::setupCallbacks() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg:setupCallbacks()";
+
+	eResetAll = vResetAll.newListener([this](void) {
 		doResetAll();
+	});
+	eResetScene = vResetScene.newListener([this](void) {
+		doResetScene();
+	});
+	eResetColors = vResetColors.newListener([this](void) {
+		doResetColors();
 	});
 
 	// Callbacks
@@ -234,10 +241,10 @@ void SurfingBg::setupGui() {
 
 	gui.setup(parameters);
 
-	listenerSaveOfxGui = gui.savePressedE.newListener([this] {
+	eSaveOfxGui = gui.savePressedE.newListener([this] {
 		save();
 	});
-	listenerLoadOfxGui = gui.loadPressedE.newListener([this] {
+	eLoadOfxGui = gui.loadPressedE.newListener([this] {
 		load();
 	});
 
@@ -451,17 +458,29 @@ void SurfingBg::doResetScene() {
 
 	//force
 	if (pathTexture.get() == "" || pathTexture.get() == "NONE" || !img.isAllocated()) {
-		pathTexture.setWithoutEventNotifications("images/001.jpg");
+		pathTexture.setWithoutEventNotifications("images/001.jpg");//file should be there!
 	}
 
+#if 0
 	if (bModeBox) bModeBox = false;
 	if (!bModeSphere) bModeSphere = true;
+#else
+	if (!bModeBox) bModeBox = true;
+	if (bModeSphere) bModeSphere = false;
+#endif
+
+	if (!bDrawBgColorObject) bDrawBgColorObject.set(true);
 
 	resolutionSphere = 1.f;
 	resolutionBox = 1.f;
 
 	if (sizeScene != 0.5f) sizeScene = 0.f;
 	if (speedRotate != 0.01) speedRotate = 0.01;
+}
+
+//--------------------------------------------------------------
+void SurfingBg::setColorGlobal(ofFloatColor color) {
+	globalColor.set(color);
 }
 
 //--------------------------------------------------------------
@@ -514,16 +533,12 @@ void SurfingBg::ChangedBgColor(ofAbstractParameter & e) {
 
 	//--
 
-	ofLogNotice("ofxSurfingPBR") << "SurfingBg:ChangedBgColor " << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg:ChangedBgColor: " << name << ": " << e;
 
 	if (name == globalColor.getName()) {
 		colorGroup.set(globalColor.get());
 
 		bFlagSetColorBgGroup = true;
-	}
-
-	else if (name == vResetColors.getName()) {
-		doResetColors();
 	}
 }
 
@@ -533,7 +548,7 @@ void SurfingBg::ChangedBgColorObject(ofAbstractParameter & e) {
 
 	//--
 
-	ofLogNotice("ofxSurfingPBR") << "SurfingBg:ChangedBgColorObject " << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg:ChangedBgColorObject: " << name << ": " << e;
 
 	//force one of both enabled
 	if (name == bModeBox.getName()) {
@@ -542,8 +557,7 @@ void SurfingBg::ChangedBgColorObject(ofAbstractParameter & e) {
 		} else {
 			if (!bModeSphere.get()) bModeSphere.set(true);
 		}
-	}
-	else if (name == bModeSphere.getName()) {
+	} else if (name == bModeSphere.getName()) {
 		if (bModeSphere.get()) {
 			if (bModeBox.get()) bModeBox.set(false);
 		} else {
@@ -557,8 +571,7 @@ void SurfingBg::ChangedBgColorObject(ofAbstractParameter & e) {
 		} else {
 			if (!bModeSphere.get()) bModeSphere.setWithoutEventNotifications(true); //fix crash
 		}
-	}
-	else if (name == bModeSphere.getName()) {
+	} else if (name == bModeSphere.getName()) {
 		if (bModeSphere.get()) {
 			if (bModeBox.get()) bModeBox.setWithoutEventNotifications(false); //fix crash
 		} else {
@@ -605,15 +618,15 @@ void SurfingBg::ChangedBgColorObject(ofAbstractParameter & e) {
 
 		loadTexture(pathTexture.get());
 	}
-
 }
 
 //--------------------------------------------------------------
 void SurfingBg::ChangedScene(ofAbstractParameter & e) {
+	//if (bDisableCallbacks) return;
 
 	string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << "SurfingBg:ChangedScene " << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingBg:ChangedScene: " << name << ": " << e;
 
 	//--
 
@@ -650,34 +663,6 @@ void SurfingBg::ChangedScene(ofAbstractParameter & e) {
 	} else if (name == emissive.getName()) {
 		material.setEmissiveColor(emissive.get());
 	}
-
-	else if (name == vResetAll.getName()) {
-		doResetAll();
-	}
-
-	else if (name == vResetScene.getName()) {
-		doResetScene();
-	}
-
-//workflow
-#if 0
-	else if (name == bDrawBgColorObject.getName()) {
-		if (bDrawBgColorObject) {
-			if (bDrawBgColorPlain) bDrawBgColorPlain.set(false);
-		} else {
-			if (!bDrawBgColorPlain) bDrawBgColorPlain.set(true);
-		}
-	}
-#endif
-#if 0
-	else if (name == bDrawBgColorPlain.getName()) {
-		if (bDrawBgColorPlain) {
-			if (bDrawBgColorObject) bDrawBgColorObject.set(false);
-		} else {
-			if (!bDrawBgColorObject) bDrawBgColorObject.set(true);
-		}
-	}
-#endif
 }
 
 void SurfingBg::processOpenFileSelection(ofFileDialogResult openFileResult) {
