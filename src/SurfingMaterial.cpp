@@ -129,6 +129,8 @@ void SurfingMaterial::setupParams() {
 	randomizersParams.add(vRandomColorsAlpha.set("Random ColorsAlpha"));
 	randomizersParams.add(vRandomAlphas.set("Random Alphas"));
 	helpersParams.add(randomizersParams);
+	
+	//--
 
 	//TODO
 	// History undo/redo
@@ -172,11 +174,9 @@ void SurfingMaterial::setupParams() {
 	moreParams.add(vRandomMaterialFull);
 	moreParams.add(vRandomSettings);
 	moreParams.add(vResetMaterial);
+	moreParams.add(indexHistory);
 	moreParams.add(bGuiHelpers);
 	parameters.add(moreParams);
-
-	//workflow
-	//parameters.add(indexHistory);
 
 	if (name == "")
 		bGui.set("UI MATERIAL", true);
@@ -201,10 +201,10 @@ void SurfingMaterial::setupGui() {
 	gui.setup(parameters);
 
 #if 1
-	listenerSaveGui = gui.savePressedE.newListener([this] {
+	listenerSaveOfxGui = gui.savePressedE.newListener([this] {
 		save();
 	});
-	listenerLoadGui = gui.loadPressedE.newListener([this] {
+	listenerLoadOfxGui = gui.loadPressedE.newListener([this] {
 		load();
 	});
 #endif
@@ -490,7 +490,7 @@ void SurfingMaterial::ChangedHelpers(ofAbstractParameter & e) {
 	}
 
 	else if (name == indexHistory.getName()) {
-
+		if (!bAutoLoadHistory && !bAppRunning) return; //workaround: skip to overwrite loaded settings!
 		bFlagDoRefreshIndexHistory = true;
 	}
 }
@@ -782,7 +782,6 @@ void SurfingMaterial::doRandomMaterial() {
 	doRandomSettings();
 	doRandomColors();
 
-	//if (bAutoStoreAfterRandoms) doStoreNewState();
 	if (bAutoStoreAfterRandoms) bFlagDoStoreNewState = true;
 }
 
@@ -906,7 +905,6 @@ void SurfingMaterial::doRandomColorsAlpha() {
 
 	refreshGlobals();
 
-	//if (bAutoStoreAfterRandoms) doStoreNewState();
 	if (bAutoStoreAfterRandoms) bFlagDoStoreNewState = true;
 }
 
@@ -923,7 +921,6 @@ void SurfingMaterial::doRandomColorGlobal() {
 	c = ofFloatColor(ofRandom(1), ofRandom(1), ofRandom(1), a);
 	globalColor.set(c);
 
-	//if (bAutoStoreAfterRandoms) doStoreNewState();
 	if (bAutoStoreAfterRandoms) bFlagDoStoreNewState = true;
 }
 
@@ -958,7 +955,6 @@ void SurfingMaterial::doRandomColors() {
 
 	refreshGlobals();
 
-	//if (bAutoStoreAfterRandoms) doStoreNewState();
 	if (bAutoStoreAfterRandoms) bFlagDoStoreNewState = true;
 }
 
@@ -1017,15 +1013,17 @@ void SurfingMaterial::setupHistoryManager() {
 	vRefeshHistory.set("History Refresh");
 	vClearHistory.set("History Clear");
 	bAutoStoreAfterRandoms.set("Auto Store Randoms", true);
+	bAutoLoadHistory.set("Auto Load History", false);
 
 	historyParams.setName("History Browser");
 	historyParams.add(vNextHistory);
 	historyParams.add(vPrevHistory);
 	historyParams.add(indexHistory);
+	historyParams.add(bAutoLoadHistory);
 	historyParams.add(bAutoStoreAfterRandoms);
 	historyParams.add(vRecallState);
 	historyParams.add(vStoreNewState);
-	//historyParams.add(vSaveState);//forced auto save
+	//historyParams.add(vSaveState);//disable bc is forced to auto save
 	historyParams.add(vRemoveState);
 	historyParams.add(vRefeshHistory);
 	historyParams.add(vClearHistory);
@@ -1371,7 +1369,6 @@ void SurfingMaterial::keyPressed(int key) {
 	if (!bKeys) return;
 
 	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial::keyPressed(" << key << ") " << name;
-
 	
 	// Randomizers
 	if (key == OF_KEY_F1) doResetMaterial();
@@ -1389,6 +1386,7 @@ void SurfingMaterial::keyPressed(int key) {
 	if (key == 's') doStoreNewState();
 	if (key == 'S') doSaveState();
 }
+
 //--
 
 //--------------------------------------------------------------

@@ -206,8 +206,8 @@ void ofxSurfingPBR::setupParams() {
 #endif
 
 	showGuiParams.setName("UI");
-	showGuiParams.add(bGuiFloor);
 	showGuiParams.add(bg.bGui);
+	showGuiParams.add(bGuiFloor);
 	showGuiParams.add(material.bGui);
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
@@ -217,11 +217,11 @@ void ofxSurfingPBR::setupParams() {
 	parameters.add(showGuiParams);
 
 	drawParams.setName("DRAW");
-	drawParams.add(bDrawFloorPlane);
-	drawParams.add(bDrawFloorBox);
-
 	drawParams.add(bg.bDrawBgColorObject);
 	drawParams.add(bg.bDrawBgColorPlain);
+
+	drawParams.add(bDrawFloorPlane);
+	drawParams.add(bDrawFloorBox);
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	bDrawCubeMap.set("Draw Bg CubeMap", true);
@@ -256,6 +256,7 @@ void ofxSurfingPBR::setupParams() {
 	floorResolution.set("Resolution", glm::vec2(0.5f, 0.5f), glm::vec2(0, 0), glm::vec2(1.f, 1.f));
 	floorRotation.set("x Rotation", 0, -45, 135);
 	floorPosition.set("y Position", 0, -1, 1);
+	floorBoxDepth.set("Box Depth", 0, 1, 100);
 
 	//--
 
@@ -328,8 +329,7 @@ void ofxSurfingPBR::setupParams() {
 	//--
 
 	//advancedParams.add(bGui); //workflow: added to add to settings. could hide the toggle..
-
-	advancedParams.add(material.getIndexStateParam());
+	//advancedParams.add(material.getIndexStateParam());//to include and store history index
 	//advancedParams.add(material.bGuiHelpers);
 
 	guiParams.setName("Gui");
@@ -553,13 +553,12 @@ void ofxSurfingPBR::updateDisplace() {
 
 	// apply displace to material plane
 	if (bDisplaceToMaterial) {
-		materialFloor.setDisplacementTexture(img.getTexture());
+		materialFloor.material.setDisplacementTexture(img.getTexture());
 
-		materialFloor.setDisplacementStrength(displacementStrength);
-		materialFloor.setDisplacementNormalsStrength(displacementNormalsStrength);
-		materialFloor.setNormalGeomToNormalMapMix(normalGeomToNormalMapMix);
-
-		//materialFloor.setTexCoordScale(scaleX, scaleY);
+		materialFloor.material.setDisplacementStrength(displacementStrength);
+		materialFloor.material.setDisplacementNormalsStrength(displacementNormalsStrength);
+		materialFloor.material.setNormalGeomToNormalMapMix(normalGeomToNormalMapMix);
+		//materialFloor.material.setTexCoordScale(scaleX, scaleY);
 	}
 }
 
@@ -839,24 +838,24 @@ void ofxSurfingPBR::setupGui() {
 	//--
 
 	// assign to ofxGui icons
-	listenerSaveGui = gui.savePressedE.newListener([this] {
+	listenerSaveOfxGui = gui.savePressedE.newListener([this] {
 		save();
 	});
-	listenerLoadGui = gui.loadPressedE.newListener([this] {
+	listenerLoadOfxGui = gui.loadPressedE.newListener([this] {
 		load();
 	});
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::refreshGui() {
-	if (!guiManager.bAutoLayout) return;
+	//if (!guiManager.bAutoLayout) return;
 
 	ofLogNotice("ofxSurfingPBR") << "refreshGui()";
 
-	// top-left
+	// anchor gui top-left
 	gui.setPosition(SURFING__PAD_TO_WINDOW_BORDERS, SURFING__PAD_TO_WINDOW_BORDERS);
 
-	// minimize sub panels
+	// minimize
 
 	guiFloor.getGroup(floorTransformParams.getName())
 		.minimize();
@@ -869,30 +868,24 @@ void ofxSurfingPBR::refreshGui() {
 		.getGroup(floorResolution.getName())
 		.minimize();
 
-	//gui.getGroup(floorParams.getName()).minimize();
-
 	materialFloor.refreshGui();
 
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	//gui.getGroup(floorParams.getName())
-	//	.getGroup(displacersParams.getName())
-	//	.minimize();
+	guiFloor.getGroup(displacersParams.getName())
+		.minimize();
 
-	//gui.getGroup(floorParams.getName())
-	//	.getGroup(displacersParams.getName())
-	//	.getGroup(displaceMaterialParams.getName())
-	//	.minimize();
+	guiFloor.getGroup(displacersParams.getName())
+		.getGroup(displaceMaterialParams.getName())
+		.minimize();
 
-	//gui.getGroup(floorParams.getName())
-	//	.getGroup(displacersParams.getName())
-	//	.getGroup(noiseParams.getName())
-	//	.minimize();
+	guiFloor.getGroup(displacersParams.getName())
+		.getGroup(noiseParams.getName())
+		.minimize();
 #endif
 
 	gui.getGroup(testSceneParams.getName()).minimize();
 	gui.getGroup(cameraParams.getName()).minimize();
 	gui.getGroup(internalParams.getName()).minimize();
-	//gui.getGroup(drawParams.getName()).minimize();
 
 	gui.getGroup(internalParams.getName())
 		.getGroup(advancedParams.getName())
@@ -987,9 +980,8 @@ void ofxSurfingPBR::drawOfxGui() {
 		// all ofxPanels positions and/or drawing are handled by guiManager
 		material.drawGui();
 
-		if (bGuiFloor) 
-		{
-		ofxSurfing::setGuiPositionBelowTo(materialFloor.gui, guiFloor);
+		if (bGuiFloor) {
+			ofxSurfing::setGuiPositionBelowTo(materialFloor.gui, guiFloor);
 			materialFloor.drawGui();
 		}
 	}
@@ -1586,9 +1578,9 @@ void ofxSurfingPBR::ChangedDisplacers(ofAbstractParameter & e) {
 		if (bDisplaceToMaterial) { //workflow
 			if (bShaderToPlane) bShaderToPlane = false;
 		} else { //release mods
-			materialFloor.setDisplacementStrength(0);
-			materialFloor.setDisplacementNormalsStrength(0);
-			materialFloor.setNormalGeomToNormalMapMix(0);
+			materialFloor.material.setDisplacementStrength(0);
+			materialFloor.material.setDisplacementNormalsStrength(0);
+			materialFloor.material.setNormalGeomToNormalMapMix(0);
 		}
 	}
 
@@ -1830,8 +1822,8 @@ void ofxSurfingPBR::exit() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::save() {
-	ofLogNotice("ofxSurfingPBR") << "Scene save -> " << path;
-	ofLogNotice("ofxSurfingPBR") << "Floor save -> " << pathFloor;
+	ofLogNotice("ofxSurfingPBR") << "Save Scene -> " << path;
+	ofLogNotice("ofxSurfingPBR") << "Save Floor -> " << pathFloor;
 
 	//save scene
 	ofxSurfing::saveSettings(parameters, path);
@@ -1840,8 +1832,8 @@ void ofxSurfingPBR::save() {
 
 //--------------------------------------------------------------
 bool ofxSurfingPBR::load() {
-	ofLogNotice("ofxSurfingPBR") << "Scene load -> " << path;
-	ofLogNotice("ofxSurfingPBR") << "Floor load -> " << pathFloor;
+	ofLogNotice("ofxSurfingPBR") << "Load Scene -> " << path;
+	ofLogNotice("ofxSurfingPBR") << "Load Floor  -> " << pathFloor;
 
 	bool b;
 
@@ -2193,13 +2185,15 @@ void ofxSurfingPBR::keyPressed(int key) {
 			ofSetFrameRate(60);
 		}
 	}
-	if (key == 'q') sWindowDimensions = ofxSurfing::setWindowShapeSquared(); // 800
-	if (key == 'Q') sWindowDimensions = ofxSurfing::setWindowShapeSquared(ofGetWidth());
-	if (key == '1') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(0); // IGTV Cover Photo
-	if (key == '2') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(1); // IG Landscape Photo
-	if (key == '3') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(2); // IG Portrait
-	if (key == '4') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(3); // IG Story
-	if (key == '5') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(4); // IG Square
+
+	sWindowDimensions = ofxSurfing::keyPressedToSetWindowShape(key);
+	//if (key == 'q') sWindowDimensions = ofxSurfing::setWindowShapeSquared(); // 800
+	//if (key == 'Q') sWindowDimensions = ofxSurfing::setWindowShapeSquared(ofGetWidth());
+	//if (key == '1') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(0); // IGTV Cover Photo
+	//if (key == '2') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(1); // IG Landscape Photo
+	//if (key == '3') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(2); // IG Portrait
+	//if (key == '4') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(3); // IG Story
+	//if (key == '5') sWindowDimensions = ofxSurfing::setWindowShapeForInstagram(4); // IG Square
 
 	material.keyPressed(key);
 	materialFloor.keyPressed(key);
@@ -2231,7 +2225,7 @@ void ofxSurfingPBR::doResetFloor() {
 	if (!bLimitImage) bLimitImage.set(true);
 	if (bShaderToPlane) bShaderToPlane.set(false);
 	if (bDisplaceToMaterial) bDisplaceToMaterial.set(false);
-
+	if (!bDrawFloorPlane) bDrawFloorPlane = true;
 #endif
 }
 

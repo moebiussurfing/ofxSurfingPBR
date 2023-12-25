@@ -6,7 +6,7 @@
 
 // TODO: WIP: add another shader/material.
 // sometimes breaks/interferes with shadows...
-//#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS 
+#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS 
 
 //----
 

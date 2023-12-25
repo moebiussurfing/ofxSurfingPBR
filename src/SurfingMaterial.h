@@ -113,15 +113,15 @@ public:
 	ofParameter<void> vRandomColorsGlobal;
 	ofParameter<void> vRandomSettings;
 	
-	ofParameter<void> vLoad;
-	ofParameter<void> vSave;
-	ofEventListener listenerLoad;
-	ofEventListener listenerSave;
+	//ofParameter<void> vLoad;
+	//ofParameter<void> vSave;
+	//ofEventListener listenerLoad;
+	//ofEventListener listenerSave;
 
 	ofxPanel gui;
 	void setGuiPosition(glm::vec2 pos);
-	ofEventListener listenerSaveGui;
-	ofEventListener listenerLoadGui;
+	ofEventListener listenerSaveOfxGui;
+	ofEventListener listenerLoadOfxGui;
 
 	ofxPanel guiHelpers;
 	ofParameter<bool> bGui;
@@ -190,6 +190,7 @@ private:
 	// workflow
 	bool bAutoSaveBeforeChangeIndex = true;
 	ofParameter<bool> bAutoStoreAfterRandoms;
+	ofParameter<bool> bAutoLoadHistory;
 
 	ofParameter<void> vPrevHistory;
 	ofParameter<void> vNextHistory;

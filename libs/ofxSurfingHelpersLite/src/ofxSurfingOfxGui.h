@@ -431,7 +431,7 @@ private:
 		glm::vec2(3840, 2160) }; //4k
 
 public:
-	ofParameter<bool> bAutoLayout { "AutoLayout", true };
+	ofParameter<bool> bAutoLayout { "AutoLayout", false };
 
 private:
 #if (SURFING_USE_GUI_EXTRA)
@@ -453,6 +453,7 @@ public:
 
 		parameters.setName(name);
 		parameters.add(position);
+		parameters.add(bAutoLayout);
 	}
 
 #if (SURFING_USE_GUI_EXTRA)
@@ -493,7 +494,7 @@ public:
 		bGui.set(n, true);
 
 		bGuiParams.setName(n);
-		bGuiParams.add(bAutoLayout);
+		//bGuiParams.add(bAutoLayout);
 
 		parameters.add(bGuiParams);
 

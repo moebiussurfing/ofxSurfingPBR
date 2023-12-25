@@ -198,8 +198,8 @@ private:
 	ofParameter<void> vLoadCamera;
 	string pathCamera = "ofxSurfingPBR_Camera.txt";
 
-	ofEventListener listenerSaveGui;
-	ofEventListener listenerLoadGui;
+	ofEventListener listenerSaveOfxGui;
+	ofEventListener listenerLoadOfxGui;
 
 public:
 	ofParameter<void> vResetCamera;
