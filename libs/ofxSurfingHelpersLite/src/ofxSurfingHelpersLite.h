@@ -564,7 +564,7 @@ inline void ofDrawBitmapStringBox(string s, int layout /* = 0*/) {
 }
 
 //--------------------------------------------------------------
-inline void ofDrawBitmapStringBox(string s, ofxPanel * gui, SURFING_LAYOUT layout = SURFING_LAYOUT_TOP_LEFT) {
+inline void ofDrawBitmapStringBox(string s, ofxPanel * gui, SURFING_LAYOUT layout = SURFING_LAYOUT_TOP_RIGHT) {
 	// Set text box position linked to the ofxPanel
 	// but setting the layout position.
 

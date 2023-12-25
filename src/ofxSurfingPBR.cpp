@@ -51,7 +51,9 @@ void ofxSurfingPBR::windowResized(ofResizeEventArgs & resize) {
 
 		sWindowDimensions = "";
 
-		buildHelp();
+		//buildHelp();
+		bFlagBuildHelp = true;
+
 		refreshGui();
 	}
 }
@@ -132,7 +134,8 @@ void ofxSurfingPBR::doNextLayoutHelp() {
 	i = i % (helpLayout.getMax() + 1);
 	helpLayout.set(i);
 
-	buildHelp();
+	//buildHelp();
+	bFlagBuildHelp = true;
 }
 
 //--------------------------------------------------------------
@@ -144,7 +147,8 @@ void ofxSurfingPBR::doPrevLayoutHelp() {
 	if (i < 0) i = helpLayout.getMax();
 	helpLayout.set(i);
 
-	buildHelp();
+	//buildHelp();
+	bFlagBuildHelp = true;
 }
 
 //--------------------------------------------------------------
@@ -158,15 +162,19 @@ void ofxSurfingPBR::doNextLayouGui() {
 	if (i > indexGuiLayout.getMax()) i = 0;
 	indexGuiLayout.set(i);
 
-	buildHelp();
+	//buildHelp();
+	bFlagBuildHelp = true;
 }
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::setupParams() {
 	ofLogNotice("ofxSurfingPBR") << "setupParams()";
 
-	bGui.set("PBR", true);
-	bGuiOfxGui.set("PBR ofxGui", true);
+	parameters.setName("PBR_SCENE");
+	string n = "UI " + parameters.getName();
+	bGui.set(n, true);
+
+	bGuiOfxGui.set(parameters.getName() + " ofxGui", true);
 
 	bDebug.set("Debug", false);
 	bKeys.set("Keys", true);
@@ -186,16 +194,8 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	parameters.setName("SCENE");
-
 	vLoadAll.set("Load All");
 	vSaveAll.set("Save All");
-
-//TODO: make a full project save/load
-#if 0
-	parameters.add(vLoadAll);
-	parameters.add(vSaveAll);
-#endif
 
 	floor.helpLayout.makeReferenceTo(helpLayout);
 	floor.bDebug.makeReferenceTo(bDebug);
@@ -207,7 +207,6 @@ void ofxSurfingPBR::setupParams() {
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	paramsShowGui.add(lights.bGui);
 #endif
-	parameters.add(paramsShowGui);
 
 	bDrawBg.set("Draw Bg", true);
 #ifdef SURFING__PBR__USE_CUBE_MAP
@@ -215,23 +214,27 @@ void ofxSurfingPBR::setupParams() {
 #endif
 
 	paramsDraw.setName("DRAW");
-
 	paramsDraw.add(bDrawBg);
 	paramsDrawBg.setName("BG");
-#if 1
 	paramsDrawBg.add(bg.bDrawBgColorObject);
 	paramsDrawBg.add(bg.bDrawBgColorPlain);
-
-	#ifdef SURFING__PBR__USE_CUBE_MAP
+#ifdef SURFING__PBR__USE_CUBE_MAP
 	paramsDrawBg.add(bDrawCubeMap);
-	#endif
 #endif
 	paramsDraw.add(paramsDrawBg);
-
 	paramsDraw.add(floor.bDraw);
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	paramsDraw.add(lights.bDrawShadow);
 #endif
+	paramsDraw.add(bDrawTestScene);
+
+//TODO: make a full project save/load
+#if 0
+	parameters.add(vLoadAll);
+	parameters.add(vSaveAll);
+#endif
+
+	parameters.add(paramsShowGui);
 	parameters.add(paramsDraw);
 
 	//--
@@ -242,12 +245,12 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	paramsTestScene.setName("Test Scene");
-	bGuiDrawTestScene.set("Draw Scene", true);
+	paramsTestScene.setName("TestScene");
+	bDrawTestScene.set("Draw TestScene", true);
 	scaleTestScene.set("Scale", 0, -1.f, 1.f);
 	positionTestScene.set("Pos", { 0, 0, 0 }, { -1, -1, -1 }, { 1, 1, 1 });
 	vResetTestScene.set("Reset TestScene");
-	paramsTestScene.add(bGuiDrawTestScene);
+	paramsTestScene.add(bDrawTestScene);
 	paramsTestScene.add(scaleTestScene);
 	paramsTestScene.add(positionTestScene);
 	paramsTestScene.add(vResetTestScene);
@@ -266,10 +269,8 @@ void ofxSurfingPBR::setupParams() {
 
 	//--
 
-	parameters.add(paramsCamera);
 	parameters.add(paramsTestScene);
-
-	//paramsInternal.add(bDebug);
+	parameters.add(paramsCamera);
 
 	//--
 
@@ -292,13 +293,12 @@ void ofxSurfingPBR::setupParams() {
 	paramsAdvanced.add(paramsGui);
 
 	paramsInternal.add(paramsAdvanced);
-	paramsInternal.add(bKeys);
 	parameters.add(paramsInternal);
 
 	vResetAll.set("Reset All");
-
 	parameters.add(vResetAll);
 	parameters.add(bDebug);
+	parameters.add(bKeys);
 	parameters.add(bHelp);
 
 	//--
@@ -414,7 +414,8 @@ void ofxSurfingPBR::setup() {
 
 	setupGui();
 
-	buildHelp();
+	//buildHelp();
+	bFlagBuildHelp = true;
 
 	//--
 
@@ -671,6 +672,11 @@ void ofxSurfingPBR::update() {
 			//TODO fix crash callbacks
 			startupDelayed();
 		}
+
+		if (bFlagBuildHelp) {
+			bFlagBuildHelp = false;
+			buildHelp();
+		}
 	}
 }
 
@@ -918,7 +924,8 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 	//--
 
 	if (name == bKeys.getName()) {
-		buildHelp();
+		//buildHelp();
+		bFlagBuildHelp = true;
 	}
 
 	else if (name == helpLayout.getName()) {
@@ -1122,7 +1129,7 @@ void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawTestScene() {
-	if (!bGuiDrawTestScene) return;
+	if (!bDrawTestScene) return;
 
 	//----
 
@@ -1584,7 +1591,8 @@ void ofxSurfingPBR::keyPressed(int key) {
 
 	material.keyPressed(key);
 
-	buildHelp();
+	//buildHelp();
+	bFlagBuildHelp = true;
 }
 
 //--------------------------------------------------------------

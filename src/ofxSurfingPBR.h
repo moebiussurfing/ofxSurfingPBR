@@ -107,7 +107,7 @@ public:
 	void drawTestScene(); // a simple scene with 3 prims for easy testing
 	void pushTestSceneTransform();
 	void popTestSceneTransform();
-	ofParameter<bool> bGuiDrawTestScene;
+	ofParameter<bool> bDrawTestScene;
 
 	void drawGui();
 	void drawOfxGui();
@@ -273,6 +273,7 @@ public:
 private:
 	void buildHelp();
 	string sHelp;
+	bool bFlagBuildHelp = false;
 
 public:
 	ofParameter<bool> bHelp;
@@ -288,8 +289,9 @@ public:
 	
 	ofParameter<void> vResetAll;
 
-private:
+public:
 	ofxPanel gui;
+private:
 	SurfingOfxGuiPanelsManager guiManager;
 
 public:

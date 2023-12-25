@@ -17,7 +17,8 @@
 
 // Default font and sizes/colors will be used to customize ofxGui!
 #define SURFING__OFXGUI__FONT_DEFAULT_SIZE 9
-#define SURFING__OFXGUI__FONT_DEFAULT_SIZE_MINI 7
+#define SURFING__OFXGUI__FONT_DEFAULT_SIZE_MINI 6
+//#define SURFING__OFXGUI__FONT_DEFAULT_SIZE_MINI 7
 #define SURFING__OFXGUI__FONT_DEFAULT_PATH "assets/fonts/NotoSansMono-Regular.ttf"
 
 //#define SURFING__OFXGUI__FONT_DEFAULT_SIZE 10
@@ -319,21 +320,23 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 #if bDebugDefault
 		// Default
 		/*
-		int ofxBaseGui::textPadding = 4;
 		int ofxBaseGui::defaultWidth = 200;
+		int ofxBaseGui::textPadding = 4;
 		int ofxBaseGui::defaultHeight = 18;
 		*/
-		textPadding = 4;
 		defaultWidth = 200;
+		textPadding = 4;
 		defaultHeight = 18;
 #else
 		if (bMini) {
-			textPadding = 6;
 			defaultWidth = 150;
-			defaultHeight = 17;
+			textPadding = 4;
+			defaultHeight = 14;
+			//textPadding = 6;
+			//defaultHeight = 17;
 		} else {
-			textPadding = 6;
 			defaultWidth = 200;
+			textPadding = 6;
 			defaultHeight = 18;
 		}
 #endif
@@ -346,14 +349,16 @@ inline void setOfxGuiTheme(bool bMini = 0, std::string pathFont = "") {
 
 //--
 
-// This class store the ofxGui panel position.
-// queue ofxPanels.
-// set anchor panel
-// set position for linked.
+// SurfingOfxGuiPanelsManager
+// WIP
+// This class stores the ofxGui panel position.
+// but also queues many ofxPanels and their visible toggles (bGui).
+// First panel queued is used as anchor panel.
+// to set position, if it's minimized and others
+// for all the others linked.
 //
 // TODO:
 // make derived from ofxPanel?
-// add bGui
 
 /*
 
@@ -368,11 +373,16 @@ void setup() {
 	
 	gui.setup(parameters);
 	refreshGui();//apply folder minimizes here
+
 	guiManager.setup(&gui);
+	guiManager.add(&gui, bGui, SURFING__OFXGUI__MODE_ONLY_POSITION);
+	guiManager.add(&guiParams);
+	guiManager.startup();
+
 }
 
 void refreshGui() {
-	if (!guiManager.bAutoLayout) return;
+	//if (!guiManager.bAutoLayout) return;
 }
 
 */
@@ -400,11 +410,13 @@ public:
 	SurfingOfxGuiPanelsManager() {
 		name = "";
 		path = "";
+		filenameSuffix = "_ofxGui.json";
+
 		bDoneStartup = false;
 	};
 
 	~SurfingOfxGuiPanelsManager() {
-		//TODO: kind of bad practice..
+		//TODO: kind of bad practice saving on exit..
 		exit();
 	};
 
@@ -420,11 +432,13 @@ private:
 	//data
 	//TODO: make a struct
 	vector<ofxPanel *> guis;
-	vector<ofParameter<bool>> bGuis;
+	vector<ofParameter<bool>> bGuis;//TODO
+	vector<ofParameter<bool>> bMinimizeds;//TODO
 	vector<ofxSurfing::SURFING__OFXGUI__MODE> modes;
 
 	ofParameterGroup parameters;
 
+	ofParameter<bool> bMinimized { "Minimized", false };
 	ofParameter<glm::vec2> position { "Position",
 		glm::vec2(SURFING__OFXGUI__PAD_TO_WINDOW_BORDERS, SURFING__OFXGUI__PAD_TO_WINDOW_BORDERS),
 		glm::vec2(0, 0),
@@ -444,15 +458,18 @@ private:
 
 	string name;
 	string path;
+	string filenameSuffix;
 	bool bDoneStartup;
 
 public:
 	void setup(ofxPanel * gAnchor) {
 		guiAnchor = gAnchor;
 		name = guiAnchor->getName();
+		path = name + filenameSuffix;
 
 		parameters.setName(name);
 		parameters.add(position);
+		parameters.add(bMinimized);
 		parameters.add(bAutoLayout);
 	}
 
@@ -474,12 +491,26 @@ public:
 		modes.push_back(ofxSurfing::SURFING__OFXGUI__MODE_DRAW_AND_POSITION);
 	}
 
+	void add(ofxPanel * g, ofxSurfing::SURFING__OFXGUI__MODE mode) {
+		ofParameter<bool> b;
+		b.set(g->getName(), true);
+		bGuis.emplace_back(b);
+		guis.push_back(g);
+		modes.push_back(ofxSurfing::SURFING__OFXGUI__MODE_DRAW_AND_POSITION);
+	}
+
 	void add(ofxPanel * g) {
 		ofParameter<bool> b;
 		b.set(g->getName(), true);
 		add(g, b);
 		bGuis.emplace_back(b);
 		guis.push_back(g);
+
+		//TODO
+		//ofParameter<bool> bm;
+		//bm.set(g->getName() + "_minimized", true);
+		//bMinimizeds.push_back(g);
+
 #if (SURFING_USE_GUI_EXTRA)
 		bGuiParams.add(bGuiParams);
 #endif
@@ -504,10 +535,20 @@ public:
 
 		//--
 
-		path = name + "_ofxGui.json";
+		path = name + filenameSuffix;
 		ofxSurfing::load(parameters, path);
 
 		guiAnchor->setPosition(position.get().x, position.get().y);
+
+		//if (bMinimized) guiAnchor->minimize();
+		//else guiAnchor->maximize();
+		//apply minimize settings to all the guis packed!
+		for (auto & g : guis) {
+			if (bMinimized)
+				g->minimize();
+			else
+				g->maximize();
+		}
 
 		bDoneStartup = true;
 	}
@@ -567,6 +608,7 @@ private:
 	void exit() {
 		if (guiAnchor == nullptr) return;
 		position = guiAnchor->getPosition();
+		bMinimized = guiAnchor->isMinimized();
 
 		ofxSurfing::save(parameters, path);
 	}
