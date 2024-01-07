@@ -602,9 +602,9 @@ void ofxSurfingPBR::setupGui() {
 	guiManager.add(&gui, bGui);
 	guiManager.add(&bg.gui, bg.bGui);
 	guiManager.add(&floor.gui, floor.bGui);
-	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_ONLY_POSITION);
+	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION);
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
-	guiManager.add(&lights.gui, lights.bGui, ofxSurfing::SURFING__OFXGUI__MODE_ONLY_POSITION);
+	guiManager.add(&lights.gui, lights.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION);
 #endif
 
 	guiManager.startup();

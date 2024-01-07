@@ -98,7 +98,7 @@ public:
 
 private:
 	void loadModels() {
-		string p = filesBrowserModels.getPathModels();
+		string p = filesBrowserModels.getPathFiles();
 
 		ofLogNotice("SurfingModelsManager") << "loadModels(" << p << ")";
 		ofLogNotice("SurfingModelsManager") << "Trying to load all the models files from the folder now.";
@@ -111,7 +111,7 @@ private:
 		for (size_t i = 0; i < sz; i++) {
 
 			// Models
-			string path = filesBrowserModels.getPathModel(i);
+			string path = filesBrowserModels.getPathFile(i);
 			if (path == "") {
 				ofLogError("SurfingModelsManager") << "Model path not settled properly or unknown!";
 				continue;
@@ -172,9 +172,6 @@ private:
 			meshesModels[i].clear(); //slow?
 			meshesModels[i].push_back(m);
 		}
-	}
-	void updateSwitcher() {
-		filesBrowserModels.updateAutoSwitch();
 	}
 
 public:
@@ -264,7 +261,6 @@ private:
 
 public:
 	void draw() {
-		updateSwitcher();
 		drawModel();
 	}
 
@@ -358,9 +354,9 @@ public:
 
 	void keyPressed(int key) {
 		if (key == OF_KEY_DOWN) {
-			filesBrowserModels.next();
+			filesBrowserModels.doNext();
 		} else if (key == OF_KEY_UP) {
-			filesBrowserModels.previous();
+			filesBrowserModels.doPrevious();
 		}
 	}
 

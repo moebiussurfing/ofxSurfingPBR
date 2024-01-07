@@ -33,11 +33,17 @@ using callback_t = std::function<void()>;
 class SurfingFilesBrowser {
 public:
 	SurfingFilesBrowser() {
-		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:SurfingFilesBrowser()";
+		ofLogNotice("SurfingFilesBrowser") << "SurfingFilesBrowser:SurfingFilesBrowser()";
+
+		ofAddListener(ofEvents().update, this, &SurfingFilesBrowser::update);
+		ofAddListener(ofEvents().keyPressed, this, &SurfingFilesBrowser::keyPressed);
 	}
 
 	~SurfingFilesBrowser() {
-		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:~SurfingFilesBrowser()";
+		ofLogNotice("SurfingFilesBrowser") << "SurfingFilesBrowser:~SurfingFilesBrowser()";
+
+		ofRemoveListener(ofEvents().update, this, &SurfingFilesBrowser::update);
+		ofRemoveListener(ofEvents().keyPressed, this, &SurfingFilesBrowser::keyPressed);
 
 		ofRemoveListener(parameters.parameterChangedE(), this, &SurfingFilesBrowser::Changed);
 
@@ -45,9 +51,40 @@ public:
 		//save();
 	}
 
+	void update(ofEventArgs & args) {
+		updateAutoSwitch();
+	}
+
+	void keyPressed(int key) {
+		if (!bKeys) return;
+		ofLogNotice("SurfingFilesBrowser") << "keyPressed: " << key;
+
+		if (key == OF_KEY_UP) {
+			doPrevious();
+		}
+
+		else if (key == OF_KEY_DOWN) {
+			doNext();
+		}
+	}
+
+	void keyPressed(ofKeyEventArgs & eventArgs) {
+		const int key = eventArgs.key;
+
+		// modifiers
+		bool mod_COMMAND = eventArgs.hasModifier(OF_KEY_COMMAND);
+		bool mod_CONTROL = eventArgs.hasModifier(OF_KEY_CONTROL);
+		bool mod_ALT = eventArgs.hasModifier(OF_KEY_ALT);
+		bool mod_SHIFT = eventArgs.hasModifier(OF_KEY_SHIFT);
+
+		ofLogVerbose("ofxSurfing3dText") << "keyPressed";
+
+		keyPressed(key);
+	}
+
 public:
 	ofParameterGroup parameters;
-	ofParameterGroup browseParams;
+	ofParameterGroup paramsBrowse;
 
 	ofParameter<string> nameFile { "Name", "" };
 	ofParameter<int> indexFile { "FILE", -1, -1, -1 };
@@ -55,8 +92,9 @@ public:
 	ofParameter<void> vPrev { "Previous" };
 	ofParameter<void> vReset { "Reset" };
 
-	ofParameterGroup extraParams;
-	ofParameter<bool> bModeAll { "All Models", false };
+	ofParameterGroup paramsExtra;
+	ofParameterGroup switcherParams;
+	ofParameter<bool> bModeAll { "Mode All", false };
 	ofParameter<bool> bAutoSwitch { "Auto Switch", false }; //auto switch to next model
 	ofParameter<float> timeAutoSwitch { "Time Switch", 2, 0.05, 10 };
 	ofParameter<int> indexAnimation { "Index Anim", -1, -1, -1 };
@@ -69,6 +107,8 @@ public:
 		setupParams();
 		setupGui();
 
+		buildHelp();
+
 		//--
 
 		// Auto saver
@@ -80,18 +120,24 @@ public:
 		load();
 	}
 
+	virtual void setupParametersExtra() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:setupParametersExtra()";
+	}
+
 private:
 	virtual void setupGui() {
 		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:setupGui()";
 
-		parameters.add(extraParams);
+		parameters.add(paramsExtra);
 		parameters.add(bHelp);
+		parameters.add(bKeys);
 
 		gui.setup(parameters);
 
-		gui.getGroup(extraParams.getName()).minimize();
+		gui.getGroup(paramsExtra.getName()).minimize();
 	}
 
+private:
 	// Default supported formats. in this case for 3d models.
 	vector<string> extensions = {
 		"ply",
@@ -100,7 +146,8 @@ private:
 	};
 
 public:
-	void setFileExtensions(vector<string> e) {//call before setup
+	// Customize file types. Call before calling setup!
+	void setFileExtensions(vector<string> e) {
 		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:setFileExtensions()";
 		ofLogNotice("ofxSurfingPBR") << ofToString(e);
 
@@ -138,20 +185,23 @@ public:
 
 		nameFile.setSerializable(false);
 
-		browseParams.setName("Files");
-		browseParams.add(vNext);
-		browseParams.add(vPrev);
-		browseParams.add(indexFile);
-		browseParams.add(nameFile);
+		paramsBrowse.setName("Files");
+		paramsBrowse.add(vNext);
+		paramsBrowse.add(vPrev);
+		paramsBrowse.add(indexFile);
+		paramsBrowse.add(nameFile);
 
-		extraParams.setName("Extra");
-		extraParams.add(bModeAll);
-		extraParams.add(bAutoSwitch);
-		extraParams.add(timeAutoSwitch);
-		extraParams.add(indexAnimation);
+		switcherParams.setName("Switcher");
+		switcherParams.add(bAutoSwitch);
+		switcherParams.add(timeAutoSwitch);
+		switcherParams.add(indexAnimation);
+
+		paramsExtra.setName("Extra");
+		paramsExtra.add(bModeAll);
+		paramsExtra.add(switcherParams);
 
 		parameters.setName(sTitle);
-		parameters.add(browseParams);
+		parameters.add(paramsBrowse);
 
 		//--
 
@@ -177,10 +227,10 @@ public:
 		});
 
 		listenerNext = vNext.newListener([this](void) {
-			next();
+			doNext();
 		});
 		listenerPrevious = vPrev.newListener([this](void) {
-			previous();
+			doPrevious();
 		});
 
 		listenerReset = vReset.newListener([this](void) {
@@ -232,7 +282,7 @@ public:
 		return getFilename(indexFile);
 	}
 
-	string getPathModel(int i) {
+	string getPathFile(int i) {
 		string p = "";
 		if (i == -1) i = indexFile;
 		p = dir.getPath(i);
@@ -243,8 +293,8 @@ public:
 		string s = "";
 		for (size_t i = 0; i < dir.size(); i++) {
 			bool b = (i == indexFile);
-			s += b ? ">" : " ";//left
-			s += ofToString(i);
+			s += b ? ">" : " "; //left
+			s += (i < 10 ? "0" : "") + ofToString(i);
 			s += " ";
 			s += dir.getName(i);
 			//s += b ? " <" : "  ";//right
@@ -253,8 +303,8 @@ public:
 		return s;
 	}
 
-	void next() {
-		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:next()";
+	void doNext() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:doNext()";
 
 		if (dir.size() > 0) {
 			indexFile.setWithoutEventNotifications(indexFile.get() + 1);
@@ -262,8 +312,8 @@ public:
 		}
 	}
 
-	void previous() {
-		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:previous()";
+	void doPrevious() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:doPrevious()";
 
 		if (dir.size() > 0) {
 			if (indexFile.get() > 0) {
@@ -277,12 +327,13 @@ public:
 		}
 	}
 
-public:
+	//public:
+protected:
 	void updateAutoSwitch() {
 		if (bAutoSwitch) {
 			float t = ofGetElapsedTimef() - timeIndexChanged;
 			if (t > timeAutoSwitch.get()) {
-				next();
+				doNext();
 			}
 		}
 	}
@@ -326,7 +377,7 @@ protected:
 	}
 
 public:
-	const string getPathModels() {
+	const string getPathFiles() {
 		string s = pathFiles;
 		if (s == "") {
 			ofLogError("ofxSurfingPBR") << "SurfingFilesBrowser:Models path not settled properly or unknown!";
@@ -359,6 +410,7 @@ public:
 	ofxPanel gui;
 
 	void drawGui() {
+		if (!bGui) return;
 		gui.draw();
 	}
 
@@ -367,13 +419,17 @@ public:
 	}
 
 	virtual void refreshGui() {
-		//gui.getGroup(extraParams.getName()).minimize();
+		//gui.getGroup(paramsExtra.getName()).minimize();
 	}
 
-	void setTitle(string s) {//call before setup
+	void setTitle(string s) { //call before setup
 		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowser:setTitle(" << s << ")";
 
 		sTitle = s;
+
+		string n;
+		n = "UI " + s;
+		bGui.setName(n);
 	}
 
 private:
@@ -396,12 +452,18 @@ private:
 	}
 
 public:
+	ofParameter<bool> bGui { "UI FilesBrowser", true };
 	ofParameter<bool> bHelp { "Help", true };
+	ofParameter<bool> bKeys { "Keys", false };
 
-	void drawHelp() {
+	void drawHelp(bool bBottom = false) {
 		if (!bHelp) return;
 
-		ofxSurfing::ofDrawBitmapStringBox(sHelp, &gui, ofxSurfing::SURFING_LAYOUT_TOP_RIGHT);
+		if (bBottom)
+			ofxSurfing::ofDrawBitmapStringBox(sHelp, &gui, ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER);
+		else
+			ofxSurfing::ofDrawBitmapStringBox(sHelp, &gui, ofxSurfing::SURFING_LAYOUT_TOP_RIGHT);
+
 		//ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT);
 	}
 };

@@ -55,13 +55,13 @@ private:
 
 		setupParamsTransforms();
 
-		parameters.add(extraParams);
+		parameters.add(paramsExtra);
 		parameters.add(bHelp);
 
 		gui.setup(parameters);
 
 		//gui.getGroup(transformParams.getName()).minimize();
-		gui.getGroup(extraParams.getName()).minimize();
+		gui.getGroup(paramsExtra.getName()).minimize();
 	}
 
 	void setupParamsTransforms() {

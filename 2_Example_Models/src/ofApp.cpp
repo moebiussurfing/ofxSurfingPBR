@@ -183,7 +183,7 @@ void ofApp::setupGui() {
 	gui.getGroup(animateParams.getName()).minimize();
 
 	// Refresh ui layout modes
-	listenerGuiRefresh = pbr.guiLayout.newListener([this](int & i) {
+	listenerGuiRefresh = pbr.indexGuiLayout.newListener([this](int & i) {
 		refreshGui();
 	});
 
@@ -380,13 +380,14 @@ void ofApp::drawGui() {
 
 	//--
 
-	if (pbr.bGui_ofxGui) {
+	if (pbr.bGuiOfxGui) {
 
 #ifdef OF_APP__USE__MODELS_MANAGER
 		if (indexScene == 2) {
 			guiManager.draw();
-		} else
+		} else {
 			gui.draw();
+		}
 #else
 		gui.draw();
 #endif
