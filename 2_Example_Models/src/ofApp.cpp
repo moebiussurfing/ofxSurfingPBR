@@ -56,7 +56,7 @@ void ofApp::setupPBR() {
 
 #ifdef OF_APP__USE__OPTIONAL_SETUP
 
-	// 1. 
+	// 1.
 	// Set log level verbose
 	pbr.setLogLevel(OF_LOG_VERBOSE);
 
@@ -122,18 +122,18 @@ void ofApp::setupParams() {
 	parameters.add(indexScene);
 	parameters.add(nameScene);
 
-	transformsParams.setName("Transforms");
-	transformsParams.add(yPos);
-	transformsParams.add(scale);
-	parameters.add(transformsParams);
+	paramsTransforms.setName("Transforms");
+	paramsTransforms.add(yPos);
+	paramsTransforms.add(scale);
+	parameters.add(paramsTransforms);
 
-	animateParams.setName("Animate");
-	animateParams.add(bAnimRotate);
-	animateParams.add(rotateSpeed);
-	animateParams.add(bAnimZoom);
-	animateParams.add(zoomSpeed);
-	animateParams.add(powZoom);
-	parameters.add(animateParams);
+	paramsAnimate.setName("Animate");
+	paramsAnimate.add(bAnimRotate);
+	paramsAnimate.add(rotateSpeed);
+	paramsAnimate.add(bAnimZoom);
+	paramsAnimate.add(zoomSpeed);
+	paramsAnimate.add(powZoom);
+	parameters.add(paramsAnimate);
 
 	parameters.add(vReset);
 	parameters.add(pbr.vResetCamera);
@@ -173,6 +173,7 @@ void ofApp::setupGui() {
 
 	gui.setup(parameters);
 
+	guiManager.setAutoAddInternalParamasToMainPanel(false);
 	guiManager.setup(&gui);
 	guiManager.add(&gui);
 #ifdef OF_APP__USE__MODELS_MANAGER
@@ -180,7 +181,7 @@ void ofApp::setupGui() {
 #endif
 	guiManager.startup();
 
-	gui.getGroup(animateParams.getName()).minimize();
+	gui.getGroup(paramsAnimate.getName()).minimize();
 
 	// Refresh ui layout modes
 	listenerGuiRefresh = pbr.indexGuiLayout.newListener([this](int & i) {
@@ -470,6 +471,10 @@ void ofApp::buildHelp() {
 void ofApp::refreshGui() {
 
 	guiManager.refreshGui();
+
+	if (indexScene != 2 && guiManager.bAutoLayout) {
+		ofxSurfing::setGuiPositionToLayoutPanelsCentered(gui, 1, ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER);
+	}
 }
 
 //--------------------------------------------------------------

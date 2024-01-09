@@ -595,6 +595,8 @@ void ofxSurfingPBR::setupGui() {
 	refreshGui();
 
 	//--
+	
+	guiManager.setAutoAddInternalParamasToMainPanel(false);
 
 	guiManager.setup(&gui);
 
