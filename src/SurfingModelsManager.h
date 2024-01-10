@@ -137,7 +137,6 @@ private:
 
 			for (int j = 0; j < sz; j++) {
 				ofVboMesh vm = models.back()->getMesh(j);
-
 #if 0
 				// workaround trick to fix a model mesh normals!
 				// flip the normals to fix ofLogoHollow.ply
@@ -149,7 +148,6 @@ private:
 					}
 				}
 #endif
-
 				meshes.push_back(vm);
 			}
 			meshesModels.push_back(meshes);
@@ -281,6 +279,8 @@ private:
 			// Pick the selected model.
 			size_t i = filesBrowserModels.getIndexFile();
 
+			filesBrowserModels.drawNode(i);
+
 			ofPushMatrix();
 			updateTransform(i);
 
@@ -303,6 +303,8 @@ private:
 			// Iterate all the models, not only the selected!
 			for (size_t i = 0; i < meshesModels.size(); i++) {
 				if (!filesBrowserModels.isEnabled(i)) continue;
+
+				filesBrowserModels.drawNode(i);
 
 				ofPushMatrix();
 				updateTransform(i);

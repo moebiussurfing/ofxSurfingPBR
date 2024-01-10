@@ -149,7 +149,6 @@ public:
 		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:refreshGui()";
 
 		for (size_t i = 0; i < transforms.size(); i++) {
-
 //			TransformNode t = transforms[i];
 		
 			string n = getFilename(i);
@@ -234,6 +233,10 @@ public:
 		return v;
 	}
 
+	void drawNode(int i = -1) const {
+		if (i == -1) i = indexFile;
+		transforms[i]->draw();
+	}
 #else
 	float getTransformPosY(int i = -1) const {
 		float v = 0;

@@ -31,7 +31,7 @@
 //--
 
 #ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
-class TransformNode {
+class TransformNode : public ofNode {
 public:
 	ofParameter<bool> bEnable { "Enable", true };
 
@@ -54,18 +54,23 @@ public:
 
 	ofParameter<void> vReset { "Reset" };
 	ofParameter<void> vResetScale { "Reset Scale" };
-	ofParameter<void> vResetPosition{ "Reset Position" };
-	ofParameter<void> vResetRotation{ "Reset Rotation" };
+	ofParameter<void> vResetPosition { "Reset Position" };
+	ofParameter<void> vResetRotation { "Reset Rotation" };
 
-	ofParameterGroup parameters {
-		"Transform",
-		bEnable, scalePow, scale, position, rotation, vReset, vResetScale, vResetPosition, vResetRotation
-	};
+	ofParameterGroup parameters;
+	//ofParameterGroup parameters {
+	//	"Transform",
+	//	bEnable, scalePow, scale, position, rotation, vReset, vResetScale, vResetPosition, vResetRotation
+	//};
 
 	std::unique_ptr<ofEventListener> e_vReset;
 	std::unique_ptr<ofEventListener> e_vResetScale;
 	std::unique_ptr<ofEventListener> e_vResetRotation;
 	std::unique_ptr<ofEventListener> e_vResetPosition;
+
+	std::unique_ptr<ofEventListener> e_positionChanged;
+	std::unique_ptr<ofEventListener> e_orientationChanged;
+	std::unique_ptr<ofEventListener> e_scaleChanged;
 
 	TransformNode() {
 		setup();
@@ -89,15 +94,52 @@ public:
 	~TransformNode() { }
 
 	void setup() {
+		parameters.setName("Transform");
+		parameters.add(bEnable);
+		parameters.add(scalePow);
+		parameters.add(scale);
+		parameters.add(position);
+		parameters.add(rotation);
+		parameters.add(vReset);
+		parameters.add(vResetScale);
+		parameters.add(vResetPosition);
+		parameters.add(vResetRotation);
+		
+		e_positionChanged = std::make_unique<ofEventListener>(position.newListener([this](glm::vec3) {
+			const float dUnit = SURFING__PBR__SCENE_SIZE_UNIT; //distance unit
+			float x = ofMap(position.get().x, -1, 1, -dUnit, dUnit, true);
+			float y = ofMap(position.get().y, -1, 1, -dUnit, dUnit, true);
+			float z = ofMap(position.get().z, -1, 1, -dUnit, dUnit, true);
+			setPosition(glm::vec3(x,y,z));
+		}));
+
+		#if 0
+		e_orientationChanged = std::make_unique<ofEventListener>(rotation.newListener([this](glm::vec3) {
+			glm::vec3 rotationInRadians = glm::radians(rotation);
+			glm::quat rotationQuatX = glm::angleAxis(rotationInRadians.x, glm::vec3(1.0f, 0.0f, 0.0f));
+			glm::quat rotationQuatY = glm::angleAxis(rotationInRadians.y, glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::quat rotationQuatZ = glm::angleAxis(rotationInRadians.z, glm::vec3(0.0f, 0.0f, 1.0f));
+			glm::quat finalRotationQuat = rotationQuatX * rotationQuatY * rotationQuatZ;
+			setOrientation(finalRotationQuat);
+		}));
+		#endif
+
+		//e_scaleChanged = std::make_unique<ofEventListener>(scale.newListener([this](glm::vec3) {
+		//	//setScale(scale);
+		//}));
+
 		e_vReset = std::make_unique<ofEventListener>(vReset.newListener([this](void) {
 			reset();
 		}));
+
 		e_vResetScale = std::make_unique<ofEventListener>(vResetScale.newListener([this](void) {
 			resetScale();
 		}));
+
 		e_vResetPosition = std::make_unique<ofEventListener>(vResetPosition.newListener([this](void) {
 			resetPosition();
 		}));
+
 		e_vResetRotation = std::make_unique<ofEventListener>(vResetRotation.newListener([this](void) {
 			resetRotation();
 		}));
@@ -339,8 +381,8 @@ public:
 
 	void update() {
 		// define min/max or de-normalized ranges unit
-		float szUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
-		const float dUnit = szUnit; //distance unit
+		//float szUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
+		const float dUnit = SURFING__PBR__SCENE_SIZE_UNIT; //distance unit
 		const float sPow = scalePow /** powRatio*/; //scale power
 		const float rMax = 360; //rotation max/min. could be 180...
 
@@ -363,7 +405,7 @@ public:
 		} else if (scale > 0) {
 			s = ofMap(scale, 0, 1, scalePow, scalePow * 10, true);
 		} else if (scale < 0) {
-			s = ofMap(scale, 0, -1, scalePow,scalePow / 10.f, true);
+			s = ofMap(scale, 0, -1, scalePow, scalePow / 10.f, true);
 		}
 
 		ofTranslate(x, y, z);
@@ -372,9 +414,25 @@ public:
 		ofRotateYDeg(ry);
 		ofRotateZDeg(rz);
 	}
+
+	/// \brief Classes extending ofNode can override this method to get
+	///        notified when the position changed.
+	void onPositionChanged() override {
+	}
+
+	/// \brief Classes extending ofNode can override this methods to get notified
+	///        when the orientation changed.
+	void onOrientationChanged() override { 
+	}
+
+	/// \brief Classes extending ofNode can override this methods to get notified 
+	///        when the scale changed.
+	void onScaleChanged() override {
+	}
+
 };
 
-//--
+//----
 
 #else
 // simpler mode using only y position and rotation.
