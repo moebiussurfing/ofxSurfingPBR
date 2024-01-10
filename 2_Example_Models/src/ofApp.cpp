@@ -138,7 +138,7 @@ void ofApp::setupParams() {
 	parameters.add(vReset);
 	parameters.add(pbr.vResetCamera);
 
-	parameters.add(guiManager.bAutoLayout);
+	//parameters.add(guiManager.bAutoLayout);
 	parameters.add(bHelp);
 
 	nameScene.setSerializable(false);
@@ -173,13 +173,24 @@ void ofApp::setupGui() {
 
 	gui.setup(parameters);
 
-	guiManager.setAutoAddInternalParamasToMainPanel(false);
+	//--
+
+	//guiManager.setAutoAddInternalParamasToMainPanel(false);
+
+//#ifdef OF_APP__USE__MODELS_MANAGER
+//	guiManager.setAutoHideFirstToggleVisibleForAnchorPanel(false);
+//#endif
+	
 	guiManager.setup(&gui);
+
 	guiManager.add(&gui);
 #ifdef OF_APP__USE__MODELS_MANAGER
 	guiManager.add(modelsManager.getGuiPtr());
 #endif
+	
 	guiManager.startup();
+
+	//--
 
 	gui.getGroup(paramsAnimate.getName()).minimize();
 
@@ -472,9 +483,9 @@ void ofApp::refreshGui() {
 
 	guiManager.refreshGui();
 
-	if (indexScene != 2 && guiManager.bAutoLayout) {
-		ofxSurfing::setGuiPositionToLayoutPanelsCentered(gui, 1, ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER);
-	}
+	//if (indexScene != 2 && guiManager.bAutoLayout) {
+	//	ofxSurfing::setGuiPositionToLayoutPanelsCentered(gui, 1, ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER);
+	//}
 }
 
 //--------------------------------------------------------------
