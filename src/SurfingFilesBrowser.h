@@ -457,6 +457,7 @@ public:
 	ofParameter<bool> bKeys { "Keys", false };
 
 	void drawHelp(bool bBottom = false) {
+		if (!bGui) return;
 		if (!bHelp) return;
 
 		if (bBottom)

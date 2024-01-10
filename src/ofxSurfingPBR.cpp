@@ -280,7 +280,8 @@ void ofxSurfingPBR::setupParams() {
 	paramsInternal.setName("Internal");
 
 	paramsGui.setName("Gui");
-	paramsGui.add(guiManager.bAutoLayout);
+	paramsGui.add(guiManager.paramsGuiManager);
+	//paramsGui.add(guiManager.bAutoLayout);
 	paramsGui.add(vMinimizeAllGui);
 	paramsGui.add(vMaximizeAllGui);
 	paramsGui.add(indexGuiLayout);
@@ -597,6 +598,7 @@ void ofxSurfingPBR::setupGui() {
 	//--
 	
 	guiManager.setAutoAddInternalParamasToMainPanel(false);
+	//guiManager.setAutoHideFirstToggleVisibleForAnchorPanel(false);
 
 	guiManager.setup(&gui);
 
@@ -604,9 +606,9 @@ void ofxSurfingPBR::setupGui() {
 	guiManager.add(&gui, bGui);
 	guiManager.add(&bg.gui, bg.bGui);
 	guiManager.add(&floor.gui, floor.bGui);
-	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION);
+	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION);//TODO: drawn internally
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
-	guiManager.add(&lights.gui, lights.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION);
+	guiManager.add(&lights.gui, lights.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION);//TODO: drawn internally
 #endif
 
 	guiManager.startup();
