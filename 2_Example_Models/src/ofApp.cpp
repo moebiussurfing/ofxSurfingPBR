@@ -277,6 +277,10 @@ void ofApp::update() {
 		pbr.getOfEasyCamPtr()->setDistance(v); // We can access the internal ptr for the cam.
 		//camera.setDistance(v); // But note also that will does the same than the above line.
 	}
+
+#ifndef OF_APP__USE__MODELS_MANAGER
+	refreshGui();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -340,10 +344,8 @@ void ofApp::drawMyScene() {
 
 	//--
 
-	// Scene transforms
-	{
+	// Scene transforms (ofApp local)
 		updateSceneTransforms();
-	}
 
 	//--
 

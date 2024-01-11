@@ -2,16 +2,22 @@
 /*
 * SurfingTransformNode.h
 * 
-	A class to handle the transforms for an object.
-	Position, rotation, scale etc..
-	To be applied easily and to store settings
-	and apply transformation when drawing.
+	A class derived from ofNode, 
+	but adding ofParameters for 
+	position, rotation, scale and other useful params (draw, debug...etc)
+	Ready to be exposed to a UI.
+	Handles the transforms for an object.
+	To be applied easily and to store to JSON settings
 */
 
-// OPTIONAL:
-#define SURFING__PBR__USE_MODELS_TRANSFORM_NODES
-// Set commented to use a simpler transform mode,
-// with y position and rotation only.
+/*
+	TODO
+	- allow mode for independent scale for xyz
+	- add simple example?
+	- add bbox for selected model
+	- add gui?
+	- add settings
+*/
 
 //--
 
@@ -19,114 +25,178 @@
 
 #include "ofMain.h"
 
+//TODO: add settings
+#include "ofxSurfingHelpersLite.h"
+/*
+	//setup()
+	callback_t f = std::bind(&ofxSurfing3dText::save, this);
+	autoSaver.setFunctionSaver(f);
+	guiTransform.getGroup(transform.parameters.getName()).getGroup(transform.paramsResets.getName()).minimize();
+
+void ofxSurfing3dText::save() {
+	ofLogNotice("ofxSurfing3dText") << "save -> " << path;
+	ofxSurfing::saveSettings(parameters);
+
+	//changed
+	if (e.isSerializable()) {
+		autoSaver.saveSoon();
+	}
+}
+
+bool ofxSurfing3dText::load() {
+	ofLogNotice("ofxSurfing3dText") << "load -> " << path;
+	autoSaver.pause();
+	bool b= ofxSurfing::loadSettings(transform.parameters);
+	autoSaver.start();
+	return b;
+}
+*/
+
+//----
+
 //OPTIONAL: comment the below line
 // if you are using this class standalone,
-// without the whole ofxSurfingPBR
-#include "ofxSurfingPBRConstants.h"
+// without the whole ofxSurfingPBR!
+//#include "ofxSurfingPBRConstants.h"
 
 #ifndef SURFING__PBR__SCENE_SIZE_UNIT
 	#define SURFING__PBR__SCENE_SIZE_UNIT 1000.f
 #endif
 
-//--
+// Range for rotate
+#define SURFING__MAX_DEGREE 360
+//#define SURFING__MAX_DEGREE 180
 
-#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
+//----
+
 class TransformNode : public ofNode {
 public:
-	ofParameter<bool> bEnable { "Enable", true };
-
-	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
-	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
-
-private:
-	float powRatio = 1.f;
-
-public:
-	void setPowRatio(float r) {
-		powRatio = r;
-	}
-
-	ofParameter<glm::vec3> position { "Position", glm::vec3(0),
-		glm::vec3(-1), glm::vec3(1) };
-
-	ofParameter<glm::vec3> rotation { "Rotation", glm::vec3(0),
-		glm::vec3(-180), glm::vec3(180) };
-
-	ofParameter<void> vReset { "Reset" };
-	ofParameter<void> vResetScale { "Reset Scale" };
-	ofParameter<void> vResetPosition { "Reset Position" };
-	ofParameter<void> vResetRotation { "Reset Rotation" };
-
-	ofParameterGroup parameters;
-	//ofParameterGroup parameters {
-	//	"Transform",
-	//	bEnable, scalePow, scale, position, rotation, vReset, vResetScale, vResetPosition, vResetRotation
-	//};
-
-	std::unique_ptr<ofEventListener> e_vReset;
-	std::unique_ptr<ofEventListener> e_vResetScale;
-	std::unique_ptr<ofEventListener> e_vResetRotation;
-	std::unique_ptr<ofEventListener> e_vResetPosition;
-
-	std::unique_ptr<ofEventListener> e_positionChanged;
-	std::unique_ptr<ofEventListener> e_orientationChanged;
-	std::unique_ptr<ofEventListener> e_scaleChanged;
-
 	TransformNode() {
 		setup();
 	}
 
-	TransformNode(const TransformNode & other)
-		: bEnable(other.bEnable)
-		, scalePow(other.scalePow)
-		, powRatio(other.powRatio)
-		, scale(other.scale)
-		, position(other.position)
-		, rotation(other.rotation)
-		, vReset(other.vReset)
-		, vResetScale(other.vResetScale)
-		, vResetPosition(other.vResetPosition)
-		, vResetRotation(other.vResetRotation)
-		, parameters(other.parameters) {
+	//TransformNode(const TransformNode & other)
+	//	: bDraw(other.bDraw)
+	//	, scaleNormalizedPow(other.scaleNormalizedPow)
+	//	, scaleNormalized(other.scaleNormalized)
+	//	, positionNormalized(other.positionNormalized)
+	//	, rotationEuler(other.rotationEuler)
+	//	, vReset(other.vReset)
+	//	, vResetScale(other.vResetScale)
+	//	, vResetPosition(other.vResetPosition)
+	//	, vResetRotation(other.vResetRotation)
+	//	, parameters(other.parameters)
+	//{
+	//	setup();
+	//}
+
+	TransformNode(const TransformNode & other) {
 		setup();
 	}
 
 	~TransformNode() { }
 
+	//--
+
+private:
+	bool bEnableSettings = true;
+
+	const float scaleNormalizedRatio = 10.f;
+	const int scaleNormalizedPowMax = 100;
+	const float scaleNormalizedUnit = scaleNormalizedRatio * scaleNormalizedPowMax;
+	const float unitSize = SURFING__PBR__SCENE_SIZE_UNIT * 1.f;
+
+public:
+	void setEnableSettings(bool b) {
+		bEnableSettings = b;
+	}
+
+	ofParameter<bool> bDraw { "Draw", true };
+	ofParameter<bool> bDebug { "Debug", false };
+
+public:
+	ofParameter<void> vReset { "Reset" };
+	ofParameter<void> vResetScale { "Reset Scale" };
+	ofParameter<void> vResetPosition { "Reset Position" };
+	ofParameter<void> vResetRotation { "Reset Rotation" };
+
+	ofParameterGroup parameters; //exposed to the gui
+	ofParameterGroup paramsScaleNormalized;
+	ofParameterGroup paramsOfNode;
+	ofParameterGroup paramsResets;
+
+private:
+	std::unique_ptr<ofEventListener> e_vResetScale;
+	std::unique_ptr<ofEventListener> e_vResetPosition;
+	std::unique_ptr<ofEventListener> e_vResetRotation;
+	std::unique_ptr<ofEventListener> e_vReset;
+
+	std::unique_ptr<ofEventListener> e_positionChanged;
+	std::unique_ptr<ofEventListener> e_scaleNormalized;
+	std::unique_ptr<ofEventListener> e_scaleNormalizedPow;
+	std::unique_ptr<ofEventListener> e_rotatioEulerChanged; //TODO
+
+	//--
+
 	void setup() {
-		parameters.setName("Transform");
-		parameters.add(bEnable);
-		parameters.add(scalePow);
-		parameters.add(scale);
-		parameters.add(position);
-		parameters.add(rotation);
-		parameters.add(vReset);
-		parameters.add(vResetScale);
-		parameters.add(vResetPosition);
-		parameters.add(vResetRotation);
-		
-		e_positionChanged = std::make_unique<ofEventListener>(position.newListener([this](glm::vec3) {
-			const float dUnit = SURFING__PBR__SCENE_SIZE_UNIT; //distance unit
-			float x = ofMap(position.get().x, -1, 1, -dUnit, dUnit, true);
-			float y = ofMap(position.get().y, -1, 1, -dUnit, dUnit, true);
-			float z = ofMap(position.get().z, -1, 1, -dUnit, dUnit, true);
-			setPosition(glm::vec3(x,y,z));
+
+		// parameters
+
+		parameters.setName("TRANSFORM");
+
+		paramsOfNode.setName("ofNode");
+		paramsOfNode.add(scale);
+		paramsOfNode.add(position);
+		paramsOfNode.add(rotationEuler);
+
+		paramsScaleNormalized.setName("Scale Normalized");
+		paramsScaleNormalized.add(scaleNormalizedPow);
+		paramsScaleNormalized.add(scaleNormalized);
+
+		parameters.add(bDraw);
+		parameters.add(bDebug);
+		parameters.add(paramsOfNode);
+		parameters.add(paramsScaleNormalized);
+		parameters.add(positionNormalized);
+
+		paramsResets.setName("Resets");
+		paramsResets.add(vResetScale);
+		paramsResets.add(vResetPosition);
+		paramsResets.add(vResetRotation);
+		paramsResets.add(vReset);
+		paramsResets.setSerializable(false);
+		parameters.add(paramsResets);
+
+		setupCallbacks();
+
+		//--
+
+		// Transform
+
+		e_positionChanged = std::make_unique<ofEventListener>(positionNormalized.newListener([this](glm::vec3) {
+			ofLogNotice(__FUNCTION__);
+
+			refreshPositionFromNormalized();
 		}));
 
-		#if 0
-		e_orientationChanged = std::make_unique<ofEventListener>(rotation.newListener([this](glm::vec3) {
-			glm::vec3 rotationInRadians = glm::radians(rotation);
-			glm::quat rotationQuatX = glm::angleAxis(rotationInRadians.x, glm::vec3(1.0f, 0.0f, 0.0f));
-			glm::quat rotationQuatY = glm::angleAxis(rotationInRadians.y, glm::vec3(0.0f, 1.0f, 0.0f));
-			glm::quat rotationQuatZ = glm::angleAxis(rotationInRadians.z, glm::vec3(0.0f, 0.0f, 1.0f));
-			glm::quat finalRotationQuat = rotationQuatX * rotationQuatY * rotationQuatZ;
-			setOrientation(finalRotationQuat);
-		}));
-		#endif
+		e_scaleNormalized = std::make_unique<ofEventListener>(scaleNormalized.newListener([this](float) {
+			ofLogNotice(__FUNCTION__);
 
-		//e_scaleChanged = std::make_unique<ofEventListener>(scale.newListener([this](glm::vec3) {
-		//	//setScale(scale);
-		//}));
+			refreshScaleFromNormalized();
+		}));
+
+		e_scaleNormalizedPow = std::make_unique<ofEventListener>(scaleNormalizedPow.newListener([this](float) {
+			ofLogNotice(__FUNCTION__);
+
+			refreshScaleFromNormalized();
+		}));
+
+		e_rotatioEulerChanged = std::make_unique<ofEventListener>(rotationEuler.newListener([this](glm::vec3) {
+		}));
+
+		//--
+
+		// Resets
 
 		e_vReset = std::make_unique<ofEventListener>(vReset.newListener([this](void) {
 			reset();
@@ -145,186 +215,6 @@ public:
 		}));
 	}
 
-	//----
-
-	// TODO:
-	// Bounding box.
-	//
-	//#define SURFING__WIP_BOUNDING_BOX
-	//
-	// Receive a passed ptr of the mesh or vector mesh
-	// that we are "associating" to this node
-	// and help calculate and draw the bounding box corners.
-
-	#ifdef SURFING__WIP_BOUNDING_BOX
-	//vector<MeshNode> meshNodes;
-
-	glm::vec3 meshMin;
-	glm::vec3 meshMax;
-	glm::vec3 meshCentroid = { 0, 0, 0 }; // can be used in place of glm::vec3(0,0,0);
-
-	void calculateVertexBounds(ofMesh * mesh) {
-		min.x = std::numeric_limits<float>::max();
-		max.x = -min.x;
-
-		min.y = min.x;
-		max.y = max.x;
-
-		min.z = min.x;
-		max.z = max.x;
-
-		const auto & verts = mesh->getVertices();
-		for (const auto & v : verts) {
-			if (v.x > max.x) {
-				max.x = v.x;
-			}
-			if (v.x < min.x) {
-				min.x = v.x;
-			}
-
-			if (v.y > max.y) {
-				max.y = v.y;
-			}
-			if (v.y < min.y) {
-				min.y = v.y;
-			}
-
-			if (v.z > max.z) {
-				max.z = v.z;
-			}
-			if (v.z < min.z) {
-				min.z = v.z;
-			}
-		}
-	}
-
-	glm::vec3 min;
-	glm::vec3 max;
-
-	void drawBounds() {
-		//if (!bDebug) return;
-		//if (!bDrawBounds && !bDrawBBox) return;
-
-		bool bDrawBBox = true;
-		bool bDrawBounds = true;
-
-		ofColor c;
-
-		int a = 150;
-		//int a = ofMap(glm::sin(ofGetElapsedTimef()), -1, 1, 0, 200);
-
-		c = ofColor(255, a); //white
-		//c = ofColor(0, a); //black
-
-		ofPushStyle();
-		{
-			if (bDrawBBox) {
-				ofPushMatrix();
-				{
-					ofTranslate(-meshCentroid);
-
-					ofSetColor(c);
-
-					drawBounds(meshMin, meshMax, 100);
-				}
-				ofPopMatrix();
-			}
-
-			//if (bDrawBounds) {
-			//	for (auto & meshNode : meshNodes) {
-			//		meshNode.node.transformGL();
-			//		ofSetColor(c);
-			//		drawBounds(meshNode.min, meshNode.max, 30);
-			//		meshNode.node.restoreTransformGL();
-			//	}
-			//}
-		}
-		ofPopStyle();
-	}
-
-	void drawBounds(glm::vec3 min, glm::vec3 max, float size) {
-		glm::vec3 up(0, size, 0);
-		glm::vec3 right(size, 0, 0);
-		glm::vec3 forward(0, 0, size);
-
-		ofMesh drawMesh;
-		drawMesh.setMode(OF_PRIMITIVE_LINES);
-
-		glm::vec3 cornerPt = min;
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + right);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + up);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + forward);
-
-		cornerPt = glm::vec3(min.x, min.y, max.z);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + right);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + up);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - forward);
-
-		cornerPt = glm::vec3(min.x, max.y, min.z);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + right);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - up);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + forward);
-
-		cornerPt = glm::vec3(min.x, max.y, max.z);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + right);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - up);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - forward);
-
-		cornerPt = glm::vec3(max.x, min.y, min.z);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - right);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + up);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + forward);
-
-		cornerPt = glm::vec3(max.x, min.y, max.z);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - right);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + up);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - forward);
-
-		cornerPt = glm::vec3(max.x, max.y, min.z);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - right);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - up);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt + forward);
-
-		cornerPt = glm::vec3(max.x, max.y, max.z);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - right);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - up);
-		drawMesh.addVertex(cornerPt);
-		drawMesh.addVertex(cornerPt - forward);
-
-		drawMesh.draw();
-	}
-
-	glm::vec3 getBoundBoxShape() const {
-		glm::vec3 p;
-		p = (meshMax - meshMin);
-		return p;
-	}
-
-	#endif
-
 	//--
 
 	// Get the transforms for each model
@@ -332,24 +222,29 @@ public:
 
 public:
 	bool isEnabled() const {
-		return bEnable;
+		return bDraw;
+	}
+	bool isDebug() const {
+		return bDebug;
 	}
 
-	float getScale() const {
-		return scale;
+	float getScaleNormalized() const {
+		return scaleNormalized;
 	}
 
 	float getScalePow() const {
-		return scalePow;
+		return scaleNormalizedPow;
 	}
 
-	glm::vec3 getPosition() const {
-		return position;
+	glm::vec3 getPositionNormalized() const {
+		return positionNormalized;
 	}
 
-	glm::vec3 getRotation() const {
-		return rotation;
+	glm::vec3 getRotationDeg() const {
+		return rotationEuler;
 	}
+
+	//--
 
 	void reset() {
 		resetScale();
@@ -357,161 +252,421 @@ public:
 		resetRotation();
 	}
 	void resetScale() {
-		scalePow = 0;
-		scale = 0;
+		scaleNormalized = 0;
+		//scaleNormalizedPow = scaleNormalizedPowMax/2;
 	}
 	void resetPosition() {
-		position = glm::vec3(0);
-		//position = glm::vec3(0, 0.1, 0);
+		positionNormalized = glm::vec3(0);
 	}
 	void resetRotation() {
-		rotation = glm::vec3(0);
+		rotationEuler = glm::vec3(0);
 	}
 
 	//--
 
+	//https://forum.openframeworks.cc/t/ofnode-and-ofparameter/24436/2
+
 public:
-	void push() {
-		ofPushMatrix();
-		update();
-	}
-	void pop() {
-		ofPopMatrix();
+	void setupCallbacks() {
+		position.addListener(this, &TransformNode::_setPosition);
+		scale.addListener(this, &TransformNode::_setScale);
+		rotationEuler.addListener(this, &TransformNode::_setRotation);
 	}
 
-	void update() {
-		// define min/max or de-normalized ranges unit
-		//float szUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
-		const float dUnit = SURFING__PBR__SCENE_SIZE_UNIT; //distance unit
-		const float sPow = scalePow /** powRatio*/; //scale power
-		const float rMax = 360; //rotation max/min. could be 180...
+	//--
 
-		float x = ofMap(position.get().x, -1, 1, -dUnit, dUnit, true);
-		float y = ofMap(position.get().y, -1, 1, -dUnit, dUnit, true);
-		float z = ofMap(position.get().z, -1, 1, -dUnit, dUnit, true);
+	// Update ofNode
 
-		float rx = rotation.get().x;
-		float ry = rotation.get().y;
-		float rz = rotation.get().z;
+	void _setPosition(glm::vec3 & v) {
+		ofLogNotice(__FUNCTION__);
+		setPosition(v);
 
-		//TODO: fine tweak
-		//float sUnit; //scale unit
-		//const float r = 0.005;
-		//sUnit = ofMap(scalePow, -100, 100, r * szUnit, 0.5 * r * szUnit, true);
-		//float s = ofMap(scale, -1, 1, 1.f / sUnit, sUnit, true);
-		float s;
-		if (scale == 0) {
-			s = scalePow;
-		} else if (scale > 0) {
-			s = ofMap(scale, 0, 1, scalePow, scalePow * 10, true);
-		} else if (scale < 0) {
-			s = ofMap(scale, 0, -1, scalePow, scalePow / 10.f, true);
-		}
-
-		ofTranslate(x, y, z);
-		ofScale(s, s, s);
-		ofRotateXDeg(rx);
-		ofRotateYDeg(ry);
-		ofRotateZDeg(rz);
+		refreshPositionToNormalized();
 	}
 
-	/// \brief Classes extending ofNode can override this method to get
-	///        notified when the position changed.
+	void _setScale(glm::vec3 & v) {
+		ofLogNotice(__FUNCTION__);
+		setScale(v);
+	}
+
+	void _setRotation(glm::vec3 & v) {
+		ofLogNotice(__FUNCTION__);
+		setOrientation(v);
+	}
+
+	//--
+
+	// Update params from ofNode
+
 	void onPositionChanged() override {
+		if (position.get() != getPosition()) {
+			ofLogNotice(__FUNCTION__);
+
+			position.set(getPosition());
+			//position.setWithoutEventNotifications(getPosition());
+
+			refreshPositionToNormalized();
+		}
 	}
 
-	/// \brief Classes extending ofNode can override this methods to get notified
-	///        when the orientation changed.
-	void onOrientationChanged() override { 
+	void onOrientationChanged() override {
+		// compare the two objects with an epsilon of 0.001
+		bool bEqual = glm::all(glm::epsilonEqual(rotationEuler.get(), getOrientationEuler(), 0.001f));
+
+		if (!bEqual) {
+			ofLogNotice(__FUNCTION__);
+
+			//ofLogNotice() << "rotationEuler:" << rotationEuler;
+			//ofLogNotice() << "getOrientationEuler():" << getOrientationEuler();
+
+			//TODO
+			//refreshEulerRotationFromOfNodeOrientation();
+		}
 	}
 
-	/// \brief Classes extending ofNode can override this methods to get notified 
-	///        when the scale changed.
 	void onScaleChanged() override {
+		if (scale.get() != getScale()) {
+			ofLogNotice(__FUNCTION__);
+
+			scale.set(getScale());
+		}
+		//TODO: apply to normalized scale
 	}
 
+	//--
+
+	void refreshPositionFromNormalized() {
+		ofLogNotice(__FUNCTION__);
+
+		const float u = unitSize; //distance unit
+		float x = ofMap(positionNormalized.get().x, -1, 1, -u, u, true);
+		float y = ofMap(positionNormalized.get().y, -1, 1, -u, u, true);
+		float z = ofMap(positionNormalized.get().z, -1, 1, -u, u, true);
+		setPosition(glm::vec3(x, y, z));
+		_setPosition(glm::vec3(x, y, z));
+	}
+
+	void refreshPositionToNormalized() {
+		ofLogNotice(__FUNCTION__);
+
+		//apply to normalized
+		const float u = position.getMax().x; //distance unit assumed the same for the three axis
+		float x = ofMap(position.get().x, -u, u, -1, 1, true);
+		float y = ofMap(position.get().y, -u, u, -1, 1, true);
+		float z = ofMap(position.get().z, -u, u, -1, 1, true);
+
+		float px = positionNormalized.get().x;
+		float py = positionNormalized.get().y;
+		float pz = positionNormalized.get().z;
+		if (px != x || py != y || pz != z) //update only if changed/differs to reduce callbacks
+		{
+			positionNormalized.set(glm::vec3(x, y, z));
+		}
+	}
+
+	void refreshScaleFromNormalized() {
+		ofLogNotice(__FUNCTION__);
+
+		float s = 1;
+		if (scaleNormalized == 0) {
+			s = scaleNormalizedPow;
+		} else if (scaleNormalized > 0) {
+			s = ofMap(scaleNormalized, 0, 1, scaleNormalizedPow, scaleNormalizedPow * scaleNormalizedRatio, true);
+		} else if (scaleNormalized < 0) {
+			s = ofMap(scaleNormalized, 0, -1, scaleNormalizedPow, scaleNormalizedPow / scaleNormalizedRatio, true);
+		}
+		setScale(s, s, s);
+		_setScale(glm::vec3(s, s, s));
+	}
+
+	void refreshEulerRotationFromOfNodeOrientation() {
+		ofLogNotice(__FUNCTION__);
+
+		glm::vec3 r = rotationEuler.get();
+		_setRotation(r);
+	}
+
+	//--
+
+	// Main controls
+	// Exposed to gui and "redirected" to ofNode!
+public:
+	ofParameter<glm::vec3> position { "Position", glm::vec3(0),
+		glm::vec3(-unitSize), glm::vec3(unitSize) };
+
+	ofParameter<glm::vec3> scale { "Scale", glm::vec3(1),
+		glm::vec3(1), glm::vec3(scaleNormalizedUnit) };
+
+	ofParameter<glm::vec3> rotationEuler { "Rotation Euler", glm::vec3(0),
+		glm::vec3(-(float)SURFING__MAX_DEGREE), glm::vec3((float)SURFING__MAX_DEGREE) };
+
+	// Normalized controls
+	ofParameter<float> scaleNormalized { "Scale Norm", 0, -1.f, 1.f };
+	ofParameter<int> scaleNormalizedPow { "Scale Pow", scaleNormalizedPowMax / 2, 1, scaleNormalizedPowMax };
+	ofParameter<glm::vec3> positionNormalized { "Position Normalized", glm::vec3(0), glm::vec3(-1), glm::vec3(1) };
+
+	//--
+
+public:
+	ofNode & getNode() { return *this; }
+	// Exposed to use push/popp matrix:
+	// myObject.getNode().transformGL();
+	// draw your "transformed" scene
+	// myObject.getNode().restoreTransformGL();
 };
 
 //----
 
-#else
-// simpler mode using only y position and rotation.
-class TransformNode {
-public:
-	ofParameter<bool> bEnable { "Enable", true };
+//// TODO:
+//// Bounding box.
+////
+////#define SURFING__WIP_BOUNDING_BOX
+////
+//// Receive a passed ptr of the mesh or vector mesh
+//// that we are "associating" to this node
+//// and help calculate and draw the bounding box corners.
+//
+//#ifdef SURFING__WIP_BOUNDING_BOX
+////vector<MeshNode> meshNodes;
+//
+//glm::vec3 meshMin;
+//glm::vec3 meshMax;
+//glm::vec3 meshCentroid = { 0, 0, 0 }; // can be used in place of glm::vec3(0,0,0);
+//
+//void calculateVertexBounds(ofMesh * mesh) {
+//	min.x = std::numeric_limits<float>::max();
+//	max.x = -min.x;
+//
+//	min.y = min.x;
+//	max.y = max.x;
+//
+//	min.z = min.x;
+//	max.z = max.x;
+//
+//	const auto & verts = mesh->getVertices();
+//	for (const auto & v : verts) {
+//		if (v.x > max.x) {
+//			max.x = v.x;
+//		}
+//		if (v.x < min.x) {
+//			min.x = v.x;
+//		}
+//
+//		if (v.y > max.y) {
+//			max.y = v.y;
+//		}
+//		if (v.y < min.y) {
+//			min.y = v.y;
+//		}
+//
+//		if (v.z > max.z) {
+//			max.z = v.z;
+//		}
+//		if (v.z < min.z) {
+//			min.z = v.z;
+//		}
+//	}
+//}
+//
+//glm::vec3 min;
+//glm::vec3 max;
+//
+//void drawBounds() {
+//	//if (!bDebug) return;
+//	//if (!bDrawBounds && !bDrawBBox) return;
+//
+//	bool bDrawBBox = true;
+//	bool bDrawBounds = true;
+//
+//	ofColor c;
+//
+//	int a = 150;
+//	//int a = ofMap(glm::sin(ofGetElapsedTimef()), -1, 1, 0, 200);
+//
+//	c = ofColor(255, a); //white
+//	//c = ofColor(0, a); //black
+//
+//	ofPushStyle();
+//	{
+//		if (bDrawBBox) {
+//			ofPushMatrix();
+//			{
+//				ofTranslate(-meshCentroid);
+//
+//				ofSetColor(c);
+//
+//				drawBounds(meshMin, meshMax, 100);
+//			}
+//			ofPopMatrix();
+//		}
+//
+//		//if (bDrawBounds) {
+//		//	for (auto & meshNode : meshNodes) {
+//		//		meshNode.node.transformGL();
+//		//		ofSetColor(c);
+//		//		drawBounds(meshNode.min, meshNode.max, 30);
+//		//		meshNode.node.restoreTransformGL();
+//		//	}
+//		//}
+//	}
+//	ofPopStyle();
+//}
+//
+//void drawBounds(glm::vec3 min, glm::vec3 max, float size) {
+//	glm::vec3 up(0, size, 0);
+//	glm::vec3 right(size, 0, 0);
+//	glm::vec3 forward(0, 0, size);
+//
+//	ofMesh drawMesh;
+//	drawMesh.setMode(OF_PRIMITIVE_LINES);
+//
+//	glm::vec3 cornerPt = min;
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + right);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + up);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + forward);
+//
+//	cornerPt = glm::vec3(min.x, min.y, max.z);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + right);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + up);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - forward);
+//
+//	cornerPt = glm::vec3(min.x, max.y, min.z);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + right);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - up);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + forward);
+//
+//	cornerPt = glm::vec3(min.x, max.y, max.z);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + right);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - up);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - forward);
+//
+//	cornerPt = glm::vec3(max.x, min.y, min.z);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - right);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + up);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + forward);
+//
+//	cornerPt = glm::vec3(max.x, min.y, max.z);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - right);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + up);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - forward);
+//
+//	cornerPt = glm::vec3(max.x, max.y, min.z);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - right);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - up);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt + forward);
+//
+//	cornerPt = glm::vec3(max.x, max.y, max.z);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - right);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - up);
+//	drawMesh.addVertex(cornerPt);
+//	drawMesh.addVertex(cornerPt - forward);
+//
+//	drawMesh.draw();
+//}
+//
+//glm::vec3 getBoundBoxShape() const {
+//	glm::vec3 p;
+//	p = (meshMax - meshMin);
+//	return p;
+//}
+//
+//#endif
 
-	ofParameter<float> scale { "Scale", 0, -1.f, 1.f };
-	ofParameter<int> scalePow { "ScalePow", 0, -100, 100 };
+//----
 
-private:
-	float powRatio = 1.f;
-
-public:
-	void setPowRatio(float r) {
-		powRatio = r;
-	}
-
-	ofParameter<float> yPos { "y Pos", 0, -1.f, 1.f };
-	ofParameter<float> yRot { "y Rot", 0, -1.f, 1.f };
-
-	ofParameterGroup parameters {
-		"Transform",
-		scalePow, scale, yPos, yRot
-	};
-
-	TransformNode() {
-	}
-
-	~TransformNode() {
-	}
-
-	//--
-
-	float getPositionY() const {
-		return yPos;
-	}
-
-	float getRotationY() const {
-		return yRot;
-	}
-
-	void reset() {
-		scalePow = 0;
-		scale = 0;
-		yPos = 0;
-		yRot = 0;
-	}
-
-	bool isEnabled() const {
-		return bEnable;
-	}
-
-	float getScale() const {
-		return scale;
-	}
-
-	float getScalePow() const {
-		return scalePow;
-	}
-
-	//--
-
-	void update() {
-		// define min/max or de-normalized ranges
-		float sUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
-		const float dUnit = sUnit; //distance unit
-		const float sPow = scalePow * powRatio; //scale power
-		const float rMax = 360; //rotation max/min
-
-		sUnit = ofMap(scalePow, -100, 100, 0.02 * szUnit, 0.2 * szUnit, true);
-		float s = ofMap(scale, -1, 1, 1.f / sUnit, sUnit, true);
-
-		float y = ofMap(yPos, -1, 1, -dUnit, dUnit, true);
-		float r = ofMap(yRot, -1, 1, -rMax, rMax, true);
-
-		ofTranslate(0, y, 0);
-		ofScale(s, s, s);
-		ofRotateYDeg(r);
-	}
-};
-#endif
+//public:
+//	void push() {
+//		ofPushMatrix();
+//		update();
+//	}
+//	void pop() {
+//		ofPopMatrix();
+//	}
+//
+//	void update() {
+//		//// define min/max or de-normalized ranges unit
+//		////float szUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
+//		//const float dUnit = SURFING__PBR__SCENE_SIZE_UNIT; //distance unit
+//		////const float sPow = scaleNormalizedPow /** powRatio*/; //scale power
+//		////const float maxDegree = 360; //rotation max/min. could be 180...
+//
+//		////float x = ofMap(position.get().x, -1, 1, -u, u, true);
+//		////float y = ofMap(position.get().y, -1, 1, -u, u, true);
+//		////float z = ofMap(position.get().z, -1, 1, -u, u, true);
+//		//auto pos = getPositionFromNormalized(positionNormalized.get(), dUnit);
+//
+//		//auto rot = getRotationRanged(rotation.get(), maxDegree);
+//		float rx = rotationEuler.get().x;
+//		float ry = rotationEuler.get().y;
+//		float rz = rotationEuler.get().z;
+//		//auto rot = glm::vec3(rx, ry, rz);
+//
+//		////TODO: fine tweak
+//		////float sUnit; //scale unit
+//		////const float r = 0.005;
+//		////sUnit = ofMap(scaleNormalizedPow, -100, 100, r * szUnit, 0.5 * r * szUnit, true);
+//		////float s = ofMap(scale, -1, 1, 1.f / sUnit, sUnit, true);
+//		//float s;
+//		//if (scale == 0) {
+//		//	s = scaleNormalizedPow;
+//		//} else if (scale > 0) {
+//		//	s = ofMap(scale, 0, 1, scaleNormalizedPow, scaleNormalizedPow * 10, true);
+//		//} else if (scale < 0) {
+//		//	s = ofMap(scale, 0, -1, scaleNormalizedPow, scaleNormalizedPow / 10.f, true);
+//		//}
+//		float s = getScaleFromNormalized(scaleNormalized, scaleNormalizedPow);
+//
+//		////ofTranslate(x, y, z);
+//		//ofTranslate(pos);
+//		ofScale(s, s, s);
+//		ofRotateXDeg(rx);
+//		ofRotateYDeg(ry);
+//		ofRotateZDeg(rz);
+//	}
+//
+//	const float getScaleFromNormalized(const float & scale_, const float & scalePow_) {
+//		float s = 1;
+//		if (scale_ == 0) {
+//			s = scalePow_;
+//		} else if (scale_ > 0) {
+//			s = ofMap(scale_, 0, 1, scalePow_, scalePow_ * scaleNormalizedRatio, true);
+//		} else if (scale_ < 0) {
+//			s = ofMap(scale_, 0, -1, scalePow_, scalePow_ / scaleNormalizedRatio, true);
+//		}
+//		return s;
+//	}
+//
+//	const glm::vec3 getPositionFromNormalized(const glm::vec3 & position_, const float & dUnit) {
+//		// define min/max or de-normalized ranges unit
+//		float x = ofMap(position_.x, -1, 1, -dUnit, dUnit, true);
+//		float y = ofMap(position_.y, -1, 1, -dUnit, dUnit, true);
+//		float z = ofMap(position_.z, -1, 1, -dUnit, dUnit, true);
+//		return glm::vec3(x, y, z);
+//	}
+//
+//	//const glm::vec3 getRotationRanged(const glm::vec3 & rotation_, const float & maxDegrees) {
+//	//	return glm::vec3(x, y, z);
+//	//}

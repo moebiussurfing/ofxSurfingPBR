@@ -156,15 +156,16 @@ public:
 			auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
 			b ? g.maximize() : g.minimize();
 
-#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
-			g.getGroup(transforms[i]->position.getName()).maximize();
-			g.getGroup(transforms[i]->rotation.getName()).maximize();
+			g.getGroup(transforms[i]->positionNormalized.getName()).maximize();
+			g.getGroup(transforms[i]->paramsResets.getName()).minimize();
+			g.getGroup(transforms[i]->paramsOfNode.getName()).getGroup(transforms[i]->rotationEuler.getName()).maximize();
+			g.getGroup(transforms[i]->paramsOfNode.getName()).getGroup(transforms[i]->scale.getName()).minimize();
+			g.getGroup(transforms[i]->paramsOfNode.getName()).getGroup(transforms[i]->position.getName()).minimize();
 
 			//g.getGroup(t.position.getName()).maximize();
 			//g.getGroup(t.rotation.getName()).maximize();
 			//g.getGroup(t.position.getName()).minimize();
 			//g.getGroup(t.rotation.getName()).minimize();
-#endif
 		}
 	}
 
@@ -186,7 +187,7 @@ public:
 		bool b;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			b = transforms[i]->bEnable;
+			b = transforms[i]->bDraw;
 		return b;
 	}
 
@@ -194,7 +195,7 @@ public:
 		float v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			v = transforms[i]->scale;
+			v = transforms[i]->scaleNormalized;
 		return v;
 	}
 
@@ -202,18 +203,17 @@ public:
 		int v = 0;
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			v = transforms[i]->scalePow;
+			v = transforms[i]->scaleNormalizedPow;
 		return v;
 	}
 
-#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
 	void resetTransform(int i = -1) {
 		if (i == -1) i = indexFile;
 		if (i < transforms.size()) {
-			transforms[i]->scalePow = 0;
-			transforms[i]->scale = 0;
-			transforms[i]->position = glm::vec3(0);
-			transforms[i]->rotation = glm::vec3(0);
+			transforms[i]->scaleNormalizedPow = 0;
+			transforms[i]->scaleNormalized = 0;
+			transforms[i]->positionNormalized = glm::vec3(0);
+			transforms[i]->rotationEuler = glm::vec3(0);
 		}
 	}
 
@@ -221,7 +221,7 @@ public:
 		glm::vec3 v = glm::vec3(0);
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			v = transforms[i]->position;
+			v = transforms[i]->positionNormalized;
 		return v;
 	}
 
@@ -229,41 +229,21 @@ public:
 		glm::vec3 v = glm::vec3(0);
 		if (i == -1) i = indexFile;
 		if (i < transforms.size())
-			v = transforms[i]->rotation;
+			v = transforms[i]->rotationEuler;
 		return v;
 	}
 
-	void drawNode(int i = -1) const {
+	void drawOfNodeIfDebug(int i = -1) const {
+		if (!transforms[i]->bDebug) return;
+
 		if (i == -1) i = indexFile;
 		transforms[i]->draw();
 	}
-#else
-	float getTransformPosY(int i = -1) const {
-		float v = 0;
-		if (i == -1) i = indexFile;
-		if (i < transforms.size())
-			v = transforms[i]->yPos;
-		return v;
-	}
 
-	float getTransformRotY(int i = -1) const {
-		float v = 0;
+	ofNode & getNode(int i=-1) {
 		if (i == -1) i = indexFile;
-		if (i < transforms.size())
-			v = transforms[i]->yRot;
-		return v;
+		return transforms[i]->getNode();
 	}
-
-	void resetTransform(int i = -1) {
-		if (i == -1) i = indexFile;
-		if (i < transforms.size()) {
-			transforms[i]->scalePow = 0;
-			transforms[i]->scale = 0;
-			transforms[i]->yPos = 0;
-			transforms[i]->yRot = 0;
-		}
-	}
-#endif
 
 	ofParameterGroup transformParams;
 };

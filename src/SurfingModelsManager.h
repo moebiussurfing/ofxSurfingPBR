@@ -28,7 +28,7 @@ public:
 	}
 
 private:
-	SurfingFilesBrowserModels filesBrowserModels;
+	SurfingFilesBrowserModels modelsManager;
 
 	ofEventListener listenerLoadModel;
 	ofEventListener listenerIndexModel;
@@ -51,42 +51,42 @@ public:
 			"obj"
 		};
 
-		filesBrowserModels.setFileExtensions(extensions);
-		filesBrowserModels.setTitle("MODEL");
-		filesBrowserModels.setup("models"); //set path for files
+		modelsManager.setFileExtensions(extensions);
+		modelsManager.setTitle("MODEL");
+		modelsManager.setup("models"); //set path for files. bin/data/models
 
 		//--
 
 		// Callback to trig the model file loading.
-		// The model path is ready on filesBrowserModels.pathFile!
-		listenerLoadModel = filesBrowserModels.vLoad.newListener([this](void) {
+		// The model path is ready on modelsManager.pathFile!
+		listenerLoadModel = modelsManager.vLoad.newListener([this](void) {
 			// load has been triggered
 
-			size_t i = filesBrowserModels.getIndexFile();
+			size_t i = modelsManager.getIndexFile();
 
 			if (models[i]->hasAnimations()) { // an animated model
 				int numAnims = models[i]->getAnimationCount();
 
-				filesBrowserModels.indexAnimation.setWithoutEventNotifications(0);
-				filesBrowserModels.indexAnimation.setMin(0);
-				filesBrowserModels.indexAnimation.setMax(numAnims - 1);
+				modelsManager.indexAnimation.setWithoutEventNotifications(0);
+				modelsManager.indexAnimation.setMin(0);
+				modelsManager.indexAnimation.setMax(numAnims - 1);
 
 				models[i]->setLoopStateForAllAnimations(OF_LOOP_NORMAL);
-				models[i]->getAnimation(filesBrowserModels.indexAnimation.get()).play();
+				models[i]->getAnimation(modelsManager.indexAnimation.get()).play();
 			} else { // a not animated model
-				filesBrowserModels.indexAnimation.set(-1);
-				filesBrowserModels.indexAnimation.setMin(-1);
-				filesBrowserModels.indexAnimation.setMin(-1);
+				modelsManager.indexAnimation.set(-1);
+				modelsManager.indexAnimation.setMin(-1);
+				modelsManager.indexAnimation.setMin(-1);
 			}
 		});
 
-		indexFile.makeReferenceTo(filesBrowserModels.indexFile);
+		indexFile.makeReferenceTo(modelsManager.indexFile);
 
-		listenerIndexModel = filesBrowserModels.indexFile.newListener([this](int & i) {
+		listenerIndexModel = modelsManager.indexFile.newListener([this](int & i) {
 			// index model changed
 		});
 
-		listenerIndexAnim = filesBrowserModels.indexAnimation.newListener([this](int & i) {
+		listenerIndexAnim = modelsManager.indexAnimation.newListener([this](int & i) {
 			// index animation changed
 			doLoadAnim(i);
 		});
@@ -98,7 +98,7 @@ public:
 
 private:
 	void loadModels() {
-		string p = filesBrowserModels.getPathFiles();
+		string p = modelsManager.getPathFiles();
 
 		ofLogNotice("SurfingModelsManager") << "loadModels(" << p << ")";
 		ofLogNotice("SurfingModelsManager") << "Trying to load all the models files from the folder now.";
@@ -106,12 +106,12 @@ private:
 		models.clear();
 		meshesModels.clear();
 
-		size_t sz = filesBrowserModels.getAmountFiles();
+		size_t sz = modelsManager.getAmountFiles();
 
 		for (size_t i = 0; i < sz; i++) {
 
 			// Models
-			string path = filesBrowserModels.getPathFile(i);
+			string path = modelsManager.getPathFile(i);
 			if (path == "") {
 				ofLogError("SurfingModelsManager") << "Model path not settled properly or unknown!";
 				continue;
@@ -121,7 +121,7 @@ private:
 			bool b = m->load(path, ofxAssimpModelLoader::OPTIMIZE_DEFAULT);
 
 			if (m->hasAnimations()) {
-				filesBrowserModels.indexAnimation = 0;
+				modelsManager.indexAnimation = 0;
 				m->setLoopStateForAllAnimations(OF_LOOP_NORMAL);
 				m->getAnimation(0).play();
 			}
@@ -140,7 +140,7 @@ private:
 #if 0
 				// workaround trick to fix a model mesh normals!
 				// flip the normals to fix ofLogoHollow.ply
-				string n = filesBrowserModels.getFilename(i);
+				string n = modelsManager.getFilename(i);
 				if (n == "ofLogoHollow.ply") {
 					//vm.mergeDuplicateVertices();
 					for (size_t k = 0; k < vm.getNumNormals(); k++) {
@@ -160,7 +160,7 @@ private:
 
 private:
 	void updateAnim(int i = -1) {
-		if (i == -1) i = filesBrowserModels.getIndexFile();
+		if (i == -1) i = modelsManager.getIndexFile();
 		if (i > meshesModels.size() - 1) return;
 
 		models[i]->update();
@@ -175,84 +175,44 @@ private:
 public:
 	void doLoadAnim(int index) {
 		if (index < 0) return;
-		if (index > filesBrowserModels.indexAnimation.getMax()) return;
+		if (index > modelsManager.indexAnimation.getMax()) return;
 
-		size_t i = filesBrowserModels.getIndexFile();
+		size_t i = modelsManager.getIndexFile();
 		if (i > models.size() - 1) return;
 
-		if (filesBrowserModels.indexAnimation.get() != index)
-			filesBrowserModels.indexAnimation.setWithoutEventNotifications(index);
+		if (modelsManager.indexAnimation.get() != index)
+			modelsManager.indexAnimation.setWithoutEventNotifications(index);
 
 		if (models[i]->hasAnimations()) {
 			models[i]->stopAllAnimations();
 
-			int j = filesBrowserModels.indexAnimation.get();
+			int j = modelsManager.indexAnimation.get();
 			int numAnims = models[i]->getAnimationCount();
 
-			filesBrowserModels.indexAnimation.setMin(0);
-			filesBrowserModels.indexAnimation.setMax(numAnims - 1);
+			modelsManager.indexAnimation.setMin(0);
+			modelsManager.indexAnimation.setMax(numAnims - 1);
 
 			j %= numAnims;
-			j = ofClamp(j, filesBrowserModels.indexAnimation.getMin(), filesBrowserModels.indexAnimation.getMax());
-			filesBrowserModels.indexAnimation.set(j);
+			j = ofClamp(j, modelsManager.indexAnimation.getMin(), modelsManager.indexAnimation.getMax());
+			modelsManager.indexAnimation.set(j);
 
-			models[i]->getAnimation(filesBrowserModels.indexAnimation.get()).play();
+			models[i]->getAnimation(modelsManager.indexAnimation.get()).play();
 		}
 	}
 
 	void doNextAnim() {
-		size_t i = filesBrowserModels.getIndexFile();
+		size_t i = modelsManager.getIndexFile();
 		if (models[i]->hasAnimations()) {
 			models[i]->stopAllAnimations();
 
-			int j = filesBrowserModels.indexAnimation.get();
+			int j = modelsManager.indexAnimation.get();
 			j++;
 			j %= models[i]->getAnimationCount();
-			j = ofClamp(j, filesBrowserModels.indexAnimation.getMin(), filesBrowserModels.indexAnimation.getMax());
+			j = ofClamp(j, modelsManager.indexAnimation.getMin(), modelsManager.indexAnimation.getMax());
 
-			filesBrowserModels.indexAnimation.set(j);
-			models[i]->getAnimation(filesBrowserModels.indexAnimation).play();
+			modelsManager.indexAnimation.set(j);
+			models[i]->getAnimation(modelsManager.indexAnimation).play();
 		}
-	}
-
-private:
-	void updateTransform(int i = -1) {
-		// define min/max or de-normalized ranges
-		float sUnit = SURFING__PBR__SCENE_SIZE_UNIT; //size unit
-		const float dUnit = sUnit / 2.f; //distance unit
-		const float sPow = filesBrowserModels.getTransformScalePow(i); //scale power
-		const float rMax = 360; //rotation max/min
-
-		if (sPow == 0) {
-		} else if (sPow < 1) {
-			sUnit = sUnit / (float)abs(sPow - 1);
-		} else if (sPow > 1) {
-			sUnit = sUnit * (float)abs(sPow + 1);
-		}
-
-#ifdef SURFING__PBR__USE_MODELS_TRANSFORM_NODES
-		float s = ofMap(filesBrowserModels.getTransformScale(i), -1, 1, 1.f / sUnit, sUnit, true);
-		float x = ofMap(filesBrowserModels.getTransformPosition(i).x, -1, 1, -dUnit, dUnit, true);
-		float y = ofMap(filesBrowserModels.getTransformPosition(i).y, -1, 1, -dUnit, dUnit, true);
-		float z = ofMap(filesBrowserModels.getTransformPosition(i).z, -1, 1, -dUnit, dUnit, true);
-		float rx = filesBrowserModels.getTransformRotation(i).x;
-		float ry = filesBrowserModels.getTransformRotation(i).y;
-		float rz = filesBrowserModels.getTransformRotation(i).z;
-
-		ofTranslate(x, y, z);
-		ofScale(s, s, s);
-		ofRotateXDeg(rx);
-		ofRotateYDeg(ry);
-		ofRotateZDeg(rz);
-#else
-		float s = ofMap(filesBrowserModels.getTransformScale(i), -1, 1, 1.f / sUnit, sUnit, true);
-		float y = ofMap(filesBrowserModels.getTransformPosY(i), -1, 1, -dUnit, dUnit, true);
-		float r = ofMap(filesBrowserModels.getTransformRotY(i), -1, 1, -rMax, rMax, true);
-
-		ofTranslate(0, y, 0);
-		ofScale(s, s, s);
-		ofRotateYDeg(r);
-#endif
 	}
 
 	//--
@@ -273,17 +233,16 @@ private:
 		// Mode A
 		// Draw selected model only
 		// all their queued meshes.
-		if (!filesBrowserModels.bModeAll.get()) {
-			if (!filesBrowserModels.isEnabled()) return;
+		if (!modelsManager.bModeAll.get()) {
 
 			// Pick the selected model.
-			size_t i = filesBrowserModels.getIndexFile();
+			size_t i = modelsManager.getIndexFile();
 
-			filesBrowserModels.drawNode(i);
+			modelsManager.drawOfNodeIfDebug(i);
 
-			ofPushMatrix();
-			updateTransform(i);
+			if (!modelsManager.isEnabled()) return;
 
+			modelsManager.getNode(i).transformGL();
 			{
 				updateAnim(i);
 
@@ -292,8 +251,7 @@ private:
 					meshesModels[i][j].drawFaces();
 				}
 			}
-
-			ofPopMatrix();
+			modelsManager.getNode(i).restoreTransformGL();
 		}
 
 		else {
@@ -302,13 +260,11 @@ private:
 			// all their queued meshes.
 			// Iterate all the models, not only the selected!
 			for (size_t i = 0; i < meshesModels.size(); i++) {
-				if (!filesBrowserModels.isEnabled(i)) continue;
+				modelsManager.drawOfNodeIfDebug(i);
 
-				filesBrowserModels.drawNode(i);
+				if (!modelsManager.isEnabled(i)) continue;
 
-				ofPushMatrix();
-				updateTransform(i);
-
+				modelsManager.getNode(i).transformGL();
 				{
 					updateAnim(i);
 
@@ -317,8 +273,7 @@ private:
 						meshesModels[i][j].drawFaces();
 					}
 				}
-
-				ofPopMatrix();
+				modelsManager.getNode(i).restoreTransformGL();
 			}
 		}
 	}
@@ -332,33 +287,33 @@ private:
 
 public:
 	void refreshGui() {
-		filesBrowserModels.refreshGui();
+		modelsManager.refreshGui();
 	}
 	void drawGui() {
-		filesBrowserModels.drawGui();
+		modelsManager.drawGui();
 	}
 
 	ofxPanel & getGui() {
-		return filesBrowserModels.gui;
+		return modelsManager.gui;
 	}
 
 	ofxPanel * getGuiPtr() {
-		return &filesBrowserModels.gui;
+		return &modelsManager.gui;
 	}
 
 	void drawHelp() {
-		filesBrowserModels.drawHelp();
+		modelsManager.drawHelp();
 	}
 
 	void setGuiPosition(glm::vec2 p) {
-		filesBrowserModels.setGuiPosition(p);
+		modelsManager.setGuiPosition(p);
 	}
 
 	void keyPressed(int key) {
 		if (key == OF_KEY_DOWN) {
-			filesBrowserModels.doNext();
+			modelsManager.doNext();
 		} else if (key == OF_KEY_UP) {
-			filesBrowserModels.doPrevious();
+			modelsManager.doPrevious();
 		}
 	}
 
@@ -378,7 +333,7 @@ private:
 	// Push frontFaceMode
 	void pushFixFaces() {
 #if FIX_FACES
-		string n = filesBrowserModels.getFilename();
+		string n = modelsManager.getFilename();
 		if (n != "ofLogoHollow.ply") // exclude models from the fix
 		{
 			//TODO: fix  for "transparent" for model
@@ -396,7 +351,7 @@ private:
 	// Pop frontFaceMode
 	void popFixFaces() {
 #if FIX_FACES
-		string n = filesBrowserModels.getFilename();
+		string n = modelsManager.getFilename();
 		if (n != "ofLogoHollow.ply") // exclude model/s from the fix
 		{
 			glFrontFace(frontFaceMode); // Restore saved state
