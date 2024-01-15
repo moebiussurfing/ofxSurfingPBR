@@ -26,6 +26,8 @@
 	TODO
 
 	- add simple scenes presets manager
+		- expose easy paramsPresets: 
+			colors, lights power, 
 	- add save/load all.
 	- fix startup/exit loading all settings
 

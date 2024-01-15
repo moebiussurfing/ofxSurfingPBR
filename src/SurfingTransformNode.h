@@ -12,11 +12,10 @@
 
 /*
 	TODO
-	- allow mode for independent scale for xyz
+	- add refreshGui by passing transfromGroup. like presets groups
+	- allow mode for linked or independent scale for xyz
 	- add simple example?
 	- add bbox for selected model
-	- add gui?
-	- add settings
 */
 
 //--
@@ -46,6 +45,48 @@
 //----
 
 class TransformNode : public ofNode {
+
+	//--
+
+	//some constants
+	const float scaleNormalizedRatio = 10.f;
+	const int scaleNormalizedPowMax = 100;
+	const float scaleNormalizedUnit = scaleNormalizedRatio * scaleNormalizedPowMax;
+	const float unitSize = SURFING__PBR__SCENE_SIZE_UNIT * 1.f;
+
+	//--
+
+	// Main controls
+	// Exposed to gui and "redirected" to ofNode!
+public:
+	ofParameter<glm::vec3> position { "Position", glm::vec3(0),
+		glm::vec3(-unitSize), glm::vec3(unitSize) };
+
+	ofParameter<glm::vec3> scale { "Scale", glm::vec3(1),
+		glm::vec3(1), glm::vec3(scaleNormalizedUnit) };
+
+	ofParameter<glm::vec3> rotationEuler { "Rotation Euler", glm::vec3(0),
+		glm::vec3(-(float)SURFING__MAX_DEGREE), glm::vec3((float)SURFING__MAX_DEGREE) };
+
+	// Normalized controls
+	ofParameter<float> scaleNormalized { "Scale Norm", 0, -1.f, 1.f };
+	ofParameter<int> scaleNormalizedPow { "Scale Pow", scaleNormalizedPowMax / 2, 1, scaleNormalizedPowMax };
+	ofParameter<glm::vec3> positionNormalized { "Position Normalized", glm::vec3(0), glm::vec3(-1), glm::vec3(1) };
+
+	ofParameterGroup parameters; //exposed to the gui
+	ofParameterGroup paramsScaleNormalized;
+	ofParameterGroup paramsOfNode;
+	ofParameterGroup paramsResets;
+
+public:
+	ofParameter<void> vReset { "Reset" };
+	ofParameter<void> vResetScale { "Reset Scale" };
+	ofParameter<void> vResetPosition { "Reset Position" };
+	ofParameter<void> vResetRotation { "Reset Rotation" };
+
+	ofParameter<bool> bDraw { "Draw", true };
+	ofParameter<bool> bDebug { "Debug", false };
+
 private:
 	SurfingAutoSaver autoSaver;
 	string name = "";
@@ -57,7 +98,7 @@ public:
 	ofxPanel gui;
 	ofParameterGroup paramsPreset;
 
-	void setName(string name_) {//caall before setup
+	void setName(string name_) { //caall before setup
 		ofLogNotice("TransformNode") << "setName(" << name_ << ")";
 		name = name_;
 	}
@@ -69,10 +110,13 @@ private:
 		autoSaver.setFunctionSaver(f);
 		//gui.getGroup(parameters.getName()).getGroup(transform.paramsResets.getName()).minimize();
 
+		// build preset group
 		if (name == "") name = "Transform";
+
 		paramsPreset.setName(name);
-		paramsPreset.add(paramsOfNode);
+		paramsPreset.add(positionNormalized);
 		paramsPreset.add(paramsScaleNormalized);
+		paramsPreset.add(paramsOfNode);
 		paramsPreset.add(paramsResets);
 
 		path = name + pathSuffix;
@@ -150,28 +194,27 @@ public:
 
 	~TransformNode() {
 		ofLogNotice("TransformNode") << "Destructor";
+
 		ofRemoveListener(ofEvents().update, this, &TransformNode::update);
 		ofRemoveListener(parameters.parameterChangedE(), this, &TransformNode::Changed);
 	}
 
-	void refreshGui(ofxPanel&gui_,string name_) {
+	//--
 
-		ofLogNotice("TransformNode") << "refreshGui(ofxPanel,name)";
+	void refreshGui() {
+		ofLogNotice("TransformNode") << "refreshGui()";
 
-		//gui.getGroup(parameters.getName()).getGroup(paramsInternal.getName()).minimize();
-
-		gui_.getGroup(name_).getGroup(paramsOfNode.getName()).getGroup(scale.getName()).minimize();
-		gui_.getGroup(name_).getGroup(paramsOfNode.getName()).getGroup(position.getName()).minimize();
-		gui_.getGroup(name_).getGroup(paramsResets.getName()).minimize();
+		gui.getGroup(paramsOfNode.getName()).getGroup(scale.getName()).minimize();
+		gui.getGroup(paramsOfNode.getName()).getGroup(position.getName()).minimize();
+		gui.getGroup(paramsResets.getName()).minimize();
 	}
 
-	void refreshGui(ofxPanel&gui_,ofParameterGroup &group_) {
+	void refreshGuiUserParams(ofxPanel & gui_, ofxGuiGroup & group_) {
+		ofLogNotice("TransformNode") << "refreshGui(ofxPanel,ofxGuiGroup)";
 
-		ofLogNotice("TransformNode") << "refreshGui(ofxPanel,group)";
-
-		//gui.getGroup(parameters.getName()).getGroup(paramsInternal.getName()).minimize();
-		
-		refreshGui(gui_, group_.getName());
+		group_.getGroup(paramsOfNode.getName()).getGroup(scale.getName()).minimize();
+		group_.getGroup(paramsOfNode.getName()).getGroup(position.getName()).minimize();
+		group_.getGroup(paramsResets.getName()).minimize();
 	}
 
 	//--
@@ -179,29 +222,10 @@ public:
 private:
 	bool bEnableSettings = true;
 
-	const float scaleNormalizedRatio = 10.f;
-	const int scaleNormalizedPowMax = 100;
-	const float scaleNormalizedUnit = scaleNormalizedRatio * scaleNormalizedPowMax;
-	const float unitSize = SURFING__PBR__SCENE_SIZE_UNIT * 1.f;
-
 public:
-	void setEnableSettings(bool b) {
+	void setEnableSettings(bool b) {//use to disable when settings are handled externaly. as when using a transform vector for multiple objects..
 		bEnableSettings = b;
 	}
-
-	ofParameter<bool> bDraw { "Draw", true };
-	ofParameter<bool> bDebug { "Debug", false };
-
-public:
-	ofParameter<void> vReset { "Reset" };
-	ofParameter<void> vResetScale { "Reset Scale" };
-	ofParameter<void> vResetPosition { "Reset Position" };
-	ofParameter<void> vResetRotation { "Reset Rotation" };
-
-	ofParameterGroup parameters; //exposed to the gui
-	ofParameterGroup paramsScaleNormalized;
-	ofParameterGroup paramsOfNode;
-	ofParameterGroup paramsResets;
 
 private:
 	std::unique_ptr<ofEventListener> e_vResetScale;
@@ -471,25 +495,6 @@ public:
 		glm::vec3 r = rotationEuler.get();
 		_setRotation(r);
 	}
-
-	//--
-
-	// Main controls
-	// Exposed to gui and "redirected" to ofNode!
-public:
-	ofParameter<glm::vec3> position { "Position", glm::vec3(0),
-		glm::vec3(-unitSize), glm::vec3(unitSize) };
-
-	ofParameter<glm::vec3> scale { "Scale", glm::vec3(1),
-		glm::vec3(1), glm::vec3(scaleNormalizedUnit) };
-
-	ofParameter<glm::vec3> rotationEuler { "Rotation Euler", glm::vec3(0),
-		glm::vec3(-(float)SURFING__MAX_DEGREE), glm::vec3((float)SURFING__MAX_DEGREE) };
-
-	// Normalized controls
-	ofParameter<float> scaleNormalized { "Scale Norm", 0, -1.f, 1.f };
-	ofParameter<int> scaleNormalizedPow { "Scale Pow", scaleNormalizedPowMax / 2, 1, scaleNormalizedPowMax };
-	ofParameter<glm::vec3> positionNormalized { "Position Normalized", glm::vec3(0), glm::vec3(-1), glm::vec3(1) };
 
 	//--
 
