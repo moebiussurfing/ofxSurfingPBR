@@ -27,30 +27,6 @@
 
 //TODO: add settings
 #include "ofxSurfingHelpersLite.h"
-/*
-	//setup()
-	callback_t f = std::bind(&ofxSurfing3dText::save, this);
-	autoSaver.setFunctionSaver(f);
-	guiTransform.getGroup(transform.parameters.getName()).getGroup(transform.paramsResets.getName()).minimize();
-
-void ofxSurfing3dText::save() {
-	ofLogNotice("ofxSurfing3dText") << "save -> " << path;
-	ofxSurfing::saveSettings(parameters);
-
-	//changed
-	if (e.isSerializable()) {
-		autoSaver.saveSoon();
-	}
-}
-
-bool ofxSurfing3dText::load() {
-	ofLogNotice("ofxSurfing3dText") << "load -> " << path;
-	autoSaver.pause();
-	bool b= ofxSurfing::loadSettings(transform.parameters);
-	autoSaver.start();
-	return b;
-}
-*/
 
 //----
 
@@ -70,9 +46,83 @@ bool ofxSurfing3dText::load() {
 //----
 
 class TransformNode : public ofNode {
+private:
+	SurfingAutoSaver autoSaver;
+	string name = "";
+	string pathSuffix = "_Transform.json";
+	string path = "";
+	bool bDoneSetup = false;
+
+public:
+	ofxPanel gui;
+	ofParameterGroup paramsPreset;
+
+	void setName(string name_) {//caall before setup
+		ofLogNotice("TransformNode") << "setName(" << name_ << ")";
+		name = name_;
+	}
+
+private:
+	void setupSettings() {
+		ofLogNotice("TransformNode") << "setupSettings()";
+		callback_t f = std::bind(&TransformNode::save, this);
+		autoSaver.setFunctionSaver(f);
+		//gui.getGroup(parameters.getName()).getGroup(transform.paramsResets.getName()).minimize();
+
+		if (name == "") name = "Transform";
+		paramsPreset.setName(name);
+		paramsPreset.add(paramsOfNode);
+		paramsPreset.add(paramsScaleNormalized);
+		paramsPreset.add(paramsResets);
+
+		path = name + pathSuffix;
+
+		gui.setup(paramsPreset);
+	}
+
+	void save() {
+		ofLogNotice("TransformNode") << "save -> " << path;
+		ofxSurfing::saveSettings(parameters, path);
+	}
+
+	bool load() {
+		ofLogNotice("TransformNode") << "load -> " << path;
+		autoSaver.pause();
+		bool b = ofxSurfing::loadSettings(parameters, path);
+		autoSaver.start();
+		return b;
+	}
+
+	void update(ofEventArgs & args) {
+		update();
+	}
+
+	void update() {
+		if (!bDoneSetup) {
+			setup();
+		}
+	}
+
+	void Changed(ofAbstractParameter & e) {
+
+		std::string name = e.getName();
+
+		ofLogVerbose("TransformNode") << "Changed: " << name << ": " << e;
+
+		if (e.isSerializable()) {
+			autoSaver.saveSoon();
+		}
+	}
+
+	//----
+
 public:
 	TransformNode() {
-		setup();
+		ofLogNotice("TransformNode") << "Constructor";
+		//setup();
+
+		ofAddListener(ofEvents().update, this, &TransformNode::update);
+		ofAddListener(parameters.parameterChangedE(), this, &TransformNode::Changed);
 	}
 
 	//TransformNode(const TransformNode & other)
@@ -91,10 +141,38 @@ public:
 	//}
 
 	TransformNode(const TransformNode & other) {
-		setup();
+		ofLogNotice("TransformNode") << "Constructor";
+		//setup();
+
+		ofAddListener(ofEvents().update, this, &TransformNode::update);
+		ofAddListener(parameters.parameterChangedE(), this, &TransformNode::Changed);
 	}
 
-	~TransformNode() { }
+	~TransformNode() {
+		ofLogNotice("TransformNode") << "Destructor";
+		ofRemoveListener(ofEvents().update, this, &TransformNode::update);
+		ofRemoveListener(parameters.parameterChangedE(), this, &TransformNode::Changed);
+	}
+
+	void refreshGui(ofxPanel&gui_,string name_) {
+
+		ofLogNotice("TransformNode") << "refreshGui(ofxPanel,name)";
+
+		//gui.getGroup(parameters.getName()).getGroup(paramsInternal.getName()).minimize();
+
+		gui_.getGroup(name_).getGroup(paramsOfNode.getName()).getGroup(scale.getName()).minimize();
+		gui_.getGroup(name_).getGroup(paramsOfNode.getName()).getGroup(position.getName()).minimize();
+		gui_.getGroup(name_).getGroup(paramsResets.getName()).minimize();
+	}
+
+	void refreshGui(ofxPanel&gui_,ofParameterGroup &group_) {
+
+		ofLogNotice("TransformNode") << "refreshGui(ofxPanel,group)";
+
+		//gui.getGroup(parameters.getName()).getGroup(paramsInternal.getName()).minimize();
+		
+		refreshGui(gui_, group_.getName());
+	}
 
 	//--
 
@@ -138,6 +216,7 @@ private:
 
 	//--
 
+public:
 	void setup() {
 
 		// parameters
@@ -213,6 +292,13 @@ private:
 		e_vResetRotation = std::make_unique<ofEventListener>(vResetRotation.newListener([this](void) {
 			resetRotation();
 		}));
+
+		//--
+
+		setupSettings();
+
+	 bDoneSetup = true;
+
 	}
 
 	//--
