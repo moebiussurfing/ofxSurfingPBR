@@ -85,7 +85,7 @@ public:
 
 	//--
 
-	// Params
+	// Parameters
 
 	// For the Gui and settings
 	ofParameterGroup parameters;

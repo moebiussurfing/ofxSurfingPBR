@@ -76,9 +76,13 @@ private:
 		transforms.clear();//clear all objects nodes
 
 		for (size_t i = 0; i < dir.size(); i++) {
-
 			transforms.push_back(std::make_unique<TransformNode>());
-			transforms.back()->parameters.setName(getFilename(i));
+
+			string n = getFilename(i);
+			//transforms.back()->setName(n);
+			transforms.back()->setEnableSettings(false);
+			transforms.back()->setup();
+			transforms.back()->parameters.setName(n);
 
 			// queue all objects nodes params
 			transformParams.add(transforms.back()->parameters);
@@ -146,6 +150,7 @@ public:
 
 public:
 	void refreshGui() override {
+		//return;
 		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:refreshGui()";
 
 		for (size_t i = 0; i < transforms.size(); i++) {
