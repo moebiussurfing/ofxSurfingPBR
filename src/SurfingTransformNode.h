@@ -14,6 +14,7 @@
 	TODO
 	- add refreshGui by passing transfromGroup. like presets groups
 	- allow mode for linked or independent scale for xyz
+		- fix lock all axis to x 
 	- add simple example?
 	- add bbox for selected model
 */
@@ -51,8 +52,8 @@ class TransformNode : public ofNode {
 	//some constants
 	const float scaleNormalizedRatio = 10.f;
 	const int scaleNormalizedPowMax = 100;
-	const float scaleNormalizedUnit = scaleNormalizedPowMax;
-	//const float scaleNormalizedUnit = scaleNormalizedRatio * scaleNormalizedPowMax;
+	//const float scaleNormalizedUnit = scaleNormalizedPowMax;
+	float scaleNormalizedUnit = scaleNormalizedRatio * scaleNormalizedPowMax;
 	const float unitSize = SURFING__PBR__SCENE_SIZE_UNIT * 1.f;
 
 	//--
@@ -72,7 +73,7 @@ public:
 	// Normalized controls
 	ofParameter<float> scaleNormalized { "Scale Norm", 0, -1.f, 1.f };
 	ofParameter<int> scaleNormalizedPow { "Scale Pow", scaleNormalizedPowMax / 2, 1, scaleNormalizedPowMax };
-	//ofParameter<bool> bScaleLinkAxis { "ScaleLinkAxis", true };//TODO
+	ofParameter<bool> bScaleLinkAxis { "ScaleLinkAxis", true }; //TODO
 	ofParameter<glm::vec3> positionNormalized { "Position Normalized", glm::vec3(0), glm::vec3(-1), glm::vec3(1) };
 
 	ofParameterGroup parameters; //exposed to the gui
@@ -95,6 +96,8 @@ private:
 	string pathSuffix = "_Transform.json";
 	string path = "";
 	bool bDoneSetup = false;
+
+	bool bAttendingScale = false;
 
 public:
 	ofxPanel gui;
@@ -158,11 +161,11 @@ private:
 		std::string name = e.getName();
 
 		ofLogVerbose("TransformNode") << "Changed: " << name << ": " << e;
-		
-		if (bEnableSettings) 
-		if (e.isSerializable()) {
-			autoSaver.saveSoon();
-		}
+
+		if (bEnableSettings)
+			if (e.isSerializable()) {
+				autoSaver.saveSoon();
+			}
 	}
 
 	//----
@@ -193,7 +196,6 @@ public:
 
 	TransformNode(const TransformNode & other) {
 		ofLogNotice("TransformNode") << "Constructor";
-		//setup();
 
 		ofAddListener(ofEvents().update, this, &TransformNode::update);
 		ofAddListener(parameters.parameterChangedE(), this, &TransformNode::Changed);
@@ -230,7 +232,7 @@ private:
 	bool bEnableSettings = true;
 
 public:
-	void setEnableSettings(bool b) {//use to disable when settings are handled externaly. as when using a transform vector for multiple objects..
+	void setEnableSettings(bool b) { //use to disable when settings are handled externaly. as when using a transform vector for multiple objects..
 		bEnableSettings = b;
 	}
 
@@ -240,7 +242,7 @@ private:
 	std::unique_ptr<ofEventListener> e_vResetRotation;
 	std::unique_ptr<ofEventListener> e_vReset;
 
-	std::unique_ptr<ofEventListener> e_positionChanged;
+	std::unique_ptr<ofEventListener> e_positionNormalizedChanged;
 	std::unique_ptr<ofEventListener> e_scaleNormalized;
 	std::unique_ptr<ofEventListener> e_scaleNormalizedPow;
 	std::unique_ptr<ofEventListener> e_rotatioEulerChanged; //TODO
@@ -262,7 +264,7 @@ public:
 		paramsScaleNormalized.setName("Scale Normalized");
 		paramsScaleNormalized.add(scaleNormalizedPow);
 		paramsScaleNormalized.add(scaleNormalized);
-		//paramsScaleNormalized.add(bScaleLinkAxis);//TODO
+		paramsScaleNormalized.add(bScaleLinkAxis); //TODO
 
 		parameters.add(bDraw);
 		parameters.add(bDebug);
@@ -282,55 +284,9 @@ public:
 
 		//--
 
-		// Transform
-
-		e_positionChanged = std::make_unique<ofEventListener>(positionNormalized.newListener([this](glm::vec3) {
-			ofLogNotice(__FUNCTION__);
-
-			refreshPositionFromNormalized();
-		}));
-
-		e_scaleNormalizedPow = std::make_unique<ofEventListener>(scaleNormalizedPow.newListener([this](float) {
-			ofLogNotice(__FUNCTION__);
-
-			refreshScaleFromNormalized();
-		}));
-
-		e_scaleNormalized = std::make_unique<ofEventListener>(scaleNormalized.newListener([this](float) {
-			ofLogNotice(__FUNCTION__);
-
-			refreshScaleFromNormalized();
-		}));
-
-		e_rotatioEulerChanged = std::make_unique<ofEventListener>(rotationEuler.newListener([this](glm::vec3) {
-		}));
-
-		//--
-
-		// Resets
-
-		e_vReset = std::make_unique<ofEventListener>(vReset.newListener([this](void) {
-			reset();
-		}));
-
-		e_vResetScale = std::make_unique<ofEventListener>(vResetScale.newListener([this](void) {
-			resetScale();
-		}));
-
-		e_vResetPosition = std::make_unique<ofEventListener>(vResetPosition.newListener([this](void) {
-			resetPosition();
-		}));
-
-		e_vResetRotation = std::make_unique<ofEventListener>(vResetRotation.newListener([this](void) {
-			resetRotation();
-		}));
-
-		//--
-
 		setupSettings();
 
-	 bDoneSetup = true;
-
+		bDoneSetup = true;
 	}
 
 	//--
@@ -389,6 +345,55 @@ public:
 		position.addListener(this, &TransformNode::_setPosition);
 		scale.addListener(this, &TransformNode::_setScale);
 		rotationEuler.addListener(this, &TransformNode::_setRotation);
+
+		//--
+
+		// Transform
+
+		e_positionNormalizedChanged = std::make_unique<ofEventListener>(positionNormalized.newListener([this](glm::vec3) {
+			ofLogNotice(__FUNCTION__);
+
+			refreshPositionFromNormalized();
+		}));
+
+		e_scaleNormalizedPow = std::make_unique<ofEventListener>(scaleNormalizedPow.newListener([this](float) {
+			ofLogNotice(__FUNCTION__);
+
+			//adapt param range
+			scaleNormalizedUnit = scaleNormalizedRatio * scaleNormalizedPow;
+			scale.setMax(glm::vec3(scaleNormalizedUnit, scaleNormalizedUnit, scaleNormalizedUnit));
+
+			refreshScaleFromNormalized();
+		}));
+
+		e_scaleNormalized = std::make_unique<ofEventListener>(scaleNormalized.newListener([this](float) {
+			ofLogNotice(__FUNCTION__);
+
+			refreshScaleFromNormalized();
+		}));
+
+		e_rotatioEulerChanged = std::make_unique<ofEventListener>(rotationEuler.newListener([this](glm::vec3) {
+		}));
+
+		//--
+
+		// Resets
+
+		e_vReset = std::make_unique<ofEventListener>(vReset.newListener([this](void) {
+			reset();
+		}));
+
+		e_vResetScale = std::make_unique<ofEventListener>(vResetScale.newListener([this](void) {
+			resetScale();
+		}));
+
+		e_vResetPosition = std::make_unique<ofEventListener>(vResetPosition.newListener([this](void) {
+			resetPosition();
+		}));
+
+		e_vResetRotation = std::make_unique<ofEventListener>(vResetRotation.newListener([this](void) {
+			resetRotation();
+		}));
 	}
 
 	//--
@@ -397,18 +402,43 @@ public:
 
 	void _setPosition(glm::vec3 & v) {
 		ofLogNotice(__FUNCTION__);
+
 		setPosition(v);
 
 		refreshPositionToNormalized();
 	}
 
 	void _setScale(glm::vec3 & v) {
-		ofLogNotice(__FUNCTION__);
+		if (bAttendingScale) return;
+		ofLogNotice(__FUNCTION__) << v;
+
+		if (bScaleLinkAxis) {
+			bAttendingScale = true;
+
+			//TODO: fix lock all axis to x 
+			glm::vec3 s = glm::vec3(scale.get().x);
+
+			//glm::vec3 s = glm::vec3(v.x, v.x, v.x);
+			scale.set(s);
+			//v = s;
+			#if 0
+			ofLogNotice(__FUNCTION__) << "s:" << s;
+			ofLogNotice(__FUNCTION__) << "v:" << v;
+			ofLogNotice(__FUNCTION__) << "scale:" << scale;
+			#endif
+
+			bAttendingScale = false;
+
+			setScale(s);
+			return;
+		}
+
 		setScale(v);
 	}
 
 	void _setRotation(glm::vec3 & v) {
 		ofLogNotice(__FUNCTION__);
+
 		setOrientation(v);
 	}
 
@@ -443,6 +473,8 @@ public:
 	}
 
 	void onScaleChanged() override {
+		if (bAttendingScale) return;
+
 		if (scale.get() != getScale()) {
 			ofLogNotice(__FUNCTION__);
 
