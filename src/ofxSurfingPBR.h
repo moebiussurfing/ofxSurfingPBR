@@ -149,7 +149,7 @@ private:
 
 private:
 	void Changed(ofAbstractParameter & e);
-	void ChangedInternal(ofAbstractParameter & e);
+	void ChangedAdvanced(ofAbstractParameter & e);
 	void ChangedTestScene(ofAbstractParameter & e);
 	void ChangedDraw(ofAbstractParameter & e);
 	void ChangedCamera(ofAbstractParameter & e);
@@ -258,7 +258,7 @@ public:
 	ofParameter<void> vMinimizeAllGui;
 	ofParameter<void> vMaximizeAllGui;
 
-	ofParameter<int> indexGuiLayout; //TODO notify
+	//ofParameter<int> indexGuiLayout; //TODO notify
 	ofParameter<string> nameGuiLayout; //TODO notify
 
 private:
@@ -302,11 +302,11 @@ public:
 
 	// returns layout index
 	// each index would have different positions for help and debug windows
-	const int getGuiLayout();
+	//const int getGuiLayout();
 
 	void doNextLayoutHelp();
 	void doPrevLayoutHelp();
-	void doNextLayouGui();
+	//void doNextLayouGui();
 
 	//for helping on responsive layouts
 	const ofxSurfing::SURFING_LAYOUT getLayoutHelp();

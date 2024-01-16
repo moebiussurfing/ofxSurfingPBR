@@ -21,7 +21,7 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 	ofRemoveListener(parameters.parameterChangedE(), this, &ofxSurfingPBR::Changed);
 
 	ofRemoveListener(paramsDraw.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
-	ofRemoveListener(paramsInternal.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
+	ofRemoveListener(paramsAdvanced.parameterChangedE(), this, &ofxSurfingPBR::ChangedAdvanced);
 	ofRemoveListener(paramsTestScene.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
 	ofRemoveListener(paramsCamera.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
 
@@ -151,20 +151,20 @@ void ofxSurfingPBR::doPrevLayoutHelp() {
 	bFlagBuildHelp = true;
 }
 
-//--------------------------------------------------------------
-void ofxSurfingPBR::doNextLayouGui() {
-	ofLogNotice("ofxSurfingPBR") << "doNextLayouGui()";
-
-	int i = indexGuiLayout.get();
-	i = ofClamp(i, indexGuiLayout.getMin(), indexGuiLayout.getMax());
-	i++;
-	//i = i % indexGuiLayout.getMax();
-	if (i > indexGuiLayout.getMax()) i = 0;
-	indexGuiLayout.set(i);
-
-	//buildHelp();
-	bFlagBuildHelp = true;
-}
+////--------------------------------------------------------------
+//void ofxSurfingPBR::doNextLayouGui() {
+//	ofLogNotice("ofxSurfingPBR") << "doNextLayouGui()";
+//
+//	int i = indexGuiLayout.get();
+//	i = ofClamp(i, indexGuiLayout.getMin(), indexGuiLayout.getMax());
+//	i++;
+//	//i = i % indexGuiLayout.getMax();
+//	if (i > indexGuiLayout.getMax()) i = 0;
+//	indexGuiLayout.set(i);
+//
+//	//buildHelp();
+//	bFlagBuildHelp = true;
+//}
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::setupParams() {
@@ -182,8 +182,8 @@ void ofxSurfingPBR::setupParams() {
 
 	vMinimizeAllGui.set("Gui Minimize");
 	vMaximizeAllGui.set("Gui Maximize");
-	indexGuiLayout.set("Gui Layout", 0, 0, 1);
-	nameGuiLayout.set("Gui LN ", "NONE");
+	//indexGuiLayout.set("Gui Layout", 0, 0, 1);
+	//nameGuiLayout.set("Gui LN ", "NONE");
 
 	int imax = (int)ofxSurfing::SURFING_LAYOUT_AMOUNT - 1;
 	int idef = (int)ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
@@ -277,24 +277,24 @@ void ofxSurfingPBR::setupParams() {
 	//paramsAdvanced.add(bGui); //workflow: added to add to settings. could hide the toggle..
 
 	paramsAdvanced.setName("Advanced");
+
 	paramsInternal.setName("Internal");
+	paramsInternal.add(bGui);
+	paramsInternal.add(bGuiOfxGui);
 
 	paramsGui.setName("Gui");
 	paramsGui.add(guiManager.paramsGuiManager);
 	//paramsGui.add(guiManager.bAutoLayout);
 	paramsGui.add(vMinimizeAllGui);
 	paramsGui.add(vMaximizeAllGui);
-	paramsGui.add(indexGuiLayout);
-	paramsGui.add(nameGuiLayout);
+	//paramsGui.add(indexGuiLayout);
+	//paramsGui.add(nameGuiLayout);
 	paramsGui.add(helpLayout);
 	paramsGui.add(nameHelpLayout);
-	paramsGui.add(bGui);
-	paramsGui.add(bGuiOfxGui);
-	paramsGui.add(material.bGui);
 	paramsAdvanced.add(paramsGui);
 
-	paramsInternal.add(paramsAdvanced);
-	parameters.add(paramsInternal);
+	paramsAdvanced.add(paramsInternal);
+	parameters.add(paramsAdvanced);
 
 	vResetAll.set("Reset All");
 	parameters.add(vResetAll);
@@ -354,7 +354,7 @@ void ofxSurfingPBR::setupCallbacks() {
 	ofAddListener(parameters.parameterChangedE(), this, &ofxSurfingPBR::Changed);
 
 	ofAddListener(paramsDraw.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
-	ofAddListener(paramsInternal.parameterChangedE(), this, &ofxSurfingPBR::ChangedInternal);
+	ofAddListener(paramsAdvanced.parameterChangedE(), this, &ofxSurfingPBR::ChangedAdvanced);
 	ofAddListener(paramsTestScene.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
 	ofAddListener(paramsCamera.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
 
@@ -468,10 +468,10 @@ ofRectangle ofxSurfingPBR::getGuiShape() const {
 	ofRectangle bb = r1.getUnion(r2);
 	return bb;
 }
-//--------------------------------------------------------------
-const int ofxSurfingPBR::getGuiLayout() {
-	return indexGuiLayout.get();
-}
+////--------------------------------------------------------------
+//const int ofxSurfingPBR::getGuiLayout() {
+//	return indexGuiLayout.get();
+//}
 //--------------------------------------------------------------
 const ofxSurfing::SURFING_LAYOUT ofxSurfingPBR::getLayoutHelp() {
 	return ofxSurfing::SURFING_LAYOUT(helpLayout.get());
@@ -567,16 +567,16 @@ void ofxSurfingPBR::startupDelayed() {
 
 	//--
 
-//TODO fix crash callbacks
-// some bypassed callbacks that makes the app crash...
-#if 1
-	indexGuiLayout = indexGuiLayout.get(); //trig crashes..
-#else
-	if (indexGuiLayout.get() == 0)
-		nameGuiLayout.set(namesGuiLayouts[0]);
-	else if (indexGuiLayout.get() == 1)
-		nameGuiLayout.set(namesGuiLayouts[1]);
-#endif
+////TODO fix crash callbacks
+//// some bypassed callbacks that makes the app crash...
+//#if 1
+//	indexGuiLayout = indexGuiLayout.get(); //trig crashes..
+//#else
+//	if (indexGuiLayout.get() == 0)
+//		nameGuiLayout.set(namesGuiLayouts[0]);
+//	else if (indexGuiLayout.get() == 1)
+//		nameGuiLayout.set(namesGuiLayouts[1]);
+//#endif
 
 	//--
 
@@ -596,7 +596,7 @@ void ofxSurfingPBR::setupGui() {
 	refreshGui();
 
 	//--
-	
+
 	guiManager.setAutoAddInternalParamasToMainPanel(false);
 	//guiManager.setAutoHideFirstToggleVisibleForAnchorPanel(false);
 
@@ -606,9 +606,9 @@ void ofxSurfingPBR::setupGui() {
 	guiManager.add(&gui, bGui);
 	guiManager.add(&bg.gui, bg.bGui);
 	guiManager.add(&floor.gui, floor.bGui);
-	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION);//TODO: drawn internally
+	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION); //TODO: drawn internally
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
-	guiManager.add(&lights.gui, lights.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION);//TODO: drawn internally
+	guiManager.add(&lights.gui, lights.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION); //TODO: drawn internally
 #endif
 
 	guiManager.startup();
@@ -637,10 +637,19 @@ void ofxSurfingPBR::refreshGui() {
 
 	gui.getGroup(paramsTestScene.getName()).minimize();
 	gui.getGroup(paramsCamera.getName()).minimize();
-	gui.getGroup(paramsInternal.getName()).minimize();
 
-	gui.getGroup(paramsInternal.getName())
-		.getGroup(paramsAdvanced.getName())
+	gui.getGroup(paramsAdvanced.getName()).minimize();
+	gui.getGroup(paramsAdvanced.getName())
+		.getGroup(paramsInternal.getName())
+		.minimize();
+
+	gui.getGroup(paramsAdvanced.getName())
+		.getGroup(paramsGui.getName())
+		.minimize();
+
+	gui.getGroup(paramsAdvanced.getName())
+		.getGroup(paramsGui.getName())
+		.getGroup(guiManager.paramsGuiManager.getName())
 		.minimize();
 
 	gui.getGroup(paramsDraw.getName())
@@ -761,14 +770,15 @@ void ofxSurfingPBR::drawDebugFPS() {
 			s += sWindowDimensions + "\n";
 
 		ofxSurfing::SURFING_LAYOUT l = ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT;
-#if 0
-		if (indexGuiLayout.get() == 0)
-			l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
-		else if (indexGuiLayout.get() == 1)
-			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
-		else
-			l = ofxSurfing::SURFING_LAYOUT_CENTER;
-#endif
+
+//#if 0
+//		if (indexGuiLayout.get() == 0)
+//			l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
+//		else if (indexGuiLayout.get() == 1)
+//			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
+//		else
+//			l = ofxSurfing::SURFING_LAYOUT_CENTER;
+//#endif
 
 		ofxSurfing::ofDrawBitmapStringBox(s, l);
 	}
@@ -912,7 +922,7 @@ void ofxSurfingPBR::Changed(ofAbstractParameter & e) {
 }
 
 //--------------------------------------------------------------
-void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
+void ofxSurfingPBR::ChangedAdvanced(ofAbstractParameter & e) {
 	//if (bDisableCallbacks) return;
 
 	std::string name = e.getName();
@@ -923,7 +933,7 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 	//// Exclude to avoid crashes..
 	//if (name == nameGuiLayout.getName()) return;
 
-	ofLogNotice("ofxSurfingPBR") << "ChangedInternal: " << name << ": " << e;
+	ofLogNotice("ofxSurfingPBR") << "ChangedAdvanced: " << name << ": " << e;
 
 	//--
 
@@ -939,39 +949,41 @@ void ofxSurfingPBR::ChangedInternal(ofAbstractParameter & e) {
 		//if (nameHelpLayout.get() != s) nameHelpLayout.setWithoutEventNotifications(s);
 	}
 
-	else if (name == indexGuiLayout.getName()) {
-		//do not updates the gui!
-		if (indexGuiLayout.get() == 0) {
-			string n = namesGuiLayouts[0];
-			if (nameGuiLayout.get() != n)
-				nameGuiLayout.setWithoutEventNotifications(n);
-		}
+	//else if (name == indexGuiLayout.getName()) {
+	//	//do not updates the gui!
+	//	if (indexGuiLayout.get() == 0) {
+	//		string n = namesGuiLayouts[0];
+	//		if (nameGuiLayout.get() != n)
+	//			//nameGuiLayout.setWithoutEventNotifications(n);
+	//			nameGuiLayout.set(n);
+	//	}
 
-		else if (indexGuiLayout.get() == 1) {
-			string n = namesGuiLayouts[1];
-			if (nameGuiLayout.get() != n)
-				nameGuiLayout.setWithoutEventNotifications(n);
-		}
+	//	else if (indexGuiLayout.get() == 1) {
+	//		string n = namesGuiLayouts[1];
+	//		if (nameGuiLayout.get() != n)
+	//			//nameGuiLayout.setWithoutEventNotifications(n);
+	//			nameGuiLayout.set(n);
+	//	}
 
-		//--
+	//	//--
 
-		//TODO fix crash callbacks
-		if (!bDoneStartup) return;
+	//	//TODO fix crash callbacks
+	//	if (!bDoneStartup) return;
 
-		//--
+	//	//--
 
-		if (indexGuiLayout.get() == 0) {
-			string n = namesGuiLayouts[0];
-			if (nameGuiLayout.get() != n)
-				nameGuiLayout.set(n);
-		}
+	//	if (indexGuiLayout.get() == 0) {
+	//		string n = namesGuiLayouts[0];
+	//		if (nameGuiLayout.get() != n)
+	//			nameGuiLayout.set(n);
+	//	}
 
-		else if (indexGuiLayout.get() == 1) {
-			string n = namesGuiLayouts[1];
-			if (nameGuiLayout.get() != n)
-				nameGuiLayout.set(n);
-		}
-	}
+	//	else if (indexGuiLayout.get() == 1) {
+	//		string n = namesGuiLayouts[1];
+	//		if (nameGuiLayout.get() != n)
+	//			nameGuiLayout.set(n);
+	//	}
+	//}
 
 	else if (name == vMinimizeAllGui.getName()) {
 		gui.minimizeAll();
