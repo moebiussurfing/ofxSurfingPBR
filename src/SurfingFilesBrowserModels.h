@@ -80,7 +80,7 @@ private:
 
 			string n = getFilename(i);
 			//transforms.back()->setName(n);
-			transforms.back()->setEnableSettings(false);
+			transforms.back()->setEnableSettings(false);//in this case are handled by this class!!
 			transforms.back()->setup();
 			transforms.back()->parameters.setName(n);
 
@@ -161,17 +161,9 @@ public:
 			auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
 			b ? g.maximize() : g.minimize();
 
-			g.getGroup(transforms[i]->positionNormalized.getName()).maximize();
-			g.getGroup(transforms[i]->paramsResets.getName()).minimize();
-			g.getGroup(transforms[i]->paramsOfNode.getName()).getGroup(transforms[i]->rotationEuler.getName()).maximize();
-			g.getGroup(transforms[i]->paramsOfNode.getName()).getGroup(transforms[i]->scale.getName()).minimize();
-			g.getGroup(transforms[i]->paramsOfNode.getName()).getGroup(transforms[i]->position.getName()).minimize();
-
-			//g.getGroup(t.position.getName()).maximize();
-			//g.getGroup(t.rotation.getName()).maximize();
-			//g.getGroup(t.position.getName()).minimize();
-			//g.getGroup(t.rotation.getName()).minimize();
+			transforms[i]->refreshGuiUserParams(gui,g);
 		}
+
 	}
 
 	//--
@@ -179,7 +171,6 @@ public:
 	// Store each model transforms for gizmo.
 
 private:
-	//vector<TransformNode> transforms;
 	std::vector<std::unique_ptr<TransformNode>> transforms;
 
 	//--

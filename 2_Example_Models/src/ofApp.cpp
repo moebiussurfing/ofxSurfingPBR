@@ -122,10 +122,10 @@ void ofApp::setupParams() {
 	parameters.add(indexScene);
 	parameters.add(nameScene);
 
-	paramsTransforms.setName("Transforms");
-	paramsTransforms.add(yPos);
-	paramsTransforms.add(scale);
-	parameters.add(paramsTransforms);
+	paramsGlobalTransforms.setName("Global Transforms");
+	paramsGlobalTransforms.add(yPos);
+	paramsGlobalTransforms.add(scale);
+	parameters.add(paramsGlobalTransforms);
 
 	paramsAnimate.setName("Animate");
 	paramsAnimate.add(bAnimRotate);
