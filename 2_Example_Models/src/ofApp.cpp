@@ -138,7 +138,6 @@ void ofApp::setupParams() {
 	parameters.add(vReset);
 	parameters.add(pbr.vResetCamera);
 
-	//parameters.add(guiManager.bAutoLayout);
 	parameters.add(bHelp);
 
 	nameScene.setSerializable(false);
@@ -175,29 +174,17 @@ void ofApp::setupGui() {
 
 	//--
 
-	//guiManager.setAutoAddInternalParamasToMainPanel(false);
-
-//#ifdef OF_APP__USE__MODELS_MANAGER
-//	guiManager.setAutoHideFirstToggleVisibleForAnchorPanel(false);
-//#endif
-	
 	guiManager.setup(&gui);
-
 	guiManager.add(&gui);
 #ifdef OF_APP__USE__MODELS_MANAGER
 	guiManager.add(modelsManager.getGuiPtr());
 #endif
-	
 	guiManager.startup();
 
 	//--
 
+	ofxSurfing::setGuiPositionToLayoutPanelsCentered(gui, 1, ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER);
 	gui.getGroup(paramsAnimate.getName()).minimize();
-
-	// Refresh ui layout modes
-	listenerGuiRefresh = pbr.indexGuiLayout.newListener([this](int & i) {
-		refreshGui();
-	});
 
 	refreshGui();
 
@@ -311,12 +298,10 @@ void ofApp::updateSceneTransforms() {
 
 	// Position
 	float yUnit = SURFING__PBR__SCENE_SIZE_UNIT / 2.f;
-	float y = ofMap(yPos, -1.f, 1.f,
-		-yUnit, yUnit, true);
+	float y = ofMap(yPos, -1.f, 1.f, -yUnit, yUnit, true);
 
 	// Scale
-	float s = ofMap(scale, -1.f, 1.f,
-		1.f / SURFING__PBR__SCENE_TEST_UNIT_SCALE, SURFING__PBR__SCENE_TEST_UNIT_SCALE, true);
+	float s = ofMap(scale, -1.f, 1.f, 1.f / SURFING__PBR__SCENE_TEST_UNIT_SCALE, SURFING__PBR__SCENE_TEST_UNIT_SCALE, true);
 
 	// Rotation
 	int tmax = 120;
@@ -345,7 +330,7 @@ void ofApp::drawMyScene() {
 	//--
 
 	// Scene transforms (ofApp local)
-		updateSceneTransforms();
+	updateSceneTransforms();
 
 	//--
 
@@ -422,7 +407,8 @@ void ofApp::drawHelp() {
 
 #ifdef OF_APP__USE__MODELS_MANAGER
 	if (indexScene == 2)
-		modelsManager.drawHelp();
+		if (guiManager.getGuiVisible(1))
+			modelsManager.drawHelp();
 #endif
 }
 
@@ -484,10 +470,6 @@ void ofApp::buildHelp() {
 void ofApp::refreshGui() {
 
 	guiManager.refreshGui();
-
-	//if (indexScene != 2 && guiManager.bAutoLayout) {
-	//	ofxSurfing::setGuiPositionToLayoutPanelsCentered(gui, 1, ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER);
-	//}
 }
 
 //--------------------------------------------------------------

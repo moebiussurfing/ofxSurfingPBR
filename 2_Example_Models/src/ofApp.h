@@ -1,20 +1,22 @@
 /*
 
-This example uses the main class from the `ofxSurfingPBR.h` addon:
-ofxSurfingPBR
-The above class bundles almost all the modules/features from the addon. 
-Many modules can be used also as standalone, for other simpler and custom OF scenes.
+This example uses the main class from the `ofxSurfingPBR.h` addon:  
+ofxSurfingPBR  
+The above class bundles almost all the modules/features from the addon.  
+Many modules can be used also as standalone,  
+for other simpler and custom OF scenes/workflows.  
+We are using also the `SurfingSceneManager.h` helper class.  
 
-For rendering some 3d meshes,
-We are using also the `SurfingSceneManager.h` helper class, 
-who uses also `SurfingFilesBrowserModels.h`.
-These classes are `3d models` helpers paired with the addon.
-With these classes we can easily browse the `3d models` files, 
+We use also `SurfingFilesBrowserModels.h`  
+for rendering some 3d meshes,  
+These classes are paired with the addon.  
+Then we can easily browse, draw and transform the `3d models` files  
 directly from our app `bin/data/` path.
 
-As we are using the full addon modules from `ofxSurfingPBR.h`,
-we can render the objects using the bundled materials, 
-the floor, all the `4 lights kit`, the background generators and the cubeMap.
+As we are using the full addon modules from `ofxSurfingPBR.h`,  
+we can render the objects using the bundled two materials,  
+for the floor and the objects, all the `4 lights kit`,  
+the background generators, the cubeMap ...etc.
 
 */
 
