@@ -51,7 +51,8 @@ class TransformNode : public ofNode {
 	//some constants
 	const float scaleNormalizedRatio = 10.f;
 	const int scaleNormalizedPowMax = 100;
-	const float scaleNormalizedUnit = scaleNormalizedRatio * scaleNormalizedPowMax;
+	const float scaleNormalizedUnit = scaleNormalizedPowMax;
+	//const float scaleNormalizedUnit = scaleNormalizedRatio * scaleNormalizedPowMax;
 	const float unitSize = SURFING__PBR__SCENE_SIZE_UNIT * 1.f;
 
 	//--
@@ -71,6 +72,7 @@ public:
 	// Normalized controls
 	ofParameter<float> scaleNormalized { "Scale Norm", 0, -1.f, 1.f };
 	ofParameter<int> scaleNormalizedPow { "Scale Pow", scaleNormalizedPowMax / 2, 1, scaleNormalizedPowMax };
+	//ofParameter<bool> bScaleLinkAxis { "ScaleLinkAxis", true };//TODO
 	ofParameter<glm::vec3> positionNormalized { "Position Normalized", glm::vec3(0), glm::vec3(-1), glm::vec3(1) };
 
 	ofParameterGroup parameters; //exposed to the gui
@@ -106,9 +108,6 @@ public:
 private:
 	void setupSettings() {
 		ofLogNotice("TransformNode") << "setupSettings()";
-		callback_t f = std::bind(&TransformNode::save, this);
-		autoSaver.setFunctionSaver(f);
-		//gui.getGroup(parameters.getName()).getGroup(transform.paramsResets.getName()).minimize();
 
 		// build preset group
 		if (name == "") name = "Transform";
@@ -122,6 +121,13 @@ private:
 		path = name + pathSuffix;
 
 		gui.setup(paramsPreset);
+
+		if (bEnableSettings) {
+			callback_t f = std::bind(&TransformNode::save, this);
+			autoSaver.setFunctionSaver(f);
+
+			load();
+		}
 	}
 
 	void save() {
@@ -131,9 +137,9 @@ private:
 
 	bool load() {
 		ofLogNotice("TransformNode") << "load -> " << path;
-		autoSaver.pause();
+		if (bEnableSettings) autoSaver.pause();
 		bool b = ofxSurfing::loadSettings(parameters, path);
-		autoSaver.start();
+		if (bEnableSettings) autoSaver.start();
 		return b;
 	}
 
@@ -152,7 +158,8 @@ private:
 		std::string name = e.getName();
 
 		ofLogVerbose("TransformNode") << "Changed: " << name << ": " << e;
-
+		
+		if (bEnableSettings) 
 		if (e.isSerializable()) {
 			autoSaver.saveSoon();
 		}
@@ -255,6 +262,7 @@ public:
 		paramsScaleNormalized.setName("Scale Normalized");
 		paramsScaleNormalized.add(scaleNormalizedPow);
 		paramsScaleNormalized.add(scaleNormalized);
+		//paramsScaleNormalized.add(bScaleLinkAxis);//TODO
 
 		parameters.add(bDraw);
 		parameters.add(bDebug);
@@ -282,13 +290,13 @@ public:
 			refreshPositionFromNormalized();
 		}));
 
-		e_scaleNormalized = std::make_unique<ofEventListener>(scaleNormalized.newListener([this](float) {
+		e_scaleNormalizedPow = std::make_unique<ofEventListener>(scaleNormalizedPow.newListener([this](float) {
 			ofLogNotice(__FUNCTION__);
 
 			refreshScaleFromNormalized();
 		}));
 
-		e_scaleNormalizedPow = std::make_unique<ofEventListener>(scaleNormalizedPow.newListener([this](float) {
+		e_scaleNormalized = std::make_unique<ofEventListener>(scaleNormalized.newListener([this](float) {
 			ofLogNotice(__FUNCTION__);
 
 			refreshScaleFromNormalized();
@@ -564,10 +572,10 @@ public:
 //
 //void drawBounds() {
 //	//if (!bDebug) return;
-//	//if (!bDrawBounds && !bDrawBBox) return;
+//	//if (!bDrawBBoxBounds && !bDrawBBox) return;
 //
 //	bool bDrawBBox = true;
-//	bool bDrawBounds = true;
+//	bool bDrawBBoxBounds = true;
 //
 //	ofColor c;
 //
@@ -591,7 +599,7 @@ public:
 //			ofPopMatrix();
 //		}
 //
-//		//if (bDrawBounds) {
+//		//if (bDrawBBoxBounds) {
 //		//	for (auto & meshNode : meshNodes) {
 //		//		meshNode.node.transformGL();
 //		//		ofSetColor(c);
