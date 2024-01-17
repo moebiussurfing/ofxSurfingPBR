@@ -461,6 +461,7 @@ ofEasyCam * ofxSurfingPBR::getOfEasyCamPtr() {
 	else
 		return nullptr;
 }
+
 //--------------------------------------------------------------
 ofRectangle ofxSurfingPBR::getGuiShape() const {
 	ofRectangle r1 = gui.getShape();
