@@ -97,7 +97,7 @@ public:
 	void doReset() override {
 		ofLogNotice("ofxSurfingPBR") << "SurfingFilesBrowserModels:doReset()";
 
-		resetTransform();
+		doResetTransform();
 	}
 
 public:
@@ -187,48 +187,6 @@ public:
 		return b;
 	}
 
-	float getTransformScale(int i = -1) const {
-		float v = 0;
-		if (i == -1) i = indexFile;
-		if (i < transforms.size())
-			v = transforms[i]->scaleNormalized;
-		return v;
-	}
-
-	float getTransformScalePow(int i = -1) const {
-		int v = 0;
-		if (i == -1) i = indexFile;
-		if (i < transforms.size())
-			v = transforms[i]->scaleNormalizedPow;
-		return v;
-	}
-
-	void resetTransform(int i = -1) {
-		if (i == -1) i = indexFile;
-		if (i < transforms.size()) {
-			transforms[i]->scaleNormalizedPow = 0;
-			transforms[i]->scaleNormalized = 0;
-			transforms[i]->positionNormalized = glm::vec3(0);
-			transforms[i]->rotationEuler = glm::vec3(0);
-		}
-	}
-
-	glm::vec3 getTransformPosition(int i = -1) const {
-		glm::vec3 v = glm::vec3(0);
-		if (i == -1) i = indexFile;
-		if (i < transforms.size())
-			v = transforms[i]->positionNormalized;
-		return v;
-	}
-
-	glm::vec3 getTransformRotation(int i = -1) const {
-		glm::vec3 v = glm::vec3(0);
-		if (i == -1) i = indexFile;
-		if (i < transforms.size())
-			v = transforms[i]->rotationEuler;
-		return v;
-	}
-
 	void drawOfNodeIfDebug(int i = -1) const {
 		if (!transforms[i]->bDebug) return;
 
@@ -242,4 +200,47 @@ public:
 	}
 
 	ofParameterGroup transformParams;
+
+	void doResetTransform(int i = -1) {
+		if (i == -1) i = indexFile;
+		if (i < transforms.size()) {
+			transforms[i]->doReset();
+			//transforms[i]->scaleNormalizedPow = 0;
+			//transforms[i]->scaleNormalized = 0;
+			//transforms[i]->positionNormalized = glm::vec3(0);
+			//transforms[i]->rotationEuler = glm::vec3(0);
+		}
+	}
+
+	//float getTransformScale(int i = -1) const {
+	//	float v = 0;
+	//	if (i == -1) i = indexFile;
+	//	if (i < transforms.size())
+	//		v = transforms[i]->scaleNormalized;
+	//	return v;
+	//}
+
+	//float getTransformScalePow(int i = -1) const {
+	//	int v = 0;
+	//	if (i == -1) i = indexFile;
+	//	if (i < transforms.size())
+	//		v = transforms[i]->scaleNormalizedPow;
+	//	return v;
+	//}
+
+	//glm::vec3 getTransformPosition(int i = -1) const {
+	//	glm::vec3 v = glm::vec3(0);
+	//	if (i == -1) i = indexFile;
+	//	if (i < transforms.size())
+	//		v = transforms[i]->positionNormalized;
+	//	return v;
+	//}
+
+	//glm::vec3 getTransformRotation(int i = -1) const {
+	//	glm::vec3 v = glm::vec3(0);
+	//	if (i == -1) i = indexFile;
+	//	if (i < transforms.size())
+	//		v = transforms[i]->rotationEuler;
+	//	return v;
+	//}
 };
