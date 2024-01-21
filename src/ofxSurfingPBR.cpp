@@ -1053,9 +1053,13 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 
 	if (name == vSaveCamera.getName()) {
 		doSaveCamera();
-	} else if (name == vLoadCamera.getName()) {
+	} 
+	
+	else if (name == vLoadCamera.getName()) {
 		doLoadCamera();
-	} else if (name == vResetCamera.getName()) {
+	} 
+	
+	else if (name == vResetCamera.getName()) {
 		doResetCamera();
 
 		// workflow: save
