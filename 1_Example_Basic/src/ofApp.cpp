@@ -16,7 +16,8 @@ void ofApp::setup() {
 	//--
 
 	// Pass the local camera
-	pbr.setup(camera);
+	//pbr.setup(camera);
+	pbr.setup();
 
 	// Pass the scene renderer to be processed
 	callback_t f = std::bind(&ofApp::renderScene, this);

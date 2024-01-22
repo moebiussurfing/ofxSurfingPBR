@@ -23,6 +23,7 @@
 
 #define SURFING__PBR__USE_LIGHTS_CLASS
 #define SURFING__PBR__USE_CUBE_MAP
+#define SURFING__PBR__USE_ADDON_EASY_CAM
 
 //----
 

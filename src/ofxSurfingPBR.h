@@ -66,7 +66,12 @@
 #include "SurfingBg.h"
 #include "SurfingFloor.h"
 
-#include "ofxCameraSaveLoad.h"
+#ifdef SURFING__PBR__USE_ADDON_EASY_CAM
+	#include "surfingEasyCamOfxGui.h"
+#else
+	#include "ofxCameraSaveLoad.h"
+#endif
+
 #include "ofxGui.h"
 
 #include <functional>
@@ -89,7 +94,7 @@ private:
 public:
 	SurfingBg bg;
 	SurfingFloor floor;
-	
+
 	ofParameter<bool> bDrawBg;
 
 public:
@@ -153,7 +158,7 @@ private:
 	void ChangedTestScene(ofAbstractParameter & e);
 	void ChangedDraw(ofAbstractParameter & e);
 	void ChangedCamera(ofAbstractParameter & e);
-	
+
 	ofEventListener e_bDrawBgColorPlain;
 	ofEventListener e_bDrawBgColorObject;
 	ofEventListener e_bDrawCubeMap;
@@ -172,8 +177,11 @@ public:
 	void beginMaterial();
 	void endMaterial();
 
-	//--
+	//----
 
+#ifdef SURFING__PBR__USE_ADDON_EASY_CAM
+	surfingEasyCamOfxGui cam;
+#else
 	// Camera
 public:
 	void setCameraPtr(ofCamera & camera_); //don't need use when camera is passed to setup function!
@@ -191,9 +199,6 @@ private:
 	ofParameter<void> vLoadCamera;
 	string pathCamera = "ofxSurfingPBR_Camera.txt";
 
-	ofEventListener eSaveOfxGui;
-	ofEventListener eLoadOfxGui;
-
 public:
 	ofParameter<void> vResetCamera;
 
@@ -204,10 +209,14 @@ public:
 	void doResetCamera();
 	void doLoadCamera();
 	void doSaveCamera();
+#endif
 
 	//--
 
 private:
+	ofEventListener eSaveOfxGui;
+	ofEventListener eLoadOfxGui;
+
 	callback_t f_RenderScene = nullptr;
 
 public:
@@ -232,7 +241,7 @@ private:
 	//--
 
 public:
-	// main container to expose to ui 
+	// main container to expose to ui
 	// and to handle the persistence of the settings.
 	ofParameterGroup parameters;
 
@@ -288,11 +297,12 @@ public:
 	ofParameter<float> scaleTestScene;
 	ofParameter<glm::vec3> positionTestScene;
 	ofParameter<void> vResetTestScene;
-	
+
 	ofParameter<void> vResetAll;
 
 public:
 	ofxPanel gui;
+
 private:
 	SurfingOfxGuiPanelsManager guiManager;
 

@@ -1,3 +1,4 @@
 ofxGui
+ofxSurfingCameraSimple
 ofxSurfingHelpersLite
 ofxSurfingPBR

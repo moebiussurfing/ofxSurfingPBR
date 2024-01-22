@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ofMain.h"
 #if OF_VERSION_MAJOR>0 || OF_VERSION_MINOR>9
 #define V010

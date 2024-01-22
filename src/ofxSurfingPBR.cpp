@@ -23,7 +23,10 @@ ofxSurfingPBR::~ofxSurfingPBR() {
 	ofRemoveListener(paramsDraw.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
 	ofRemoveListener(paramsAdvanced.parameterChangedE(), this, &ofxSurfingPBR::ChangedAdvanced);
 	ofRemoveListener(paramsTestScene.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
+
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	ofRemoveListener(paramsCamera.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
+#endif
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	ofRemoveListener(paramsCubeMap.parameterChangedE(), this, &ofxSurfingPBR::ChangedCubeMaps);
@@ -255,8 +258,11 @@ void ofxSurfingPBR::setupParams() {
 	paramsTestScene.add(positionTestScene);
 	paramsTestScene.add(vResetTestScene);
 
+	parameters.add(paramsTestScene);
+
 	//--
 
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	paramsCamera.setName("Camera");
 	vLoadCamera.set("Load");
 	vSaveCamera.set("Save");
@@ -267,10 +273,8 @@ void ofxSurfingPBR::setupParams() {
 	paramsCamera.add(bEnableCameraAutosave);
 	paramsCamera.add(vResetCamera);
 
-	//--
-
-	parameters.add(paramsTestScene);
 	parameters.add(paramsCamera);
+#endif
 
 	//--
 
@@ -356,7 +360,10 @@ void ofxSurfingPBR::setupCallbacks() {
 	ofAddListener(paramsDraw.parameterChangedE(), this, &ofxSurfingPBR::ChangedDraw);
 	ofAddListener(paramsAdvanced.parameterChangedE(), this, &ofxSurfingPBR::ChangedAdvanced);
 	ofAddListener(paramsTestScene.parameterChangedE(), this, &ofxSurfingPBR::ChangedTestScene);
+
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	ofAddListener(paramsCamera.parameterChangedE(), this, &ofxSurfingPBR::ChangedCamera);
+#endif
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	ofAddListener(paramsCubeMap.parameterChangedE(), this, &ofxSurfingPBR::ChangedCubeMaps);
@@ -428,6 +435,9 @@ void ofxSurfingPBR::setup() {
 	startup();
 }
 
+//--
+
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 // Camera
 //--------------------------------------------------------------
 void ofxSurfingPBR::setup(ofCamera & camera_) {
@@ -461,6 +471,9 @@ ofEasyCam * ofxSurfingPBR::getOfEasyCamPtr() {
 	else
 		return nullptr;
 }
+#endif
+
+//--
 
 //--------------------------------------------------------------
 ofRectangle ofxSurfingPBR::getGuiShape() const {
@@ -554,7 +567,8 @@ void ofxSurfingPBR::startupDelayed() {
 
 	//--
 
-#if 1
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
+	#if 1
 	// camera settings
 	{
 		bool b = this->getSettingsFileFoundForCamera();
@@ -564,20 +578,21 @@ void ofxSurfingPBR::startupDelayed() {
 			if (bEnableCameraAutosave) doLoadCamera();
 		}
 	}
+	#endif
 #endif
 
 	//--
 
-////TODO fix crash callbacks
-//// some bypassed callbacks that makes the app crash...
-//#if 1
-//	indexGuiLayout = indexGuiLayout.get(); //trig crashes..
-//#else
-//	if (indexGuiLayout.get() == 0)
-//		nameGuiLayout.set(namesGuiLayouts[0]);
-//	else if (indexGuiLayout.get() == 1)
-//		nameGuiLayout.set(namesGuiLayouts[1]);
-//#endif
+	////TODO fix crash callbacks
+	//// some bypassed callbacks that makes the app crash...
+	//#if 1
+	//	indexGuiLayout = indexGuiLayout.get(); //trig crashes..
+	//#else
+	//	if (indexGuiLayout.get() == 0)
+	//		nameGuiLayout.set(namesGuiLayouts[0]);
+	//	else if (indexGuiLayout.get() == 1)
+	//		nameGuiLayout.set(namesGuiLayouts[1]);
+	//#endif
 
 	//--
 
@@ -637,7 +652,10 @@ void ofxSurfingPBR::refreshGui() {
 	// minimize
 
 	gui.getGroup(paramsTestScene.getName()).minimize();
+
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	gui.getGroup(paramsCamera.getName()).minimize();
+#endif
 
 	gui.getGroup(paramsAdvanced.getName()).minimize();
 	gui.getGroup(paramsAdvanced.getName())
@@ -772,14 +790,14 @@ void ofxSurfingPBR::drawDebugFPS() {
 
 		ofxSurfing::SURFING_LAYOUT l = ofxSurfing::SURFING_LAYOUT_BOTTOM_LEFT;
 
-//#if 0
-//		if (indexGuiLayout.get() == 0)
-//			l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
-//		else if (indexGuiLayout.get() == 1)
-//			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
-//		else
-//			l = ofxSurfing::SURFING_LAYOUT_CENTER;
-//#endif
+		//#if 0
+		//		if (indexGuiLayout.get() == 0)
+		//			l = ofxSurfing::SURFING_LAYOUT_TOP_CENTER;
+		//		else if (indexGuiLayout.get() == 1)
+		//			l = ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER;
+		//		else
+		//			l = ofxSurfing::SURFING_LAYOUT_CENTER;
+		//#endif
 
 		ofxSurfing::ofDrawBitmapStringBox(s, l);
 	}
@@ -823,7 +841,9 @@ void ofxSurfingPBR::draw() {
 	//--
 
 	// camera
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	camera->begin();
+#endif
 	{
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
@@ -844,7 +864,9 @@ void ofxSurfingPBR::draw() {
 
 		drawDebugScene();
 	}
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	camera->end();
+#endif
 }
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
@@ -1042,6 +1064,7 @@ void ofxSurfingPBR::ChangedTestScene(ofAbstractParameter & e) {
 	}
 }
 
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 //--------------------------------------------------------------
 void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 
@@ -1053,12 +1076,12 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 
 	if (name == vSaveCamera.getName()) {
 		doSaveCamera();
-	} 
-	
+	}
+
 	else if (name == vLoadCamera.getName()) {
 		doLoadCamera();
-	} 
-	
+	}
+
 	else if (name == vResetCamera.getName()) {
 		doResetCamera();
 
@@ -1066,6 +1089,7 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 		if (bEnableCameraAutosave) doSaveCamera();
 	}
 }
+#endif
 
 #ifdef SURFING__PBR__USE_CUBE_MAP
 //--------------------------------------------------------------
@@ -1238,7 +1262,9 @@ void ofxSurfingPBR::exit() {
 	#endif
 #endif
 
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	if (bEnableCameraAutosave) doSaveCamera();
+#endif
 
 	bDoneExit = true;
 }
@@ -1295,7 +1321,9 @@ void ofxSurfingPBR::saveAll() {
 	lights.save();
 #endif
 
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	doSaveCamera();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -1325,7 +1353,9 @@ bool ofxSurfingPBR::loadAll() {
 	lights.load();
 #endif
 
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	doLoadCamera();
+#endif
 
 	//--
 
@@ -1367,8 +1397,10 @@ bool ofxSurfingPBR::getSettingsFileFound() {
 	// not required, but we log if it's located or not.
 	getSettingsFileFoundForMaterial();
 
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	// not required, but we log if it's located or not.
 	getSettingsFileFoundForCamera();
+#endif
 
 	//--
 
@@ -1388,6 +1420,7 @@ bool ofxSurfingPBR::getSettingsFileFoundForMaterial() {
 	return b;
 }
 
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 //--------------------------------------------------------------
 bool ofxSurfingPBR::getSettingsFileFoundForCamera() {
 	bool b = ofxSurfing::checkFileExist(pathCamera);
@@ -1398,6 +1431,7 @@ bool ofxSurfingPBR::getSettingsFileFoundForCamera() {
 	}
 	return b;
 }
+#endif
 
 //--
 
@@ -1634,6 +1668,7 @@ void ofxSurfingPBR::doResetCubeMap() {
 }
 #endif
 
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 //--------------------------------------------------------------
 void ofxSurfingPBR::doLoadCamera() {
 	if (camera == nullptr) return;
@@ -1668,6 +1703,7 @@ void ofxSurfingPBR::doResetCamera() {
 		easyCam->setOrientation({ 0.940131, -0.340762, 0.00563653, 0.00204303 });
 	}
 }
+#endif
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::doResetAll(bool bHard) {
@@ -1697,8 +1733,10 @@ void ofxSurfingPBR::doResetAll(bool bHard) {
 	// test scene
 	doResetTestScene();
 
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	// camera
 	doResetCamera();
+#endif
 
 	// bg
 	if (bHard) bg.doResetAll();
