@@ -54,7 +54,6 @@ void ofxSurfingPBR::windowResized(ofResizeEventArgs & resize) {
 
 		sWindowDimensions = "";
 
-		//buildHelp();
 		bFlagBuildHelp = true;
 
 		refreshGui();
@@ -132,12 +131,11 @@ void ofxSurfingPBR::buildHelp() {
 void ofxSurfingPBR::doNextLayoutHelp() {
 	ofLogNotice("ofxSurfingPBR") << "doNextLayoutHelp()";
 
-	int i = helpLayout.get();
-	i++;
-	i = i % (helpLayout.getMax() + 1);
-	helpLayout.set(i);
+	//int i = helpLayout.get();
+	//i++;
+	//i = i % (helpLayout.getMax() + 1);
+	//helpLayout.set(i);
 
-	//buildHelp();
 	bFlagBuildHelp = true;
 }
 
@@ -145,29 +143,13 @@ void ofxSurfingPBR::doNextLayoutHelp() {
 void ofxSurfingPBR::doPrevLayoutHelp() {
 	ofLogNotice("ofxSurfingPBR") << "doPrevLayoutHelp()";
 
-	int i = helpLayout.get();
-	i--;
-	if (i < 0) i = helpLayout.getMax();
-	helpLayout.set(i);
+	//int i = helpLayout.get();
+	//i--;
+	//if (i < 0) i = helpLayout.getMax();
+	//helpLayout.set(i);
 
-	//buildHelp();
 	bFlagBuildHelp = true;
 }
-
-////--------------------------------------------------------------
-//void ofxSurfingPBR::doNextLayouGui() {
-//	ofLogNotice("ofxSurfingPBR") << "doNextLayouGui()";
-//
-//	int i = indexGuiLayout.get();
-//	i = ofClamp(i, indexGuiLayout.getMin(), indexGuiLayout.getMax());
-//	i++;
-//	//i = i % indexGuiLayout.getMax();
-//	if (i > indexGuiLayout.getMax()) i = 0;
-//	indexGuiLayout.set(i);
-//
-//	//buildHelp();
-//	bFlagBuildHelp = true;
-//}
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::setupParams() {
@@ -185,30 +167,33 @@ void ofxSurfingPBR::setupParams() {
 
 	vMinimizeAllGui.set("Gui Minimize");
 	vMaximizeAllGui.set("Gui Maximize");
-	//indexGuiLayout.set("Gui Layout", 0, 0, 1);
-	//nameGuiLayout.set("Gui LN ", "NONE");
 
-	int imax = (int)ofxSurfing::SURFING_LAYOUT_AMOUNT - 1;
-	int idef = (int)ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
-	helpLayout.set("Help Layout", idef, 0, imax);
-	nameHelpLayout.set("Help LN", "NONE");
-	nameGuiLayout.setSerializable(false);
-	nameHelpLayout.setSerializable(false);
+	//int imax = (int)ofxSurfing::SURFING_LAYOUT_AMOUNT - 1;
+	//int idef = (int)ofxSurfing::SURFING_LAYOUT_BOTTOM_RIGHT;
+	//helpLayout.set("Help Layout", idef, 0, imax);
+	//nameHelpLayout.set("Help LN", "NONE");
+	//nameGuiLayout.setSerializable(false);
+	//nameHelpLayout.setSerializable(false);
+	//floor.helpLayout.makeReferenceTo(helpLayout);
 
 	//--
 
 	vLoadAll.set("Load All");
 	vSaveAll.set("Save All");
 
-	floor.helpLayout.makeReferenceTo(helpLayout);
 	floor.bDebug.makeReferenceTo(bDebug);
 
-	paramsShowGui.setName("UI");
-	paramsShowGui.add(bg.bGui);
-	paramsShowGui.add(floor.bGui);
-	paramsShowGui.add(material.bGui);
-#ifdef SURFING__PBR__USE_LIGHTS_CLASS
-	paramsShowGui.add(lights.bGui);
+#if 0
+	paramsUI.setName("UI");
+	paramsUI.add(bg.bGui);
+	paramsUI.add(floor.bGui);
+	paramsUI.add(material.bGui);
+	#ifdef SURFING__PBR__USE_LIGHTS_CLASS
+	paramsUI.add(lights.bGui);
+	#endif
+	#ifdef SURFING__PBR__USE_ADDON_EASY_CAM
+	paramsUI.add(camera.bGui);
+	#endif
 #endif
 
 	bDrawBg.set("Draw Bg", true);
@@ -237,7 +222,9 @@ void ofxSurfingPBR::setupParams() {
 	parameters.add(vSaveAll);
 #endif
 
-	parameters.add(paramsShowGui);
+#if 0
+	parameters.add(paramsUI);
+#endif
 	parameters.add(paramsDraw);
 
 	//--
@@ -257,12 +244,15 @@ void ofxSurfingPBR::setupParams() {
 	paramsTestScene.add(scaleTestScene);
 	paramsTestScene.add(positionTestScene);
 	paramsTestScene.add(vResetTestScene);
-
 	parameters.add(paramsTestScene);
 
 	//--
 
-#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
+	// Camera
+#ifdef SURFING__PBR__USE_ADDON_EASY_CAM
+	camera.setName("CAMERA");
+	camera.setup();
+#else
 	paramsCamera.setName("Camera");
 	vLoadCamera.set("Load");
 	vSaveCamera.set("Save");
@@ -272,7 +262,6 @@ void ofxSurfingPBR::setupParams() {
 	paramsCamera.add(vSaveCamera);
 	paramsCamera.add(bEnableCameraAutosave);
 	paramsCamera.add(vResetCamera);
-
 	parameters.add(paramsCamera);
 #endif
 
@@ -287,14 +276,10 @@ void ofxSurfingPBR::setupParams() {
 	paramsInternal.add(bGuiOfxGui);
 
 	paramsGui.setName("Gui");
-	paramsGui.add(guiManager.paramsGuiManager);
-	//paramsGui.add(guiManager.bAutoLayout);
 	paramsGui.add(vMinimizeAllGui);
 	paramsGui.add(vMaximizeAllGui);
-	//paramsGui.add(indexGuiLayout);
-	//paramsGui.add(nameGuiLayout);
-	paramsGui.add(helpLayout);
-	paramsGui.add(nameHelpLayout);
+	//paramsGui.add(helpLayout);
+	//paramsGui.add(nameHelpLayout);
 	paramsAdvanced.add(paramsGui);
 
 	paramsAdvanced.add(paramsInternal);
@@ -346,6 +331,7 @@ void ofxSurfingPBR::setupCallbacks() {
 			if (bDrawCubeMap) bDrawCubeMap.set(false);
 		}
 	});
+
 	// draw cubeMap
 	e_bDrawCubeMap = bDrawCubeMap.newListener([this](bool & b) {
 		if (!bLoadedCubeMap) return; //skip
@@ -422,7 +408,6 @@ void ofxSurfingPBR::setup() {
 
 	setupGui();
 
-	//buildHelp();
 	bFlagBuildHelp = true;
 
 	//--
@@ -482,14 +467,11 @@ ofRectangle ofxSurfingPBR::getGuiShape() const {
 	ofRectangle bb = r1.getUnion(r2);
 	return bb;
 }
+
 ////--------------------------------------------------------------
-//const int ofxSurfingPBR::getGuiLayout() {
-//	return indexGuiLayout.get();
+//const ofxSurfing::SURFING_LAYOUT ofxSurfingPBR::getLayoutHelp() {
+//	return ofxSurfing::SURFING_LAYOUT(helpLayout.get());
 //}
-//--------------------------------------------------------------
-const ofxSurfing::SURFING_LAYOUT ofxSurfingPBR::getLayoutHelp() {
-	return ofxSurfing::SURFING_LAYOUT(helpLayout.get());
-}
 
 //--------------------------------------------------------------
 bool ofxSurfingPBR::isWindowPortrait() {
@@ -579,25 +561,14 @@ void ofxSurfingPBR::startupDelayed() {
 		}
 	}
 	#endif
+#else
+	//camera.load();
 #endif
 
 	//--
 
-	////TODO fix crash callbacks
-	//// some bypassed callbacks that makes the app crash...
-	//#if 1
-	//	indexGuiLayout = indexGuiLayout.get(); //trig crashes..
-	//#else
-	//	if (indexGuiLayout.get() == 0)
-	//		nameGuiLayout.set(namesGuiLayouts[0]);
-	//	else if (indexGuiLayout.get() == 1)
-	//		nameGuiLayout.set(namesGuiLayouts[1]);
-	//#endif
-
-	//--
-
-	string s = ofxSurfing::getLayoutName(helpLayout.get());
-	nameHelpLayout.set(s);
+	//string s = ofxSurfing::getLayoutName(helpLayout.get());
+	//nameHelpLayout.set(s);
 
 	//--
 
@@ -613,16 +584,27 @@ void ofxSurfingPBR::setupGui() {
 
 	//--
 
+	// gui manager
+
+#if 0
 	guiManager.setAutoAddInternalParamasToMainPanel(false);
 	//guiManager.setAutoHideFirstToggleVisibleForAnchorPanel(false);
+#endif
 
 	guiManager.setup(&gui);
 
-	// all ofxPanels positions and/or drawing are handled by guiManager
+	// all ofxPanels positions
+	// and/or drawing are handled by guiManager
 	guiManager.add(&gui, bGui);
+
+#ifdef SURFING__PBR__USE_ADDON_EASY_CAM
+	guiManager.add(&camera.gui, camera.bGui);
+#endif
+
 	guiManager.add(&bg.gui, bg.bGui);
 	guiManager.add(&floor.gui, floor.bGui);
 	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION); //TODO: drawn internally
+
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	guiManager.add(&lights.gui, lights.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION); //TODO: drawn internally
 #endif
@@ -655,6 +637,11 @@ void ofxSurfingPBR::refreshGui() {
 
 #ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	gui.getGroup(paramsCamera.getName()).minimize();
+
+	gui.getGroup(paramsAdvanced.getName())
+		.getGroup(paramsGui.getName())
+		.getGroup(guiManager.paramsGuiManager.getName())
+		.minimize();
 #endif
 
 	gui.getGroup(paramsAdvanced.getName()).minimize();
@@ -664,11 +651,6 @@ void ofxSurfingPBR::refreshGui() {
 
 	gui.getGroup(paramsAdvanced.getName())
 		.getGroup(paramsGui.getName())
-		.minimize();
-
-	gui.getGroup(paramsAdvanced.getName())
-		.getGroup(paramsGui.getName())
-		.getGroup(guiManager.paramsGuiManager.getName())
 		.minimize();
 
 	gui.getGroup(paramsDraw.getName())
@@ -731,16 +713,20 @@ void ofxSurfingPBR::endMaterial() {
 void ofxSurfingPBR::drawOfxGui() {
 
 	if (bGuiOfxGui) {
-		gui.draw();
 
 		guiManager.draw();
+		// all ofxPanels positions
+		// and/or drawing are handled by guiManager
 
-		// all ofxPanels positions and/or drawing are handled by guiManager
 		material.drawGui();
 
 		floor.drawGui();
 
 		lights.drawGui();
+
+#ifdef SURFING__PBR__USE_ADDON_EASY_CAM
+		camera.drawHelpText(ofxSurfing::SURFING_LAYOUT_TOP_RIGHT);
+#endif
 	}
 }
 
@@ -762,7 +748,8 @@ void ofxSurfingPBR::drawGui() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::drawHelp() {
-	ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT(helpLayout.get()));
+	ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT_TOP_RIGHT);
+	//ofxSurfing::ofDrawBitmapStringBox(sHelp, ofxSurfing::SURFING_LAYOUT(helpLayout.get()));
 
 	//ofxSurfing::SURFING_LAYOUT l;
 	//if (helpLayout.get() == 0) l= ofxSurfing::SURFING_LAYOUT_TOP_RIGHT;
@@ -840,32 +827,36 @@ void ofxSurfingPBR::draw() {
 
 	//--
 
-	// camera
+	// Camera
 #ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	camera->begin();
+#else
+	camera.begin();
 #endif
-	{
 
+	{
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 		lights.begin();
 #endif
-
 		drawBg();
 
 		f_RenderScene();
 
-		//----
+		//--
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 		lights.end();
 #endif
-
 		//--
 
 		drawDebugScene();
 	}
+
+	// Camera
 #ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	camera->end();
+#else
+	camera.end();
 #endif
 }
 
@@ -961,52 +952,17 @@ void ofxSurfingPBR::ChangedAdvanced(ofAbstractParameter & e) {
 	//--
 
 	if (name == bKeys.getName()) {
-		//buildHelp();
+
 		bFlagBuildHelp = true;
 	}
 
-	else if (name == helpLayout.getName()) {
-		string s = ofxSurfing::getLayoutName(helpLayout.get());
-
-		if (nameHelpLayout.get() != s) nameHelpLayout.set(s);
-		//if (nameHelpLayout.get() != s) nameHelpLayout.setWithoutEventNotifications(s);
-	}
-
-	//else if (name == indexGuiLayout.getName()) {
-	//	//do not updates the gui!
-	//	if (indexGuiLayout.get() == 0) {
-	//		string n = namesGuiLayouts[0];
-	//		if (nameGuiLayout.get() != n)
-	//			//nameGuiLayout.setWithoutEventNotifications(n);
-	//			nameGuiLayout.set(n);
-	//	}
-
-	//	else if (indexGuiLayout.get() == 1) {
-	//		string n = namesGuiLayouts[1];
-	//		if (nameGuiLayout.get() != n)
-	//			//nameGuiLayout.setWithoutEventNotifications(n);
-	//			nameGuiLayout.set(n);
-	//	}
-
-	//	//--
-
-	//	//TODO fix crash callbacks
-	//	if (!bDoneStartup) return;
-
-	//	//--
-
-	//	if (indexGuiLayout.get() == 0) {
-	//		string n = namesGuiLayouts[0];
-	//		if (nameGuiLayout.get() != n)
-	//			nameGuiLayout.set(n);
-	//	}
-
-	//	else if (indexGuiLayout.get() == 1) {
-	//		string n = namesGuiLayouts[1];
-	//		if (nameGuiLayout.get() != n)
-	//			nameGuiLayout.set(n);
-	//	}
+	//else if (name == helpLayout.getName()) {
+	//	string s = ofxSurfing::getLayoutName(helpLayout.get());
+	//	if (nameHelpLayout.get() != s) nameHelpLayout.set(s);
+	//	//if (nameHelpLayout.get() != s) nameHelpLayout.setWithoutEventNotifications(s);
 	//}
+
+	//--
 
 	else if (name == vMinimizeAllGui.getName()) {
 		gui.minimizeAll();
@@ -1052,9 +1008,7 @@ void ofxSurfingPBR::ChangedDraw(ofAbstractParameter & e) {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::ChangedTestScene(ofAbstractParameter & e) {
-
 	std::string name = e.getName();
-
 	ofLogNotice("ofxSurfingPBR") << "ChangedTestScene: " << name << ": " << e;
 
 	//--
@@ -1067,9 +1021,7 @@ void ofxSurfingPBR::ChangedTestScene(ofAbstractParameter & e) {
 #ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 //--------------------------------------------------------------
 void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
-
 	std::string name = e.getName();
-
 	ofLogNotice("ofxSurfingPBR") << "ChangedCamera: " << name << ": " << e;
 
 	//--
@@ -1095,9 +1047,7 @@ void ofxSurfingPBR::ChangedCamera(ofAbstractParameter & e) {
 //--------------------------------------------------------------
 void ofxSurfingPBR::ChangedCubeMaps(ofAbstractParameter & e) {
 	//if (bDisableCallbacks) return;
-
 	std::string name = e.getName();
-
 	ofLogNotice("ofxSurfingPBR") << "ChangedCubeMaps: " << name << ": " << e;
 
 	//--
@@ -1185,7 +1135,6 @@ void ofxSurfingPBR::drawTestScene() {
 	//--
 
 	pushTestSceneTransform();
-
 	{
 		float u = SURFING__PBR__SCENE_SIZE_UNIT / 10.f;
 
@@ -1209,7 +1158,6 @@ void ofxSurfingPBR::drawTestScene() {
 		// Sphere
 		ofDrawSphere(2 * u, u, 0, u / 2.f);
 	}
-
 	popTestSceneTransform();
 
 	ofPopStyle();
@@ -1264,6 +1212,8 @@ void ofxSurfingPBR::exit() {
 
 #ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	if (bEnableCameraAutosave) doSaveCamera();
+#else
+	camera.exit();
 #endif
 
 	bDoneExit = true;
@@ -1323,6 +1273,8 @@ void ofxSurfingPBR::saveAll() {
 
 #ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	doSaveCamera();
+#else
+	camera.save();
 #endif
 }
 
@@ -1355,6 +1307,8 @@ bool ofxSurfingPBR::loadAll() {
 
 #ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	doLoadCamera();
+#else
+	camera.load();
 #endif
 
 	//--
@@ -1646,7 +1600,6 @@ void ofxSurfingPBR::keyPressed(int key) {
 
 	material.keyPressed(key);
 
-	//buildHelp();
 	bFlagBuildHelp = true;
 }
 

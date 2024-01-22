@@ -356,7 +356,8 @@ void SurfingLights::setGuiPosition(glm::vec2 pos) {
 
 //--------------------------------------------------------------
 void SurfingLights::drawGui() {
-	if (bGui) gui.draw();
+	if (!bGui) return;
+	gui.draw();
 
 	if (bGui_Shadows) {
 		glm::vec2 p;

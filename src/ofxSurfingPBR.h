@@ -180,7 +180,7 @@ public:
 	//----
 
 #ifdef SURFING__PBR__USE_ADDON_EASY_CAM
-	surfingEasyCamOfxGui cam;
+	surfingEasyCamOfxGui camera;
 #else
 	// Camera
 public:
@@ -247,7 +247,7 @@ public:
 
 	ofParameterGroup paramsDraw;
 	ofParameterGroup paramsDrawBg;
-	ofParameterGroup paramsShowGui;
+	ofParameterGroup paramsUI;
 
 	//--
 
@@ -267,7 +267,6 @@ public:
 	ofParameter<void> vMinimizeAllGui;
 	ofParameter<void> vMaximizeAllGui;
 
-	//ofParameter<int> indexGuiLayout; //TODO notify
 	ofParameter<string> nameGuiLayout; //TODO notify
 
 private:
@@ -277,9 +276,9 @@ private:
 	};
 	string sWindowDimensions = "";
 
-public:
-	ofParameter<int> helpLayout;
-	ofParameter<string> nameHelpLayout;
+//public:
+//	ofParameter<int> helpLayout;
+//	ofParameter<string> nameHelpLayout;
 
 private:
 	void buildHelp();
