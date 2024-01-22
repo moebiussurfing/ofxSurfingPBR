@@ -44,7 +44,7 @@ void ofApp::setup() {
 void ofApp::setupPBR() {
 
 	// Setup passing the camera object
-	pbr.setup(camera);
+	pbr.setup();
 
 	// Pass the render scene
 	callback_t f = std::bind(&ofApp::renderScene, this);
@@ -136,7 +136,12 @@ void ofApp::setupParams() {
 	parameters.add(paramsAnimate);
 
 	parameters.add(vReset);
+
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	parameters.add(pbr.vResetCamera);
+#else
+	parameters.add(pbr.camera.vResetCamera);
+#endif
 
 	parameters.add(bHelp);
 

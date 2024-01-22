@@ -62,15 +62,12 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
   - Optimized **auto save** on any change.
   - **Plane** simple material, colors, transforms, snapshots, etc...
   - All materials with full **PBR** specs. 
-  - Camera settings.
-    - Included [ofxCameraSaveLoad](https://github.com/roymacdonald/ofxCameraSaveLoad) into `/libs`.
+  - Internal `camera`.
 
 - Material **Randomizers**.
   - **History** browsing workflow.
     - **Presets**/**Snapshots** (Store/Recall) explorer system.
 - Included **3D models** browser/loader class.
-- Included [ofxSurfingHelpersLite](https://github.com/moebiussurfing/ofxSurfingHelpersLite) into `/libs`.
-    - **Helper classes** for settings serializers, auto saver, ofxGui customizer, layout helpers, ofDrawBitmapStringBox...etc.  
 
 - Added **Shader** for *testing/code*.
   - **Displacement** applied to the plane and his material/mesh.
@@ -92,7 +89,6 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 #include "ofMain.h"
 
 int main() {
-
     ofGLWindowSettings settings;
     settings.setGLVersion(3, 2);
 
@@ -115,8 +111,6 @@ public:
     void setup();
     void draw();
 
-    ofEasyCam cam;
-
     ofxSurfingPBR pbr;
     void renderScene();
 };
@@ -125,9 +119,7 @@ public:
 ### ofApp.cpp
 ```.cpp
 void ofApp::setup() {
-
-    // Pass the local camera
-    pbr.setup(cam);
+    pbr.setup();
 
     // Pass the render scene function
     callback_t f = std::bind(&ofApp::renderScene, this);
@@ -136,7 +128,6 @@ void ofApp::setup() {
 
 void ofApp::draw() {
     pbr.draw();
-    
     pbr.drawGui();
 }
 
@@ -148,7 +139,7 @@ void ofApp::renderScene()
     // Other objects
     pbr.beginMaterial();
     {
-        /*   DRAW HERE !   */
+        /* DRAW HERE! */
     }
     pbr.endMaterial();
 }
@@ -159,17 +150,21 @@ void ofApp::renderScene()
 
 ## DEPENDENCIES
 
-* [OF 0.12+](https://github.com/openframeworks/openFrameworks).
-* **ofxAssimpModelLoader** / _OF core_
-    * Only for the example `2_Example_Models`. 
+- [OF 0.12+](https://github.com/openframeworks/openFrameworks).
+- [ofxSurfingHelpersLite](https://github.com/moebiussurfing/ofxSurfingHelpersLite).
+    - **Helper classes** for settings serializers, auto saver, `ofxGui` customizer, layout helpers, `ofDrawBitmapStringBox`...etc.  
+- [ofxSurfingCameraSimple](https://github.com/moebiussurfing/ofxSurfingCameraSimple).
+    - An internal improved `ofEasyCam` is bundled.
+- **ofxAssimpModelLoader** / _OF core_
+    - Only for the example `2_Example_Models`. 
 
 ## REQUERIMENTS 
-
-* Download and copy the content of `data.zip` to the examples or to your projects into `/bin/data`:  
+- Download and copy the content of `data.zip` to the examples or to your projects into `/bin/data`:  
   * Data for any: [bin/data.zip](https://mega.nz/file/cHkylJZY#sVdQpSF8IkvdmKdpMIbA4767kvBvfGL7R7GnU9g20ow)  
   * Data for `2_Example_Models`: [bin/data.zip](https://mega.nz/file/saMXjATJ#hCcfG5KWJrRnwX85Wy0MmH0JMViaToS1MyOejCIxSZY)  
   * Data for `6_Example_3D_Parts`: [bin/data.zip](https://mega.nz/file/5Klk0ZZA#nDyOPUj6tvw-g271pFeunr8EA7dBn5juWXZgrJkkOGk)  
   * Only shaders: [bin/dataShaders.zip](https://mega.nz/file/gLMwXY6S#HjIfsu80ZIpPccaFbJKowE3qeoRZeK8jnfSrhUEeGQE)  
+- Notice that all the example should work without the data files too.
 
 bin  
 $~$ └ data  

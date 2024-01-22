@@ -39,7 +39,7 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::setupGui() {
-	bRefreshGui.set("Refresh Gui", true);
+	bAutoLayout.set("AutoLayout", true);
 
 	vResetCamera.set("Reset Camera");
 	listenerResetCamera = vResetCamera.newListener([this](void) {
@@ -49,7 +49,7 @@ void ofApp::setupGui() {
 	g.setName("ofApp");
 	g.add(lights.bGui);
 	g.add(material.bGui);
-	g.add(bRefreshGui);
+	g.add(bAutoLayout);
 	g.add(vResetCamera);
 	gui.setup(g);
 
@@ -149,7 +149,7 @@ void ofApp::doResetCamera() {
 void ofApp::drawGui() {
 	ofDisableDepthTest();
 
-	if (bRefreshGui) refreshGui();
+	if (bAutoLayout) refreshGui();
 
 	gui.draw();
 

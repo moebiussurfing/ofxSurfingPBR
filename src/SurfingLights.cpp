@@ -616,7 +616,7 @@ void SurfingLights::setupParametersLights() {
 	bDebugLights.set("Debug Lights", true);
 	bDebugShadow.set("Debug Shadow", false);
 
-	bRefreshGui.set("Refresh Gui", true);
+	bAutoLayout.set("Refresh Gui", true);
 
 	//--
 
@@ -879,7 +879,7 @@ void SurfingLights::setupParametersLights() {
 	params_TestAnims.add(modeAnimArea);
 	params_TestAnims.add(bAnimLightsMouse);
 	params_Extra.add(params_TestAnims);
-	params_Extra.add(bRefreshGui);
+	params_Extra.add(bAutoLayout);
 	params_Extra.add(bDebugLights);
 	params_Extra.add(bDebugShadow);
 	lightsParams.add(params_Extra);
@@ -989,7 +989,7 @@ void SurfingLights::update() { // App flow controls
 	if (bFlagRefreshGui) {
 		bFlagRefreshGui = false;
 
-		if (bRefreshGui) refreshGui();
+		if (bAutoLayout) refreshGui();
 	}
 
 	//--

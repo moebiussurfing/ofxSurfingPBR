@@ -179,18 +179,20 @@ public:
 
 	//----
 
-#ifdef SURFING__PBR__USE_ADDON_EASY_CAM
-	surfingEasyCamOfxGui camera;
-#else
 	// Camera
-public:
-	void setCameraPtr(ofCamera & camera_); //don't need use when camera is passed to setup function!
-	void setCameraPtr(ofCamera * camera_); //don't need use when camera is passed to setup function!
-
 	// For getting camera from the parent class/ofApp
 	// (TODO: Currently is not required bc the cam is instantiated on there!)
 	ofCamera * getOfCameraPtr();
 	ofEasyCam * getOfEasyCamPtr();
+
+#ifdef SURFING__PBR__USE_ADDON_EASY_CAM
+public:
+	surfingEasyCamOfxGui camera;
+	void doResetCamera();
+#else
+public:
+	void setCameraPtr(ofCamera & camera_); //don't need use when camera is passed to setup function!
+	void setCameraPtr(ofCamera * camera_); //don't need use when camera is passed to setup function!
 
 private:
 	ofParameterGroup paramsCamera;

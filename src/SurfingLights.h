@@ -108,7 +108,7 @@ public:
 
 	ofParameter<bool> bDebug;
 	ofParameter<bool> bDebugShadow;
-	ofParameter<bool> bRefreshGui;
+	ofParameter<bool> bAutoLayout;
 
 	ofParameter<void> vResetAllLights;
 

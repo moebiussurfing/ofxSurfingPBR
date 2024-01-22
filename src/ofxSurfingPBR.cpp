@@ -251,6 +251,8 @@ void ofxSurfingPBR::setupParams() {
 	// Camera
 #ifdef SURFING__PBR__USE_ADDON_EASY_CAM
 	camera.setName("CAMERA");
+	callback_t f = std::bind(&ofxSurfingPBR::doResetCamera, this);
+	camera.setFunctionReset(f);
 	camera.setup();
 #else
 	paramsCamera.setName("Camera");
@@ -422,8 +424,8 @@ void ofxSurfingPBR::setup() {
 
 //--
 
-#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 // Camera
+#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 //--------------------------------------------------------------
 void ofxSurfingPBR::setup(ofCamera & camera_) {
 	setCameraPtr(dynamic_cast<ofCamera *>(&camera_));
@@ -456,8 +458,16 @@ ofEasyCam * ofxSurfingPBR::getOfEasyCamPtr() {
 	else
 		return nullptr;
 }
+#else
+//--------------------------------------------------------------
+ofCamera * ofxSurfingPBR::getOfCameraPtr() {
+	return &camera;
+}
+//--------------------------------------------------------------
+ofEasyCam * ofxSurfingPBR::getOfEasyCamPtr() {
+	return &camera;
+}
 #endif
-
 //--
 
 //--------------------------------------------------------------
@@ -549,9 +559,10 @@ void ofxSurfingPBR::startupDelayed() {
 
 	//--
 
+	// Camera
 #ifndef SURFING__PBR__USE_ADDON_EASY_CAM
 	#if 1
-	// camera settings
+	// settings
 	{
 		bool b = this->getSettingsFileFoundForCamera();
 		if (!b) {
@@ -834,6 +845,8 @@ void ofxSurfingPBR::draw() {
 	camera.begin();
 #endif
 
+	//--
+
 	{
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 		lights.begin();
@@ -851,6 +864,8 @@ void ofxSurfingPBR::draw() {
 
 		drawDebugScene();
 	}
+
+	//--
 
 	// Camera
 #ifndef SURFING__PBR__USE_ADDON_EASY_CAM
@@ -1647,14 +1662,24 @@ void ofxSurfingPBR::doResetCamera() {
 
 	if (easyCam != nullptr) {
 		easyCam->reset();
-
 		camera->setFarClip(SURFING__PBR__SCENE_CAMERA_FAR_CLIP);
-
 		//camera->setVFlip(true);
-
-		easyCam->setPosition({ 8.35512, 581.536, 696.76 });
-		easyCam->setOrientation({ 0.940131, -0.340762, 0.00563653, 0.00204303 });
+		easyCam->setPosition({ 9, 600, 700 });
+		easyCam->setOrientation({ 0.9f, -0.4f, 0.f, 0.f });
 	}
+}
+#else
+//--------------------------------------------------------------
+void ofxSurfingPBR::doResetCamera() {
+	ofLogNotice("ofxSurfingPBR") << "doResetCamera()";
+
+	//camera.reset();
+	//camera.setFarClip(SURFING__PBR__SCENE_CAMERA_FAR_CLIP);
+	////camera.setVFlip(true);
+
+	// Custom reset camera for our current scene here!
+	camera.setPosition({ 9, 600, 700});
+	camera.setOrientation({ 0.9f, -0.4f, 0.f, 0.f});
 }
 #endif
 
@@ -1664,34 +1689,36 @@ void ofxSurfingPBR::doResetAll(bool bHard) {
 
 	bDebug = false;
 
-	// cubeMap
+	// CubeMap
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	doResetCubeMap();
 #endif
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
-	// lights
+	// Lights
 	lights.doResetAllLights(bHard);
 
-	// shadows
+	// Shadows
 	lights.doResetShadow();
 #endif
 
-	// shader displacer
+	// Shader displacer
 	floor.doResetAll();
 
-	// material
+	// Material
 	material.doResetMaterial(bHard);
 
-	// test scene
+	// Test scene
 	doResetTestScene();
 
+	// Camera
 #ifndef SURFING__PBR__USE_ADDON_EASY_CAM
-	// camera
 	doResetCamera();
+#else
+	camera.doResetCamera();
 #endif
 
-	// bg
+	// Bg
 	if (bHard) bg.doResetAll();
 }
 

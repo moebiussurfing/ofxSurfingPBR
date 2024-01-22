@@ -64,8 +64,6 @@ public:
 	void setupParams();
 	void drawGui();
 
-	ofEasyCam camera;
-
 	ofxSurfingPBR pbr;
 	void setupPBR();
 	void renderScene();

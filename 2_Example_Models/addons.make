@@ -1,4 +1,5 @@
 ofxAssimpModelLoader
 ofxGui
+ofxSurfingCameraSimple
 ofxSurfingHelpersLite
 ofxSurfingPBR
