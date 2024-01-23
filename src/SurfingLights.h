@@ -28,7 +28,6 @@
 //--
 
 #pragma once
-
 #include "ofMain.h"
 
 //  SurfingLights.h
@@ -39,7 +38,119 @@
 #include "ofxSurfingHelpersLite.h"
 #include "ofxSurfingPBRConstants.h"
 
-//--
+//----
+
+class PointCartesian {
+private:
+	// Define spherical to Cartesian conversion function
+	glm::vec3 sphericalToCartesian(float r, float theta, float phi) {
+		ofLogVerbose("ofxSurfingPBR") << "SurfingLights:sphericalToCartesian()";
+
+		return glm::vec3(
+			r * sin(theta) * cos(phi),
+			r * sin(theta) * sin(phi),
+			r * cos(theta));
+	}
+
+	// Define Cartesian to spherical conversion function
+	void cartesianToSpherical(const glm::vec3 & cartesian, ofParameter<float> & distance, ofParameter<float> & latitude, ofParameter<float> & longitude) {
+		float r = glm::length(cartesian);
+		float theta = acos(cartesian.z / r);
+		float phi = atan2(cartesian.y, cartesian.x);
+
+		ofLogVerbose("ofxSurfingPBR") << "SurfingLights:cartesianToSpherical()";
+
+		// Update spherical coordinates only if they differ from the current ones
+		if (abs(distance.get() - r) > 0.001) {
+			distance.set(r);
+		}
+		if (abs(latitude.get() - theta) > 0.001) {
+			latitude.set(theta);
+		}
+		if (abs(longitude.get() - phi) > 0.001) {
+			longitude.set(phi);
+		}
+	}
+
+public:
+	ofParameterGroup parameters;
+	ofParameterGroup paramsSpherical;
+	ofParameter<glm::vec3> position;
+	ofParameter<float> distance;
+	ofParameter<float> latitude;
+	ofParameter<float> longitude;
+
+private:
+	string name = "";
+	ofEventListener eParams;
+	const float sz = SURFING__PBR__SCENE_SIZE_UNIT * 1.5f;
+
+public:
+	PointCartesian() { }
+	~PointCartesian() { }
+
+	void setup(const string & name = "Point") {
+		ofLogNotice("ofxSurfingPBR") << "SurfingLights:PointCartesian::setup() " << name;
+
+		this->name = name;
+		setupParameters();
+		setupCallbacks();
+	}
+
+	void set(const glm::vec3 & position) {
+		this->position.set(position);
+	}
+
+private:
+	void setupParameters() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingLights:PointCartesian::setupParameters() " << name;
+
+		position.set("Cartesian", glm::vec3(), glm::vec3(-sz), glm::vec3(sz));
+		distance.set("Distance", 0, 0, std::sqrt(3) * sz);
+		longitude.set("Longitude", 0, -PI, PI);
+		latitude.set("Latitude", 0, -PI, PI);
+
+		string n = name + " Position";
+
+		paramsSpherical.setName("Spherical");
+		paramsSpherical.add(distance);
+		paramsSpherical.add(latitude);
+		paramsSpherical.add(longitude);
+
+		parameters.setName(n);
+		parameters.add(position);
+		parameters.add(paramsSpherical);
+	}
+
+	void setupCallbacks() {
+		ofLogNotice("ofxSurfingPBR") << "SurfingLights:PointCartesian::setupCallbacks() " << name;
+
+		eParams = parameters.parameterChangedE().newListener([this](ofAbstractParameter & e) {
+			string n = e.getName();
+			ofLogNotice("ofxSurfingPBR")
+				<< "SurfingLights:PointCartesian::Changed "
+				<< name << " " << n << ": " << e;
+
+			if (e.isOfType<glm::vec3>()) {
+				if (n == position.getName()) {
+					cartesianToSpherical(position, distance, latitude, longitude);
+				}
+			}
+
+			else if (e.isOfType<float>()) {
+				if (n == distance.getName()) {
+					position = sphericalToCartesian(distance, latitude, longitude);
+				} else if (n == latitude.getName()) {
+					position = sphericalToCartesian(distance, latitude, longitude);
+				} else if (n == longitude.getName()) {
+					position = sphericalToCartesian(distance, latitude, longitude);
+				}
+			}
+		});
+	}
+};
+
+//----
 
 class SurfingLights {
 public:
@@ -58,6 +169,7 @@ private:
 	void setupParameters();
 	void setupParametersLights();
 	void setupParametersShadows();
+	void setupCallbacks();
 	void startup();
 	void startupDelayed();
 
@@ -95,7 +207,7 @@ public:
 	void end();
 
 	//--
-	public:
+public:
 	shared_ptr<ofLight> getLight(size_t index);
 
 private:
@@ -122,7 +234,7 @@ private:
 
 private:
 	void setupGui();
-	void refreshGui(bool bHard = false);//to reset anchor too
+	void refreshGui(bool bHard = false); //to reset anchor too
 
 public:
 	ofRectangle getGuiShape() const;
@@ -172,14 +284,13 @@ public:
 	ofParameter<ofFloatColor> pointDiffuseColor;
 	ofParameter<ofFloatColor> pointSpecularColor;
 
-	ofParameter<glm::vec3> pointPosition;
-	ofEventListener e_pointParams;
-
-	ofParameterGroup paramsPointCartesian;
-	ofParameter<float> pointPositionDistance;
-	ofParameter<float> pointPositionLatitude;
-	ofParameter<float> pointPositionLongitude;
-	ofEventListener e_ParamsPointCartesian;
+	//ofEventListener eParams;
+	//ofParameterGroup paramsPointPositionCartesian;
+	//ofParameter<glm::vec3> pointPosition;
+	//ofParameter<float> pointPositionDistance;
+	//ofParameter<float> pointPositionLatitude;
+	//ofParameter<float> pointPositionLongitude;
+	PointCartesian pointPosition;
 
 	ofParameter<ofFloatColor> pointGlobalColor;
 	ofParameter<float> pointSizeFar;
@@ -348,32 +459,4 @@ public:
 
 private:
 	void ChangedShadow(ofAbstractParameter & e);
-
-	//--
-
-	// Define spherical to Cartesian conversion function
-	glm::vec3 sphericalToCartesian(float r, float theta, float phi) {
-		return glm::vec3(
-			r * sin(theta) * cos(phi),
-			r * sin(theta) * sin(phi),
-			r * cos(theta));
-	}
-
-	// Define Cartesian to spherical conversion function
-	void cartesianToSpherical(const glm::vec3 & cartesian) {
-		float r = glm::length(cartesian);
-		float theta = acos(cartesian.z / r);
-		float phi = atan2(cartesian.y, cartesian.x);
-
-		// Update spherical coordinates only if they differ from the current ones
-		if (abs(pointPositionDistance - r) > 0.001) {
-			pointPositionDistance = r;
-		}
-		if (abs(pointPositionLatitude - theta) > 0.001) {
-			pointPositionLatitude = theta;
-		}
-		if (abs(pointPositionLongitude - phi) > 0.001) {
-			pointPositionLongitude = phi;
-		}
-	}
 };

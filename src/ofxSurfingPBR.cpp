@@ -1236,7 +1236,7 @@ void ofxSurfingPBR::exit() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::save() {
-	ofLogNotice("ofxSurfingPBR") << "Save Scene -> " << path;
+	ofLogNotice("ofxSurfingPBR") << "save() " << path;
 
 	// save scene
 	ofxSurfing::saveSettings(parameters, path);
@@ -1244,7 +1244,7 @@ void ofxSurfingPBR::save() {
 
 //--------------------------------------------------------------
 bool ofxSurfingPBR::load() {
-	ofLogNotice("ofxSurfingPBR") << "Load Scene -> " << path;
+	ofLogNotice("ofxSurfingPBR") << "load() " << path;
 
 	bool b;
 
@@ -1273,7 +1273,7 @@ bool ofxSurfingPBR::load() {
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::saveAll() {
-	ofLogNotice("ofxSurfingPBR") << "saveAll -> " << path;
+	ofLogNotice("ofxSurfingPBR") << "save() " << path;
 
 	// save scene
 	ofxSurfing::saveSettings(parameters, path);
@@ -1295,7 +1295,7 @@ void ofxSurfingPBR::saveAll() {
 
 //--------------------------------------------------------------
 bool ofxSurfingPBR::loadAll() {
-	ofLogNotice("ofxSurfingPBR") << "loadAll -> " << path;
+	ofLogNotice("ofxSurfingPBR") << "loadAll() " << path;
 
 	bool b;
 

@@ -25,6 +25,7 @@
 /*
 	TODO
 
+	- fix lights settings
 	- add simple scenes presets manager
 		- expose easy paramsPresets: 
 			colors, lights power, 

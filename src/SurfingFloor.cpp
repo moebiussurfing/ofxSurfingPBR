@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 SurfingFloor::SurfingFloor() {
-	ofLogNotice("SurfingFloor") << "SurfingFloor() Constructor";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:SurfingFloor() Constructor";
 
 	ofAddListener(ofEvents().windowResized, this, &SurfingFloor::windowResized);
 	ofAddListener(ofEvents().update, this, &SurfingFloor::update);
@@ -10,7 +10,7 @@ SurfingFloor::SurfingFloor() {
 
 //--------------------------------------------------------------
 SurfingFloor::~SurfingFloor() {
-	ofLogNotice("SurfingFloor") << "~SurfingFloor() Destructor";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:~SurfingFloor() Destructor";
 
 	ofRemoveListener(ofEvents().windowResized, this, &SurfingFloor::windowResized);
 	ofRemoveListener(ofEvents().update, this, &SurfingFloor::update);
@@ -34,7 +34,7 @@ SurfingFloor::~SurfingFloor() {
 }
 //--------------------------------------------------------------
 void SurfingFloor::setupParams() {
-	ofLogNotice("SurfingFloor") << "setupParams()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:setupParams()";
 
 	//bKeys.set("Keys", true);
 	//bDebug.set("Debug", false);
@@ -138,7 +138,7 @@ bool SurfingFloor::isVisibleDebugShader() {
 
 //--------------------------------------------------------------
 void SurfingFloor::setupShaderPlane() {
-	ofLogNotice("SurfingFloor") << "setupShaderPlane()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:setupShaderPlane()";
 
 	ofDisableArbTex();
 
@@ -152,7 +152,7 @@ void SurfingFloor::setupShaderPlane() {
 
 //--------------------------------------------------------------
 void SurfingFloor::setupParamsDisplace() {
-	ofLogNotice("SurfingFloor") << "setupParamsDisplace()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:setupParamsDisplace()";
 
 	vResetDisplace.set("Reset Displace");
 	vResetNoise.set("Reset Noise");
@@ -185,7 +185,7 @@ void SurfingFloor::setupParamsDisplace() {
 
 //--------------------------------------------------------------
 void SurfingFloor::doResetNoise() {
-	ofLogNotice("SurfingFloor") << "doResetNoise()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:doResetNoise()";
 
 	noiseAmplitude.set(1.f);
 	noiseScale.set(0.05f);
@@ -194,7 +194,7 @@ void SurfingFloor::doResetNoise() {
 
 //--------------------------------------------------------------
 void SurfingFloor::doResetDisplace() {
-	ofLogNotice("SurfingFloor") << "doResetDisplace()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:doResetDisplace()";
 
 	// reduce callbacks amount a bit not updating params if not required..
 
@@ -264,7 +264,7 @@ void SurfingFloor::endShaderPlane() {
 
 //--------------------------------------------------------------
 void SurfingFloor::setup() {
-	ofLogNotice("SurfingFloor") << "setup() Start";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:setup() Start";
 
 	setupParams();
 
@@ -294,7 +294,7 @@ void SurfingFloor::setup() {
 	//--
 
 	bDoneSetup = true;
-	ofLogNotice("SurfingFloor") << "setup() Done!";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:setup() Done!";
 
 	//--
 
@@ -316,7 +316,7 @@ void SurfingFloor::setColorGlobal(ofFloatColor color) {
 
 //--------------------------------------------------------------
 void SurfingFloor::startup() {
-	ofLogNotice("SurfingFloor") << "startup() Begins!";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:startup() Begins!";
 
 	bool b = load();
 
@@ -338,13 +338,13 @@ void SurfingFloor::startup() {
 	}
 
 	else {
-		ofLogNotice("SurfingFloor") << "Located scene settings!";
-		ofLogNotice("SurfingFloor") << "App has been opened before. Not the first time!";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFloor:Located scene settings!";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFloor:App has been opened before. Not the first time!";
 	}
 
 	//--
 
-	ofLogNotice("SurfingFloor") << "startup() Done! at frame number: " << ofGetFrameNum();
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:startup() Done! at frame number: " << ofGetFrameNum();
 	bDoneStartup = true;
 }
 //--------------------------------------------------------------
@@ -366,7 +366,7 @@ void SurfingFloor::setupGui() {
 //--------------------------------------------------------------
 void SurfingFloor::refreshGui() {
 
-	ofLogNotice("SurfingFloor") << "refreshGui()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:refreshGui()";
 
 	// minimize
 
@@ -537,7 +537,7 @@ void SurfingFloor::Changed(ofAbstractParameter & e) {
 
 	std::string name = e.getName();
 
-	ofLogNotice("SurfingFloor") << "Changed " << name << ": " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:Changed " << name << ": " << e;
 
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
@@ -622,7 +622,7 @@ void SurfingFloor::Changed(ofAbstractParameter & e) {
 void SurfingFloor::ChangedDisplacers(ofAbstractParameter & e) {
 	std::string name = e.getName();
 
-	ofLogNotice("SurfingFloor") << "ChangedDisplacers " << name << ": " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:ChangedDisplacers " << name << ": " << e;
 
 	#ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
@@ -725,7 +725,7 @@ void SurfingFloor::drawBoxFloor() {
 
 //--------------------------------------------------------------
 void SurfingFloor::exit() {
-	ofLogNotice("SurfingFloor") << "exit()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:exit()";
 
 #ifndef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	// Should not mandatory as settings should be internally auto saved when changing.
@@ -741,7 +741,7 @@ void SurfingFloor::exit() {
 
 //--------------------------------------------------------------
 void SurfingFloor::save() {
-	ofLogNotice("SurfingFloor") << "Save Floor -> " << path;
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:save() " << path;
 
 	//save scene
 	ofxSurfing::saveSettings(parameters, path);
@@ -749,7 +749,7 @@ void SurfingFloor::save() {
 
 //--------------------------------------------------------------
 bool SurfingFloor::load() {
-	ofLogNotice("SurfingFloor") << "Load Floor  -> " << path;
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:load() " << path;
 
 	bool b;
 
@@ -774,7 +774,7 @@ bool SurfingFloor::load() {
 
 //--------------------------------------------------------------
 void SurfingFloor::doResetFloor() {
-	ofLogNotice("SurfingFloor") << "doResetFloor()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:doResetFloor()";
 
 	doResetFloorTransform();
 
@@ -795,7 +795,7 @@ void SurfingFloor::doResetFloor() {
 
 //--------------------------------------------------------------
 void SurfingFloor::doResetFloorTransform() {
-	ofLogNotice("SurfingFloor") << "doResetFloorTransform()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:doResetFloorTransform()";
 
 	size.set(glm::vec2(0.5, 0.2));
 	resolution.set(glm::vec2(0.01f, 0.01f));
@@ -810,7 +810,7 @@ void SurfingFloor::doResetFloorTransform() {
 
 //--------------------------------------------------------------
 void SurfingFloor::doResetAll() {
-	ofLogNotice("SurfingFloor") << "doResetAll()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:doResetAll()";
 
 	bDebug = false;
 
@@ -832,7 +832,7 @@ void SurfingFloor::doResetAll() {
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 //--------------------------------------------------------------
 void SurfingFloor::refreshImgShaderPlane() {
-	ofLogNotice("SurfingFloor") << "refreshImgShaderPlane()";
+	ofLogNotice("ofxSurfingPBR") << "SurfingFloor:refreshImgShaderPlane()";
 
 	int w = floorPlane.getWidth();
 	int h = floorPlane.getHeight();
@@ -855,14 +855,14 @@ void SurfingFloor::refreshImgShaderPlane() {
 
 		img.allocate(w, h, OF_IMAGE_GRAYSCALE);
 
-		ofLogNotice("SurfingFloor") << "Allocated img: " << w << "," << h;
+		ofLogNotice("ofxSurfingPBR") << "SurfingFloor:Allocated img: " << w << "," << h;
 	#endif
 
 		//TODO: seems breaking some plane colors/materials props..
 		//apply to plane
 		floorPlane.mapTexCoordsFromTexture(img.getTexture());
 
-		ofLogNotice("SurfingFloor") << "mapTexCoordsFromTexture(img.getTexture()";
+		ofLogNotice("ofxSurfingPBR") << "SurfingFloor:mapTexCoordsFromTexture(img.getTexture()";
 	}
 }
 

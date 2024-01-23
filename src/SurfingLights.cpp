@@ -176,7 +176,7 @@ void SurfingLights::computeLights() {
 		lights[0]->setSpecularColor(pointSpecularColor);
 
 		if (!bAnimLights && !bAnimLightsMouse) {
-			lights[0]->setPosition(pointPosition);
+			lights[0]->setPosition(pointPosition.position);
 		}
 
 		float v = ofMap(pointSizeFar, 0, 1,
@@ -381,19 +381,11 @@ void SurfingLights::refreshGui(bool bHard) {
 		.getGroup(globalColorsParams.getName())
 		.minimize();
 
-	if (bHard) {
-		gui.getGroup(lightsParams.getName())
-			.getGroup(lightsSettingsParams.getName())
-			.minimize();
-
-		//gui.getGroup(lightsParams.getName())
-		//	.getGroup(params_Extra.getName())
-		//	.minimize();
-	}
-
-	//gui.getGroup(lightsParams.getName())
-	//	.getGroup(lightsSettingsParams.getName())
-	//	.minimize();
+	//if (bHard) {
+	//	gui.getGroup(lightsParams.getName())
+	//		.getGroup(lightsSettingsParams.getName())
+	//		.minimize();
+	//}
 
 	gui.getGroup(lightsParams.getName())
 		.getGroup(params_Extra.getName())
@@ -415,7 +407,8 @@ void SurfingLights::refreshGui(bool bHard) {
 	gui.getGroup(lightsParams.getName())
 		.getGroup(lightsSettingsParams.getName())
 		.getGroup(pointParams.getName())
-		.getGroup(pointPosition.getName())
+		.getGroup(pointPosition.parameters.getName())
+		.getGroup(pointPosition.position.getName())
 		.minimize();
 
 	auto & gp = gui.getGroup(lightsParams.getName())
@@ -526,8 +519,6 @@ void SurfingLights::refreshGui(bool bHard) {
 		gar.maximize();
 	else
 		gar.minimize();
-
-	//--
 }
 
 //--------------------------------------------------------------
@@ -589,14 +580,20 @@ void SurfingLights::setupParameters() {
 	//--
 
 	// Callbacks
-
-	ofAddListener(lightsParams.parameterChangedE(), this, &SurfingLights::ChangedLights);
-	ofAddListener(powersParams.parameterChangedE(), this, &SurfingLights::ChangedPowers);
-	ofAddListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
+	setupCallbacks();
 
 	//--
 
 	startup();
+}
+
+//--------------------------------------------------------------
+void SurfingLights::setupCallbacks() {
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:setupCallbacks()";
+
+	ofAddListener(lightsParams.parameterChangedE(), this, &SurfingLights::ChangedLights);
+	ofAddListener(powersParams.parameterChangedE(), this, &SurfingLights::ChangedPowers);
+	ofAddListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
 }
 
 //--------------------------------------------------------------
@@ -662,39 +659,8 @@ void SurfingLights::setupParametersLights() {
 	bPoint.set("Point", false);
 	bPointShadow.set("P Shadow", true);
 	vPointReset.set("P Reset");
-	pointPosition.set("P Position", glm::vec3(), glm::vec3(-sz), glm::vec3(sz));
 
-	//TODO
-	//cartesian
-	pointPositionDistance.set("Distance", 0, 0, sz);
-	pointPositionLatitude.set("Latitude", 0, -PI, PI);
-	pointPositionLongitude.set("Longitude", 0, -PI, PI);
-	paramsPointCartesian.setName("P Position Deg");
-	paramsPointCartesian.add(pointPositionDistance);
-	paramsPointCartesian.add(pointPositionLatitude);
-	paramsPointCartesian.add(pointPositionLongitude);
-	e_ParamsPointCartesian = paramsPointCartesian.parameterChangedE().newListener([this](ofAbstractParameter & e) {
-		string n = e.getName();
-		ofLogNotice("ofxSurfingPBR") << "SurfingLights::Changed " << n << ": " << e;
-
-		if (e.isOfType<float>()) {
-			if (n == pointPositionDistance.getName()) {
-				pointPosition = sphericalToCartesian(pointPositionDistance, pointPositionLatitude, pointPositionLongitude);
-			} else if (n == pointPositionLatitude.getName()) {
-				pointPosition = sphericalToCartesian(pointPositionDistance, pointPositionLatitude, pointPositionLongitude);
-			} else if (n == pointPositionLongitude.getName()) {
-				pointPosition = sphericalToCartesian(pointPositionDistance, pointPositionLatitude, pointPositionLongitude);
-			}
-		}
-	});
-	e_pointParams = pointParams.parameterChangedE().newListener([this](ofAbstractParameter & e) {
-		string n = e.getName();
-		ofLogNotice("ofxSurfingPBR") << "SurfingLights::Changed " << n << ": " << e;
-
-		if (n == pointPosition.getName() && e.isOfType<glm::vec3>()) {
-			cartesianToSpherical(pointPosition);
-		}
-	});
+	pointPosition.setup("P");
 
 	pointAmbientColor.set("P Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 	pointSpecularColor.set("P Specular", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
@@ -818,8 +784,7 @@ void SurfingLights::setupParametersLights() {
 	pointColorsParams.add(pointDiffuseColor);
 	pointColorsParams.add(pointSpecularColor);
 	pointParams.add(pointColorsParams);
-	pointParams.add(pointPosition);
-	pointParams.add(paramsPointCartesian);
+	pointParams.add(pointPosition.parameters);
 	pointParams.add(pointSizeFar);
 	pointParams.add(bPointShadow);
 	pointParams.add(vPointReset);
@@ -1122,7 +1087,7 @@ void SurfingLights::restoreAnims() {
 
 	// Point
 	{
-		lights[0]->setPosition(pointPosition);
+		lights[0]->setPosition(pointPosition.position);
 	}
 
 	// Directional
@@ -1163,9 +1128,9 @@ void SurfingLights::updateAnims() {
 
 		// Point
 		lights[0]->setPosition(
-			pointPosition.get().x,
-			cos(t) * r + pointPosition.get().y - r,
-			sin(t) * r * 2 + pointPosition.get().z);
+			pointPosition.position.get().x,
+			cos(t) * r + pointPosition.position.get().y - r,
+			sin(t) * r * 2 + pointPosition.position.get().z);
 
 		// Directional
 		lights[1]->setPosition(
@@ -1200,7 +1165,7 @@ void SurfingLights::updateAnims() {
 		//float za = -cos(t) * r + areaPosition.get().z;
 
 		// Point
-		lights[0]->setPosition(x, y + oy, pointPosition.get().z);
+		lights[0]->setPosition(x, y + oy, pointPosition.position.get().z);
 		lights[0]->setOrientation(glm::vec3(0, cos(ofGetElapsedTimef()) * RAD_TO_DEG, 0));
 
 		// Directional
@@ -1308,10 +1273,7 @@ void SurfingLights::doResetPoint(bool bHard) {
 		pointGlobalColor.set(ofFloatColor(1));
 	}
 
-	pointPosition.set(glm::vec3(
-		0,
-		SURFING__PBR__SCENE_SIZE_UNIT,
-		SURFING__PBR__SCENE_SIZE_UNIT * 0.3));
+	pointPosition.set(glm::vec3(0, SURFING__PBR__SCENE_SIZE_UNIT, SURFING__PBR__SCENE_SIZE_UNIT * 0.3));
 
 	pointSizeFar = 1;
 
@@ -1408,7 +1370,7 @@ void SurfingLights::doResetArea(bool bHard) {
 void SurfingLights::ChangedLights(ofAbstractParameter & e) {
 	string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:ChangedLights " << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:ChangedLights() " << name << ": " << e;
 
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
@@ -1604,7 +1566,7 @@ void SurfingLights::ChangedShadow(ofAbstractParameter & e) {
 
 	std::string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:ChangedShadow " << name << ": " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:ChangedShadow() " << name << ": " << e;
 
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
@@ -1684,7 +1646,7 @@ void SurfingLights::ChangedShadow(ofAbstractParameter & e) {
 void SurfingLights::ChangedPowers(ofAbstractParameter & e) {
 	string name = e.getName();
 
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:ChangedPowers " << name << " : " << e;
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:ChangedPowers() " << name << ": " << e;
 
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	if (e.isSerializable()) {
@@ -1801,8 +1763,8 @@ void SurfingLights::doRefreshPowerArea() {
 
 //--------------------------------------------------------------
 void SurfingLights::save() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Save -> " << pathSettings;
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Save -> " << pathSettingsShadows;
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:save() " << pathSettings;
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:save() " << pathSettingsShadows;
 
 	ofxSurfing::saveSettings(shadowParams, pathSettingsShadows);
 	ofxSurfing::saveSettings(lightsParams, pathSettings);
@@ -1810,8 +1772,8 @@ void SurfingLights::save() {
 
 //--------------------------------------------------------------
 bool SurfingLights::load() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Load -> " << pathSettings;
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:Load -> " << pathSettingsShadows;
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:load() " << pathSettings;
+	ofLogNotice("ofxSurfingPBR") << "SurfingLights:load() " << pathSettingsShadows;
 
 	bool b;
 
