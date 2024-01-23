@@ -10,7 +10,7 @@ void ofApp::setup() {
 #endif
 
 	// Verbose
-	ofSetLogLevel(OF_LOG_VERBOSE);
+	//ofSetLogLevel(OF_LOG_VERBOSE);
 
 	//--
 
@@ -188,7 +188,7 @@ void ofApp::setupGui() {
 
 	//--
 
-	ofxSurfing::setGuiPositionToLayoutPanelsCentered(gui, 1, ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER);
+	//ofxSurfing::setGuiPositionToLayoutPanelsCentered(gui, 1, ofxSurfing::SURFING_LAYOUT_BOTTOM_CENTER);
 	gui.getGroup(paramsAnimate.getName()).minimize();
 
 	refreshGui();

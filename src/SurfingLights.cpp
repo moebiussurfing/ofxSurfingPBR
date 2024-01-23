@@ -204,7 +204,7 @@ void SurfingLights::computeLights() {
 		//lights[1]->set();
 
 		if (!bAnimLights && !bAnimLightsMouse) {
-			lights[1]->setPosition(directionalPosition);
+			lights[1]->setPosition(directionalPosition.get());
 
 			glm::vec3 rad = glm::radians(directionalOrientation.get());
 			glm::quat q = glm::quat(rad);
@@ -440,7 +440,8 @@ void SurfingLights::refreshGui(bool bHard) {
 	gui.getGroup(lightsParams.getName())
 		.getGroup(lightsSettingsParams.getName())
 		.getGroup(spotParams.getName())
-		.getGroup(spotPosition.getName())
+		.getGroup(spotPosition.parameters.getName())
+		.getGroup(spotPosition.position.getName())
 		.minimize();
 
 	auto & gs = gui.getGroup(lightsParams.getName())
@@ -472,7 +473,8 @@ void SurfingLights::refreshGui(bool bHard) {
 	gui.getGroup(lightsParams.getName())
 		.getGroup(lightsSettingsParams.getName())
 		.getGroup(directionalParams.getName())
-		.getGroup(directionalPosition.getName())
+		.getGroup(directionalPosition.parameters.getName())
+		.getGroup(directionalPosition.position.getName())
 		.minimize();
 
 	auto & gd = gui.getGroup(lightsParams.getName())
@@ -509,7 +511,8 @@ void SurfingLights::refreshGui(bool bHard) {
 	gui.getGroup(lightsParams.getName())
 		.getGroup(lightsSettingsParams.getName())
 		.getGroup(areaParams.getName())
-		.getGroup(areaPosition.getName())
+		.getGroup(areaPosition.parameters.getName())
+		.getGroup(areaPosition.position.getName())
 		.minimize();
 
 	auto & gar = gui.getGroup(lightsParams.getName())
@@ -682,7 +685,7 @@ void SurfingLights::setupParametersLights() {
 	bDirectional.set("Direct", false);
 	bDirectionalShadow.set("D Shadow", true);
 	vDirectionalReset.set("D Reset");
-	directionalPosition.set("D Position", glm::vec3(0), glm::vec3(-sz), glm::vec3(sz));
+	directionalPosition.setup("D");
 	directionalOrientation.set("D Orientation", glm::vec3(0), glm::vec3(-180), glm::vec3(180));
 
 	directionalAmbientColor.set("D Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
@@ -706,7 +709,7 @@ void SurfingLights::setupParametersLights() {
 	bSpot.set("Spot", false);
 	bSpotShadow.set("S Shadow", true);
 	vSpotReset.set("S Reset");
-	spotPosition.set("S Position", glm::vec3(), glm::vec3(-sz), glm::vec3(sz));
+	spotPosition.setup("S");
 
 	spotAmbientColor.set("S Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 	spotSpecularColor.set("S Specular", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
@@ -733,7 +736,7 @@ void SurfingLights::setupParametersLights() {
 	bArea.set("Area", false);
 	bAreaShadow.set("A Shadow", true);
 	vAreaReset.set("A Reset");
-	areaPosition.set("A Position", glm::vec3(0), glm::vec3(-sz), glm::vec3(sz));
+	areaPosition.setup("A Position");
 	areaOrientation.set("A Orientation", glm::vec3(0), glm::vec3(-180), glm::vec3(180));
 
 	areaAmbientColor.set("A Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
@@ -796,7 +799,7 @@ void SurfingLights::setupParametersLights() {
 	directionalColorsParams.add(directionalDiffuseColor);
 	directionalColorsParams.add(directionalSpecularColor);
 	directionalParams.add(directionalColorsParams);
-	directionalParams.add(directionalPosition);
+	directionalParams.add(directionalPosition.parameters);
 	directionalParams.add(directionalOrientation);
 	directionalParams.add(directionalSizeFar);
 	directionalParams.add(directionalSizeNear);
@@ -812,7 +815,7 @@ void SurfingLights::setupParametersLights() {
 	spotParams.add(spotColorsParams);
 	spotParams.add(spotCutOff);
 	spotParams.add(spotConcentration);
-	spotParams.add(spotPosition);
+	spotParams.add(spotPosition.parameters);
 	spotParams.add(spotOrientation);
 	spotParams.add(spotSizeFar);
 	spotParams.add(bSpotShadow);
@@ -825,7 +828,7 @@ void SurfingLights::setupParametersLights() {
 	areaColorsParams.add(areaDiffuseColor);
 	areaColorsParams.add(areaSpecularColor);
 	areaParams.add(areaColorsParams);
-	areaParams.add(areaPosition);
+	areaParams.add(areaPosition.parameters);
 	areaParams.add(areaOrientation);
 	areaParams.add(areaSizeFar);
 	areaParams.add(areaSize);
@@ -1087,7 +1090,7 @@ void SurfingLights::restoreAnims() {
 
 	// Point
 	{
-		lights[0]->setPosition(pointPosition.position);
+		lights[0]->setPosition(pointPosition);
 	}
 
 	// Directional
@@ -1129,8 +1132,8 @@ void SurfingLights::updateAnims() {
 		// Point
 		lights[0]->setPosition(
 			pointPosition.position.get().x,
-			cos(t) * r + pointPosition.position.get().y - r,
-			sin(t) * r * 2 + pointPosition.position.get().z);
+			cos(t) * r + pointPosition.get().y - r,
+			sin(t) * r * 2 + pointPosition.get().z);
 
 		// Directional
 		lights[1]->setPosition(
@@ -1165,7 +1168,7 @@ void SurfingLights::updateAnims() {
 		//float za = -cos(t) * r + areaPosition.get().z;
 
 		// Point
-		lights[0]->setPosition(x, y + oy, pointPosition.position.get().z);
+		lights[0]->setPosition(x, y + oy, pointPosition.get().z);
 		lights[0]->setOrientation(glm::vec3(0, cos(ofGetElapsedTimef()) * RAD_TO_DEG, 0));
 
 		// Directional
@@ -1294,10 +1297,7 @@ void SurfingLights::doResetDirectional(bool bHard) {
 		directionalGlobalColor.set(ofFloatColor(1));
 	}
 
-	directionalPosition.set(glm::vec3(
-		0,
-		SURFING__PBR__SCENE_SIZE_UNIT,
-		SURFING__PBR__SCENE_SIZE_UNIT * 0.4));
+	directionalPosition.set(glm::vec3(0,SURFING__PBR__SCENE_SIZE_UNIT,SURFING__PBR__SCENE_SIZE_UNIT * 0.4));
 
 	directionalOrientation.set(glm::vec3(-60, 0, 0));
 
@@ -1320,10 +1320,7 @@ void SurfingLights::doResetSpot(bool bHard) {
 		spotGlobalColor.set(ofFloatColor(1));
 	}
 
-	spotPosition.set(glm::vec3(
-		0,
-		SURFING__PBR__SCENE_SIZE_UNIT,
-		SURFING__PBR__SCENE_SIZE_UNIT * 0.5));
+	spotPosition.set(glm::vec3(0,SURFING__PBR__SCENE_SIZE_UNIT,SURFING__PBR__SCENE_SIZE_UNIT * 0.5));
 
 	spotOrientation.set(glm::vec3(-60, 0, 0));
 
@@ -1351,10 +1348,7 @@ void SurfingLights::doResetArea(bool bHard) {
 		areaGlobalColor.set(ofFloatColor(1));
 	}
 
-	areaPosition.set(glm::vec3(
-		0,
-		SURFING__PBR__SCENE_SIZE_UNIT,
-		SURFING__PBR__SCENE_SIZE_UNIT * 0.6));
+	areaPosition.set(glm::vec3(0,SURFING__PBR__SCENE_SIZE_UNIT,SURFING__PBR__SCENE_SIZE_UNIT * 0.6));
 
 	areaOrientation.set(glm::vec3(-60, 0, 0));
 

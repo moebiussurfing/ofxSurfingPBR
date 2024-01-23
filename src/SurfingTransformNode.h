@@ -23,11 +23,10 @@
 //--
 
 #pragma once
-
 #include "ofMain.h"
 
-//TODO: add settings
 #include "ofxSurfingHelpersLite.h"
+#include "SurfingHelperPosition.h"
 
 //----
 
@@ -64,8 +63,9 @@ class TransformNode : public ofNode {
 	// Main ofParameter controls
 	// Exposed to gui and "redirected" to ofNode's internals!
 public:
-	ofParameter<glm::vec3> positionParameter { "Position", glm::vec3(0),
-		glm::vec3(-unitSize), glm::vec3(unitSize) };
+	//ofParameter<glm::vec3> positionParameter { "Position", glm::vec3(0),
+	//	glm::vec3(-unitSize), glm::vec3(unitSize) };
+	PointCartesian positionParameter;
 
 #ifdef SURFING_TRANSFORM_NOSE___USE__NORMALIZED_CONTROLS
 	ofParameter<glm::vec3> scaleParameter { "Scale", glm::vec3(1),
@@ -227,7 +227,8 @@ public:
 		ofLogNotice("TransformNode") << "refreshGui()";
 
 		gui.getGroup(paramsOfNode.getName()).getGroup(scaleParameter.getName()).minimize();
-		gui.getGroup(paramsOfNode.getName()).getGroup(positionParameter.getName()).minimize();
+		gui.getGroup(paramsOfNode.getName()).getGroup(positionParameter.parameters.getName())
+			.getGroup(positionParameter.paramsSpherical.getName()).minimize();
 		gui.getGroup(paramsResets.getName()).minimize();
 	}
 
@@ -235,7 +236,7 @@ public:
 		ofLogNotice("TransformNode") << "refreshGui(ofxPanel,ofxGuiGroup)";
 
 		group_.getGroup(paramsOfNode.getName()).getGroup(scaleParameter.getName()).minimize();
-		group_.getGroup(paramsOfNode.getName()).getGroup(positionParameter.getName()).minimize();
+		group_.getGroup(paramsOfNode.getName()).getGroup(positionParameter.parameters.getName()).getGroup(positionParameter.paramsSpherical.getName()).minimize();
 		group_.getGroup(paramsResets.getName()).minimize();
 	}
 
@@ -286,7 +287,8 @@ public:
 		parameters.setName("TRANSFORM");
 
 		paramsOfNode.setName("ofNode");
-		paramsOfNode.add(positionParameter);
+		positionParameter.setup();
+		paramsOfNode.add(positionParameter.parameters);
 		paramsOfNode.add(orientationEulerParameter);
 		paramsOfNode.add(scaleParameter);
 		paramsOfNode.add(bScaleLinkAxis); //TODO
@@ -381,7 +383,7 @@ public:
 
 public:
 	void setupCallbacks() {
-		positionParameter.addListener(this, &TransformNode::ChangedPositionParameter);
+		positionParameter.position.addListener(this, &TransformNode::ChangedPositionParameter);
 		orientationEulerParameter.addListener(this, &TransformNode::ChangedOrientationEulerParameter);
 		scaleParameter.addListener(this, &TransformNode::ChangedScaleParameter);
 
