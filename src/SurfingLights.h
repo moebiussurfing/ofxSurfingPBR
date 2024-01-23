@@ -171,7 +171,16 @@ public:
 	ofParameter<ofFloatColor> pointAmbientColor;
 	ofParameter<ofFloatColor> pointDiffuseColor;
 	ofParameter<ofFloatColor> pointSpecularColor;
+
 	ofParameter<glm::vec3> pointPosition;
+	ofEventListener e_pointParams;
+
+	ofParameterGroup paramsPointCartesian;
+	ofParameter<float> pointPositionDistance;
+	ofParameter<float> pointPositionLatitude;
+	ofParameter<float> pointPositionLongitude;
+	ofEventListener e_ParamsPointCartesian;
+
 	ofParameter<ofFloatColor> pointGlobalColor;
 	ofParameter<float> pointSizeFar;
 
@@ -339,4 +348,32 @@ public:
 
 private:
 	void ChangedShadow(ofAbstractParameter & e);
+
+	//--
+
+	// Define spherical to Cartesian conversion function
+	glm::vec3 sphericalToCartesian(float r, float theta, float phi) {
+		return glm::vec3(
+			r * sin(theta) * cos(phi),
+			r * sin(theta) * sin(phi),
+			r * cos(theta));
+	}
+
+	// Define Cartesian to spherical conversion function
+	void cartesianToSpherical(const glm::vec3 & cartesian) {
+		float r = glm::length(cartesian);
+		float theta = acos(cartesian.z / r);
+		float phi = atan2(cartesian.y, cartesian.x);
+
+		// Update spherical coordinates only if they differ from the current ones
+		if (abs(pointPositionDistance - r) > 0.001) {
+			pointPositionDistance = r;
+		}
+		if (abs(pointPositionLatitude - theta) > 0.001) {
+			pointPositionLatitude = theta;
+		}
+		if (abs(pointPositionLongitude - phi) > 0.001) {
+			pointPositionLongitude = phi;
+		}
+	}
 };

@@ -664,6 +664,38 @@ void SurfingLights::setupParametersLights() {
 	vPointReset.set("P Reset");
 	pointPosition.set("P Position", glm::vec3(), glm::vec3(-sz), glm::vec3(sz));
 
+	//TODO
+	//cartesian
+	pointPositionDistance.set("Distance", 0, 0, sz);
+	pointPositionLatitude.set("Latitude", 0, -PI, PI);
+	pointPositionLongitude.set("Longitude", 0, -PI, PI);
+	paramsPointCartesian.setName("P Position Deg");
+	paramsPointCartesian.add(pointPositionDistance);
+	paramsPointCartesian.add(pointPositionLatitude);
+	paramsPointCartesian.add(pointPositionLongitude);
+	e_ParamsPointCartesian = paramsPointCartesian.parameterChangedE().newListener([this](ofAbstractParameter & e) {
+		string n = e.getName();
+		ofLogNotice("ofxSurfingPBR") << "SurfingLights::Changed " << n << ": " << e;
+
+		if (e.isOfType<float>()) {
+			if (n == pointPositionDistance.getName()) {
+				pointPosition = sphericalToCartesian(pointPositionDistance, pointPositionLatitude, pointPositionLongitude);
+			} else if (n == pointPositionLatitude.getName()) {
+				pointPosition = sphericalToCartesian(pointPositionDistance, pointPositionLatitude, pointPositionLongitude);
+			} else if (n == pointPositionLongitude.getName()) {
+				pointPosition = sphericalToCartesian(pointPositionDistance, pointPositionLatitude, pointPositionLongitude);
+			}
+		}
+	});
+	e_pointParams = pointParams.parameterChangedE().newListener([this](ofAbstractParameter & e) {
+		string n = e.getName();
+		ofLogNotice("ofxSurfingPBR") << "SurfingLights::Changed " << n << ": " << e;
+
+		if (n == pointPosition.getName() && e.isOfType<glm::vec3>()) {
+			cartesianToSpherical(pointPosition);
+		}
+	});
+
 	pointAmbientColor.set("P Ambient", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 	pointSpecularColor.set("P Specular", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
 	pointDiffuseColor.set("P Diffuse", ofFloatColor(0), ofFloatColor(0), ofFloatColor(1));
@@ -787,6 +819,7 @@ void SurfingLights::setupParametersLights() {
 	pointColorsParams.add(pointSpecularColor);
 	pointParams.add(pointColorsParams);
 	pointParams.add(pointPosition);
+	pointParams.add(paramsPointCartesian);
 	pointParams.add(pointSizeFar);
 	pointParams.add(bPointShadow);
 	pointParams.add(vPointReset);
