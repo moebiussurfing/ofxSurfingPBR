@@ -197,6 +197,7 @@ void ofxSurfingPBR::setupParams() {
 #endif
 
 	bDrawBg.set("Draw Bg", true);
+
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	bDrawCubeMap.set("Draw Bg CubeMap", true);
 #endif
@@ -206,14 +207,18 @@ void ofxSurfingPBR::setupParams() {
 	paramsDrawBg.setName("BG");
 	paramsDrawBg.add(bg.bDrawBgColorObject);
 	paramsDrawBg.add(bg.bDrawBgColorPlain);
+
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	paramsDrawBg.add(bDrawCubeMap);
 #endif
+
 	paramsDraw.add(paramsDrawBg);
 	paramsDraw.add(floor.bDraw);
+
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	paramsDraw.add(lights.bDrawShadow);
 #endif
+
 	paramsDraw.add(bDrawTestScene);
 
 //TODO: make a full project save/load
@@ -225,6 +230,7 @@ void ofxSurfingPBR::setupParams() {
 #if 0
 	parameters.add(paramsUI);
 #endif
+
 	parameters.add(paramsDraw);
 
 	//--
@@ -538,41 +544,41 @@ void ofxSurfingPBR::startup() {
 	bDoneStartup = true;
 }
 
-// Will be called on the first update frame.
-// Use this pattern carefully, as could be a bad practice in some scenarios!
-//--------------------------------------------------------------
-void ofxSurfingPBR::startupDelayed() {
-	ofLogNotice("ofxSurfingPBR") << "startupDelayed(). Start at frame number: " << ofGetFrameNum();
-
-	//--
-
-	// Camera
-#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
-	#if 1
-	// settings
-	{
-		bool b = this->getSettingsFileFoundForCamera();
-		if (!b) {
-			doResetCamera();
-		} else if (camera != nullptr) {
-			if (bEnableCameraAutosave) doLoadCamera();
-		}
-	}
-	#endif
-#else
-	//camera.load();
-#endif
-
-	//--
-
-	//string s = ofxSurfing::getLayoutName(helpLayout.get());
-	//nameHelpLayout.set(s);
-
-	//--
-
-	bDoneStartupDelayed = true;
-	ofLogNotice("ofxSurfingPBR") << "startupDelayed() Done!";
-}
+//// Will be called on the first update frame.
+//// Use this pattern carefully, as could be a bad practice in some scenarios!
+////--------------------------------------------------------------
+//void ofxSurfingPBR::startupDelayed() {
+//	ofLogNotice("ofxSurfingPBR") << "startupDelayed(). Start at frame number: " << ofGetFrameNum();
+//
+//	//--
+//
+//	// Camera
+//#ifndef SURFING__PBR__USE_ADDON_EASY_CAM
+//	#if 1
+//	// settings
+//	{
+//		bool b = this->getSettingsFileFoundForCamera();
+//		if (!b) {
+//			doResetCamera();
+//		} else if (camera != nullptr) {
+//			if (bEnableCameraAutosave) doLoadCamera();
+//		}
+//	}
+//	#endif
+//#else
+//	//camera.load();
+//#endif
+//
+//	//--
+//
+//	//string s = ofxSurfing::getLayoutName(helpLayout.get());
+//	//nameHelpLayout.set(s);
+//
+//	//--
+//
+//	bDoneStartupDelayed = true;
+//	ofLogNotice("ofxSurfingPBR") << "startupDelayed() Done!";
+//}
 
 //--------------------------------------------------------------
 void ofxSurfingPBR::setupGui() {
@@ -670,20 +676,20 @@ void ofxSurfingPBR::update() {
 
 	// App flow controls
 	{
-		// On the 1st frame
-		int f = (int)(ofGetFrameNum());
-		if (f >= 0) {
-			if (!bAppRunning) {
-				bAppRunning = true;
-				ofLogNotice("ofxSurfingPBR") << "Starting app at frame number: " << ofGetFrameNum();
-			}
-		}
+		//// On the 1st frame
+		//int f = (int)(ofGetFrameNum());
+		//if (f >= 0) {
+		//	if (!bAppRunning) {
+		//		bAppRunning = true;
+		//		ofLogNotice("ofxSurfingPBR") << "Starting app at frame number: " << ofGetFrameNum();
+		//	}
+		//}
 
-		// After the 1st frame
-		if (f > 0 && bAppRunning && !bDoneStartupDelayed) {
-			//TODO fix crash callbacks
-			startupDelayed();
-		}
+		//// After the 1st frame
+		//if (f > 0 && bAppRunning && !bDoneStartupDelayed) {
+		//	//TODO fix crash callbacks
+		//	startupDelayed();
+		//}
 
 		if (bFlagBuildHelp) {
 			bFlagBuildHelp = false;
@@ -1230,6 +1236,9 @@ void ofxSurfingPBR::save() {
 bool ofxSurfingPBR::load() {
 	ofLogNotice("ofxSurfingPBR") << "load() " << path;
 
+	// notice that this method is not loading other class objects
+	// bc is expected to be loaded internally on each class startup.
+
 	bool b;
 
 	//--
@@ -1244,8 +1253,14 @@ bool ofxSurfingPBR::load() {
 	b = ofxSurfing::loadSettings(parameters, path);
 
 	// CubeMap
+#ifdef SURFING__PBR__USE_CUBE_MAP
 	loadCubeMap(path_CubemapFileAbsPath.get());
+#endif
 
+//#ifdef SURFING__PBR__USE_LIGHTS_CLASS
+//	lights.load();
+//#endif
+	
 	//--
 
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
@@ -1280,6 +1295,9 @@ void ofxSurfingPBR::saveAll() {
 //--------------------------------------------------------------
 bool ofxSurfingPBR::loadAll() {
 	ofLogNotice("ofxSurfingPBR") << "loadAll() " << path;
+	
+	// Notice that internally all classes will load their settings.
+	// so this method is only used to force loading all by the user!
 
 	bool b;
 
@@ -1291,10 +1309,13 @@ bool ofxSurfingPBR::loadAll() {
 
 	//--
 
+	// load scene
 	b = ofxSurfing::loadSettings(parameters, path);
 
 	// CubeMap
+#ifdef SURFING__PBR__USE_CUBE_MAP
 	loadCubeMap(path_CubemapFileAbsPath.get());
+#endif
 
 	// Load all: material, bg, lights and camera.
 	material.load();

@@ -93,7 +93,7 @@ public:
 	ofParameter<void> vReset { "Reset" };
 
 	ofParameterGroup paramsExtra;
-	ofParameterGroup switcherParams;
+	ofParameterGroup paramsSwitcher;
 	ofParameter<bool> bModeAll { "Mode All", false };
 	ofParameter<bool> bAutoSwitch { "Auto Switch", false }; //auto switch to next model
 	ofParameter<float> timeAutoSwitch { "Time Switch", 2, 0.05, 10 };
@@ -191,14 +191,14 @@ public:
 		paramsBrowse.add(indexFile);
 		paramsBrowse.add(nameFile);
 
-		switcherParams.setName("Switcher");
-		switcherParams.add(bAutoSwitch);
-		switcherParams.add(timeAutoSwitch);
-		switcherParams.add(indexAnimation);
+		paramsSwitcher.setName("Switcher");
+		paramsSwitcher.add(bAutoSwitch);
+		paramsSwitcher.add(timeAutoSwitch);
+		paramsSwitcher.add(indexAnimation);
 
 		paramsExtra.setName("Extra");
 		paramsExtra.add(bModeAll);
-		paramsExtra.add(switcherParams);
+		paramsExtra.add(paramsSwitcher);
 
 		parameters.setName(sTitle);
 		parameters.add(paramsBrowse);

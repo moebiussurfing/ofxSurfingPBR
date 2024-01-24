@@ -1,10 +1,10 @@
 #pragma once
 #include "ofMain.h"
 
+#include "SurfingMaterial.h"
 #include "ofxGui.h"
 #include "ofxSurfingHelpersLite.h"
 #include "ofxSurfingPBRConstants.h"
-#include "SurfingMaterial.h"
 
 //--
 
@@ -36,7 +36,7 @@ private:
 public:
 	void drawDebug();
 	void drawGui();
-	
+
 public:
 	void exit(); //only required to save camera on exit
 	void keyPressed(int key);
@@ -83,6 +83,19 @@ private:
 	void refreshBox();
 	bool bFlagRefreshBox = false;
 	ofParameter<float> floorBoxDepth;
+
+public:
+	float getFloorZeroHeight() const {
+		float y = 0;
+		if (bDrawBox) {
+			y = floorBoxDepth.get() / 2.f;
+			y += 1; //offset to allow line width visible
+		} else if (bDrawPlane) {
+			y = 0;
+			y += 1; //offset to allow line width visible
+		}
+		return y;
+	}
 
 	//--
 
@@ -196,7 +209,4 @@ public:
 	void beginShaderPlane();
 	void endShaderPlane();
 #endif
-
-
-
 };

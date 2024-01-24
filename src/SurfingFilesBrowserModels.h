@@ -60,7 +60,7 @@ private:
 
 		gui.setup(parameters);
 
-		//gui.getGroup(transformParams.getName()).minimize();
+		//gui.getGroup(paramsTransform.getName()).minimize();
 		gui.getGroup(paramsExtra.getName()).minimize();
 	}
 
@@ -69,9 +69,9 @@ private:
 
 		vReset.setName("Reset Model");
 
-		transformParams.clear();
-		transformParams.setName("Transforms");
-		transformParams.add(vReset);
+		paramsTransform.clear();
+		paramsTransform.setName("Transforms");
+		paramsTransform.add(vReset);
 
 		transforms.clear();//clear all objects nodes
 
@@ -85,12 +85,12 @@ private:
 			transforms.back()->parameters.setName(n);
 
 			// queue all objects nodes params
-			transformParams.add(transforms.back()->parameters);
+			paramsTransform.add(transforms.back()->parameters);
 		}
 
-		transformParams.setSerializable(false);
+		paramsTransform.setSerializable(false);
 
-		parameters.add(transformParams);
+		parameters.add(paramsTransform);
 	}
 
 public:
@@ -158,12 +158,14 @@ public:
 		
 			string n = getFilename(i);
 			bool b = (i == indexFile); //selected
-			auto & g = gui.getGroup(transformParams.getName()).getGroup(n);
+			auto & g = gui.getGroup(paramsTransform.getName()).getGroup(n);
 			b ? g.maximize() : g.minimize();
 
 			transforms[i]->refreshGuiUserParams(gui,g);
 		}
 
+		gui.getGroup(paramsExtra.getName()).minimize();
+		gui.getGroup(paramsExtra.getName()).getGroup(paramsSwitcher.getName()).minimize();
 	}
 
 	//--
@@ -199,7 +201,7 @@ public:
 		return transforms[i]->getNode();
 	}
 
-	ofParameterGroup transformParams;
+	ofParameterGroup paramsTransform;
 
 	void doResetTransform(int i = -1) {
 		if (i == -1) i = indexFile;

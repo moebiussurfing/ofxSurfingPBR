@@ -35,18 +35,32 @@ void ofApp::draw() {
 void ofApp::renderScene() {
 	// The camera is auto handled internally.
 
-	// Floor 
-	// Plane or box modes. 
-	// Draw without requiring to use begin/end material manually, 
+	// Floor
+	// Plane or box modes.
+	// Draw without requiring to use begin/end material manually,
 	pbr.drawFloor();
 
-	// Material 
+	// Material
 	// One pre created material for other objects
 	pbr.beginMaterial();
 	{
 		drawScene();
 	}
 	pbr.endMaterial();
+
+	//--
+
+	// We can access the internal camera pointer if required:
+	if (pbr.bDebug) {
+		pbr.getOfEasyCamPtr()->begin();
+		{
+			ofPushMatrix();
+			ofTranslate(0, pbr.getFloorZeroHeight(), 0);
+			ofDrawAxis(50);
+			ofPopMatrix();
+		}
+		pbr.getOfEasyCamPtr()->end();
+	}
 }
 
 //--------------------------------------------------------------

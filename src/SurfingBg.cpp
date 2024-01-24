@@ -115,8 +115,8 @@ void SurfingBg::setupParameters() {
 
 	bModeBox.set("Mode Box", false);
 	bModeSphere.set("Mode Sphere", false);
-	resolutionSphere.set("Resolution SPH", 0.5, 0, 1);
-	resolutionBox.set("Resolution BOX", 0.5, 0, 1);
+	resolutionSphere.set("Resolution Sphere", 0.5, 0, 1);
+	resolutionBox.set("Resolution Box", 0.5, 0, 1);
 
 	sizeScene.set("Size", 0.5, 0, 1.f);
 

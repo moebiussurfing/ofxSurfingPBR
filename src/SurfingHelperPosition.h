@@ -8,16 +8,16 @@
 class PointCartesian {
 private:
 	// Define spherical to Cartesian conversion function
-	glm::vec3 sphericalToCartesian(float r, float theta, float phi) {
+	glm::vec3 sphericalToCartesian(float r, float phi, float theta) {
 		ofLogNotice("ofxSurfingPBR") << "sphericalToCartesian()";
 
 		theta = glm::radians(theta); // Convert to radians
 		phi = glm::radians(phi); // Convert to radians
 
 		return glm::vec3(
-			r * sin(theta) * cos(phi),
-			r * sin(theta) * sin(phi),
-			r * cos(theta));
+			r * sin(phi) * cos(theta),
+			r * cos(phi),
+			r * sin(phi) * sin(theta));
 	}
 
 	// Define Cartesian to spherical conversion function
@@ -25,23 +25,25 @@ private:
 		ofLogNotice("ofxSurfingPBR") << "cartesianToSpherical()";
 
 		float r = glm::length(cartesian);
-		float theta = glm::degrees(acos(cartesian.z / r)); // Convert to degrees
-		float phi = glm::degrees(atan2(cartesian.y, cartesian.x)); // Convert to degrees
+		float phi = glm::degrees(acos(cartesian.y / r)); // Convert to degrees
+		float theta = glm::degrees(atan2(cartesian.z, cartesian.x)); // Convert to degrees
 
 		// Ensure longitude is within -180 to 180 range
-		if (phi < -180.0f) phi += 360.0f;
-		else if (phi > 180.0f) phi -= 360.0f;
+		if (theta < -180.0f)
+			theta += 360.0f;
+		else if (theta > 180.0f)
+			theta -= 360.0f;
 
 		float diffEpsylon = 0.001f;
 		// Update spherical coordinates only if they differ from the current ones
 		if (abs(distance.get() - r) > diffEpsylon) {
 			if (distance != r) distance.set(r);
 		}
-		if (abs(latitude.get() - theta) > diffEpsylon) {
-			if (latitude != theta) latitude.set(theta);
+		if (abs(latitude.get() - phi) > diffEpsylon) {
+			if (latitude != phi) latitude.set(phi);
 		}
-		if (abs(longitude.get() - phi) > diffEpsylon) {
-			if (longitude != phi) longitude.set(phi);
+		if (abs(longitude.get() - theta) > diffEpsylon) {
+			if (longitude != theta) longitude.set(theta);
 		}
 	}
 

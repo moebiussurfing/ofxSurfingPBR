@@ -97,7 +97,9 @@ private:
 public:
 	SurfingBg bg;
 	SurfingFloor floor;
-
+	float getFloorZeroHeight() const {
+		return floor.getFloorZeroHeight();
+	}
 	ofParameter<bool> bDrawBg;
 
 public:
@@ -106,7 +108,7 @@ public:
 
 private:
 	void startup();
-	void startupDelayed();
+	//void startupDelayed();
 
 public:
 	void draw(); //main draw
@@ -239,9 +241,9 @@ private:
 	bool bDoneSetup = false;
 	bool bDoneSetupParams = false;
 	bool bDoneStartup = false;
-	bool bDoneStartupDelayed = false;
+	//bool bDoneStartupDelayed = false;
 	bool bDoneExit = false;
-	bool bAppRunning = false;
+	//bool bAppRunning = false;
 
 	//--
 

@@ -415,12 +415,12 @@ void SurfingLights::refreshGui(bool bHard) {
 		.getGroup(paramsPoint.getName())
 		.getGroup(paramsPointColors.getName())
 		.minimize();
-	gui.getGroup(paramsLights.getName())
-		.getGroup(paramsLightsSettings.getName())
-		.getGroup(paramsPoint.getName())
-		.getGroup(pointPosition.parameters.getName())
-		.getGroup(pointPosition.position.getName())
-		.minimize();
+	//gui.getGroup(paramsLights.getName())
+	//	.getGroup(paramsLightsSettings.getName())
+	//	.getGroup(paramsPoint.getName())
+	//	.getGroup(pointPosition.parameters.getName())
+	//	.getGroup(pointPosition.position.getName())
+	//	.minimize();
 
 	auto & gp = gui.getGroup(paramsLights.getName())
 					.getGroup(paramsLightsSettings.getName())
@@ -448,12 +448,12 @@ void SurfingLights::refreshGui(bool bHard) {
 		.getGroup(paramsSpot.getName())
 		.getGroup(paramsSpotColors.getName())
 		.minimize();
-	gui.getGroup(paramsLights.getName())
-		.getGroup(paramsLightsSettings.getName())
-		.getGroup(paramsSpot.getName())
-		.getGroup(spotPosition.parameters.getName())
-		.getGroup(spotPosition.position.getName())
-		.minimize();
+	//gui.getGroup(paramsLights.getName())
+	//	.getGroup(paramsLightsSettings.getName())
+	//	.getGroup(paramsSpot.getName())
+	//	.getGroup(spotPosition.parameters.getName())
+	//	.getGroup(spotPosition.position.getName())
+	//	.minimize();
 
 	auto & gs = gui.getGroup(paramsLights.getName())
 					.getGroup(paramsLightsSettings.getName())
@@ -481,12 +481,12 @@ void SurfingLights::refreshGui(bool bHard) {
 		.getGroup(paramsDirectional.getName())
 		.getGroup(paramsDirectionalColors.getName())
 		.minimize();
-	gui.getGroup(paramsLights.getName())
-		.getGroup(paramsLightsSettings.getName())
-		.getGroup(paramsDirectional.getName())
-		.getGroup(directionalPosition.parameters.getName())
-		.getGroup(directionalPosition.position.getName())
-		.minimize();
+	//gui.getGroup(paramsLights.getName())
+	//	.getGroup(paramsLightsSettings.getName())
+	//	.getGroup(paramsDirectional.getName())
+	//	.getGroup(directionalPosition.parameters.getName())
+	//	.getGroup(directionalPosition.position.getName())
+	//	.minimize();
 
 	auto & gd = gui.getGroup(paramsLights.getName())
 					.getGroup(paramsLightsSettings.getName())
@@ -519,12 +519,12 @@ void SurfingLights::refreshGui(bool bHard) {
 		.getGroup(paramsArea.getName())
 		.getGroup(paramsAreaColors.getName())
 		.minimize();
-	gui.getGroup(paramsLights.getName())
-		.getGroup(paramsLightsSettings.getName())
-		.getGroup(paramsArea.getName())
-		.getGroup(areaPosition.parameters.getName())
-		.getGroup(areaPosition.position.getName())
-		.minimize();
+	//gui.getGroup(paramsLights.getName())
+	//	.getGroup(paramsLightsSettings.getName())
+	//	.getGroup(paramsArea.getName())
+	//	.getGroup(areaPosition.parameters.getName())
+	//	.getGroup(areaPosition.position.getName())
+	//	.minimize();
 
 	auto & gar = gui.getGroup(paramsLights.getName())
 					 .getGroup(paramsLightsSettings.getName())
@@ -583,8 +583,10 @@ void SurfingLights::setupParameters() {
 	//----
 
 	setupParametersLights();
-
 	setupParametersShadows();
+	
+	//TODO
+	doResetAllLights(true);
 
 	//---
 
@@ -655,7 +657,7 @@ void SurfingLights::setupParametersLights() {
 	paramsSpotColors.setName("S Colors");
 	paramsAreaColors.setName("A Colors");
 
-	paramsPowers.setName("Powers");
+	paramsPowers.setName("Power");
 	paramsGlobalColors.setName("Global Colors");
 
 #ifdef SURFING__PBR__PLANE_COLORS_NO_ALPHA
@@ -944,7 +946,7 @@ void SurfingLights::setupParametersShadows() {
 void SurfingLights::startup() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:startup()";
 
-	doResetAllLights(true);
+	//doResetAllLights(true);
 	doResetShadow();
 
 	//--
@@ -953,6 +955,9 @@ void SurfingLights::startup() {
 	callback_t f = std::bind(&SurfingLights::save, this);
 	autoSaver.setFunctionSaver(f);
 #endif
+
+	//TODO
+	load();
 
 	//--
 
@@ -1041,31 +1046,31 @@ void SurfingLights::update() { // App flow controls
 	else if (bFlagDoResetAllLights) {
 		bFlagDoResetAllLights = false;
 
-		doResetAllLights(true);
+		doResetAllLights(true);//do touch the color too
 	}
 
 	else if (bFlagDoResetPoint) {
 		bFlagDoResetPoint = false;
 
-		doResetPoint(true);
+		doResetPoint(false);//do not touch the color
 	}
 
 	else if (bFlagDoResetDirectional) {
 		bFlagDoResetDirectional = false;
 
-		doResetDirectional(true);
+		doResetDirectional(false);//do not touch the color
 	}
 
 	else if (bFlagDoResetSpot) {
 		bFlagDoResetSpot = false;
 
-		doResetSpot(true);
+		doResetSpot(false);//do not touch the color
 	}
 
 	else if (bFlagDoResetArea) {
 		bFlagDoResetArea = false;
 
-		doResetArea(true);
+		doResetArea(false);//do not touch the color
 	}
 
 	if (bFlagIndexFromColorToGlobal) {
@@ -1287,7 +1292,7 @@ void SurfingLights::doResetPoint(bool bHard) {
 		pointGlobalColor.set(ofFloatColor(1));
 	}
 
-	pointPosition.set(glm::vec3(0, SURFING__PBR__SCENE_SIZE_UNIT, SURFING__PBR__SCENE_SIZE_UNIT * 0.3));
+	pointPosition.set(glm::vec3(0, SURFING__PBR__SCENE_SIZE_UNIT*0.5, SURFING__PBR__SCENE_SIZE_UNIT * 0.3));
 
 	pointSizeFar = 1;
 
@@ -1308,7 +1313,7 @@ void SurfingLights::doResetDirectional(bool bHard) {
 		directionalGlobalColor.set(ofFloatColor(1));
 	}
 
-	directionalPosition.set(glm::vec3(0,SURFING__PBR__SCENE_SIZE_UNIT,SURFING__PBR__SCENE_SIZE_UNIT * 0.4));
+	directionalPosition.set(glm::vec3(0, SURFING__PBR__SCENE_SIZE_UNIT * 0.5, SURFING__PBR__SCENE_SIZE_UNIT * 0.4));
 
 	directionalOrientation.set(glm::vec3(-60, 0, 0));
 
@@ -1331,7 +1336,7 @@ void SurfingLights::doResetSpot(bool bHard) {
 		spotGlobalColor.set(ofFloatColor(1));
 	}
 
-	spotPosition.set(glm::vec3(0,SURFING__PBR__SCENE_SIZE_UNIT,SURFING__PBR__SCENE_SIZE_UNIT * 0.5));
+	spotPosition.set(glm::vec3(0, SURFING__PBR__SCENE_SIZE_UNIT * 0.5, SURFING__PBR__SCENE_SIZE_UNIT * 0.5));
 
 	spotOrientation.set(glm::vec3(-60, 0, 0));
 
@@ -1359,7 +1364,7 @@ void SurfingLights::doResetArea(bool bHard) {
 		areaGlobalColor.set(ofFloatColor(1));
 	}
 
-	areaPosition.set(glm::vec3(0,SURFING__PBR__SCENE_SIZE_UNIT,SURFING__PBR__SCENE_SIZE_UNIT * 0.6));
+	areaPosition.set(glm::vec3(0, SURFING__PBR__SCENE_SIZE_UNIT * 0.5, SURFING__PBR__SCENE_SIZE_UNIT * 0.6));
 
 	areaOrientation.set(glm::vec3(-60, 0, 0));
 

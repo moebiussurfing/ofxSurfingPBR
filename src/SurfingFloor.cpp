@@ -44,8 +44,8 @@ void SurfingFloor::setupParams() {
 	//--
 
 	bDraw.set("Draw Floor", true);
-	bDrawPlane.set("Draw Plane", true);
-	bDrawBox.set("Draw Box", false);
+	bDrawPlane.set("Draw Mode Plane", true);
+	bDrawBox.set("Draw Mode Box", false);
 	bDrawWireframe.set("Draw Floor Wireframe", false);
 
 	//--
