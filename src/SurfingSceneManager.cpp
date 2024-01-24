@@ -285,12 +285,23 @@ void SurfingSceneManager::drawGui() {
 	gui.draw();
 
 	if (lights.bGui) {
-		ofxSurfing::setGuiPositionRightTo(lights.gui, gui);
+		ofxSurfing::setGuiPositionRightTo(lights.gui, gui); //gui is SCENE_MANAGER
 		lights.drawGui();
 	}
 
 	if (bGui_Materials) {
-		ofxSurfing::setGuiPositionRightTo(guiMaterials, lights.bGui ? lights.gui : gui);
+		//ofxSurfing::setGuiPositionRightTo(guiMaterials, lights.bGui ? lights.gui : gui);
+		if (!lights.bGui_Shadows) {
+			if (lights.bGui)
+				ofxSurfing::setGuiPositionRightTo(guiMaterials, lights.gui);
+			else
+				ofxSurfing::setGuiPositionRightTo(guiMaterials, gui);
+		} else {
+			if (lights.bGui)
+				ofxSurfing::setGuiPositionRightTo(guiMaterials, lights.guiShadows);
+			else
+				ofxSurfing::setGuiPositionRightTo(guiMaterials, gui);
+		}
 		guiMaterials.draw();
 	}
 

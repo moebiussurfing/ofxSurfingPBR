@@ -10,14 +10,14 @@
 	from the new 0.12+ releases.
 
 	You should use the GitHub master branch: 
-		https://github.com/openframeworks/openFrameworks
+	https://github.com/openframeworks/openFrameworks
 
 	All this code is copied from or/and hardly based on this OF forum topic:
-		https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
+	https://forum.openframeworks.cc/t/ofshadow-and-ofshader-issue-on-of-0-12/42600/19  
 
 	Original inspiration code authors:  
-		@NickHardeman https://github.com/NickHardeman
-		and @paolo-scoppola https://github.com/paolo-scoppola.
+	@NickHardeman https://github.com/NickHardeman
+	and @paolo-scoppola https://github.com/paolo-scoppola.
 */
 
 //--
@@ -25,12 +25,13 @@
 /*
 	TODO
 
-	- fix lights settings
+	- fix startup/exit loading all settings
+		- fix lights settings not recalled well at startup
 	- add simple scenes presets manager
 		- expose easy paramsPresets: 
 			colors, lights power, 
+			to be used on a simple/user UI.
 	- add save/load all.
-	- fix startup/exit loading all settings
 
 	- make some linking colors 
 		to fast set bg, floor, 
@@ -41,6 +42,7 @@
 	- add custom global path to /data/ofxSurfingPBR/MAT_NAME/
 
 	- SHADERS AND DISPLACE
+		- get @paolo-scoppola ideas and suggestions. 
 		- fix plane light not working when shaders enabled..
 		- check pipeline / enable ArbTex from the example!
 		- customize share plane divisions and img size/clamp.

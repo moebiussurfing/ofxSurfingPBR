@@ -160,9 +160,9 @@ void ofApp::renderScene()
 
 ## REQUERIMENTS 
 - Download and copy the content of `data.zip` to the examples or to your projects into `/bin/data`:  
-  * Data for any: [bin/data.zip](https://mega.nz/file/cHkylJZY#sVdQpSF8IkvdmKdpMIbA4767kvBvfGL7R7GnU9g20ow)  
-  * Data for `2_Example_Models`: [bin/data.zip](https://mega.nz/file/saMXjATJ#hCcfG5KWJrRnwX85Wy0MmH0JMViaToS1MyOejCIxSZY)  
-  * Data for `6_Example_3D_Parts`: [bin/data.zip](https://mega.nz/file/5Klk0ZZA#nDyOPUj6tvw-g271pFeunr8EA7dBn5juWXZgrJkkOGk)  
+  * Data for any or new projects: [bin/data.zip](https://mega.nz/file/cHkylJZY#sVdQpSF8IkvdmKdpMIbA4767kvBvfGL7R7GnU9g20ow)  
+  * Data for `2_Example_Models`: [bin/data.zip](https://mega.nz/file/lOMzkJIC#tLaM9MTKA6J83nf0DoxKtoET3uevG-Y6z4_eLfIiIPQ)  
+  * Data for `6_Example_3D_Parts`: [bin/data.zip](https://mega.nz/file/VPMBEBTJ#Cgi-u72GdJOMel7xCli2-SmU7aU0b0TtOijyuXIDKdc)  
   * Only shaders: [bin/dataShaders.zip](https://mega.nz/file/gLMwXY6S#HjIfsu80ZIpPccaFbJKowE3qeoRZeK8jnfSrhUEeGQE)  
 - Notice that all the example should work without the data files too.
 
@@ -176,7 +176,7 @@ $~~~~~~$ ├ shadersGL2 $~~~~~~$ frag, vert $~~~~~~$ used when enabled
 $~~~~~~$ └ shadersGL3 $~~~~~~$ frag, vert $~~~~~~$ used when enabled  
 
 ## TESTED SYSTEMS
-* **Windows 11** / **VS 2022** / **OF 0.12+** @[GitHub master branch](https://github.com/openframeworks/openFrameworks)
+* **Windows 11** / **VS 2022** / **OF 0.12+** @ [GitHub master branch](https://github.com/openframeworks/openFrameworks)
 
 ## LICENSE
 **MIT License**
