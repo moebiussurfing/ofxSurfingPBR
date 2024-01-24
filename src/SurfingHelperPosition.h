@@ -11,6 +11,9 @@ private:
 	glm::vec3 sphericalToCartesian(float r, float theta, float phi) {
 		ofLogNotice("ofxSurfingPBR") << "sphericalToCartesian()";
 
+		theta = glm::radians(theta); // Convert to radians
+		phi = glm::radians(phi); // Convert to radians
+
 		return glm::vec3(
 			r * sin(theta) * cos(phi),
 			r * sin(theta) * sin(phi),
@@ -22,8 +25,12 @@ private:
 		ofLogNotice("ofxSurfingPBR") << "cartesianToSpherical()";
 
 		float r = glm::length(cartesian);
-		float theta = acos(cartesian.z / r);
-		float phi = atan2(cartesian.y, cartesian.x);
+		float theta = glm::degrees(acos(cartesian.z / r)); // Convert to degrees
+		float phi = glm::degrees(atan2(cartesian.y, cartesian.x)); // Convert to degrees
+
+		// Ensure longitude is within -180 to 180 range
+		if (phi < -180.0f) phi += 360.0f;
+		else if (phi > 180.0f) phi -= 360.0f;
 
 		float diffEpsylon = 0.001f;
 		// Update spherical coordinates only if they differ from the current ones
@@ -100,8 +107,8 @@ private:
 		position.set("Cartesian", glm::vec3(), glm::vec3(-sz), glm::vec3(sz));
 		distance.set("Distance", 0, 0, sz);
 		//distance.set("Distance", 0, 0, std::sqrt(3) * sz);
-		longitude.set("Longitude", 0, -PI, PI);
-		latitude.set("Latitude", 0, -PI, PI);
+		longitude.set("Longitude", 0, -180, 180); // Changed from radians to degrees
+		latitude.set("Latitude", 0, -90, 90); // Changed from radians to degrees
 
 		string n = "Position";
 		if (name != "") n = name + " " + n;
