@@ -284,16 +284,21 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::renderScene() {
-
-	// Floor
-	pbr.drawFloor();
-
-	// Other objects
-	pbr.beginMaterial();
+	// Scene transforms (ofApp local)
+	ofPushMatrix();
+	updateSceneTransforms();
 	{
-		drawMyScene();
+		// Floor
+		pbr.drawFloor();
+
+		// Other objects
+		pbr.beginMaterial();
+		{
+			drawMyScene();
+		}
+		pbr.endMaterial();
 	}
-	pbr.endMaterial();
+	ofPopMatrix();
 }
 
 //------
@@ -328,22 +333,11 @@ void ofApp::drawMyScene() {
 		We draw our scene here!
 	*/
 
-	//----
-
-	ofPushMatrix();
-
 	//--
 
-	// Scene transforms (ofApp local)
-	updateSceneTransforms();
-
-	//--
-
-	// Draw the object
-
+	// Draw the model object/s
 	{
 		// Scene 0: Three Prims
-
 		if (indexScene == 0) {
 			pbr.drawTestScene();
 		}
@@ -351,7 +345,6 @@ void ofApp::drawMyScene() {
 		//--
 
 		// Scene 1: Mesh
-
 		if (indexScene == 1) {
 			drawMesh();
 		}
@@ -359,7 +352,6 @@ void ofApp::drawMyScene() {
 		//--
 
 		// Scene 2: Model
-
 		else if (indexScene == 2) {
 #ifdef OF_APP__USE__MODELS_MANAGER
 			modelsManager.draw();
@@ -368,10 +360,6 @@ void ofApp::drawMyScene() {
 #endif
 		}
 	}
-
-	//--
-
-	ofPopMatrix();
 }
 
 //------
