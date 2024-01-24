@@ -356,13 +356,6 @@ void ofxSurfingPBR::setupCallbacks() {
 #ifdef SURFING__PBR__USE_CUBE_MAP
 	ofAddListener(paramsCubeMap.parameterChangedE(), this, &ofxSurfingPBR::ChangedCubeMaps);
 #endif
-
-	//--
-
-	//TODO: not works
-	//#ifdef SURFING__PBR__USE_LIGHTS_CLASS
-	//		lights.bDebug.makeReferenceTo(bDebug);
-	//#endif
 }
 
 //--------------------------------------------------------------
@@ -385,12 +378,6 @@ void ofxSurfingPBR::setup() {
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 	lights.setup();
-
-	//--
-
-	//TODO
-	//link
-	//bDebug.makeReferenceTo(lights.bDebug);
 #endif
 
 	//--
@@ -595,7 +582,7 @@ void ofxSurfingPBR::setupGui() {
 
 	//--
 
-	// gui manager
+	// guiManager
 
 #if 0
 	guiManager.setAutoAddInternalParamasToMainPanel(false);
@@ -614,10 +601,10 @@ void ofxSurfingPBR::setupGui() {
 
 	guiManager.add(&bg.gui, bg.bGui);
 	guiManager.add(&floor.gui, floor.bGui);
-	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION); //TODO: drawn internally
+	guiManager.add(&material.gui, material.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION); //TODO: will be drawn internally
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
-	guiManager.add(&lights.gui, lights.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION); //TODO: drawn internally
+	guiManager.add(&lights.gui, lights.bGui, ofxSurfing::SURFING__OFXGUI__MODE_POSITION); //TODO: will be drawn internally
 #endif
 
 	guiManager.startup();
@@ -852,10 +839,7 @@ void ofxSurfingPBR::draw() {
 		lights.begin();
 #endif
 		drawBg();
-
 		f_RenderScene();
-
-		//--
 
 #ifdef SURFING__PBR__USE_LIGHTS_CLASS
 		lights.end();

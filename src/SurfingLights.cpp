@@ -392,14 +392,14 @@ void SurfingLights::refreshGui(bool bHard) {
 		.minimize();
 
 	//workflow
-	auto & gp = gui.getGroup(paramsLights.getName()).getGroup(paramsPowers.getName());
+	auto & gpow = gui.getGroup(paramsLights.getName()).getGroup(paramsPowers.getName());
 	auto & gl = gui.getGroup(paramsLights.getName()).getGroup(paramsLightsSettings.getName());
 	if (!bPoint && !bDirectional && !bSpot && !bArea) {
-		gp.minimize();
+		gpow.minimize();
 		gl.minimize();
 	} else {
-		gp.maximize();
-		gl.maximize();
+		gpow.maximize();
+		//gl.maximize();
 	}
 
 	//--
@@ -959,22 +959,22 @@ void SurfingLights::startup() {
 	bDoneStartup = true;
 }
 
+////// Will be called on the first update frame.
+/////	Use this pattern carefully, as could be a bad practice in some scenarios!
+////--------------------------------------------------------------
+//void SurfingLights::startupDelayed() {
+//	ofLogNotice("ofxSurfingPBR") << "SurfingLights:startupDelayed() Start";
+//
+//	////load();
+//	//bFlagLoad = true;
+//
+//	bDoneStartupDelayed = true;
+//	ofLogNotice("ofxSurfingPBR") << "SurfingLights:startupDelayed() Done! at frame number: " << ofGetFrameNum();
+//}
+
 //--------------------------------------------------------------
 void SurfingLights::update(ofEventArgs & args) {
 	update();
-}
-
-//// Will be called on the first update frame.
-///	Use this pattern carefully, as could be a bad practice in some scenarios!
-//--------------------------------------------------------------
-void SurfingLights::startupDelayed() {
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:startupDelayed() Start";
-
-	//load();
-	bFlagLoad = true;
-
-	bDoneStartupDelayed = true;
-	ofLogNotice("ofxSurfingPBR") << "SurfingLights:startupDelayed() Done! at frame number: " << ofGetFrameNum();
 }
 
 //--------------------------------------------------------------
@@ -989,11 +989,11 @@ void SurfingLights::update() { // App flow controls
 			}
 		}
 
-		// After the 1st frame
-		if (f > 0 && bAppRunning && !bDoneStartupDelayed) {
-			//TODO fix settings loader
-			startupDelayed();
-		}
+		//// After the 1st frame
+		//if (f > 0 && bAppRunning && !bDoneStartupDelayed) {
+		//	//TODO fix settings loader
+		//	startupDelayed();
+		//}
 	}
 
 	//----
@@ -1087,7 +1087,7 @@ void SurfingLights::update() { // App flow controls
 	//--
 
 	// workaround to fix startup loading
-	// bc flag pattern used for callbacks
+	// due to flag pattern used for callbacks
 	else if (bFlagLoad) {
 		bFlagLoad = false;
 
