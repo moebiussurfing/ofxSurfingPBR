@@ -12,9 +12,9 @@ SurfingLights::~SurfingLights() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:~SurfingLights()";
 
 	ofRemoveListener(ofEvents().update, this, &SurfingLights::update);
-	ofRemoveListener(lightsParams.parameterChangedE(), this, &SurfingLights::ChangedLights);
-	ofRemoveListener(powersParams.parameterChangedE(), this, &SurfingLights::ChangedPowers);
-	ofRemoveListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
+	ofRemoveListener(paramsLights.parameterChangedE(), this, &SurfingLights::ChangedLights);
+	ofRemoveListener(paramsPowers.parameterChangedE(), this, &SurfingLights::ChangedPowers);
+	ofRemoveListener(paramsShadow.parameterChangedE(), this, &SurfingLights::ChangedShadow);
 
 #ifdef SURFING__PBR__USE_AUTO_CALL_EXIT_ON_DESTRUCTOR_IF_REQUIRED
 	if (!bDoneExit) {
@@ -377,43 +377,54 @@ void SurfingLights::drawGui() {
 void SurfingLights::refreshGui(bool bHard) {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:refreshGui()";
 
-	gui.getGroup(lightsParams.getName())
-		.getGroup(globalColorsParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsGlobalColors.getName())
 		.minimize();
 
 	//if (bHard) {
-	//	gui.getGroup(lightsParams.getName())
-	//		.getGroup(lightsSettingsParams.getName())
+	//	gui.getGroup(paramsLights.getName())
+	//		.getGroup(paramsLightsSettings.getName())
 	//		.minimize();
 	//}
 
-	gui.getGroup(lightsParams.getName())
-		.getGroup(params_Extra.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsExtra.getName())
 		.minimize();
+
+	//workflow
+	auto & gp = gui.getGroup(paramsLights.getName()).getGroup(paramsPowers.getName());
+	auto & gl = gui.getGroup(paramsLights.getName()).getGroup(paramsLightsSettings.getName());
+	if (!bPoint && !bDirectional && !bSpot && !bArea) {
+		gp.minimize();
+		gl.minimize();
+	} else {
+		gp.maximize();
+		gl.maximize();
+	}
 
 	//--
 
 	// Point
 
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(pointParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsPoint.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(pointParams.getName())
-		.getGroup(pointColorsParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsPoint.getName())
+		.getGroup(paramsPointColors.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(pointParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsPoint.getName())
 		.getGroup(pointPosition.parameters.getName())
 		.getGroup(pointPosition.position.getName())
 		.minimize();
 
-	auto & gp = gui.getGroup(lightsParams.getName())
-					.getGroup(lightsSettingsParams.getName())
-					.getGroup(pointParams.getName());
+	auto & gp = gui.getGroup(paramsLights.getName())
+					.getGroup(paramsLightsSettings.getName())
+					.getGroup(paramsPoint.getName());
 	if (bPoint)
 		gp.maximize();
 	else
@@ -423,30 +434,30 @@ void SurfingLights::refreshGui(bool bHard) {
 
 	// Spot
 
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(spotParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsSpot.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(spotParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsSpot.getName())
 		.getGroup(spotOrientation.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(spotParams.getName())
-		.getGroup(spotColorsParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsSpot.getName())
+		.getGroup(paramsSpotColors.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(spotParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsSpot.getName())
 		.getGroup(spotPosition.parameters.getName())
 		.getGroup(spotPosition.position.getName())
 		.minimize();
 
-	auto & gs = gui.getGroup(lightsParams.getName())
-					.getGroup(lightsSettingsParams.getName())
-					.getGroup(spotParams.getName());
+	auto & gs = gui.getGroup(paramsLights.getName())
+					.getGroup(paramsLightsSettings.getName())
+					.getGroup(paramsSpot.getName());
 	if (bSpot)
 		gs.maximize();
 	else
@@ -456,30 +467,30 @@ void SurfingLights::refreshGui(bool bHard) {
 
 	// Directional
 
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(directionalParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsDirectional.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(directionalParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsDirectional.getName())
 		.getGroup(directionalOrientation.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(directionalParams.getName())
-		.getGroup(directionalColorsParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsDirectional.getName())
+		.getGroup(paramsDirectionalColors.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(directionalParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsDirectional.getName())
 		.getGroup(directionalPosition.parameters.getName())
 		.getGroup(directionalPosition.position.getName())
 		.minimize();
 
-	auto & gd = gui.getGroup(lightsParams.getName())
-					.getGroup(lightsSettingsParams.getName())
-					.getGroup(directionalParams.getName());
+	auto & gd = gui.getGroup(paramsLights.getName())
+					.getGroup(paramsLightsSettings.getName())
+					.getGroup(paramsDirectional.getName());
 	if (bDirectional)
 		gd.maximize();
 	else
@@ -489,35 +500,35 @@ void SurfingLights::refreshGui(bool bHard) {
 
 	// Area
 
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(areaParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsArea.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(areaParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsArea.getName())
 		.getGroup(areaOrientation.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(areaParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsArea.getName())
 		.getGroup(areaSize.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(areaParams.getName())
-		.getGroup(areaColorsParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsArea.getName())
+		.getGroup(paramsAreaColors.getName())
 		.minimize();
-	gui.getGroup(lightsParams.getName())
-		.getGroup(lightsSettingsParams.getName())
-		.getGroup(areaParams.getName())
+	gui.getGroup(paramsLights.getName())
+		.getGroup(paramsLightsSettings.getName())
+		.getGroup(paramsArea.getName())
 		.getGroup(areaPosition.parameters.getName())
 		.getGroup(areaPosition.position.getName())
 		.minimize();
 
-	auto & gar = gui.getGroup(lightsParams.getName())
-					 .getGroup(lightsSettingsParams.getName())
-					 .getGroup(areaParams.getName());
+	auto & gar = gui.getGroup(paramsLights.getName())
+					 .getGroup(paramsLightsSettings.getName())
+					 .getGroup(paramsArea.getName());
 	if (bArea)
 		gar.maximize();
 	else
@@ -547,7 +558,7 @@ void SurfingLights::setupGui() {
 	gui.setup(parameters);
 
 	// shadows
-	guiShadows.setup(shadowParams);
+	guiShadows.setup(paramsShadow);
 
 	refreshGui(true);
 }
@@ -578,7 +589,7 @@ void SurfingLights::setupParameters() {
 	//---
 
 	parameters.add(bGui_Shadows);
-	parameters.add(lightsParams);
+	parameters.add(paramsLights);
 
 	//--
 
@@ -594,9 +605,9 @@ void SurfingLights::setupParameters() {
 void SurfingLights::setupCallbacks() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:setupCallbacks()";
 
-	ofAddListener(lightsParams.parameterChangedE(), this, &SurfingLights::ChangedLights);
-	ofAddListener(powersParams.parameterChangedE(), this, &SurfingLights::ChangedPowers);
-	ofAddListener(shadowParams.parameterChangedE(), this, &SurfingLights::ChangedShadow);
+	ofAddListener(paramsLights.parameterChangedE(), this, &SurfingLights::ChangedLights);
+	ofAddListener(paramsPowers.parameterChangedE(), this, &SurfingLights::ChangedPowers);
+	ofAddListener(paramsShadow.parameterChangedE(), this, &SurfingLights::ChangedShadow);
 }
 
 //--------------------------------------------------------------
@@ -628,24 +639,24 @@ void SurfingLights::setupParametersLights() {
 
 	parameters.setName("LIGHTS");
 
-	lightsParams.setName("Lights");
-	lightsSettingsParams.setName("Lights Settings");
+	paramsLights.setName("Lights");
+	paramsLightsSettings.setName("Lights Settings");
 
-	params_Enablers.setName("Enable");
-	params_Extra.setName("Extra");
+	paramsEnablers.setName("Enable");
+	paramsExtra.setName("Extra");
 
-	pointParams.setName("L Point");
-	spotParams.setName("L Spot");
-	directionalParams.setName("L Direct");
-	areaParams.setName("L Area");
+	paramsPoint.setName("L Point");
+	paramsSpot.setName("L Spot");
+	paramsDirectional.setName("L Direct");
+	paramsArea.setName("L Area");
 
-	pointColorsParams.setName("P Colors");
-	directionalColorsParams.setName("D Colors");
-	spotColorsParams.setName("S Colors");
-	areaColorsParams.setName("A Colors");
+	paramsPointColors.setName("P Colors");
+	paramsDirectionalColors.setName("D Colors");
+	paramsSpotColors.setName("S Colors");
+	paramsAreaColors.setName("A Colors");
 
-	powersParams.setName("Powers");
-	globalColorsParams.setName("Global Colors");
+	paramsPowers.setName("Powers");
+	paramsGlobalColors.setName("Global Colors");
 
 #ifdef SURFING__PBR__PLANE_COLORS_NO_ALPHA
 	globalColor.set("Global Color",
@@ -781,116 +792,116 @@ void SurfingLights::setupParametersLights() {
 	// Lights
 
 	// Point
-	pointParams.add(pointPower);
-	pointParams.add(pointGlobalColor);
-	pointColorsParams.add(pointAmbientColor);
-	pointColorsParams.add(pointDiffuseColor);
-	pointColorsParams.add(pointSpecularColor);
-	pointParams.add(pointColorsParams);
-	pointParams.add(pointPosition.parameters);
-	pointParams.add(pointSizeFar);
-	pointParams.add(bPointShadow);
-	pointParams.add(vPointReset);
+	paramsPoint.add(pointPower);
+	paramsPoint.add(pointGlobalColor);
+	paramsPointColors.add(pointAmbientColor);
+	paramsPointColors.add(pointDiffuseColor);
+	paramsPointColors.add(pointSpecularColor);
+	paramsPoint.add(paramsPointColors);
+	paramsPoint.add(pointPosition.parameters);
+	paramsPoint.add(pointSizeFar);
+	paramsPoint.add(bPointShadow);
+	paramsPoint.add(vPointReset);
 
 	// Directional
-	directionalParams.add(directionalPower);
-	directionalParams.add(directionalGlobalColor);
-	directionalColorsParams.add(directionalAmbientColor);
-	directionalColorsParams.add(directionalDiffuseColor);
-	directionalColorsParams.add(directionalSpecularColor);
-	directionalParams.add(directionalColorsParams);
-	directionalParams.add(directionalPosition.parameters);
-	directionalParams.add(directionalOrientation);
-	directionalParams.add(directionalSizeFar);
-	directionalParams.add(directionalSizeNear);
-	directionalParams.add(bDirectionalShadow);
-	directionalParams.add(vDirectionalReset);
+	paramsDirectional.add(directionalPower);
+	paramsDirectional.add(directionalGlobalColor);
+	paramsDirectionalColors.add(directionalAmbientColor);
+	paramsDirectionalColors.add(directionalDiffuseColor);
+	paramsDirectionalColors.add(directionalSpecularColor);
+	paramsDirectional.add(paramsDirectionalColors);
+	paramsDirectional.add(directionalPosition.parameters);
+	paramsDirectional.add(directionalOrientation);
+	paramsDirectional.add(directionalSizeFar);
+	paramsDirectional.add(directionalSizeNear);
+	paramsDirectional.add(bDirectionalShadow);
+	paramsDirectional.add(vDirectionalReset);
 
 	// Spot
-	spotParams.add(spotPower);
-	spotParams.add(spotGlobalColor);
-	spotColorsParams.add(spotAmbientColor);
-	spotColorsParams.add(spotDiffuseColor);
-	spotColorsParams.add(spotSpecularColor);
-	spotParams.add(spotColorsParams);
-	spotParams.add(spotCutOff);
-	spotParams.add(spotConcentration);
-	spotParams.add(spotPosition.parameters);
-	spotParams.add(spotOrientation);
-	spotParams.add(spotSizeFar);
-	spotParams.add(bSpotShadow);
-	spotParams.add(vSpotReset);
+	paramsSpot.add(spotPower);
+	paramsSpot.add(spotGlobalColor);
+	paramsSpotColors.add(spotAmbientColor);
+	paramsSpotColors.add(spotDiffuseColor);
+	paramsSpotColors.add(spotSpecularColor);
+	paramsSpot.add(paramsSpotColors);
+	paramsSpot.add(spotCutOff);
+	paramsSpot.add(spotConcentration);
+	paramsSpot.add(spotPosition.parameters);
+	paramsSpot.add(spotOrientation);
+	paramsSpot.add(spotSizeFar);
+	paramsSpot.add(bSpotShadow);
+	paramsSpot.add(vSpotReset);
 
 	// Area
-	areaParams.add(areaPower);
-	areaParams.add(areaGlobalColor);
-	areaColorsParams.add(areaAmbientColor);
-	areaColorsParams.add(areaDiffuseColor);
-	areaColorsParams.add(areaSpecularColor);
-	areaParams.add(areaColorsParams);
-	areaParams.add(areaPosition.parameters);
-	areaParams.add(areaOrientation);
-	areaParams.add(areaSizeFar);
-	areaParams.add(areaSize);
-	areaParams.add(vAreaReset);
-	areaParams.add(bAreaShadow);
+	paramsArea.add(areaPower);
+	paramsArea.add(areaGlobalColor);
+	paramsAreaColors.add(areaAmbientColor);
+	paramsAreaColors.add(areaDiffuseColor);
+	paramsAreaColors.add(areaSpecularColor);
+	paramsArea.add(paramsAreaColors);
+	paramsArea.add(areaPosition.parameters);
+	paramsArea.add(areaOrientation);
+	paramsArea.add(areaSizeFar);
+	paramsArea.add(areaSize);
+	paramsArea.add(vAreaReset);
+	paramsArea.add(bAreaShadow);
 
 	//--
 
 	// Enablers
-	params_Enablers.add(bPoint);
-	params_Enablers.add(bDirectional);
-	params_Enablers.add(bSpot);
-	params_Enablers.add(bArea);
-	lightsParams.add(params_Enablers);
+	paramsEnablers.add(bPoint);
+	paramsEnablers.add(bDirectional);
+	paramsEnablers.add(bSpot);
+	paramsEnablers.add(bArea);
+	paramsLights.add(paramsEnablers);
 
 	// Powers
-	powersParams.add(pointPower);
-	powersParams.add(directionalPower);
-	powersParams.add(spotPower);
-	powersParams.add(areaPower);
-	lightsParams.add(powersParams);
+	paramsPowers.add(pointPower);
+	paramsPowers.add(directionalPower);
+	paramsPowers.add(spotPower);
+	paramsPowers.add(areaPower);
+	paramsLights.add(paramsPowers);
 
 	//--
 
 	// Global colors
-	lightsParams.add(globalColor);
+	paramsLights.add(globalColor);
 
-	globalColorsParams.add(pointGlobalColor);
-	globalColorsParams.add(directionalGlobalColor);
-	globalColorsParams.add(spotGlobalColor);
-	globalColorsParams.add(areaGlobalColor);
-	globalColorsParams.add(indexFromColorToGlobal.set("Get G Color", 0, 0, 2));
-	globalColorsParams.add(nameSourceGlobal.set("from Source", "NONE"));
+	paramsGlobalColors.add(pointGlobalColor);
+	paramsGlobalColors.add(directionalGlobalColor);
+	paramsGlobalColors.add(spotGlobalColor);
+	paramsGlobalColors.add(areaGlobalColor);
+	paramsGlobalColors.add(indexFromColorToGlobal.set("Get G Color", 0, 0, 2));
+	paramsGlobalColors.add(nameSourceGlobal.set("from Source", "NONE"));
 	nameSourceGlobal.setSerializable(false);
-	lightsParams.add(globalColorsParams);
+	paramsLights.add(paramsGlobalColors);
 
-	lightsSettingsParams.add(pointParams);
-	lightsSettingsParams.add(directionalParams);
-	lightsSettingsParams.add(spotParams);
-	lightsSettingsParams.add(areaParams);
-	lightsParams.add(lightsSettingsParams);
+	paramsLightsSettings.add(paramsPoint);
+	paramsLightsSettings.add(paramsDirectional);
+	paramsLightsSettings.add(paramsSpot);
+	paramsLightsSettings.add(paramsArea);
+	paramsLights.add(paramsLightsSettings);
 
 	//--
 
 	// Extra
-	params_Extra.add(bSmoothLights);
-	params_TestAnims.setName("Test Anims");
-	params_TestAnims.add(bAnimLights);
-	params_TestAnims.add(modeAnimArea);
-	params_TestAnims.add(bAnimLightsMouse);
-	params_Extra.add(params_TestAnims);
-	params_Extra.add(bAutoLayout);
-	params_Extra.add(bDebugLights);
-	params_Extra.add(bDebugShadow);
-	lightsParams.add(params_Extra);
+	paramsExtra.add(bSmoothLights);
+	paramsTestAnims.setName("Test Anims");
+	paramsTestAnims.add(bAnimLights);
+	paramsTestAnims.add(modeAnimArea);
+	paramsTestAnims.add(bAnimLightsMouse);
+	paramsExtra.add(paramsTestAnims);
+	paramsExtra.add(bAutoLayout);
+	paramsExtra.add(bDebugLights);
+	paramsExtra.add(bDebugShadow);
+	paramsLights.add(paramsExtra);
 
-	lightsParams.add(bDebug);
-	lightsParams.add(vResetAllLights);
+	paramsLights.add(bDebug);
+	paramsLights.add(vResetAllLights);
 
 	// Exclude
 	globalColor.setSerializable(false);
-	globalColorsParams.setSerializable(false);
+	paramsGlobalColors.setSerializable(false);
 	pointGlobalColor.setSerializable(false);
 	spotGlobalColor.setSerializable(false);
 	directionalGlobalColor.setSerializable(false);
@@ -916,17 +927,17 @@ void SurfingLights::setupParametersShadows() {
 
 	nameShadowType.setSerializable(false);
 
-	shadowParams.setName("SHADOWS");
-	shadowParams.add(bDrawShadow);
-	shadowParams.add(shadowStrength);
-	shadowParams.add(indexShadowType);
-	shadowParams.add(nameShadowType);
-	shadowParams.add(shadowBias);
-	shadowParams.add(shadowNormalBias);
-	shadowParams.add(shadowSampleRadius);
-	shadowParams.add(shadowResolution);
-	shadowParams.add(bDebugShadow);
-	shadowParams.add(vResetShadow);
+	paramsShadow.setName("SHADOWS");
+	paramsShadow.add(bDrawShadow);
+	paramsShadow.add(shadowStrength);
+	paramsShadow.add(indexShadowType);
+	paramsShadow.add(nameShadowType);
+	paramsShadow.add(shadowBias);
+	paramsShadow.add(shadowNormalBias);
+	paramsShadow.add(shadowSampleRadius);
+	paramsShadow.add(shadowResolution);
+	paramsShadow.add(bDebugShadow);
+	paramsShadow.add(vResetShadow);
 }
 
 //--------------------------------------------------------------
@@ -1760,8 +1771,8 @@ void SurfingLights::save() {
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:save() " << pathSettings;
 	ofLogNotice("ofxSurfingPBR") << "SurfingLights:save() " << pathSettingsShadows;
 
-	ofxSurfing::saveSettings(shadowParams, pathSettingsShadows);
-	ofxSurfing::saveSettings(lightsParams, pathSettings);
+	ofxSurfing::saveSettings(paramsShadow, pathSettingsShadows);
+	ofxSurfing::saveSettings(paramsLights, pathSettings);
 }
 
 //--------------------------------------------------------------
@@ -1775,8 +1786,8 @@ bool SurfingLights::load() {
 	autoSaver.pause();
 #endif
 
-	b = ofxSurfing::loadSettings(shadowParams, pathSettingsShadows);
-	b &= ofxSurfing::loadSettings(lightsParams, pathSettings);
+	b = ofxSurfing::loadSettings(paramsShadow, pathSettingsShadows);
+	b &= ofxSurfing::loadSettings(paramsLights, pathSettings);
 
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
 	autoSaver.start();

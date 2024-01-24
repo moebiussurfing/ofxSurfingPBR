@@ -137,12 +137,12 @@ public:
 
 	ofParameterGroup parameters;
 
-	ofParameterGroup params_User;
-	ofParameterGroup params_Enablers;
-	ofParameterGroup params_Extra;
-	ofParameterGroup params_TestAnims;
-	ofParameterGroup lightsParams;
-	ofParameterGroup lightsSettingsParams;
+	ofParameterGroup paramsUser;
+	ofParameterGroup paramsEnablers;
+	ofParameterGroup paramsExtra;
+	ofParameterGroup paramsTestAnims;
+	ofParameterGroup paramsLights;
+	ofParameterGroup paramsLightsSettings;
 
 	//--
 
@@ -150,7 +150,7 @@ public:
 
 	//--
 
-	ofParameterGroup globalColorsParams;
+	ofParameterGroup paramsGlobalColors;
 
 	ofParameter<ofFloatColor> globalColor; //main global
 	ofFloatColor globalColor_;
@@ -163,8 +163,8 @@ public:
 	bool bFlagFromColorIndexToGlobals = false;
 
 	// Point
-	ofParameterGroup pointParams;
-	ofParameterGroup pointColorsParams;
+	ofParameterGroup paramsPoint;
+	ofParameterGroup paramsPointColors;
 	ofParameter<bool> bPoint;
 	ofParameter<bool> bPointShadow;
 	ofParameter<void> vPointReset;
@@ -180,8 +180,8 @@ public:
 	//--
 
 	// Directional
-	ofParameterGroup directionalParams;
-	ofParameterGroup directionalColorsParams;
+	ofParameterGroup paramsDirectional;
+	ofParameterGroup paramsDirectionalColors;
 	ofParameter<bool> bDirectional;
 	ofParameter<bool> bDirectionalShadow;
 	ofParameter<void> vDirectionalReset;
@@ -197,8 +197,8 @@ public:
 	//--
 
 	// Spot
-	ofParameterGroup spotParams;
-	ofParameterGroup spotColorsParams;
+	ofParameterGroup paramsSpot;
+	ofParameterGroup paramsSpotColors;
 	ofParameter<bool> bSpot;
 	ofParameter<bool> bSpotShadow;
 	ofParameter<void> vSpotReset;
@@ -215,8 +215,8 @@ public:
 	//--
 
 	// Area
-	ofParameterGroup areaParams;
-	ofParameterGroup areaColorsParams;
+	ofParameterGroup paramsArea;
+	ofParameterGroup paramsAreaColors;
 	ofParameter<bool> bArea;
 	ofParameter<bool> bAreaShadow;
 	ofParameter<void> vAreaReset;
@@ -305,7 +305,7 @@ private:
 	void doRefreshPowerArea();
 
 	void ChangedPowers(ofAbstractParameter & e);
-	ofParameterGroup powersParams;
+	ofParameterGroup paramsPowers;
 	ofParameter<float> pointPower;
 	ofParameter<float> spotPower;
 	ofParameter<float> directionalPower;
@@ -315,7 +315,7 @@ private:
 
 	// shadow
 private:
-	ofParameterGroup shadowParams;
+	ofParameterGroup paramsShadow;
 
 public:
 	ofParameter<bool> bDrawShadow;
