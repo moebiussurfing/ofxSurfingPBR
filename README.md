@@ -164,17 +164,17 @@ void ofApp::renderScene()
   * Data for `2_Example_Models`: [bin/data.zip](https://mega.nz/file/lOMzkJIC#tLaM9MTKA6J83nf0DoxKtoET3uevG-Y6z4_eLfIiIPQ)  
   * Data for `6_Example_3D_Parts`: [bin/data.zip](https://mega.nz/file/VPMBEBTJ#Cgi-u72GdJOMel7xCli2-SmU7aU0b0TtOijyuXIDKdc)  
   * Only shaders: [bin/dataShaders.zip](https://mega.nz/file/gLMwXY6S#HjIfsu80ZIpPccaFbJKowE3qeoRZeK8jnfSrhUEeGQE)
-  * All `data.zip` files: [ofxSurfingPBR data's folder @ MEGA](https://mega.nz/folder/RXtC1Qqa#2PfwJf-jIWciE1ZWWu4qfw).
+  * Folder with all the files: [@ MEGA](https://mega.nz/folder/RXtC1Qqa#2PfwJf-jIWciE1ZWWu4qfw).
 - Notice that all the examples should work without the data files too.
 
 bin  
 $~$ └ data  
-$~~~~~~$ ├ assets/fonts $~~~~~~$ ttf, otf $~~~~~~$ for ofxGui customize  
-$~~~~~~$ ├ cubemaps $~~~~~~$ exr, hdr, jpg $~~~~~~$ for CubeMaps  
-$~~~~~~$ ├ models $~~~~~~$ obj, ply, fbx $~~~~~~$ for 3d objects  
-$~~~~~~$ ├ images $~~~~~~$ jpg, png $~~~~~~$ for Bg sphere texture  
-$~~~~~~$ ├ shadersGL2 $~~~~~~$ frag, vert $~~~~~~$ used when enabled  
-$~~~~~~$ └ shadersGL3 $~~~~~~$ frag, vert $~~~~~~$ used when enabled  
+$~~~~~~$ ├ assets/fonts ttf,otf for ofxGui customize  
+$~~~~~~$ ├ cubemaps exr,hdr,jpg for CubeMaps  
+$~~~~~~$ ├ models obj,ply,fbx for 3d objects  
+$~~~~~~$ ├ images jpg,png for Bg sphere texture  
+$~~~~~~$ ├ shadersGL2 frag,vert used when enabled  
+$~~~~~~$ └ shadersGL3 frag,vert used when enabled  
 
 ## TESTED SYSTEMS
 * **Windows 11** / **VS 2022** / **OF 0.12+** @ [GitHub master branch](https://github.com/openframeworks/openFrameworks)
