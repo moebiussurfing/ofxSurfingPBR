@@ -25,15 +25,16 @@ private:
 		float theta = acos(cartesian.z / r);
 		float phi = atan2(cartesian.y, cartesian.x);
 
+		float diffEpsylon = 0.001f;
 		// Update spherical coordinates only if they differ from the current ones
-		if (abs(distance.get() - r) > 0.001) {
+		if (abs(distance.get() - r) > diffEpsylon) {
 			if (distance != r) distance.set(r);
 		}
-		if (abs(latitude.get() - theta) > 0.001) {
-			if (latitude != r) latitude.set(theta);
+		if (abs(latitude.get() - theta) > diffEpsylon) {
+			if (latitude != theta) latitude.set(theta);
 		}
-		if (abs(longitude.get() - phi) > 0.001) {
-			if (longitude != r) longitude.set(phi);
+		if (abs(longitude.get() - phi) > diffEpsylon) {
+			if (longitude != phi) longitude.set(phi);
 		}
 	}
 
