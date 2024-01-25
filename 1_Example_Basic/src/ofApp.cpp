@@ -28,6 +28,21 @@ void ofApp::setup() {
 void ofApp::draw() {
 	pbr.draw();
 
+	// We can access the internal camera pointer if required:
+	// we will draw the axis when bDebug is enabled and inside the camera view.
+	if (pbr.bDebug) {
+		pbr.getOfEasyCamPtr()->begin();
+		{
+			ofPushMatrix();
+			ofTranslate(0, pbr.getFloorZeroHeight(), 0);
+			ofDrawAxis(25);
+			ofPopMatrix();
+		}
+		pbr.getOfEasyCamPtr()->end();
+	}
+
+	//--
+
 	pbr.drawGui();
 }
 
@@ -47,20 +62,6 @@ void ofApp::renderScene() {
 		drawScene();
 	}
 	pbr.endMaterial();
-
-	//--
-
-	// We can access the internal camera pointer if required:
-	if (pbr.bDebug) {
-		pbr.getOfEasyCamPtr()->begin();
-		{
-			ofPushMatrix();
-			ofTranslate(0, pbr.getFloorZeroHeight(), 0);
-			ofDrawAxis(50);
-			ofPopMatrix();
-		}
-		pbr.getOfEasyCamPtr()->end();
-	}
 }
 
 //--------------------------------------------------------------
