@@ -56,7 +56,7 @@ https://github.com/moebiussurfing/ofxSurfingPBR/assets/2106149/43ac19b8-da41-4dd
 
 - Class `SurfingLights.h`: Four **bundled lights**: `Point`, `Direct`, `Spot` and `Area` with shadows. 
 
-- Class `SurfingSceneManager.h`: Bundles the lights from `SurfingLights.h` and allows **queuing materials** dynamically.
+- Class `SurfingSceneManager.h`: Bundles the lights from `SurfingLights.h` and allows **queuing materials** dynamically. Standalone and not loaded by default on `ofxSurfingPBR`.
 
 - Persistent settings:
   - Optimized **auto save** on any change.
@@ -163,17 +163,18 @@ void ofApp::renderScene()
   * Data for any or new projects: [bin/data.zip](https://mega.nz/file/cHkylJZY#sVdQpSF8IkvdmKdpMIbA4767kvBvfGL7R7GnU9g20ow)  
   * Data for `2_Example_Models`: [bin/data.zip](https://mega.nz/file/lOMzkJIC#tLaM9MTKA6J83nf0DoxKtoET3uevG-Y6z4_eLfIiIPQ)  
   * Data for `6_Example_3D_Parts`: [bin/data.zip](https://mega.nz/file/VPMBEBTJ#Cgi-u72GdJOMel7xCli2-SmU7aU0b0TtOijyuXIDKdc)  
-  * Only shaders: [bin/dataShaders.zip](https://mega.nz/file/gLMwXY6S#HjIfsu80ZIpPccaFbJKowE3qeoRZeK8jnfSrhUEeGQE)  
-- Notice that all the example should work without the data files too.
+  * Only shaders: [bin/dataShaders.zip](https://mega.nz/file/gLMwXY6S#HjIfsu80ZIpPccaFbJKowE3qeoRZeK8jnfSrhUEeGQE)
+  * Folder with all the files: [@ MEGA](https://mega.nz/folder/RXtC1Qqa#2PfwJf-jIWciE1ZWWu4qfw).
+- Notice that all the examples should work without the data files too.
 
 bin  
 $~$ └ data  
-$~~~~~~$ ├ assets/fonts $~~~~~~$ ttf, otf $~~~~~~$ for ofxGui customize  
-$~~~~~~$ ├ cubemaps $~~~~~~$ exr, hdr, jpg $~~~~~~$ for CubeMaps  
-$~~~~~~$ ├ models $~~~~~~$ obj, ply, fbx $~~~~~~$ for 3d objects  
-$~~~~~~$ ├ images $~~~~~~$ jpg, png $~~~~~~$ for Bg sphere texture  
-$~~~~~~$ ├ shadersGL2 $~~~~~~$ frag, vert $~~~~~~$ used when enabled  
-$~~~~~~$ └ shadersGL3 $~~~~~~$ frag, vert $~~~~~~$ used when enabled  
+$~~~~~~$ ├ assets/fonts / ttf,otf / for ofxGui customize  
+$~~~~~~$ ├ cubemaps / exr,hdr,jpg / for CubeMaps  
+$~~~~~~$ ├ models / obj,ply,fbx / for 3d objects  
+$~~~~~~$ ├ images / jpg,png / for Bg sphere texture  
+$~~~~~~$ ├ shadersGL2 / frag,vert / used when enabled  
+$~~~~~~$ └ shadersGL3 / frag,vert / used when enabled  
 
 ## TESTED SYSTEMS
 * **Windows 11** / **VS 2022** / **OF 0.12+** @ [GitHub master branch](https://github.com/openframeworks/openFrameworks)
