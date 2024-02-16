@@ -647,3 +647,5 @@ MigrationBackup/
 1_Example_Basic/bin/pbr1
 2_Example_Models/enc_temp_folder/99df90322befd89fab0cf41f38edf34/SurfingLights.h
 2_Example_Models/enc_temp_folder/32b828bad74fc3be382733b7cff455d8/SurfingLights.cpp
+1_Example_Basic/of.entitlements
+1_Example_Basic/bin/data/.gitkeep
