@@ -167,14 +167,14 @@ void ofApp::renderScene()
   * Folder with all the files: [@ MEGA](https://mega.nz/folder/RXtC1Qqa#2PfwJf-jIWciE1ZWWu4qfw).
 - Notice that all the examples should work without the data files too.
 
-bin  
-data  
-assets/fonts | ttf,otf | for ofxGui customize  
-cubemaps | exr,hdr,jpg | for CubeMaps  
-models | obj,ply,fbx | for 3d objects  
-images | jpg,png | for Bg sphere texture  
-shadersGL2 | frag,vert | used when enabled  
-shadersGL3 | frag,vert | used when enabled  
+/bin/  
+/data/  
+/assets/fonts | ttf,otf | for ofxGui customize  
+/cubemaps | exr,hdr,jpg | for CubeMaps  
+/models | obj,ply,fbx | for 3d objects  
+/images | jpg,png | for Bg sphere texture  
+/shadersGL2 | frag,vert | used when enabled  
+/shadersGL3 | frag,vert | used when enabled  
 
 ## TESTED SYSTEMS
 * **Windows 11** / **VS 2022** / **OF 0.12+** @ [GitHub master branch](https://github.com/openframeworks/openFrameworks)
