@@ -207,9 +207,7 @@ void ofApp::resetMaterials() {
 	// the same OF internal PBR settings!
 	logoMaterial.doResetMaterial();
 	boxesMaterial.doResetMaterial();
-
 #else
-
 	// Materials from the OF core example
 	logoMaterial = ofMaterial();
 	logoMaterial = ofMaterial();
@@ -229,7 +227,7 @@ void ofApp::resetMaterials() {
 void ofApp::update() {
 	ofxSurfing::setWindowTitleAsProjectNameWithFPS();
 
-	//FIX
+	//FIX workaround to collapse all sub menus.. not working..
 #ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
 	static bool bDone = false;
 	if (!bDone && (ofGetFrameNum() > 600)) {
@@ -293,11 +291,17 @@ void ofApp::updateShader() {
 		for (int x = 0; x < w; x++) {
 			int i = y * w + x;
 
-			if (indexMode == 0) {
+			// shader modes
+
+			if (indexMode == 0) { // feeded by noise
 				pixels[i] = noiseAmplitude * ofNoise(x * noiseScale, y * noiseScale, n);
-			} else if (indexMode == 1) {
+			}
+
+			else if (indexMode == 1) { // feeded by cam image
 				pixels[i] = m * pixelsRef.getColor(x, y).getLightness();
-			} else if (indexMode == 2) {
+			}
+
+			else if (indexMode == 2) { // TODO
 			}
 		}
 	}
@@ -390,12 +394,14 @@ void ofApp::drawScene() {
 
 	//--
 
-	// cam preview
+	// cam image preview
 	if (indexMode == 0) {
-	} else if (indexMode == 1) {
+	}
+
+	else if (indexMode == 1) {
 		ofRectangle rect;
-		int w = 320;
-		int h = 320 * (9.f / 16.f);
+		int w = 250;
+		int h = w * (9.f / 16.f);
 		int x = ofGetWidth() - w;
 		int y = 0;
 		rect = ofRectangle(x, y, w, h);
@@ -404,7 +410,9 @@ void ofApp::drawScene() {
 #else
 		videoGrabber.draw(rect);
 #endif
-	} else if (indexMode == 2) {
+	}
+
+	else if (indexMode == 2) {
 	}
 }
 

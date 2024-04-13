@@ -15,9 +15,10 @@ workflow for custom shader features.
 // we want to use only the material class
 // from the ofxSurfingPBR addon!
 
-#define SURFING__USE__OF_CORE_PBR_MATERIALS
+//#define SURFING__USE__OF_CORE_PBR_MATERIALS
 // uncomment to disable the addon features
-// and switch to "vanilla" OF core materials.
+// and switch to "vanilla" OF core materials 
+// but instead of the addon!
 
 #define USE_PAO_CAM 0// 0 is for FHD, 1 to 640x480
 
@@ -29,11 +30,11 @@ public:
 	void keyPressed(int key);
 	void exit();
 
-	void buildHelp();
-	string sHelp;
-
 	void drawScene();
 	void renderScene();
+
+	void buildHelp();
+	string sHelp;
 
 	void drawGui();
 
