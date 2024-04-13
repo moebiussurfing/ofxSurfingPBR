@@ -6,7 +6,7 @@ void ofApp::setup() {
 #if 1
 	ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
 	ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
-	ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
+	//ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
 #endif
 
 	// Verbose
