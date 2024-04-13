@@ -400,7 +400,7 @@ void ofApp::drawScene() {
 
 	else if (indexMode == 1) {
 		ofRectangle rect;
-		int w = 250;
+		int w = 320;
 		int h = w * (9.f / 16.f);
 		int x = ofGetWidth() - w;
 		int y = 0;
