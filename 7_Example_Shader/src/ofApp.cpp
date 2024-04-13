@@ -59,9 +59,12 @@ void ofApp::setupShader() {
 	parametersPlaneShader.add(noiseAmplitude.set("Displacement", 0.0f, 0.0f, 1.0f));
 	parametersPlaneShader.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
 	parametersPlaneShader.add(noiseSpeed.set("Noise Speed", 0.0f, 0.0f, 1.0f));
+	parametersPlaneShader.add(vRandomShader.set("Random"));
 	parameters.add(parametersPlaneShader);
 
 	// END PAO
+
+	ofAddListener(parametersPlaneShader.parameterChangedE(), this, &ofApp::ChangedParametersPlaneShader);
 }
 //--------------------------------------------------------------
 void ofApp::setupObjects() {
@@ -226,6 +229,7 @@ void ofApp::update() {
 	ofxSurfing::setWindowTitleAsProjectNameWithFPS();
 
 	//FIX
+#ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
 	static bool bDone = false;
 	if (!bDone && (ofGetFrameNum() > 600)) {
 		bDone = true;
@@ -233,6 +237,7 @@ void ofApp::update() {
 		boxesMaterial.refreshGui();
 		ofLogNotice() << "Forced insternal refreshGuis";
 	}
+#endif
 
 	//--
 
@@ -481,6 +486,20 @@ void ofApp::Changed(ofAbstractParameter & e) {
 
 	if (n == vResetMaterials.getName()) {
 		resetMaterials();
+	} 
+}
+
+//--------------------------------------------------------------
+void ofApp::ChangedParametersPlaneShader(ofAbstractParameter & e) {
+
+	std::string n = e.getName();
+
+	ofLogNotice() << "Changed: " << n << ": " << e;
+
+ if (n == vRandomShader.getName()) {
+		noiseAmplitude = ofRandom(noiseAmplitude.getMin(), noiseAmplitude.getMax());
+		noiseScale = ofRandom(noiseScale.getMin(), noiseScale.getMax());
+		noiseSpeed = ofRandom(noiseSpeed.getMin(), noiseSpeed.getMax());
 	}
 }
 
@@ -569,6 +588,7 @@ void ofApp::keyPressed(int key) {
 //--------------------------------------------------------------
 void ofApp::exit() {
 	ofRemoveListener(parameters.parameterChangedE(), this, &ofApp::Changed);
+	ofRemoveListener(parametersPlaneShader.parameterChangedE(), this, &ofApp::ChangedParametersPlaneShader);
 
 	save();
 }

@@ -15,7 +15,7 @@ workflow for custom shader features.
 // we want to use only the material class
 // from the ofxSurfingPBR addon!
 
-//#define SURFING__USE__OF_CORE_PBR_MATERIALS
+#define SURFING__USE__OF_CORE_PBR_MATERIALS
 // uncomment to disable the addon features
 // and switch to "vanilla" OF core materials.
 
@@ -102,7 +102,9 @@ public:
     ofParameter<float> noiseScale;
     ofParameter<float> noiseSpeed;
     ofParameter<bool> bDrawPlaneShader;
+	ofParameter<void> vRandomShader;
 	ofParameterGroup parametersPlaneShader;
+	void ChangedParametersPlaneShader(ofAbstractParameter & e);
 
     // END PAO
 };
