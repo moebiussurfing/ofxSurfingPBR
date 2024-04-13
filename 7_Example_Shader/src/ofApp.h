@@ -103,6 +103,7 @@ public:
     ofParameter<float> noiseSpeed;
     ofParameter<bool> bDrawPlaneShader;
 	ofParameter<void> vRandomShader;
+	ofParameter<int> indexMode;
 	ofParameterGroup parametersPlaneShader;
 	void ChangedParametersPlaneShader(ofAbstractParameter & e);
 

@@ -55,6 +55,7 @@ void ofApp::setupShader() {
 	videoGrabber.setup(camWidth, camHeight);
 
 	parametersPlaneShader.setName("Plane Shader");
+	parametersPlaneShader.add(indexMode.set("MODE", 1, 0, 1));
 	parametersPlaneShader.add(bDrawPlaneShader.set("Draw Plane Shader", true));
 	parametersPlaneShader.add(noiseAmplitude.set("Displacement", 0.0f, 0.0f, 1.0f));
 	parametersPlaneShader.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
@@ -291,11 +292,13 @@ void ofApp::updateShader() {
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			int i = y * w + x;
-#if 1
-			pixels[i] = noiseAmplitude * ofNoise(x * noiseScale, y * noiseScale, n);
-#else
-			pixels[i] = m * pixelsRef.getColor(x, y).getLightness();
-#endif
+
+			if (indexMode == 0) {
+				pixels[i] = noiseAmplitude * ofNoise(x * noiseScale, y * noiseScale, n);
+			} else if (indexMode == 1) {
+				pixels[i] = m * pixelsRef.getColor(x, y).getLightness();
+			} else if (indexMode == 2) {
+			}
 		}
 	}
 
@@ -384,6 +387,25 @@ void ofApp::drawScene() {
 	ofPopStyle();
 
 	camera.end();
+
+	//--
+
+	// cam preview
+	if (indexMode == 0) {
+	} else if (indexMode == 1) {
+		ofRectangle rect;
+		int w = 320;
+		int h = 320 * (9.f / 16.f);
+		int x = ofGetWidth() - w;
+		int y = 0;
+		rect = ofRectangle(x, y, w, h);
+#if 0
+		img.draw(rect);
+#else
+		videoGrabber.draw(rect);
+#endif
+	} else if (indexMode == 2) {
+	}
 }
 
 //--------------------------------------------------------------
@@ -486,7 +508,7 @@ void ofApp::Changed(ofAbstractParameter & e) {
 
 	if (n == vResetMaterials.getName()) {
 		resetMaterials();
-	} 
+	}
 }
 
 //--------------------------------------------------------------
@@ -496,7 +518,7 @@ void ofApp::ChangedParametersPlaneShader(ofAbstractParameter & e) {
 
 	ofLogNotice() << "Changed: " << n << ": " << e;
 
- if (n == vRandomShader.getName()) {
+	if (n == vRandomShader.getName()) {
 		noiseAmplitude = ofRandom(noiseAmplitude.getMin(), noiseAmplitude.getMax());
 		noiseScale = ofRandom(noiseScale.getMin(), noiseScale.getMax());
 		noiseSpeed = ofRandom(noiseSpeed.getMin(), noiseSpeed.getMax());
@@ -611,27 +633,3 @@ void ofApp::refreshGuiLinks() {
 	}
 }
 #endif
-
-//
-////--------------------------------------------------------------
-//void SurfingMaterial::refreshGui() {
-//	ofLogNotice("ofxSurfingPBR") << "SurfingMaterial:refreshGui()";
-//
-//	gui.getGroup(settingsParams.getName()).getGroup(coatParams.getName()).minimize();
-//	gui.getGroup(colorParams.getName()).minimize();
-//	gui.getGroup(globalParams.getName()).getGroup(globalLinksParams.getName()).minimize();
-//	gui.getGroup(moreParams.getName()).minimize();
-//
-//	guiHelpers.getGroup(randomizersParams.getName()).minimize();
-//}
-//
-////--------------------------------------------------------------
-//ofRectangle SurfingMaterial::getGuiShape() const {
-//	ofRectangle bb = gui.getShape();
-//	return bb;
-//}
-//
-////--------------------------------------------------------------
-//void SurfingMaterial::setGuiPosition(glm::vec2 pos) {
-//	gui.setPosition(pos.x, pos.y);
-//}
