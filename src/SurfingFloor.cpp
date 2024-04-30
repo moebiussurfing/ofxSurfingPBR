@@ -173,7 +173,7 @@ void SurfingFloor::setupParamsDisplace() {
 	displaceMaterialParams.add(normalGeomToNormalMapMix.set("NGeom NMapMix", 0.0, 0.0, 1.0));
 	displaceMaterialParams.add(vResetDisplace);
 
-	displacersParams.setName("Displacers");
+	displacersParams.setName("ShaderDisplacers");
 	displacersParams.add(bLimitImage);
 	displacersParams.add(bDisplaceToMaterial);
 	displacersParams.add(bShaderToPlane);

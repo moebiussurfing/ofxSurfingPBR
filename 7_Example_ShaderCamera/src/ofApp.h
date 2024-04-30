@@ -2,6 +2,7 @@
 
 This example is for building a testing 
 workflow for custom shader features.
+Based on @Paolo code.
 
 */
 
@@ -89,15 +90,14 @@ public:
     
 	//--
 
-    // BEGIN PAO
-	
 	void setupShader();
 	void updateShader();
     ofShader shader;
     ofPlanePrimitive plane;
     ofFloatImage img;
     ofVideoGrabber videoGrabber;
-    int camWidth;
+	ofParameter<void> vResetCamera; //reset camera
+	int camWidth;
     int camHeight;
     ofParameter<float> noiseAmplitude;
     ofParameter<float> noiseScale;
@@ -107,6 +107,5 @@ public:
 	ofParameter<int> indexMode;
 	ofParameterGroup parametersPlaneShader;
 	void ChangedParametersPlaneShader(ofAbstractParameter & e);
-
-    // END PAO
+	size_t indexCam = 0; //pick your device id from console window
 };

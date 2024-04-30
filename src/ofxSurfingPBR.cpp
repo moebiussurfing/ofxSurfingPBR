@@ -691,6 +691,11 @@ void ofxSurfingPBR::update() {
 		//	startupDelayed();
 		//}
 
+		// auto call internally
+//#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
+//		floor.update();
+//#endif
+
 		if (bFlagBuildHelp) {
 			bFlagBuildHelp = false;
 			buildHelp();
@@ -1257,10 +1262,10 @@ bool ofxSurfingPBR::load() {
 	loadCubeMap(path_CubemapFileAbsPath.get());
 #endif
 
-//#ifdef SURFING__PBR__USE_LIGHTS_CLASS
-//	lights.load();
-//#endif
-	
+	//#ifdef SURFING__PBR__USE_LIGHTS_CLASS
+	//	lights.load();
+	//#endif
+
 	//--
 
 #ifdef SURFING__PBR__USE_AUTOSAVE_SETTINGS_ENGINE
@@ -1295,7 +1300,7 @@ void ofxSurfingPBR::saveAll() {
 //--------------------------------------------------------------
 bool ofxSurfingPBR::loadAll() {
 	ofLogNotice("ofxSurfingPBR") << "loadAll() " << path;
-	
+
 	// Notice that internally all classes will load their settings.
 	// so this method is only used to force loading all by the user!
 
@@ -1683,8 +1688,8 @@ void ofxSurfingPBR::doResetCamera() {
 	////camera.setVFlip(true);
 
 	// Custom reset camera for our current scene here!
-	camera.setPosition({ 9, 600, 700});
-	camera.setOrientation({ 0.9f, -0.4f, 0.f, 0.f});
+	camera.setPosition({ 9, 600, 700 });
+	camera.setOrientation({ 0.9f, -0.4f, 0.f, 0.f });
 }
 #endif
 

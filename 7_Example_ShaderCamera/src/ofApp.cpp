@@ -49,18 +49,19 @@ void ofApp::setupShader() {
 	videoGrabber.setVerbose(true);
 	videoGrabber.listDevices();
 
-	size_t indexCam = 0; //pick your device id from console window
 	videoGrabber.setDeviceID(indexCam);
 
 	videoGrabber.setup(camWidth, camHeight);
 
-	parametersPlaneShader.setName("Plane Shader");
+	parametersPlaneShader.setName("Custom PlaneShader");
 	parametersPlaneShader.add(indexMode.set("MODE", 1, 0, 1));
-	parametersPlaneShader.add(bDrawPlaneShader.set("Draw Plane Shader", true));
+	parametersPlaneShader.add(bDrawPlaneShader.set("Draw PlaneShader", true));
 	parametersPlaneShader.add(noiseAmplitude.set("Displacement", 0.0f, 0.0f, 1.0f));
 	parametersPlaneShader.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
 	parametersPlaneShader.add(noiseSpeed.set("Noise Speed", 0.0f, 0.0f, 1.0f));
 	parametersPlaneShader.add(vRandomShader.set("Random"));
+	parametersPlaneShader.add(vRandomShader.set("Random"));
+	parametersPlaneShader.add(vResetCamera.set("Reset Camera"));
 	parameters.add(parametersPlaneShader);
 
 	// END PAO
@@ -530,6 +531,12 @@ void ofApp::ChangedParametersPlaneShader(ofAbstractParameter & e) {
 		noiseAmplitude = ofRandom(noiseAmplitude.getMin(), noiseAmplitude.getMax());
 		noiseScale = ofRandom(noiseScale.getMin(), noiseScale.getMax());
 		noiseSpeed = ofRandom(noiseSpeed.getMin(), noiseSpeed.getMax());
+	}
+	if (n == vResetCamera.getName()) {
+		videoGrabber.close();
+		videoGrabber.listDevices();
+		videoGrabber.setDeviceID(indexCam);
+		videoGrabber.setup(camWidth, camHeight);
 	}
 }
 
