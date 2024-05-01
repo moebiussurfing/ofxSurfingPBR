@@ -60,7 +60,6 @@ void ofApp::setupShader() {
 	parametersPlaneShader.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
 	parametersPlaneShader.add(noiseSpeed.set("Noise Speed", 0.0f, 0.0f, 1.0f));
 	parametersPlaneShader.add(vRandomShader.set("Random"));
-	parametersPlaneShader.add(vRandomShader.set("Random"));
 	parametersPlaneShader.add(vResetCamera.set("Reset Camera"));
 	parameters.add(parametersPlaneShader);
 
