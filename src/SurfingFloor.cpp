@@ -102,9 +102,9 @@ void SurfingFloor::setupParams() {
 
 	//--
 
-#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	setupShaderPlane();
-#endif
+	//#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
+	//	setupShaderPlane();
+	//#endif
 
 	//--
 
@@ -142,7 +142,8 @@ void SurfingFloor::setupShaderPlane() {
 
 	ofDisableArbTex();
 
-	bLoadedShaderPlane = shaderPlane.load("shadersGL3/shader");
+	pathShader = "shadersGL3/shader"; //TODO
+	bLoadedShaderPlane = shaderPlane.load(pathShader);
 
 	refreshImgShaderPlane();
 
@@ -419,15 +420,21 @@ void SurfingFloor::update() {
 
 		refreshBox();
 	}
+
+#ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
+	updateScene();
+#endif
 }
 
 //--------------------------------------------------------------
 void SurfingFloor::updateScene() {
+	//could add more scene stuff here
 
 #ifdef SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
-	if (bDisplaceToMaterial || bShaderToPlane) {
-		updateDisplace();
-	}
+	if (bLoadedShaderPlane)
+		if (bDisplaceToMaterial || bShaderToPlane) {
+			updateDisplace();
+		}
 #endif
 }
 
@@ -918,6 +925,14 @@ void SurfingFloor::drawDebug() {
 		s += "IMAGE\n";
 		s += "Size: ";
 		s += ofToString(img.getWidth()) + "x" + ofToString(img.getHeight()) + "\n\n";
+		if (bLoadedShaderPlane) {
+			s += "SHADER LOADED\n";
+		} else {
+			s += "SHADER ERROR\n";
+		}
+		s += pathShader + "\n";
+
+		s += "\n";
 		s += "WINDOW\n";
 		s += ofToString(ofGetWidth()) + "x" + ofToString(ofGetHeight()) + " px\n";
 		s += ofToString(ofGetFrameRate(), 1) + " FPS";

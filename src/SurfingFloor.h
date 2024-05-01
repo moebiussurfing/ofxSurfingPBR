@@ -176,6 +176,7 @@ private:
 private:
 	ofShader shaderPlane;
 	bool bLoadedShaderPlane = false;
+	string pathShader = "";
 	void setupShaderPlane();
 	ofFloatImage img;
 	ofParameter<bool> bLimitImage;
