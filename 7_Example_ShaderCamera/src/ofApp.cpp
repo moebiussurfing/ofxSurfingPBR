@@ -31,7 +31,6 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::setupShader() {
 
-	// BEGIN PAO
 #if (USE_PAO_CAM == 1)
 	camWidth = 640;
 	camHeight = 480;
@@ -41,7 +40,8 @@ void ofApp::setupShader() {
 #endif
 
 	ofDisableArbTex();
-	shader.load("shadersGL3/shader");
+	string pathShaderExtra = "shadersExtraGL3/shader";
+	shader.load(pathShaderExtra);
 	img.allocate(camWidth, camHeight, OF_IMAGE_GRAYSCALE);
 	plane.set(camWidth, camHeight, camWidth * 0.1, camHeight * 0.1);
 	plane.mapTexCoordsFromTexture(img.getTexture());
@@ -56,14 +56,13 @@ void ofApp::setupShader() {
 	parametersPlaneShader.setName("Custom PlaneShader");
 	parametersPlaneShader.add(indexMode.set("MODE", 1, 0, 1));
 	parametersPlaneShader.add(bDrawPlaneShader.set("Draw PlaneShader", true));
-	parametersPlaneShader.add(noiseAmplitude.set("Displacement", 0.0f, 0.0f, 1.0f));
-	parametersPlaneShader.add(noiseScale.set("Noise Scale", 0.0f, 0.0f, 0.1f));
-	parametersPlaneShader.add(noiseSpeed.set("Noise Speed", 0.0f, 0.0f, 1.0f));
-	parametersPlaneShader.add(vRandomShader.set("Random"));
-	parametersPlaneShader.add(vResetCamera.set("Reset Camera"));
+	parametersPlaneShader.add(noiseAmplitude.set("Displacement", 0.5f, 0.0f, 1.0f));
+	parametersPlaneShader.add(noiseScale.set("Noise Scale", 0.05f, 0.0f, 0.1f));
+	parametersPlaneShader.add(noiseSpeed.set("Noise Speed", 0.5f, 0.0f, 1.0f));
+	parametersPlaneShader.add(vRandomNoise.set("RandomNoise"));
+	parametersPlaneShader.add(vRestartCamera.set("Restart Camera"));
+	parametersPlaneShader.add(offsetPlaneHeight.set("Offest Height", 0.0f, -1.0f, 1.0f));
 	parameters.add(parametersPlaneShader);
-
-	// END PAO
 
 	ofAddListener(parametersPlaneShader.parameterChangedE(), this, &ofApp::ChangedParametersPlaneShader);
 }
@@ -314,6 +313,7 @@ void ofApp::updateShader() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 	drawScene();
+
 	drawGui();
 }
 
@@ -322,6 +322,7 @@ void ofApp::drawScene() {
 
 	ofEnableDepthTest();
 
+	// Compute lights
 	for (int i = 0; i < lights.size(); i++) {
 		auto & light = lights[i];
 		// query the light to see if it has a depth pass
@@ -356,45 +357,49 @@ void ofApp::drawScene() {
 	//--
 
 	camera.begin();
-
-	if (!ofIsGLProgrammableRenderer()) {
-		ofEnableLighting();
-	}
-
-	// CULL the back faces of the geometry for rendering
-	glEnable(GL_CULL_FACE);
-	glFrontFace(GL_CW);
-	glCullFace(GL_BACK);
 	{
-		renderScene();
-	}
-	glDisable(GL_CULL_FACE);
-
-	if (!ofIsGLProgrammableRenderer()) {
-		ofDisableLighting();
-	}
-
-	ofPushStyle();
-	for (int i = 0; i < lights.size(); i++) {
-		auto & light = lights[i];
-
-		ofSetColor(light->getDiffuseColor());
-		if (light->getType() == OF_LIGHT_POINT) {
-			ofDrawSphere(light->getPosition(), 12);
-		} else {
-			light->draw();
+		if (!ofIsGLProgrammableRenderer()) {
+			ofEnableLighting();
 		}
-		if (light->getIsEnabled() && light->getShadow().getIsEnabled() && bDrawFrustums) {
-			light->getShadow().drawFrustum();
-		}
-	}
-	ofPopStyle();
 
+		// CULL the back faces of the geometry for rendering
+		glEnable(GL_CULL_FACE);
+		glFrontFace(GL_CW);
+		glCullFace(GL_BACK);
+		{
+			renderScene();
+		}
+		glDisable(GL_CULL_FACE);
+
+		if (!ofIsGLProgrammableRenderer()) {
+			ofDisableLighting();
+		}
+
+		//--
+
+		// debug lights
+		ofPushStyle();
+		for (int i = 0; i < lights.size(); i++) {
+			auto & light = lights[i];
+
+			ofSetColor(light->getDiffuseColor());
+			if (light->getType() == OF_LIGHT_POINT) {
+				ofDrawSphere(light->getPosition(), 12);
+			} else {
+				light->draw();
+			}
+			if (light->getIsEnabled() && light->getShadow().getIsEnabled() && bDrawFrustums) {
+				light->getShadow().drawFrustum();
+			}
+		}
+		ofPopStyle();
+	}
 	camera.end();
 
 	//--
 
-	// cam image preview
+	// Camera image preview
+
 	if (indexMode == 0) {
 	}
 
@@ -483,28 +488,36 @@ void ofApp::renderScene() {
 
 	//--
 
-	// BEGIN PAO
-
+	// NOTE: it seems that this will fail bc this shader 
+	// is chained inside the main PBR ones...
 	if (bDrawPlaneShader) {
-		// here starts the custom shader,
-		// but it could be replaced
-		// by that one from ofMaterial
-		//boxesMaterial.begin();
-
-		shader.begin();
-		shader.setUniformTexture("displacement", img.getTexture(), 1);
 		ofPushMatrix();
-		ofRotateXDeg(-90);
-		ofTranslate(0, 0, -200);
-		plane.draw();
-		ofDrawIcoSphere(0, 0, 0, 100);
+		{
+			ofTranslate(0, offsetPlaneHeight * SURFING__PBR__SCENE_SIZE_UNIT, 0);
+
+			//--
+			
+			// here starts the custom shader,
+			// but it could be replaced
+			// by that one from ofMaterial
+			//boxesMaterial.begin();
+
+			shader.begin();
+			{
+				shader.setUniformTexture("displacement", img.getTexture(), 1);
+				ofPushMatrix();
+				ofRotateXDeg(-90);
+				ofTranslate(0, 0, -200);
+				plane.draw();
+				ofDrawIcoSphere(0, 0, 0, 100);
+				ofPopMatrix();
+			}
+			shader.end();
+
+			//boxesMaterial.end();
+		}
 		ofPopMatrix();
-		shader.end();
-
-		//boxesMaterial.end();
 	}
-
-	// END PAO
 }
 
 //--------------------------------------------------------------
@@ -526,12 +539,12 @@ void ofApp::ChangedParametersPlaneShader(ofAbstractParameter & e) {
 
 	ofLogNotice() << "Changed: " << n << ": " << e;
 
-	if (n == vRandomShader.getName()) {
+	if (n == vRandomNoise.getName()) {
 		noiseAmplitude = ofRandom(noiseAmplitude.getMin(), noiseAmplitude.getMax());
 		noiseScale = ofRandom(noiseScale.getMin(), noiseScale.getMax());
 		noiseSpeed = ofRandom(noiseSpeed.getMin(), noiseSpeed.getMax());
 	}
-	if (n == vResetCamera.getName()) {
+	if (n == vRestartCamera.getName()) {
 		videoGrabber.close();
 		videoGrabber.listDevices();
 		videoGrabber.setDeviceID(indexCam);
@@ -634,6 +647,10 @@ void ofApp::exit() {
 void ofApp::refreshGuiAnchor() {
 	//set anchor gui (ofxPanel gui) positioned
 	ofxSurfing::setGuiPositionToLayout(gui, ofxSurfing::SURFING_LAYOUT_TOP_LEFT);
+
+	//minimize/collapse ofxPanel folders
+	boxesMaterial.gui.minimizeAll();
+	logoMaterial.gui.minimizeAll();
 }
 //--------------------------------------------------------------
 void ofApp::refreshGuiLinks() {

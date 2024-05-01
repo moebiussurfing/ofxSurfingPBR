@@ -16,8 +16,8 @@ Based on @Paolo code.
 // we want to use only the material class
 // from the ofxSurfingPBR addon!
 
-//#define SURFING__USE__OF_CORE_PBR_MATERIALS
-// uncomment to disable the addon features
+#define SURFING__USE__OF_CORE_PBR_MATERIALS
+// uncomment to disable the addon features/helpers
 // and switch to "vanilla" OF core materials 
 // but instead of the addon!
 
@@ -96,16 +96,18 @@ public:
     ofPlanePrimitive plane;
     ofFloatImage img;
     ofVideoGrabber videoGrabber;
-	ofParameter<void> vResetCamera; //reset camera
+	ofParameter<void> vRestartCamera; //reset camera
 	int camWidth;
     int camHeight;
     ofParameter<float> noiseAmplitude;
     ofParameter<float> noiseScale;
     ofParameter<float> noiseSpeed;
     ofParameter<bool> bDrawPlaneShader;
-	ofParameter<void> vRandomShader;
-	ofParameter<int> indexMode;
+	ofParameter<void> vRandomNoise;
+	ofParameter<int> indexMode;//TODO: add more modes
 	ofParameterGroup parametersPlaneShader;
 	void ChangedParametersPlaneShader(ofAbstractParameter & e);
 	size_t indexCam = 0; //pick your device id from console window
+
+    ofParameter<float> offsetPlaneHeight;
 };
