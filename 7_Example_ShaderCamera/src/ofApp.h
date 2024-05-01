@@ -109,5 +109,5 @@ public:
 	void ChangedParametersPlaneShader(ofAbstractParameter & e);
 	size_t indexCam = 0; //pick your device id from console window
 
-    ofParameter<float> offsetPlaneHeight;
+    ofParameter<float> offsetSceneHeight;
 };

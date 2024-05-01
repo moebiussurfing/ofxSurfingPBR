@@ -48,9 +48,7 @@ void ofApp::setupShader() {
 
 	videoGrabber.setVerbose(true);
 	videoGrabber.listDevices();
-
 	videoGrabber.setDeviceID(indexCam);
-
 	videoGrabber.setup(camWidth, camHeight);
 
 	parametersPlaneShader.setName("Custom PlaneShader");
@@ -61,7 +59,7 @@ void ofApp::setupShader() {
 	parametersPlaneShader.add(noiseSpeed.set("Noise Speed", 0.5f, 0.0f, 1.0f));
 	parametersPlaneShader.add(vRandomNoise.set("RandomNoise"));
 	parametersPlaneShader.add(vRestartCamera.set("Restart Camera"));
-	parametersPlaneShader.add(offsetPlaneHeight.set("Offest Height", 0.0f, -1.0f, 1.0f));
+	parametersPlaneShader.add(offsetSceneHeight.set("Offest Height", 0.0f, -1.0f, 1.0f));
 	parameters.add(parametersPlaneShader);
 
 	ofAddListener(parametersPlaneShader.parameterChangedE(), this, &ofApp::ChangedParametersPlaneShader);
@@ -80,8 +78,9 @@ void ofApp::setupObjects() {
 
 //--------------------------------------------------------------
 void ofApp::setupLights() {
-	// add two lights
-	int numLights = 2;
+
+	// Add two lights
+	const int numLights = 2;
 	for (int i = 0; i < numLights; i++) {
 		auto light = std::make_shared<ofLight>();
 		light->enable();
@@ -174,7 +173,9 @@ void ofApp::setupMaterials() {
 	if (!load()) {
 		ofLogNotice() << "App Settings not found.";
 
-		resetMaterials(); //reset scene/materials if there's no settings file.
+		resetMaterials();
+		// reset scene/materials if there's no settings file
+		// to a default state.
 	} else
 		ofLogNotice() << "Loaded app Settings successfuly";
 }
@@ -226,7 +227,7 @@ void ofApp::resetMaterials() {
 void ofApp::update() {
 	ofxSurfing::setWindowTitleAsProjectNameWithFPS();
 
-	//FIX workaround to collapse all sub menus.. not working..
+	// FIX workaround to collapse all sub menus.. not working..
 #ifndef SURFING__USE__OF_CORE_PBR_MATERIALS
 	static bool bDone = false;
 	if (!bDone && (ofGetFrameNum() > 600)) {
@@ -238,6 +239,8 @@ void ofApp::update() {
 #endif
 
 	//--
+
+	// Animate lights
 
 	float deltaTime = ofClamp(ofGetLastFrameTime(), 1.f / 5000.f, 1.f / 5.f);
 	float etimef = ofGetElapsedTimef();
@@ -273,8 +276,6 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::updateShader() {
 
-	//PAO BEGIN
-
 	videoGrabber.update();
 	ofPixelsRef pixelsRef = videoGrabber.getPixels();
 
@@ -306,14 +307,12 @@ void ofApp::updateShader() {
 	}
 
 	img.update();
-
-	// PAO END
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-	drawScene();
 
+	drawScene();
 	drawGui();
 }
 
@@ -358,9 +357,9 @@ void ofApp::drawScene() {
 
 	camera.begin();
 	{
-		if (!ofIsGLProgrammableRenderer()) {
-			ofEnableLighting();
-		}
+		//if (!ofIsGLProgrammableRenderer()) {
+		//	ofEnableLighting();
+		//}
 
 		// CULL the back faces of the geometry for rendering
 		glEnable(GL_CULL_FACE);
@@ -371,13 +370,13 @@ void ofApp::drawScene() {
 		}
 		glDisable(GL_CULL_FACE);
 
-		if (!ofIsGLProgrammableRenderer()) {
-			ofDisableLighting();
-		}
+		//if (!ofIsGLProgrammableRenderer()) {
+		//	ofDisableLighting();
+		//}
 
 		//--
 
-		// debug lights
+		// Debug lights
 		ofPushStyle();
 		for (int i = 0; i < lights.size(); i++) {
 			auto & light = lights[i];
@@ -437,86 +436,88 @@ void ofApp::drawGui() {
 #endif
 }
 
-// create a renderScene() function so the same drawing can happen in both ofApp::draw()
+// Create a renderScene() function
+// so the same drawing can happen in both ofApp::draw()
 // and inside the ofLight::beginShadowDepthPass()
 //--------------------------------------------------------------
 void ofApp::renderScene() {
-	ofPushStyle();
+	//ofPushStyle();
+	ofPushMatrix();
+	ofTranslate(0, offsetSceneHeight * SURFING__PBR__SCENE_SIZE_UNIT, 0);
+	{
+		float etimef = ofGetElapsedTimef();
 
-	float etimef = ofGetElapsedTimef();
-
-	if (bDrawBoxes) {
-		boxesMaterial.begin();
-		{
-			ofPushMatrix();
+		if (bDrawBoxes) {
+			boxesMaterial.begin();
 			{
-				ofTranslate(250, cosf(etimef * 0.6) * 50 - 80, 200);
-				ofRotateZDeg(ofWrapDegrees((etimef * 0.04) * 360));
-				ofRotateXDeg(ofWrapDegrees((etimef * 0.06) * 360));
-				ofScale(100, 100, 100.0);
-				boxMesh.draw();
-			}
-			ofPopMatrix();
+				ofPushMatrix();
+				{
+					ofTranslate(250, cosf(etimef * 0.6) * 50 - 80, 200);
+					ofRotateZDeg(ofWrapDegrees((etimef * 0.04) * 360));
+					ofRotateXDeg(ofWrapDegrees((etimef * 0.06) * 360));
+					ofScale(100, 100, 100.0);
+					boxMesh.draw();
+				}
+				ofPopMatrix();
 
-			ofPushMatrix();
+				ofPushMatrix();
+				{
+					ofTranslate(-250, cosf(etimef * 0.4) * 90 - 30, 200);
+					ofRotateZDeg(ofWrapDegrees((etimef * 0.034) * 360));
+					ofRotateXDeg(ofWrapDegrees((etimef * 0.067) * 360));
+					ofScale(100, 100, 100.0);
+					boxMesh.draw();
+				}
+				ofPopMatrix();
+			}
+			boxesMaterial.end();
+		}
+
+		if (bDrawLogo) {
+			logoMaterial.begin();
 			{
-				ofTranslate(-250, cosf(etimef * 0.4) * 90 - 30, 200);
-				ofRotateZDeg(ofWrapDegrees((etimef * 0.034) * 360));
-				ofRotateXDeg(ofWrapDegrees((etimef * 0.067) * 360));
-				ofScale(100, 100, 100.0);
-				boxMesh.draw();
+				ofPushMatrix();
+				ofTranslate(-50, -170, 50);
+				ofRotateXDeg(-90);
+				ofScale(60, 60, 60);
+				logoMesh.draw();
+				ofPopMatrix();
 			}
-			ofPopMatrix();
+			logoMaterial.end();
 		}
-		boxesMaterial.end();
 	}
-
-	if (bDrawLogo) {
-		logoMaterial.begin();
-		{
-			ofPushMatrix();
-			ofTranslate(-50, -170, 50);
-			ofRotateXDeg(-90);
-			ofScale(60, 60, 60);
-			logoMesh.draw();
-			ofPopMatrix();
-		}
-		logoMaterial.end();
-	}
-
-	ofPopStyle();
+	ofPopMatrix();
+	//ofPopStyle();
 
 	//--
 
-	// NOTE: it seems that this will fail bc this shader 
+	// NOTE: it seems that this will fail bc this shader
 	// is chained inside the main PBR ones...
 	if (bDrawPlaneShader) {
-		ofPushMatrix();
+
+		// Here starts the custom shader,
+		// but it could be replaced
+		// by that one from ofMaterial
+		// but notice that, if both enabled,
+		// shader will be overwritten!!
+		//boxesMaterial.begin();
+
+		// NOTE: this custom shader will not work
+		// as is called inside the render function 
+		// that wil perform the PBR thing internally!
+		shader.begin();
 		{
-			ofTranslate(0, offsetPlaneHeight * SURFING__PBR__SCENE_SIZE_UNIT, 0);
-
-			//--
-			
-			// here starts the custom shader,
-			// but it could be replaced
-			// by that one from ofMaterial
-			//boxesMaterial.begin();
-
-			shader.begin();
-			{
-				shader.setUniformTexture("displacement", img.getTexture(), 1);
-				ofPushMatrix();
-				ofRotateXDeg(-90);
-				ofTranslate(0, 0, -200);
-				plane.draw();
-				ofDrawIcoSphere(0, 0, 0, 100);
-				ofPopMatrix();
-			}
-			shader.end();
-
-			//boxesMaterial.end();
+			shader.setUniformTexture("displacement", img.getTexture(), 1);
+			ofPushMatrix();
+			ofRotateXDeg(-90);
+			ofTranslate(0, 0, -200);
+			plane.draw();
+			ofDrawIcoSphere(0, 0, 0, 100);
+			ofPopMatrix();
 		}
-		ofPopMatrix();
+		shader.end();
+
+		//boxesMaterial.end();
 	}
 }
 
