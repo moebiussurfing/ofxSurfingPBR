@@ -3,16 +3,20 @@
 //--------------------------------------------------------------
 void ofApp::setup() {
 
+	// Customizes the app window 
+	// with some helpers
 #if 1
 	ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
 
 	// App window
 	ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
-	// Auto customizes settings to 60fps and vSync off.
+
+	// Auto customizes layout and settings to 60fps and vSync off.
 	//ofxSurfing::setWindowAtMonitor(-1); // Move to left display and set landscape.
 	#if 1
-	ofxSurfing::setWindowAtMonitor(1); // Move to right display and set landscape.
-	ofSetWindowShape(768, 1360);
+		//ofxSurfing::setWindowAtMonitor(1); // Move to right display and set landscape.
+		//ofSetWindowShape(768, 1360);
+		ofxSurfing::setWindowAtTV(1);
 	#endif
 	//ofxSurfing::setWindowMaxFrameRate(); // Unlock framerate to max.
 #endif
@@ -34,6 +38,7 @@ void ofApp::setup() {
 void ofApp::draw() {
 	pbr.draw();
 
+	// These draws will not been PBR rendered.
 	// We can access the internal camera pointer if required:
 	// we will draw the axis when bDebug is enabled and inside the camera view.
 	if (pbr.bDebug) {

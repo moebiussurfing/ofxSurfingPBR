@@ -9,8 +9,8 @@ void ofApp::setup() {
 	// App window
 	ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
 	// Auto customizes settings to 60fps and vSync off.
-	ofxSurfing::setWindowAtMonitor(1); // Move to right display and set landscape.
-	ofSetWindowShape(1280, 720);
+	//ofxSurfing::setWindowAtMonitor(1); // Move to right display and set landscape.
+	ofxSurfing::setWindowAtTV(1);
 	//ofxSurfing::setWindowMaxFrameRate(); // Unlock framerate to max.
 #endif
 
