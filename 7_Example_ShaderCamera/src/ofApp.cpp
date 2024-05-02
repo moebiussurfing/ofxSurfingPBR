@@ -443,7 +443,7 @@ void ofApp::drawGui() {
 void ofApp::renderScene() {
 	//ofPushStyle();
 	ofPushMatrix();
-	ofTranslate(0, offsetSceneHeight * SURFING__PBR__SCENE_SIZE_UNIT, 0);
+	ofTranslate(0, offsetSceneHeight * SURFING__PBR__SCENE_SIZE_UNIT/2.f, 0);
 	{
 		float etimef = ofGetElapsedTimef();
 

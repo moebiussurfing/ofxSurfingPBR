@@ -3,11 +3,12 @@
 This example includes the main and bigger class from the addon:  
 `ofxSurfingPBR.h`.  
 
-Example to test some shaders stuff.
-Varify that is not commented the directive line 
-where shader are enabled!
-	#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
+Example to test an internal shader.
+Verify that is not commented 
+the directive line where shader is enabled!!
+#define SURFING__PBR__USE__PLANE_SHADER_AND_DISPLACERS
 at the top of ofxSurfingPBRConstants.h
+TODO: add a basic custom shader.
 
 */
 

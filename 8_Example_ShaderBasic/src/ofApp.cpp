@@ -3,6 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup() {
 
+	// Customization of the app window.
 #if 1
 	ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
 
@@ -30,7 +31,9 @@ void ofApp::draw() {
 	pbr.draw();
 
 	// We can access the internal camera pointer if required:
-	// we will draw the axis when bDebug is enabled and inside the camera view.
+	// Here, we will draw the xyz axis when bDebug is enabled 
+	// and inside the camera view. Also we will have some benefits,
+	// like could be saving camera state, or control mouse edit and more.
 	if (pbr.bDebug) {
 		pbr.getOfEasyCamPtr()->begin();
 		{
@@ -68,6 +71,7 @@ void ofApp::renderScene() {
 //--------------------------------------------------------------
 void ofApp::drawScene() {
 	/* Put your scene drawing here! */
+	ofDrawSphere(50);
 
 	// We can easy draw an internal
 	// testing scene with three prims:
