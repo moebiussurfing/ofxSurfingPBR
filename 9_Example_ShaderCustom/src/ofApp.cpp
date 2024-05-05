@@ -15,7 +15,7 @@ void ofApp::setup() {
 	//ofxSurfing::setWindowMaxFrameRate(); // Unlock framerate to max.
 #endif
 
-	ofSetLogLevel(OF_LOG_VERBOSE);	
+	ofSetLogLevel(OF_LOG_VERBOSE);
 
 	//--
 
@@ -29,9 +29,13 @@ void ofApp::setup() {
 
 	//--
 
+#if (SURFING_ENABLE_MATERIAL == 1)
 	material.setup();
+#endif
 
+#if (SURFING_ENABLE_MESH == 1)
 	mesh.setup();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -55,14 +59,15 @@ void ofApp::draw() {
 
 	//--
 
-	material.draw();
-
-	//mesh.update();
-	//mesh.draw();
-
-	//--
-
 	pbr.drawGui();
+
+#if (SURFING_ENABLE_MATERIAL == 1)
+	material.drawGui();
+#endif
+
+#if (SURFING_ENABLE_MESH == 1)
+	mesh.drawGui();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -86,12 +91,22 @@ void ofApp::renderScene() {
 
 //--------------------------------------------------------------
 void ofApp::drawScene() {
-	/* Put your scene drawing here! */
-	ofDrawSphere(50);
+	///* Put your scene drawing here! */
+	//ofDrawSphere(50);
 
-	// We can easy draw an internal
-	// testing scene with three prims:
-	pbr.drawTestScene();
+	//// We can easy draw an internal
+	//// testing scene with three prims:
+	//pbr.drawTestScene();
+
+	//--
+
+#if (SURFING_ENABLE_MATERIAL == 1)
+	material.draw();
+#endif
+
+#if (SURFING_ENABLE_MESH == 1)
+	mesh.draw();
+#endif
 }
 
 //--------------------------------------------------------------
@@ -101,10 +116,14 @@ void ofApp::exit() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
+#if (SURFING_ENABLE_MATERIAL == 1)
 	material.keyPressed(key);
+#endif
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key) {
+#if (SURFING_ENABLE_MESH == 1)
 	mesh.keyReleased(key);
+#endif
 }

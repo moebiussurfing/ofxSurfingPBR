@@ -12,6 +12,9 @@ TODO: add a basic custom shader.
 
 */
 
+#define SURFING_ENABLE_MESH 0
+#define SURFING_ENABLE_MATERIAL 1
+
 #pragma once
 
 #include "ofMain.h"
@@ -35,7 +38,11 @@ public:
 	ofEasyCam camera;
 	void drawScene();
 
+#if (SURFING_ENABLE_MATERIAL == 1)
 	materialPBRAdvanced material;
+#endif
 
+#if (SURFING_ENABLE_MESH == 1)
 	vboMeshDrawInstanced mesh;
+#endif
 };

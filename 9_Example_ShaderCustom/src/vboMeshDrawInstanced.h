@@ -25,6 +25,7 @@ public:
 	void setup();
 	void update();
 	void draw();
+	void drawGui();
 	
 	void keyReleased(int key);
 };

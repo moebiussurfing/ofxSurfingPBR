@@ -7,6 +7,7 @@ class materialPBRAdvanced{
 	public:
 		void setup();
 		void draw();
+		void drawGui();
 	
 		void renderScene(bool bShadowPass);
 	
@@ -15,7 +16,7 @@ class materialPBRAdvanced{
 		void keyPressed(int key);
 	
 		ofEasyCam camera;
-		ofCubeMap cubeMap;
+		//ofCubeMap cubeMap;
 		ofVboMesh meshLogoHollow;
 		ofMaterial matLogo;
 		ofMaterial matFloor;

@@ -20,7 +20,7 @@ void materialPBRAdvanced::setup() {
 	light.setDiffuseColor(ofFloatColor(1.0, 2.0));
 	light.getShadow().setShadowType(OF_SHADOW_TYPE_PCF_LOW);
 
-	meshLogoHollow.load("/models/ofLogoHollow.ply");
+	meshLogoHollow.load("models//ofLogoHollow.ply");
 	meshLogoHollow.mergeDuplicateVertices();
 	// we need to flip the normals for this mesh //
 	for (size_t i = 0; i < meshLogoHollow.getNumNormals(); i++) {
@@ -33,11 +33,11 @@ void materialPBRAdvanced::setup() {
 	matLogo.setPBR(true);
 	matFloor.setPBR(true);
 
-	// try commenting this out to see the effect that cube maps have on lighting
-	// https://polyhaven.com/a/kloppenheim_06_puresky
-	cubeMap.load("/ubemaps/kloppenheim_06_puresky_1k.exr", 512);
+	//// try commenting this out to see the effect that cube maps have on lighting
+	//// https://polyhaven.com/a/kloppenheim_06_puresky
+	//cubeMap.load("ubemaps//kloppenheim_06_puresky_1k.exr", 512);
 
-	string path = "/shaders_custom/images_plywood/";
+	string path = "shaders_custom//images_plywood//";
 	matPlywood.setPBR(true);
 	matPlywood.loadTexture(OF_MATERIAL_TEXTURE_DIFFUSE, path + "plywood_diff_2k.jpg");
 	matPlywood.loadTexture(OF_MATERIAL_TEXTURE_NORMAL, path + "plywood_nor_gl_2k.png");
@@ -60,57 +60,66 @@ void materialPBRAdvanced::setup() {
 
 //--------------------------------------------------------------
 void materialPBRAdvanced::draw() {
-	ofEnableDepthTest();
+	renderScene(true);
 
-	if (light.shouldRenderShadowDepthPass()) {
-		int numShadowPasses = light.getNumShadowDepthPasses();
-		for (int j = 0; j < numShadowPasses; j++) {
-			light.beginShadowDepthPass(j);
-			renderScene(true);
-			light.endShadowDepthPass(j);
-		}
-	}
+	//	ofEnableDepthTest();
+	//
+	//	if (light.shouldRenderShadowDepthPass()) {
+	//		int numShadowPasses = light.getNumShadowDepthPasses();
+	//		for (int j = 0; j < numShadowPasses; j++) {
+	//			light.beginShadowDepthPass(j);
+	//			renderScene(true);
+	//			light.endShadowDepthPass(j);
+	//		}
+	//	}
+	//
+	//	camera.begin();
+	//	{
+	//
+	//		renderScene(false);
+	//
+	//		if (cubeMap.hasPrefilteredMap()) {
+	//			cubeMap.drawPrefilteredCube(0.2f);
+	//		}
+	//
+	//		if (bDebug) {
+	//			light.draw();
+	//
+	//			if (light.getIsEnabled() && light.getShadow().getIsEnabled()) {
+	//				light.getShadow().drawFrustum();
+	//			}
+	//		}
+	//	}
+	//	camera.end();
+	//
+	//	ofDisableDepthTest();
+	//
+	//	ofSetColor(255);
+	//	ofEnableAlphaBlending();
+	//#ifdef USE_LIGHT
+	//	for (auto & lp : lights) {
+	//		lp->gui.draw();
+	//	}
+	//#endif
+}
 
-	camera.begin();
-	{
-
-		renderScene(false);
-
-		if (cubeMap.hasPrefilteredMap()) {
-			cubeMap.drawPrefilteredCube(0.2f);
-		}
-
-		if (bDebug) {
-			light.draw();
-
-			if (light.getIsEnabled() && light.getShadow().getIsEnabled()) {
-				light.getShadow().drawFrustum();
-			}
-		}
-	}
-	camera.end();
-
-	ofDisableDepthTest();
-
-	ofSetColor(255);
-	ofEnableAlphaBlending();
-#ifdef USE_LIGHT
-	for (auto & lp : lights) {
-		lp->gui.draw();
-	}
-#endif
+//--------------------------------------------------------------
+void materialPBRAdvanced::drawGui() {
 
 	stringstream ss;
+	ss << "materialPBRAdvanced" << endl;
 	ss << "Reload shader(r): make changes to shader in data/shaders/main.frag and then press 'r' to see changes.";
 	ss << endl
 	   << "Wiggle verts(w): " << (bWiggleVerts ? "yes" : "no");
 	ss << endl
 	   << "Frame rate: " << ofGetFrameRate();
-	ofDrawBitmapStringHighlight(ss.str(), 40, 40);
+	ofDrawBitmapStringHighlight(ss.str(), 15, ofGetHeight() - 150);
 }
 
 //--------------------------------------------------------------
 void materialPBRAdvanced::renderScene(bool bShadowPass) {
+	//ofPushMatrix();
+	//ofScale(0.5);
 
 	matFloor.setMetallic(0.0);
 	matFloor.setReflectance(0.01);
@@ -157,11 +166,13 @@ void materialPBRAdvanced::renderScene(bool bShadowPass) {
 	meshPlySphere.draw();
 	ofPopMatrix();
 	matSphere.end();
+
+	//ofPopMatrix();
 }
 
 //--------------------------------------------------------------
 bool materialPBRAdvanced::reloadShader() {
-	string path = "shaders_custom\shaders_materialPBRAdvanced\"";
+	string path = "shaders_custom//shaders_materialPBRAdvanced//";
 
 	// load the shader main functions //
 	string vname = path + "main.vert";

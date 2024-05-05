@@ -71,22 +71,19 @@ void vboMeshDrawInstanced::update() {
 
 		isShaderDirty = false;
 	}
-
-	ofSetWindowTitle(ofToString(ofGetFrameRate(), 2));
 }
 
 //--------------------------------------------------------------
 void vboMeshDrawInstanced::draw() {
+	update();
 
-	ofEnableDepthTest();
-	// we don't care about alpha blending in this example, and by default alpha blending is on in openFrameworks > 0.8.0
-	// so we de-activate it for now.
-	ofDisableAlphaBlending();
+	//ofEnableDepthTest();
+	//// we don't care about alpha blending in this example, and by default alpha blending is on in openFrameworks > 0.8.0
+	//// so we de-activate it for now.
+	//ofDisableAlphaBlending();
 
-	ofBackgroundGradient(ofColor(18, 33, 54), ofColor(18, 22, 28));
-
+	ofPushStyle();
 	ofSetColor(ofColor::white);
-	mCamMain.begin();
 
 	// bind the shader
 	mShdInstanced->begin();
@@ -104,14 +101,21 @@ void vboMeshDrawInstanced::draw() {
 	glDisable(GL_CULL_FACE);
 	mShdInstanced->end();
 
-	mCamMain.end();
+	ofPopStyle();
+}
 
-	ofDisableDepthTest();
+//--------------------------------------------------------------
+void vboMeshDrawInstanced::drawGui() {
+
+	//ofDisableDepthTest();
 
 	ofSetColor(ofColor::white);
-	ofDrawBitmapString("Use mouse to move camera.\nPress 'f' to toggle fullscreen;\nSPACEBAR to reload shader.", 10, 20);
+	stringstream ss;
+	ss << "vboMeshDrawInstanced" << endl;
+	ss << "Use mouse to move camera.\nPress 'f' to toggle fullscreen;\nSPACEBAR to reload shader.";
+	ofDrawBitmapStringHighlight(ss.str(), 15, ofGetHeight() - 240);
 
-	ofEnableAlphaBlending();
+	//ofEnableAlphaBlending();
 }
 
 //--------------------------------------------------------------
@@ -121,9 +125,6 @@ void vboMeshDrawInstanced::keyReleased(int key) {
 	case ' ':
 		isShaderDirty = true;
 		// mark the shader as dirty - this will reload the shader.
-		break;
-	case 'f':
-		ofToggleFullscreen();
 		break;
 	default:
 		break;
