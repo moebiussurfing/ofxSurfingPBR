@@ -650,3 +650,8 @@ MigrationBackup/
 1_Example_Basic/of.entitlements
 1_Example_Basic/bin/data/.gitkeep
 data_Full.zip
+9_Example_ShaderCustom/bin/data/assets/fonts/NotoSansMono-Regular.ttf
+9_Example_ShaderCustom/bin/data/images/depth_image.png
+9_Example_ShaderCustom/bin/data/shaders_custom/images_plywood/plywood_arm_2k.jpg
+9_Example_ShaderCustom/bin/data/shaders_custom/images_plywood/plywood_diff_2k.jpg
+9_Example_ShaderCustom/bin/data/shaders_custom/images_plywood/plywood_nor_gl_2k.png
