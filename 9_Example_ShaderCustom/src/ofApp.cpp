@@ -4,11 +4,11 @@
 void ofApp::setup() {
 
 	// Customization of the app window.
-#if 1
-	ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
 
 	// App window
 	ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
+#if 0
+	ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
 	// Auto customizes settings to 60fps and vSync off.
 	//ofxSurfing::setWindowAtMonitor(1); // Move to right display and set landscape.
 	ofxSurfing::setWindowAtTV(1);
@@ -94,9 +94,9 @@ void ofApp::drawScene() {
 	///* Put your scene drawing here! */
 	//ofDrawSphere(50);
 
-	//// We can easy draw an internal
-	//// testing scene with three prims:
-	//pbr.drawTestScene();
+	// We can easy draw an internal
+	// testing scene with three prims:
+	pbr.drawTestScene();
 
 	//--
 

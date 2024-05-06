@@ -13,13 +13,18 @@
 
 //--------------------------------------------------------------
 void vboMeshDrawInstanced::setup() {
+	isShaderDirty.set("isShaderDirty", false);
+	parameters.setName("vboMeshDrawInstanced");
+	parameters.add(isShaderDirty);
+	gui.setup(parameters);
+	gui.setPosition(10, ofGetHeight() * .75);
 
 	// initialize variables:
 
 	isShaderDirty = true; // this flag will tell us whether to reload our shader from disk.
-		// this allows you to change your shaders without having to restart
-		// your app. we'll set it up so that pressing the SPACE key on your
-		// keyboard will reload the shader.
+	// this allows you to change your shaders without having to restart
+	// your app. we'll set it up so that pressing the SPACE key on your
+	// keyboard will reload the shader.
 
 	// generate a box vboMesh from a primitive.
 
@@ -39,7 +44,7 @@ void vboMeshDrawInstanced::setup() {
 	ofLoadImage(mTexDepth, "images/depth_image.png");
 	ofEnableArbTex();
 
-	mCamMain.setupPerspective(false, 60, 0, 10000);
+	//mCamMain.setupPerspective(false, 60, 0, 10000);
 }
 
 //--------------------------------------------------------------
@@ -107,15 +112,18 @@ void vboMeshDrawInstanced::draw() {
 //--------------------------------------------------------------
 void vboMeshDrawInstanced::drawGui() {
 
-	//ofDisableDepthTest();
+	int x = gui.getShape().getBottomLeft().x + 5;
+	int y = gui.getShape().getBottomLeft().y + 15;
 
 	ofSetColor(ofColor::white);
 	stringstream ss;
 	ss << "vboMeshDrawInstanced" << endl;
 	ss << "Use mouse to move camera.\nPress 'f' to toggle fullscreen;\nSPACEBAR to reload shader.";
-	ofDrawBitmapStringHighlight(ss.str(), 15, ofGetHeight() - 240);
+	ofDrawBitmapStringHighlight(ss.str(), x, y);
 
 	//ofEnableAlphaBlending();
+
+	gui.draw();
 }
 
 //--------------------------------------------------------------

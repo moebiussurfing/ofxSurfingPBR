@@ -9,18 +9,21 @@
 
 
 #include "ofMain.h"
+#include "ofxGui.h"
 
 class vboMeshDrawInstanced {
 	
-	ofVboMesh	mVboBox;
+	ofVboMesh mVboBox;
 	
-	ofEasyCam	mCamMain;
+	//ofEasyCam	mCamMain;
 
-	shared_ptr<ofShader>	mShdInstanced;
-	ofTexture	mTexDepth;
+	shared_ptr<ofShader> mShdInstanced;
+	ofTexture mTexDepth;
 	
-	bool isShaderDirty;
-	
+	ofParameter<bool> isShaderDirty;
+	ofParameterGroup parameters;
+	ofxPanel gui;
+
 public:
 	void setup();
 	void update();
