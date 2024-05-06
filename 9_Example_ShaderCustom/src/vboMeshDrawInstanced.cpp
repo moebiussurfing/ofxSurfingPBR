@@ -17,7 +17,7 @@ void vboMeshDrawInstanced::setup() {
 	parameters.setName("vboMeshDrawInstanced");
 	parameters.add(isShaderDirty);
 	gui.setup(parameters);
-	gui.setPosition(10, ofGetHeight() * .75);
+	gui.setPosition(ofGetWidth()-300, ofGetHeight() - 200);
 
 	// initialize variables:
 

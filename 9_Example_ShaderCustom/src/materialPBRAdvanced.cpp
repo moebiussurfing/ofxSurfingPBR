@@ -51,7 +51,7 @@ void materialPBRAdvanced::setup() {
 
 //--------------------------------------------------------------
 void materialPBRAdvanced::draw() {
-	renderScene(true);
+	renderScene(true); // -> with shadow
 
 	//	ofEnableDepthTest();
 	//
