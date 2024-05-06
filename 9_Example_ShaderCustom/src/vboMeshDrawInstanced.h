@@ -14,8 +14,6 @@
 class vboMeshDrawInstanced {
 	
 	ofVboMesh mVboBox;
-	
-	//ofEasyCam	mCamMain;
 
 	shared_ptr<ofShader> mShdInstanced;
 	ofTexture mTexDepth;

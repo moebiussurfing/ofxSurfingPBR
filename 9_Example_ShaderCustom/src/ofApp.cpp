@@ -6,7 +6,7 @@ void ofApp::setup() {
 	// Customization of the app window.
 
 	// App window
-	ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
+	//ofxSurfing::setWindowTitleAsProjectName(); // Name the window app.
 #if 0
 	ofxSurfing::setOfxGuiTheme(); // Customize ofxGui theme.
 	// Auto customizes settings to 60fps and vSync off.
@@ -40,6 +40,8 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+	ofxSurfing::setWindowTitleAsProjectNameWithFPS(); // Name the window app.
+
 	pbr.draw();
 
 	// We can access the internal camera pointer if required:

@@ -102,9 +102,7 @@ void materialPBRAdvanced::drawGui() {
 	ss << "Reload shader(r): make changes to shader \nin data/shaders/main.frag and \nthen press 'r' to see changes.";
 	ss << endl
 	   << "Wiggle verts(w): " << (bWiggleVerts ? "yes" : "no");
-	ss << endl
-	   << "Frame rate: " << ofGetFrameRate();
-
+	
 	int x = gui.getShape().getBottomLeft().x + 5;
 	int y = gui.getShape().getBottomLeft().y + 15;
 

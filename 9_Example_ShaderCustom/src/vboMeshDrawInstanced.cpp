@@ -19,6 +19,8 @@ void vboMeshDrawInstanced::setup() {
 	gui.setup(parameters);
 	gui.setPosition(ofGetWidth()-300, ofGetHeight() - 200);
 
+	//--
+
 	// initialize variables:
 
 	isShaderDirty = true; // this flag will tell us whether to reload our shader from disk.
@@ -41,10 +43,8 @@ void vboMeshDrawInstanced::setup() {
 	// this makes things slightly easier in the shader.
 
 	// load the depth image into our texture
-	ofLoadImage(mTexDepth, "images/depth_image.png");
+	ofLoadImage(mTexDepth, "shaders_custom/images/depth_image.png");
 	ofEnableArbTex();
-
-	//mCamMain.setupPerspective(false, 60, 0, 10000);
 }
 
 //--------------------------------------------------------------
@@ -71,7 +71,7 @@ void vboMeshDrawInstanced::update() {
 #endif
 		GLint err = glGetError();
 		if (err != GL_NO_ERROR) {
-			ofLogNotice() << "Load Shader came back with GL error:	" << err;
+			ofLogError() << "Load Shader came back with GL error:	" << err;
 		}
 
 		isShaderDirty = false;
@@ -82,10 +82,10 @@ void vboMeshDrawInstanced::update() {
 void vboMeshDrawInstanced::draw() {
 	update();
 
-	//ofEnableDepthTest();
-	//// we don't care about alpha blending in this example, and by default alpha blending is on in openFrameworks > 0.8.0
-	//// so we de-activate it for now.
-	//ofDisableAlphaBlending();
+	ofEnableDepthTest();
+	// we don't care about alpha blending in this example, and by default alpha blending is on in openFrameworks > 0.8.0
+	// so we de-activate it for now.
+	ofDisableAlphaBlending();
 
 	ofPushStyle();
 	ofSetColor(ofColor::white);
@@ -107,6 +107,8 @@ void vboMeshDrawInstanced::draw() {
 	mShdInstanced->end();
 
 	ofPopStyle();
+
+	ofEnableAlphaBlending();
 }
 
 //--------------------------------------------------------------
@@ -120,8 +122,6 @@ void vboMeshDrawInstanced::drawGui() {
 	ss << "vboMeshDrawInstanced" << endl;
 	ss << "Use mouse to move camera.\nPress 'f' to toggle fullscreen;\nSPACEBAR to reload shader.";
 	ofDrawBitmapStringHighlight(ss.str(), x, y);
-
-	//ofEnableAlphaBlending();
 
 	gui.draw();
 }
