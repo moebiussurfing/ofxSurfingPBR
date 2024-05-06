@@ -1,13 +1,25 @@
 #include "materialPBRAdvanced.h"
 
 //--------------------------------------------------------------
+materialPBRAdvanced::materialPBRAdvanced() {
+}
+
+//--------------------------------------------------------------
+materialPBRAdvanced::~materialPBRAdvanced() {
+	ofxSurfing::saveGroup(parameters);
+}
+
+//--------------------------------------------------------------
 void materialPBRAdvanced::setup() {
 
+	bDraw.set("bDraw", true);
 	bDebug.set("debug", false);
 	bWiggleVerts.set("bWiggleVerts", false);
 	parameters.setName("materialPBRAdvanced");
+	parameters.add(bDraw);
 	parameters.add(bDebug);
 	parameters.add(bWiggleVerts);
+	ofxSurfing::loadGroup(parameters);
 	gui.setup(parameters);
 	gui.setPosition(10, ofGetHeight() - 200);
 
@@ -51,7 +63,14 @@ void materialPBRAdvanced::setup() {
 
 //--------------------------------------------------------------
 void materialPBRAdvanced::draw() {
+	if (!bDraw) return;
+	
+	//ofEnableAlphaBlending();
+	//ofEnableDepthTest();
+
 	renderScene(true); // -> with shadow
+
+	//--
 
 	//	ofEnableDepthTest();
 	//
@@ -104,7 +123,7 @@ void materialPBRAdvanced::drawGui() {
 	   << "Wiggle verts(w): " << (bWiggleVerts ? "yes" : "no");
 	
 	int x = gui.getShape().getBottomLeft().x + 5;
-	int y = gui.getShape().getBottomLeft().y + 15;
+	int y = gui.getShape().getBottomLeft().y + 20;
 
 	ofDrawBitmapStringHighlight(ss.str(), x, y);
 

@@ -9,7 +9,9 @@
 
 
 #include "ofMain.h"
+
 #include "ofxGui.h"
+#include "ofxSurfingHelpersLite.h"
 
 class vboMeshDrawInstanced {
 	
@@ -18,11 +20,17 @@ class vboMeshDrawInstanced {
 	shared_ptr<ofShader> mShdInstanced;
 	ofTexture mTexDepth;
 	
+	ofParameter<bool> bDraw;
 	ofParameter<bool> isShaderDirty;
+	ofParameter<glm::vec3> position;
+	ofParameter<glm::vec3> rotation;
 	ofParameterGroup parameters;
 	ofxPanel gui;
 
 public:
+	vboMeshDrawInstanced();
+	~vboMeshDrawInstanced();
+
 	void setup();
 	void update();
 	void draw();

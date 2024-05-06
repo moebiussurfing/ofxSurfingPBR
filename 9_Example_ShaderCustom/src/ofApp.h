@@ -13,7 +13,7 @@ TODO: add a basic custom shader.
 */
 
 #define SURFING_ENABLE_MATERIAL 1
-#define SURFING_ENABLE_MESH 0
+#define SURFING_ENABLE_MESH 1
 
 #pragma once
 

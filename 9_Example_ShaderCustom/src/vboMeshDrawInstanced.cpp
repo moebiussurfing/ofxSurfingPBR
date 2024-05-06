@@ -12,12 +12,29 @@
  */
 
 //--------------------------------------------------------------
+vboMeshDrawInstanced::vboMeshDrawInstanced() {
+}
+
+//--------------------------------------------------------------
+vboMeshDrawInstanced::~vboMeshDrawInstanced() {
+	ofxSurfing::saveGroup(parameters);
+}
+
+//--------------------------------------------------------------
 void vboMeshDrawInstanced::setup() {
+	bDraw.set("bDraw", true);
 	isShaderDirty.set("isShaderDirty", false);
+	float sz = 1000;
+	position.set("position", glm::vec3(0, 0, 0), glm::vec3(-sz, -sz, -sz), glm::vec3(sz, sz, sz));
+	rotation.set("rotation", glm::vec3(0, 0, 0), glm::vec3(-180, -180, -180), glm::vec3(180, 180, 180));
 	parameters.setName("vboMeshDrawInstanced");
+	parameters.add(bDraw);
+	parameters.add(position);
+	parameters.add(rotation);
 	parameters.add(isShaderDirty);
+	ofxSurfing::loadGroup(parameters);
 	gui.setup(parameters);
-	gui.setPosition(ofGetWidth()-300, ofGetHeight() - 200);
+	gui.setPosition(ofGetWidth() - 300, ofGetHeight() - 300);
 
 	//--
 
@@ -80,42 +97,61 @@ void vboMeshDrawInstanced::update() {
 
 //--------------------------------------------------------------
 void vboMeshDrawInstanced::draw() {
+	if (!bDraw) return;
+
 	update();
 
-	ofEnableDepthTest();
-	// we don't care about alpha blending in this example, and by default alpha blending is on in openFrameworks > 0.8.0
-	// so we de-activate it for now.
-	ofDisableAlphaBlending();
+	//--
 
-	ofPushStyle();
-	ofSetColor(ofColor::white);
+	ofPushMatrix();
+	{
+		ofTranslate(position);
+		ofRotateDeg(rotation.get().x, 1, 0, 0);
+		ofRotateDeg(rotation.get().y, 0, 1, 0);
+		ofRotateDeg(rotation.get().z, 0, 0, 1);
 
-	// bind the shader
-	mShdInstanced->begin();
-	// give the shader access to our texture
-	mShdInstanced->setUniformTexture("tex0", mTexDepth, 0);
-	// feed the shader a normalized float value that changes over time, to animate things a little
-	mShdInstanced->setUniform1f("timeValue", (ofGetElapsedTimeMillis() % 30000) / 30000.0f);
-	// we only want to see triangles facing the camera.
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+		//--
 
-	// let's draw 128 * 128 == 16384 boxes !
-	mVboBox.drawInstanced(OF_MESH_FILL, 128 * 128);
+		//ofEnableDepthTest();
+		//// we don't care about alpha blending in this example, and by default alpha blending is on in openFrameworks > 0.8.0
+		//// so we de-activate it for now.
+		//ofDisableAlphaBlending();
 
-	glDisable(GL_CULL_FACE);
-	mShdInstanced->end();
+		//--
 
-	ofPopStyle();
+		ofPushStyle();
+		ofSetColor(ofColor::white);
 
-	ofEnableAlphaBlending();
+		// bind the shader
+		mShdInstanced->begin();
+		// give the shader access to our texture
+		mShdInstanced->setUniformTexture("tex0", mTexDepth, 0);
+		// feed the shader a normalized float value that changes over time, to animate things a little
+		mShdInstanced->setUniform1f("timeValue", (ofGetElapsedTimeMillis() % 30000) / 30000.0f);
+		// we only want to see triangles facing the camera.
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+
+		// let's draw 128 * 128 == 16384 boxes !
+		mVboBox.drawInstanced(OF_MESH_FILL, 128 * 128);
+
+		glDisable(GL_CULL_FACE);
+		mShdInstanced->end();
+
+		ofPopStyle();
+
+		//--
+
+		//ofEnableAlphaBlending();
+	}
+	ofPopMatrix();
 }
 
 //--------------------------------------------------------------
 void vboMeshDrawInstanced::drawGui() {
 
 	int x = gui.getShape().getBottomLeft().x + 5;
-	int y = gui.getShape().getBottomLeft().y + 15;
+	int y = gui.getShape().getBottomLeft().y + 20;
 
 	ofSetColor(ofColor::white);
 	stringstream ss;

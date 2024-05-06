@@ -1,11 +1,16 @@
 #pragma once
 
 #include "ofMain.h"
+
 #include "ofxGui.h"
+#include "ofxSurfingHelpersLite.h"
 
 class materialPBRAdvanced {
 
 public:
+	materialPBRAdvanced();
+	~materialPBRAdvanced();
+
 	void setup();
 	void draw();
 	void drawGui();
@@ -26,6 +31,7 @@ public:
 
 	ofShader mDepthShader;
 
+	ofParameter<bool> bDraw;
 	ofParameter<bool> bDebug;
 	ofParameter<bool> bWiggleVerts;
 
