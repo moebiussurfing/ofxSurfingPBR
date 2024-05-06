@@ -13,11 +13,11 @@ materialPBRAdvanced::~materialPBRAdvanced() {
 void materialPBRAdvanced::setup() {
 
 	bDraw.set("bDraw", true);
-	bDebug.set("debug", false);
+	//bDebug.set("debug", false);
 	bWiggleVerts.set("bWiggleVerts", false);
 	parameters.setName("materialPBRAdvanced");
 	parameters.add(bDraw);
-	parameters.add(bDebug);
+	//parameters.add(bDebug);
 	parameters.add(bWiggleVerts);
 	ofxSurfing::loadGroup(parameters);
 	gui.setup(parameters);
@@ -64,11 +64,15 @@ void materialPBRAdvanced::setup() {
 //--------------------------------------------------------------
 void materialPBRAdvanced::draw() {
 	if (!bDraw) return;
-	
-	//ofEnableAlphaBlending();
-	//ofEnableDepthTest();
 
+		//ofEnableAlphaBlending();
+		//ofEnableDepthTest();
+
+#if 1
 	renderScene(true); // -> with shadow
+#else
+	renderScene(false); // -> without shadow
+#endif
 
 	//--
 
@@ -121,7 +125,7 @@ void materialPBRAdvanced::drawGui() {
 	ss << "Reload shader(r): make changes to shader \nin data/shaders/main.frag and \nthen press 'r' to see changes.";
 	ss << endl
 	   << "Wiggle verts(w): " << (bWiggleVerts ? "yes" : "no");
-	
+
 	int x = gui.getShape().getBottomLeft().x + 5;
 	int y = gui.getShape().getBottomLeft().y + 20;
 
@@ -157,7 +161,7 @@ void materialPBRAdvanced::renderScene(bool bShadowPass) {
 	ofPopMatrix();
 	matPlywood.end();
 
-	// logo
+	// OF logo
 	if (!matLogo.hasDepthShader() && bShadowPass && bWiggleVerts) {
 		mDepthShader.begin();
 		mDepthShader.setUniform1f("iElapsedTime", ofGetElapsedTimef());
@@ -218,9 +222,6 @@ void materialPBRAdvanced::keyPressed(int key) {
 	if (key == 'r') {
 		reloadShader();
 	}
-	if (key == 'd') {
-		bDebug = !bDebug;
-	}
 	if (key == 'w') {
 		bWiggleVerts = !bWiggleVerts;
 	}
@@ -230,4 +231,7 @@ void materialPBRAdvanced::keyPressed(int key) {
 		matPlywood.removeTexture(OF_MATERIAL_TEXTURE_NORMAL);
 		matPlywood.removeTexture(OF_MATERIAL_TEXTURE_AO_ROUGHNESS_METALLIC);
 	}
+	//if (key == 'd') {
+	//	bDebug = !bDebug;
+	//}
 }

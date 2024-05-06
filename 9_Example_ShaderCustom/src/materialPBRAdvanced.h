@@ -32,7 +32,7 @@ public:
 	ofShader mDepthShader;
 
 	ofParameter<bool> bDraw;
-	ofParameter<bool> bDebug;
+	//ofParameter<bool> bDebug;
 	ofParameter<bool> bWiggleVerts;
 
 	ofParameterGroup parameters;
