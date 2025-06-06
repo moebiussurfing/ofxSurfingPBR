@@ -160,11 +160,11 @@ void ofApp::renderScene()
 
 ## REQUERIMENTS 
 - Download and copy the content of `data.zip` to the examples or to your projects into `/bin/data`:  
-  * Data for any or new projects: [bin/data.zip](https://mega.nz/file/cHkylJZY#sVdQpSF8IkvdmKdpMIbA4767kvBvfGL7R7GnU9g20ow)  
-  * Data for `2_Example_Models`: [bin/data.zip](https://mega.nz/file/lOMzkJIC#tLaM9MTKA6J83nf0DoxKtoET3uevG-Y6z4_eLfIiIPQ)  
-  * Data for `6_Example_3D_Parts`: [bin/data.zip](https://mega.nz/file/VPMBEBTJ#Cgi-u72GdJOMel7xCli2-SmU7aU0b0TtOijyuXIDKdc)  
-  * Only shaders: [bin/dataShaders.zip](https://mega.nz/file/gLMwXY6S#HjIfsu80ZIpPccaFbJKowE3qeoRZeK8jnfSrhUEeGQE)
-  * Folder with all the files: [@ MEGA](https://mega.nz/folder/RXtC1Qqa#2PfwJf-jIWciE1ZWWu4qfw).
+  * Data for any or new projects: [bin/data.zip](https://mega.nz/file/pa0xGarZ#GqUDFxvSn8SZQmDfPFDDhyEHBRYLzMzVkEpq7y4-tPU)  
+  * Data for `2_Example_Models`: [bin/data.zip](https://mega.nz/file/VfEBDbrR#QA9O0R5yaNkEh8Zf00ffq2OTgmAGVOR6LXB875IyScc)  
+  * Data for `6_Example_3D_Parts`: [bin/data.zip](https://mega.nz/file/hHVzWBCL#XFFSxCm_nLtqQ-nqskIhzn4KxeUUVUljOb-UtGOiekA)  
+  * Only shaders: [bin/dataShaders.zip](https://mega.nz/file/0H8gCaII#dOVPZNUMnk891w61zVlmu5zgb9xSLSN5FIY7jDASAoQ)
+  * Folder with all the files: [@ MEGA](https://mega.nz/folder/tLkR0TqL#KdJ4l0O6v2w6qaT_dLz2IA).
 - Notice that all the examples should work without the data files too.
 
 /bin/  
