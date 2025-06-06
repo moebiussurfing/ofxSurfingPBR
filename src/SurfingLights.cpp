@@ -62,7 +62,7 @@ void SurfingLights::setupLights() {
 
 		//light->getShadow().setStrength(SURFING__PBR__SHADOW_DEFAULT_STRENGTH);
 
-		light->getShadow().setGlCullingEnabled(false);
+		light->getShadow().setCullingEnabled(false);
 
 		lights.push_back(light);
 	}
@@ -79,7 +79,7 @@ void SurfingLights::setupLights() {
 
 		//light->getShadow().setStrength(SURFING__PBR__SHADOW_DEFAULT_STRENGTH);
 
-		light->getShadow().setGlCullingEnabled(false);
+		light->getShadow().setCullingEnabled(false);
 
 		lights.push_back(light);
 	}
@@ -96,7 +96,7 @@ void SurfingLights::setupLights() {
 
 		//light->getShadow().setStrength(SURFING__PBR__SHADOW_DEFAULT_STRENGTH);
 
-		light->getShadow().setGlCullingEnabled(false);
+		light->getShadow().setCullingEnabled(false);
 
 		lights.push_back(light);
 	}
@@ -113,7 +113,7 @@ void SurfingLights::setupLights() {
 
 		//light->getShadow().setStrength(SURFING__PBR__SHADOW_DEFAULT_STRENGTH);
 
-		light->getShadow().setGlCullingEnabled(false);
+		light->getShadow().setCullingEnabled(false);
 
 		lights.push_back(light);
 	}

@@ -1417,7 +1417,7 @@ bool ofxSurfingPBR::getSettingsFileFoundForCamera() {
 #ifdef SURFING__PBR__USE_CUBE_MAP
 //--------------------------------------------------------------
 bool ofxSurfingPBR::loadCubeMap(string path) {
-	ofCubeMap::ofCubeMapSettings csettings;
+	ofCubeMapSettings csettings;
 
 	// It will uses the passed path only if it's not empty or "NONE"!
 	// If not, it will use the default hardcoded path!
